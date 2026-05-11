@@ -49,10 +49,12 @@ export class CliClaudeAdapter implements ClaudeAdapter {
   async healthProbe(): Promise<HealthProbeResult> {
     const compatibility = readCompatibility(this.config.claude.compatibilityFile);
     const testedVersions = compatibility.testedClaudeVersions;
+    let detectedVersion: string | undefined;
+    let unknownVersion = false;
 
     try {
-      const detectedVersion = await this.getVersion();
-      const unknownVersion = !isKnownVersion(detectedVersion, testedVersions);
+      detectedVersion = await this.getVersion();
+      unknownVersion = !isKnownVersion(detectedVersion, testedVersions);
       await this.runPrompt("ping");
       const fixtureId = this.readFixtureSessionId();
       if (fixtureId) {
@@ -70,8 +72,9 @@ export class CliClaudeAdapter implements ClaudeAdapter {
       return {
         ok: false,
         degraded: true,
+        detectedVersion,
         testedVersions,
-        unknownVersion: false,
+        unknownVersion,
         error: error instanceof Error ? error.message : String(error)
       };
     }

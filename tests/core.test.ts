@@ -142,6 +142,27 @@ SESSION_UPDATE_JSON:
     expect(parsed?.update.aliases).toEqual(["social login"]);
   });
 
+  it("parses fenced SESSION_UPDATE_JSON blocks from live Claude output", () => {
+    const parsed = parseSessionUpdate(`Answer text.
+
+SESSION_UPDATE_JSON:
+\`\`\`json
+{
+  "summary": "Fenced JSON should still update compact metadata.",
+  "decisions": ["Accept fenced live JSON"],
+  "open_questions": [],
+  "files_discussed": ["src/auth/live-e2e.ts"],
+  "tags": ["Auth"],
+  "aliases": ["Live Auth Routing"]
+}
+\`\`\``);
+
+    expect(parsed?.answer).toBe("Answer text.");
+    expect(parsed?.update.summary).toBe("Fenced JSON should still update compact metadata.");
+    expect(parsed?.update.files_discussed).toEqual(["src/auth/live-e2e.ts"]);
+    expect(parsed?.update.aliases).toEqual(["live auth routing"]);
+  });
+
   it("serializes memory locks per key", async () => {
     const locks = new MemoryLockProvider();
     const order: string[] = [];

@@ -3,7 +3,7 @@ import path from "node:path";
 import { ERROR_CODES } from "./constants.js";
 import { isoHoursAgo, isoMinutesAgo } from "./clock.js";
 import type { SessionInspectView, SessionRecord, SessionUpdateData } from "./db.js";
-import { errorPayload, SPEC_ERROR_MESSAGES, type ErrorPayload } from "./errors.js";
+import { diagnoseClaudeFailure, errorPayload, SPEC_ERROR_MESSAGES, type ErrorPayload } from "./errors.js";
 import { createInternalSessionId } from "./ids.js";
 import { type LockProvider } from "./locks.js";
 import { findBestSessionMatch, normalizeTopicKey } from "./matching.js";
@@ -48,9 +48,13 @@ export class ConsultService {
 
   async consult(input: ClaudeConsultInput): Promise<ConsultResult> {
     if (this.runtime.degradedMode) {
+      const diagnosis = diagnoseClaudeFailure(this.runtime.degradedReason);
       return errorPayload(ERROR_CODES.CLAUDE_INCOMPATIBLE, SPEC_ERROR_MESSAGES[ERROR_CODES.CLAUDE_INCOMPATIBLE], {
         detected_version: this.runtime.detectedClaudeVersion,
-        tested_versions: this.runtime.testedClaudeVersions
+        tested_versions: this.runtime.testedClaudeVersions,
+        reason: diagnosis.reason,
+        category: diagnosis.category,
+        operator_action: diagnosis.operator_action
       });
     }
 
@@ -201,7 +205,12 @@ export class ConsultService {
         question: input.question,
         error: message
       });
-      return errorPayload(ERROR_CODES.CLAUDE_INVOCATION_FAILED, SPEC_ERROR_MESSAGES[ERROR_CODES.CLAUDE_INVOCATION_FAILED]);
+      const diagnosis = diagnoseClaudeFailure(message);
+      return errorPayload(ERROR_CODES.CLAUDE_INVOCATION_FAILED, SPEC_ERROR_MESSAGES[ERROR_CODES.CLAUDE_INVOCATION_FAILED], {
+        reason: diagnosis.reason,
+        category: diagnosis.category,
+        operator_action: diagnosis.operator_action
+      });
     }
   }
 

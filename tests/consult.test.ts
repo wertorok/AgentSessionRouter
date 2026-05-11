@@ -151,6 +151,7 @@ describe("claude_consult service", () => {
   it("returns incompatible when runtime is degraded", async () => {
     const fixture = createRuntimeFixture();
     fixture.runtime.degradedMode = true;
+    fixture.runtime.degradedReason = "Claude CLI returned error result: Not logged in · Please run /login";
     const service = new ConsultService(fixture.runtime, fixture.runtime.locks);
 
     const result = await service.consult(baseInput());
@@ -160,6 +161,8 @@ describe("claude_consult service", () => {
       throw new Error("expected error");
     }
     expect(result.error.code).toBe(ERROR_CODES.CLAUDE_INCOMPATIBLE);
+    expect(result.error.category).toBe("claude_auth");
+    expect(result.error.operator_action).toContain("claude auth status");
     fixture.cleanup();
   });
 });

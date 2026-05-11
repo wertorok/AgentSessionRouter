@@ -24,6 +24,7 @@ export class RouterRuntime {
   degradedMode = false;
   detectedClaudeVersion: string | undefined;
   testedClaudeVersions: string[] = [];
+  degradedReason: string | undefined;
   private maintenanceTimer: NodeJS.Timeout | null = null;
 
   constructor(
@@ -72,6 +73,7 @@ export class RouterRuntime {
 
     if (probe.ok) {
       this.degradedMode = false;
+      this.degradedReason = undefined;
       this.db.logEvent({
         projectId: "router",
         eventType: "health_probe_passed",
@@ -81,6 +83,7 @@ export class RouterRuntime {
     }
 
     this.degradedMode = true;
+    this.degradedReason = probe.error ?? ERROR_CODES.CLAUDE_INCOMPATIBLE;
     this.db.logEvent({
       projectId: "router",
       eventType: "health_probe_failed",

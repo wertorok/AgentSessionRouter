@@ -2,7 +2,7 @@ import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { ERROR_CODES } from "./constants.js";
 import { ConsultService } from "./consult.js";
-import { errorPayload, SPEC_ERROR_MESSAGES } from "./errors.js";
+import { diagnoseClaudeFailure, errorPayload, SPEC_ERROR_MESSAGES } from "./errors.js";
 import { resolveProjectId } from "./project.js";
 import type { RouterRuntime } from "./runtime.js";
 import { jsonToolResult } from "./toolResult.js";
@@ -163,8 +163,15 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
     async (input) => {
       const ok = await runtime.resetRouter(input.reason);
       if (!ok) {
+        const diagnosis = diagnoseClaudeFailure(runtime.degradedReason);
         return jsonToolResult(
-          errorPayload(ERROR_CODES.ROUTER_RESET_REJECTED, SPEC_ERROR_MESSAGES[ERROR_CODES.ROUTER_RESET_REJECTED]),
+          errorPayload(ERROR_CODES.ROUTER_RESET_REJECTED, SPEC_ERROR_MESSAGES[ERROR_CODES.ROUTER_RESET_REJECTED], {
+            detected_version: runtime.detectedClaudeVersion,
+            tested_versions: runtime.testedClaudeVersions,
+            reason: diagnosis.reason,
+            category: diagnosis.category,
+            operator_action: diagnosis.operator_action
+          }),
           true
         );
       }

@@ -14,12 +14,32 @@ export function parseSessionUpdate(response: string): ParsedSessionUpdate | null
   }
 
   const answer = response.slice(0, markerIndex).trim();
-  const jsonText = response.slice(markerIndex + UPDATE_MARKER.length).trim();
+  const jsonText = normalizeUpdateJsonText(response.slice(markerIndex + UPDATE_MARKER.length));
   const parsed: any = JSON.parse(jsonText);
   return {
     answer,
     update: sanitizeSessionUpdate(parsed)
   };
+}
+
+function normalizeUpdateJsonText(rawText: string): string {
+  const trimmed = rawText.trim();
+  if (!trimmed.startsWith("```")) {
+    return trimmed;
+  }
+
+  const firstLineEnd = trimmed.indexOf("\n");
+  if (firstLineEnd < 0) {
+    return trimmed;
+  }
+
+  const withoutFenceStart = trimmed.slice(firstLineEnd + 1).trim();
+  const fenceEnd = withoutFenceStart.lastIndexOf("```");
+  if (fenceEnd < 0) {
+    return withoutFenceStart;
+  }
+
+  return withoutFenceStart.slice(0, fenceEnd).trim();
 }
 
 export function sanitizeSessionUpdate(update: any): SessionUpdateData {
@@ -52,4 +72,3 @@ function sanitizeStringArray(value: unknown, maxItems: number, maxLength: number
 
   return result;
 }
-

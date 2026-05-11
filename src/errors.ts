@@ -8,6 +8,9 @@ export interface ErrorPayload {
     value?: number;
     detected_version?: string;
     tested_versions?: string[];
+    reason?: string;
+    category?: string;
+    operator_action?: string;
   };
 }
 
@@ -32,3 +35,69 @@ export const SPEC_ERROR_MESSAGES = {
   [ERROR_CODES.ROUTER_RESET_REJECTED]:
     "Health probe has not passed since degraded mode was entered. Fix compatibility issues and run reset again."
 } as const;
+
+export interface ClaudeFailureDiagnosis {
+  reason?: string;
+  category: string;
+  operator_action: string;
+}
+
+export function diagnoseClaudeFailure(reason: string | undefined): ClaudeFailureDiagnosis {
+  const normalized = (reason ?? "").toLowerCase();
+
+  if (normalized.includes("credit balance is too low")) {
+    return {
+      reason,
+      category: "claude_account_billing",
+      operator_action:
+        "Add Claude usage credit or switch the Claude CLI to an account with available usage, then verify with `claude -p --output-format json ping`."
+    };
+  }
+
+  if (normalized.includes("not logged in") || normalized.includes("/login")) {
+    return {
+      reason,
+      category: "claude_auth",
+      operator_action:
+        "Log in to Claude CLI with `claude auth login` or complete Claude Code login, then verify with `claude auth status` and `claude -p --output-format json ping`."
+    };
+  }
+
+  if (normalized.includes("sessionend hook") || normalized.includes("hook cancelled")) {
+    return {
+      reason,
+      category: "claude_hook",
+      operator_action:
+        "Fix or disable the failing Claude SessionEnd hook, then verify with `claude -p --output-format json ping`."
+    };
+  }
+
+  if (
+    normalized.includes("enoent") ||
+    normalized.includes("not recognized") ||
+    normalized.includes("definitely-missing-claude-command")
+  ) {
+    return {
+      reason,
+      category: "claude_command_unavailable",
+      operator_action:
+        "Install Claude CLI or set `[claude].command` to the correct executable, then verify with `claude --version`."
+    };
+  }
+
+  if (normalized.includes("json response missing") || normalized.includes("json response was not an object")) {
+    return {
+      reason,
+      category: "claude_output_shape",
+      operator_action:
+        "Run `claude -p --output-format json ping`, compare the output with `src/claude.ts`, and update compatibility only after verifying the CLI output shape."
+    };
+  }
+
+  return {
+    reason,
+    category: "claude_cli_unknown",
+    operator_action:
+      "Run `claude --version`, `claude auth status`, and `claude -p --output-format json ping`; fix the reported Claude CLI issue, then run `claude_router_reset`."
+  };
+}

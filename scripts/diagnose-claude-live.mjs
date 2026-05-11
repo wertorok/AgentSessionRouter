@@ -9,6 +9,7 @@ const outputPath = path.join(repoRoot, "CLAUDE_LIVE_DIAGNOSIS.md");
 
 const cases = [
   { name: "version", command: "claude", args: ["--version"], input: "" },
+  { name: "auth_status", command: "claude", args: ["auth", "status"], input: "" },
   { name: "adapter_ping", command: "claude", args: ["-p", "--output-format", "json", "ping"], input: "" },
   { name: "bare_ping_arg", command: "claude", args: ["--bare", "-p", "--output-format", "json", "ping"], input: "" },
   { name: "bare_ping_stdin", command: "claude", args: ["--bare", "-p", "--output-format", "json"], input: "ping" },
@@ -99,9 +100,25 @@ function analyzeJson(stdout) {
 }
 
 function decideRootCause(runResults) {
-  const adapterFailure = runResults.find((result) => result.name === "adapter_ping");
-  if (adapterFailure?.json.valid && adapterFailure.json.is_error === true) {
-    const result = adapterFailure.json.result ?? "";
+  const adapterResult = runResults.find((result) => result.name === "adapter_ping");
+  if (
+    adapterResult?.exitCode === 0 &&
+    adapterResult.json.valid &&
+    adapterResult.json.is_error === false &&
+    adapterResult.json.session_id &&
+    adapterResult.json.result
+  ) {
+    return {
+      verdict: "CLAUDE_PROBE_PASS",
+      category: "claude_cli_ready",
+      summary:
+        "Claude CLI adapter invocation succeeds with valid JSON, `session_id`, and `result`; bare-mode failures are not relevant because the MCP adapter does not use `--bare`.",
+      operatorAction: "No Claude environment action is required for the MCP adapter path."
+    };
+  }
+
+  if (adapterResult?.json.valid && adapterResult.json.is_error === true) {
+    const result = adapterResult.json.result ?? "";
     if (result.includes("Credit balance is too low")) {
       return {
         verdict: "BLOCKED_BY_CLAUDE_ENV",
@@ -156,6 +173,7 @@ function decideRootCause(runResults) {
 }
 
 function renderReport(runResults, rootCause) {
+  const adapterReady = rootCause.verdict === "CLAUDE_PROBE_PASS";
   return `# Claude Live Diagnosis
 
 ## Environment
@@ -197,9 +215,10 @@ ${markdownTable(
 ## Comparison With src/claude.ts
 
 - src/claude.ts expects Claude JSON to include a session id and answer text (session_id plus result, text, or answer).
-- The installed Claude CLI returns valid JSON with session_id and result, so the output shape is compatible.
-- The real adapter invocation returns is_error: true, so the blocker is external Claude environment/billing/auth rather than a parser-shape bug.
-- Non-bare mode also hits local Claude SessionEnd hook failure, which is external to the MCP implementation.
+- The installed Claude CLI ${adapterReady ? "returns valid adapter-path JSON with session_id and result, so the output shape is compatible." : "did not complete a clean adapter-path JSON response; see root cause above."}
+- ${adapterReady ? "The real adapter invocation returns is_error: false, so live MCP consults can proceed." : "The real adapter invocation is blocked before a successful consult can be created."}
+- Bare-mode results are diagnostic only; src/claude.ts does not use --bare.
+- Local Claude SessionEnd hook stderr is recorded as environment noise; it does not block the adapter path when the command exits 0 with valid JSON.
 
 ## Raw JSON Evidence
 

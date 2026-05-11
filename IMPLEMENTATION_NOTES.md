@@ -59,4 +59,11 @@
 
 - Real Claude CLI output shape was validated with manual commands in `CLAUDE_LIVE_DIAGNOSIS.md`; the installed CLI returns JSON containing `session_id` and `result`, so the parser shape is compatible.
 - Implementation change: `src/claude.ts` now treats Claude JSON `is_error: true` as a Claude invocation failure and surfaces the JSON `result` text in the error path, instead of obscuring it behind a generic process exit.
-- Final live blocker is external environment/billing state: the real adapter invocation returns `Credit balance is too low`; bare mode additionally reports `Not logged in`, which confirms live consult creation needs operator-side Claude account/credit remediation.
+- Initial live blocker was external environment/billing state: the real adapter invocation returned `Credit balance is too low`; this was resolved by operator-side Claude re-login/credit remediation before Phase 11 live validation.
+
+## Phase 11 Live MCP Hardening
+
+- After Claude CLI re-login, the adapter path `claude -p --output-format json ping` passed with valid JSON, `session_id`, and `result`; bare-mode auth failures are diagnostic only because the MCP adapter does not use `--bare`.
+- MCP error payloads now preserve spec error codes/messages and add diagnostic fields: `reason`, `category`, and `operator_action`, so clients can tell whether to fix auth, billing, command path, hooks, or output-shape compatibility.
+- Live E2E exposed a parser fragility: Claude returned `SESSION_UPDATE_JSON` inside a fenced `json` block. The parser now accepts that live-shaped output while keeping the same sanitization caps and parse boundary.
+- Final live verdict in `LIVE_E2E_REPORT.md`: `LIVE_CONSULT_PASS`; real Claude consult created a session, related null consult auto-routed to the existing session, unrelated null consult created a separate session, restart persistence worked, degraded-mode errors remained actionable.
