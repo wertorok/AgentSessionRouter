@@ -25,8 +25,12 @@ export function isoFromMillis(milliseconds: number): string {
 }
 
 export function daysBetweenIso(clock: Clock, earlierIso: string): number {
+  return daysBetweenMillis(clock.nowMillis(), earlierIso);
+}
+
+export function daysBetweenMillis(nowMillis: number, earlierIso: string): number {
   const earlier = new Date(earlierIso).getTime();
-  return Math.max(0, (clock.nowMillis() - earlier) / 86_400_000);
+  return Math.max(0, (nowMillis - earlier) / 86_400_000);
 }
 
 export function isoMinutesAgo(clock: Clock, minutes: number): string {
@@ -40,4 +44,3 @@ export function isoHoursAgo(clock: Clock, hours: number): string {
 export function isoDaysAgo(clock: Clock, days: number): string {
   return isoFromMillis(clock.nowMillis() - days * 86_400_000);
 }
-

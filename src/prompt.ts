@@ -22,7 +22,7 @@ Known registry context:
 ${input.context}
 
 Relevant code, max 200 lines:
-${input.relevantCode}
+${capRelevantCode(input.relevantCode)}
 
 Question:
 ${input.question}
@@ -42,6 +42,10 @@ SESSION_UPDATE_JSON:
   "tags": ["tag"],
   "aliases": ["alternative phrase"]
 }`;
+}
+
+function capRelevantCode(relevantCode: string): string {
+  return relevantCode.split(/\r?\n/).slice(0, 200).join("\n");
 }
 
 export function buildSessionContext(session: SessionInspectView | null): string {
@@ -79,4 +83,3 @@ function formatList(items: string[]): string {
   }
   return items.map((item) => `- ${item}`).join("\n");
 }
-

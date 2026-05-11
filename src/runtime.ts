@@ -24,6 +24,7 @@ export class RouterRuntime {
   degradedMode = false;
   detectedClaudeVersion: string | undefined;
   testedClaudeVersions: string[] = [];
+  private maintenanceTimer: NodeJS.Timeout | null = null;
 
   constructor(
     readonly cwd: string,
@@ -37,8 +38,20 @@ export class RouterRuntime {
 
   async boot(): Promise<void> {
     mkdirSync(this.config.storage.rawLogsDir, { recursive: true });
+    this.startLifecycleMaintenance();
     const probe = await this.claude.healthProbe();
     this.applyHealthProbe(probe, "startup");
+  }
+
+  startLifecycleMaintenance(): void {
+    this.db.applyLifecycle();
+    if (this.maintenanceTimer) {
+      return;
+    }
+    this.maintenanceTimer = setInterval(() => {
+      this.db.applyLifecycle();
+    }, 86_400_000);
+    this.maintenanceTimer.unref();
   }
 
   applyHealthProbe(probe: HealthProbeResult, reason: string): void {

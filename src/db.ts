@@ -36,6 +36,10 @@ export interface SessionListItem {
   aliases: string[];
 }
 
+export interface SessionMatchCandidate extends SessionListItem {
+  recency_score: number;
+}
+
 export interface SessionInspectView extends SessionListItem {
   project_id: string;
   created_at: string;
@@ -195,6 +199,29 @@ export class RouterDatabase {
     return rows.map((row) => this.toSessionListItem(row));
   }
 
+  listMatchCandidates(projectId: string, includeArchived: boolean): SessionMatchCandidate[] {
+    const statuses: SessionStatus[] = ["active", "dormant"];
+    if (includeArchived) {
+      statuses.push("archived");
+    }
+
+    const placeholders = statuses.map(() => "?").join(", ");
+    const rows = this.db
+      .prepare(
+        `SELECT *
+         FROM sessions
+         WHERE project_id = ?
+           AND status IN (${placeholders})
+         ORDER BY last_used DESC`
+      )
+      .all(projectId, ...statuses) as SessionRecord[];
+
+    return rows.map((row) => ({
+      ...this.toSessionListItem(row),
+      recency_score: Math.max(0, 1 - daysBetweenIso(this.clock, row.last_used) / row.archive_after_days)
+    }));
+  }
+
   getSession(sessionId: string): SessionRecord | null {
     const row = this.db.prepare("SELECT * FROM sessions WHERE id = ?").get(sessionId) as SessionRecord | undefined;
     return row ?? null;
@@ -224,7 +251,7 @@ export class RouterDatabase {
         `SELECT event_type, created_at, match_score, match_reason, tokens_in, tokens_out
          FROM session_events
          WHERE session_id = ?
-         ORDER BY created_at DESC
+         ORDER BY id DESC
          LIMIT ?`
       )
       .all(sessionId, recentEventsLimit) as RecentEventView[];
@@ -371,7 +398,7 @@ export class RouterDatabase {
          FROM session_events
          WHERE session_id = ?
            AND event_type IN (?, ?)
-         ORDER BY created_at DESC
+         ORDER BY id DESC
          LIMIT ?`
       )
       .all(sessionId, CONSULT_LIKE_EVENT_TYPES[0], CONSULT_LIKE_EVENT_TYPES[1], limit) as Array<{ created_at: string }>;
@@ -394,6 +421,20 @@ export class RouterDatabase {
       )
       .get(sessionId, sinceIso) as { count: number };
     return row.count;
+  }
+
+  getLastArchiveReason(sessionId: string): string | null {
+    const row = this.db
+      .prepare(
+        `SELECT error
+         FROM session_events
+         WHERE session_id = ?
+           AND event_type = 'archive'
+         ORDER BY id DESC
+         LIMIT 1`
+      )
+      .get(sessionId) as { error: string | null } | undefined;
+    return row?.error ?? null;
   }
 
   private selectLifecycleSessions(projectId?: string): SessionRecord[] {

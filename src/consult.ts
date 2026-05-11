@@ -54,25 +54,44 @@ export class ConsultService {
       });
     }
 
-    const hourlyLimit = this.checkConsultLimit(input.projectId, "max_consults_per_hour");
-    if (hourlyLimit) {
-      return hourlyLimit;
-    }
-    const dailyLimit = this.checkConsultLimit(input.projectId, "max_consults_per_day");
-    if (dailyLimit) {
-      return dailyLimit;
+    return this.locks.withLock(`cost:${input.projectId}`, async () => this.consultWithCostLock(input));
+  }
+
+  private async consultWithCostLock(input: ClaudeConsultInput): Promise<ConsultResult> {
+    if (!input.sessionId) {
+      const topicLockKey = `${input.projectId}:${normalizeTopicKey(input.topicHint)}`;
+      return this.locks.withLock(topicLockKey, async () => {
+        const costLimit = this.checkAllConsultLimits(input.projectId);
+        if (costLimit) {
+          return costLimit;
+        }
+        const route = await this.resolveRoute(input);
+        if ("error" in route) {
+          return route;
+        }
+        if (route.selectedSession) {
+          return this.locks.withLock(route.selectedSession.claude_session_id, async () => this.invokeClaude(input, route));
+        }
+        return this.invokeClaude(input, route);
+      });
     }
 
-    const route = await this.resolveRoute(input);
-    if ("error" in route) {
-      return route;
-    }
-
-    const lockKey = route.selectedSession
-      ? route.selectedSession.claude_session_id
-      : `${input.projectId}:${normalizeTopicKey(input.topicHint)}`;
-
-    return this.locks.withLock(lockKey, async () => this.invokeClaude(input, route));
+    const explicitLockKey = `${input.projectId}:${normalizeTopicKey(input.topicHint)}`;
+    return this.locks.withLock(explicitLockKey, async () => {
+      const costLimit = this.checkAllConsultLimits(input.projectId);
+      if (costLimit) {
+        return costLimit;
+      }
+      const route = await this.resolveRoute(input);
+      if ("error" in route) {
+        return route;
+      }
+      const lockKey = route.selectedSession ? route.selectedSession.claude_session_id : explicitLockKey;
+      if (lockKey === explicitLockKey) {
+        return this.invokeClaude(input, route);
+      }
+      return this.locks.withLock(lockKey, async () => this.invokeClaude(input, route));
+    });
   }
 
   private async invokeClaude(input: ClaudeConsultInput, route: RouteResolution): Promise<ConsultResult> {
@@ -232,7 +251,7 @@ export class ConsultService {
     }
 
     this.runtime.db.applyLifecycle(input.projectId);
-    const sessions = this.runtime.db.listSessions(input.projectId, true, false, false);
+    const sessions = this.runtime.db.listMatchCandidates(input.projectId, false);
     const match = findBestSessionMatch(
       sessions,
       {
@@ -260,6 +279,21 @@ export class ConsultService {
     }
 
     const selectedSession = this.runtime.db.getSession(match.session.id);
+    if (selectedSession) {
+      const exists = await this.runtime.claude.sessionFileExists(selectedSession.claude_session_id);
+      if (!exists) {
+        const oldView = this.runtime.db.getSessionView(selectedSession.id);
+        this.runtime.db.markSessionOrphaned(selectedSession.id);
+        return {
+          selectedSession: null,
+          selectedView: null,
+          bootstrapContext: oldView ? buildBootstrapContext(oldView, "orphaned") : undefined,
+          matchScore: match.score,
+          matchReason: "Auto-routed session was orphaned; creating replacement from registry context.",
+          wasOrphanRecovery: true
+        };
+      }
+    }
     return {
       selectedSession,
       selectedView: selectedSession ? this.runtime.db.getSessionView(selectedSession.id) : null,
@@ -271,7 +305,7 @@ export class ConsultService {
 
   private findArchivedBootstrap(input: ClaudeConsultInput): RouteResolution | null {
     const archivedSessions = this.runtime.db
-      .listSessions(input.projectId, true, true, false)
+      .listMatchCandidates(input.projectId, true)
       .filter((session) => session.status === "archived");
     const match = findBestSessionMatch(
       archivedSessions,
@@ -293,14 +327,26 @@ export class ConsultService {
       return null;
     }
 
+    const archiveReason =
+      this.runtime.db.getLastArchiveReason(match.session.id) === "parse_failure_threshold"
+        ? "parse_failure_threshold"
+        : "archived_resume";
+
     return {
       selectedSession: null,
       selectedView: null,
-      bootstrapContext: buildBootstrapContext(view, "archived_resume"),
+      bootstrapContext: buildBootstrapContext(view, archiveReason),
       matchScore: match.score,
       matchReason: `Archived session used as bootstrap; creating replacement. ${match.reason}`,
       wasOrphanRecovery: false
     };
+  }
+
+  private checkAllConsultLimits(projectId: string): ErrorPayload | null {
+    return (
+      this.checkConsultLimit(projectId, "max_consults_per_hour") ??
+      this.checkConsultLimit(projectId, "max_consults_per_day")
+    );
   }
 
   private checkConsultLimit(projectId: string, limitName: "max_consults_per_hour" | "max_consults_per_day"): ErrorPayload | null {

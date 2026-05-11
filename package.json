@@ -7,12 +7,12 @@
     "node": ">=20"
   },
   "bin": {
-    "claude-session-router-mcp": "./dist/index.js"
+    "claude-session-router-mcp": "./dist/src/index.js"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "start": "node dist/index.js",
-    "test": "vitest run"
+    "start": "node dist/src/index.js",
+    "test": "vitest run tests --exclude dist/**"
   },
   "dependencies": {
     "@iarna/toml": "2.2.5",
@@ -27,4 +27,3 @@
     "vitest": "4.1.6"
   }
 }
-

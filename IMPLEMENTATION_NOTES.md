@@ -33,3 +33,9 @@
 - Self-healing degraded mode.
 - Optional live Claude verification scripts.
 - Additional config files or scripts not required by the phase brief.
+
+## Helper Review Summary
+
+- Spec compliance review found and Phase 8 fixed: null-consult route resolution now happens under a topic lock, auto-routed resumes now check Claude session existence before `--resume`, recency is no longer hard-coded, punctuation is removed during token normalization, lifecycle maintenance runs at startup and daily, optional fixture resume probe is checked when `fixture_resume_session_id.txt` exists, archived parse-failure bootstrap preserves `parse_failure_threshold`, and `relevant_code` is capped to 200 lines in the prompt builder.
+- Reliability review found and Phase 8 fixed: project-level cost checks are serialized so concurrent consults cannot all pass the same hourly/day counter, auto-route stale sessions recover as orphaned before resume, and same-timestamp parse-threshold windows use event ids for deterministic ordering.
+- Remaining conservative choice: successful Claude-call persistence is not wrapped in one cross-cutting transaction because raw response file writes and SQLite writes cannot be made atomic together without adding out-of-spec infrastructure; SQLite metadata writes remain transaction-scoped where they mutate compact metadata.

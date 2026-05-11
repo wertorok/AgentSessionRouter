@@ -1,5 +1,5 @@
 import { execFile } from "node:child_process";
-import { existsSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
@@ -60,6 +60,10 @@ export class CliClaudeAdapter implements ClaudeAdapter {
       const detectedVersion = await this.getVersion();
       const unknownVersion = !isKnownVersion(detectedVersion, testedVersions);
       await this.runPrompt("ping");
+      const fixtureId = this.readFixtureSessionId();
+      if (fixtureId) {
+        await this.runPrompt("ping", fixtureId);
+      }
 
       return {
         ok: true,
@@ -97,6 +101,15 @@ export class CliClaudeAdapter implements ClaudeAdapter {
     }
 
     return findFile(projectsDir, `${claudeSessionId}.jsonl`, 3);
+  }
+
+  private readFixtureSessionId(): string | null {
+    const fixturePath = path.join(path.dirname(this.config.storage.dbPath), "fixture_resume_session_id.txt");
+    if (!existsSync(fixturePath)) {
+      return null;
+    }
+    const fixtureId = readFileSync(fixturePath, "utf8").trim();
+    return fixtureId || null;
   }
 }
 

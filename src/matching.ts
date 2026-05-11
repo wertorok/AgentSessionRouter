@@ -1,4 +1,4 @@
-import type { SessionListItem } from "./db.js";
+import type { SessionMatchCandidate } from "./db.js";
 
 const STOP_WORDS = new Set([
   "a",
@@ -25,27 +25,27 @@ export interface MatchInput {
 }
 
 export interface MatchResult {
-  session: SessionListItem | null;
+  session: SessionMatchCandidate | null;
   score: number;
   reason: string;
   lowConfidence: boolean;
 }
 
 interface CandidateScore {
-  session: SessionListItem;
+  session: SessionMatchCandidate;
   score: number;
   reason: string;
 }
 
 export function findBestSessionMatch(
-  sessions: SessionListItem[],
+  sessions: SessionMatchCandidate[],
   input: MatchInput,
   thresholdUse: number,
   thresholdLowConfidence: number
 ): MatchResult {
   const scores = sessions.map((session) => scoreSession(session, input)).sort((a, b) => b.score - a.score);
   const best = scores[0];
-  if (!best || best.score < thresholdLowConfidence) {
+  if (!best || roundScore(best.score) < thresholdLowConfidence) {
     return {
       session: null,
       score: best?.score ?? 0,
@@ -65,12 +65,13 @@ export function findBestSessionMatch(
 export function normalizeTokens(text: string): string[] {
   const normalized = text
     .toLowerCase()
-    .replace(/[^\p{L}\p{N}/._-]+/gu, " ")
+    .replace(/[^\p{L}\p{N}]+/gu, " ")
     .split(/\s+/)
     .map((token) => token.trim())
     .filter(Boolean)
     .map(stripPlural)
     .map(lightStem)
+    .map(normalizeSynonym)
     .filter((token) => !STOP_WORDS.has(token));
 
   return Array.from(new Set(normalized));
@@ -80,12 +81,12 @@ export function normalizeTopicKey(topic: string): string {
   return normalizeTokens(topic).join("-");
 }
 
-function scoreSession(session: SessionListItem, input: MatchInput): CandidateScore {
+function scoreSession(session: SessionMatchCandidate, input: MatchInput): CandidateScore {
   const topicSimilarity = jaccard(normalizeTokens(session.topic), normalizeTokens(input.topicHint));
   const filesOverlap = scoreFilesOverlap(extractPathCandidates(input), session.files_discussed);
   const tagsOverlap = jaccard(normalizeTokens(input.task), session.tags.flatMap(normalizeTokens));
   const aliasesOverlap = scoreAliasOverlap(input, session.aliases);
-  const recencyScore = 1;
+  const recencyScore = session.recency_score;
 
   const score =
     0.3 * topicSimilarity +
@@ -156,8 +157,18 @@ function stripPlural(token: string): string {
 }
 
 function lightStem(token: string): string {
+  if (token === "refactoring") {
+    return "refactor";
+  }
   if (token.endsWith("ing") && token.length > 5) {
     return token.slice(0, -3);
+  }
+  return token;
+}
+
+function normalizeSynonym(token: string): string {
+  if (token === "authentication") {
+    return "auth";
   }
   return token;
 }
@@ -165,4 +176,3 @@ function lightStem(token: string): string {
 function roundScore(score: number): number {
   return Math.round(score * 100) / 100;
 }
-
