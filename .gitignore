@@ -1,0 +1,8 @@
+node_modules/
+dist/
+coverage/
+.claude-session-router/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+

@@ -1,0 +1,30 @@
+{
+  "name": "persistent-claude-session-router-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "bin": {
+    "claude-session-router-mcp": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@iarna/toml": "2.2.5",
+    "@modelcontextprotocol/sdk": "1.29.0",
+    "better-sqlite3": "12.9.0",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "7.6.13",
+    "@types/node": "20.19.40",
+    "typescript": "6.0.3",
+    "vitest": "4.1.6"
+  }
+}
+
