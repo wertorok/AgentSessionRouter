@@ -39,3 +39,18 @@
 - Spec compliance review found and Phase 8 fixed: null-consult route resolution now happens under a topic lock, auto-routed resumes now check Claude session existence before `--resume`, recency is no longer hard-coded, punctuation is removed during token normalization, lifecycle maintenance runs at startup and daily, optional fixture resume probe is checked when `fixture_resume_session_id.txt` exists, archived parse-failure bootstrap preserves `parse_failure_threshold`, and `relevant_code` is capped to 200 lines in the prompt builder.
 - Reliability review found and Phase 8 fixed: project-level cost checks are serialized so concurrent consults cannot all pass the same hourly/day counter, auto-route stale sessions recover as orphaned before resume, and same-timestamp parse-threshold windows use event ids for deterministic ordering.
 - Remaining conservative choice: successful Claude-call persistence is not wrapped in one cross-cutting transaction because raw response file writes and SQLite writes cannot be made atomic together without adding out-of-spec infrastructure; SQLite metadata writes remain transaction-scoped where they mutate compact metadata.
+
+## Final Compliance Notes
+
+### Approved structural deviations
+
+1. `src/db.ts`, `src/schema.sql`, and `src/schema.ts` were used instead of `src/db/schema.sql`, `src/db/migrations.ts`, and `src/db/client.ts`.
+   Rationale: compact single-module DB layer; `src/schema.sql` preserves the schema artifact; `src/schema.ts` lets runtime load schema text without extra build/file-copy plumbing.
+   Constraint: no schema behavior may diverge from SPEC §14.
+
+2. `src/runtime.ts` was used instead of `src/mode.ts`.
+   Rationale: runtime state includes degraded mode plus config, DB, Claude adapter, locks, health probe application, lifecycle maintenance, and router reset.
+   Constraint: degraded/normal mode behavior must remain byte-compatible with SPEC §19.3 and §4.5.
+
+3. Tests are 16 tests across 3 files, covering the required targets by grouping multiple coverage targets per test file.
+   Constraint: no real Claude CLI is invoked in automated tests.
