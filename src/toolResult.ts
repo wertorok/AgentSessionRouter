@@ -1,7 +1,8 @@
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 
-export function jsonToolResult(payload: Record<string, unknown>): CallToolResult {
+export function jsonToolResult(payload: object, isError = false): CallToolResult {
   return {
+    isError,
     content: [
       {
         type: "text",
@@ -10,4 +11,3 @@ export function jsonToolResult(payload: Record<string, unknown>): CallToolResult
     ]
   };
 }
-

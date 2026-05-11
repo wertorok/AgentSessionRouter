@@ -1,5 +1,7 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
+import { ERROR_CODES } from "./constants.js";
+import { errorPayload, SPEC_ERROR_MESSAGES } from "./errors.js";
 import { resolveProjectId } from "./project.js";
 import type { RouterRuntime } from "./runtime.js";
 import { jsonToolResult } from "./toolResult.js";
@@ -9,6 +11,12 @@ const sessionsListInput = z.object({
   include_dormant: z.boolean().default(true),
   include_archived: z.boolean().default(false),
   include_orphaned: z.boolean().default(false)
+});
+
+const sessionInspectInput = z.object({
+  project_id: z.string().nullable().optional(),
+  session_id: z.string(),
+  recent_events_limit: z.number().int().min(1).max(50).default(10)
 });
 
 export function registerTools(server: McpServer, runtime: RouterRuntime): void {
@@ -32,6 +40,38 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
       return jsonToolResult({
         project_id: projectId,
         sessions
+      });
+    }
+  );
+
+  server.registerTool(
+    "claude_session_inspect",
+    {
+      title: "Inspect Claude session",
+      description: "Returns the full registry view of a session without invoking Claude.",
+      inputSchema: sessionInspectInput
+    },
+    async (input) => {
+      const projectId = resolveProjectId(input.project_id, runtime.cwd);
+      const inspection = runtime.db.inspectSession(input.session_id, input.recent_events_limit);
+      if (!inspection) {
+        return jsonToolResult(
+          errorPayload(ERROR_CODES.SESSION_NOT_FOUND, SPEC_ERROR_MESSAGES[ERROR_CODES.SESSION_NOT_FOUND]),
+          true
+        );
+      }
+
+      if (inspection.session.project_id !== projectId) {
+        return jsonToolResult(
+          errorPayload(ERROR_CODES.PROJECT_MISMATCH, SPEC_ERROR_MESSAGES[ERROR_CODES.PROJECT_MISMATCH]),
+          true
+        );
+      }
+
+      return jsonToolResult({
+        session: inspection.session,
+        recent_events: inspection.recentEvents,
+        recent_events_note: "truncated; default returns up to 10 events, hard max 50"
       });
     }
   );

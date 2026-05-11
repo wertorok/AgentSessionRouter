@@ -36,6 +36,20 @@ export interface SessionListItem {
   aliases: string[];
 }
 
+export interface SessionInspectView extends SessionListItem {
+  project_id: string;
+  created_at: string;
+}
+
+export interface RecentEventView {
+  event_type: EventType;
+  created_at: string;
+  match_score: number | null;
+  match_reason: string | null;
+  tokens_in: number | null;
+  tokens_out: number | null;
+}
+
 export interface EventInsert {
   sessionId?: string | null;
   projectId: string;
@@ -175,6 +189,32 @@ export class RouterDatabase {
   getSession(sessionId: string): SessionRecord | null {
     const row = this.db.prepare("SELECT * FROM sessions WHERE id = ?").get(sessionId) as SessionRecord | undefined;
     return row ?? null;
+  }
+
+  inspectSession(sessionId: string, recentEventsLimit: number): { session: SessionInspectView; recentEvents: RecentEventView[] } | null {
+    const session = this.getSession(sessionId);
+    if (!session) {
+      return null;
+    }
+
+    const recentEvents = this.db
+      .prepare(
+        `SELECT event_type, created_at, match_score, match_reason, tokens_in, tokens_out
+         FROM session_events
+         WHERE session_id = ?
+         ORDER BY created_at DESC
+         LIMIT ?`
+      )
+      .all(sessionId, recentEventsLimit) as RecentEventView[];
+
+    return {
+      session: {
+        ...this.toSessionListItem(session),
+        project_id: session.project_id,
+        created_at: session.created_at
+      },
+      recentEvents
+    };
   }
 
   private selectLifecycleSessions(projectId?: string): SessionRecord[] {
