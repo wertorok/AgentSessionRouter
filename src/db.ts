@@ -3,7 +3,7 @@ import path from "node:path";
 import Database from "better-sqlite3";
 import type { Clock } from "./clock.js";
 import { daysBetweenIso } from "./clock.js";
-import type { SessionStatus } from "./constants.js";
+import { CONSULT_LIKE_EVENT_TYPES, type SessionStatus } from "./constants.js";
 import type { EventType } from "./constants.js";
 import { SCHEMA_SQL } from "./schema.js";
 
@@ -48,6 +48,15 @@ export interface RecentEventView {
   match_reason: string | null;
   tokens_in: number | null;
   tokens_out: number | null;
+}
+
+export interface SessionUpdateData {
+  summary: string;
+  decisions: string[];
+  open_questions: string[];
+  files_discussed: string[];
+  tags: string[];
+  aliases: string[];
 }
 
 export interface EventInsert {
@@ -191,6 +200,19 @@ export class RouterDatabase {
     return row ?? null;
   }
 
+  getSessionView(sessionId: string): SessionInspectView | null {
+    const session = this.getSession(sessionId);
+    if (!session) {
+      return null;
+    }
+
+    return {
+      ...this.toSessionListItem(session),
+      project_id: session.project_id,
+      created_at: session.created_at
+    };
+  }
+
   inspectSession(sessionId: string, recentEventsLimit: number): { session: SessionInspectView; recentEvents: RecentEventView[] } | null {
     const session = this.getSession(sessionId);
     if (!session) {
@@ -215,6 +237,163 @@ export class RouterDatabase {
       },
       recentEvents
     };
+  }
+
+  createSession(input: {
+    id: string;
+    projectId: string;
+    claudeSessionId: string;
+    topic: string;
+    summary?: string;
+    dormantAfterDays: number;
+    archiveAfterDays: number;
+  }): void {
+    const now = this.clock.nowIso();
+    this.db
+      .prepare(
+        `INSERT INTO sessions (
+          id,
+          project_id,
+          claude_session_id,
+          topic,
+          summary,
+          status,
+          ttl_days,
+          dormant_after_days,
+          archive_after_days,
+          archived_at,
+          last_used,
+          created_at
+        ) VALUES (?, ?, ?, ?, ?, 'active', ?, ?, ?, NULL, ?, ?)`
+      )
+      .run(
+        input.id,
+        input.projectId,
+        input.claudeSessionId,
+        input.topic,
+        input.summary ?? "",
+        input.dormantAfterDays,
+        input.dormantAfterDays,
+        input.archiveAfterDays,
+        now,
+        now
+      );
+  }
+
+  updateSessionLastUsed(sessionId: string): void {
+    this.db.prepare("UPDATE sessions SET last_used = ?, status = 'active' WHERE id = ?").run(this.clock.nowIso(), sessionId);
+  }
+
+  markSessionOrphaned(sessionId: string): void {
+    const session = this.getSession(sessionId);
+    if (!session) {
+      return;
+    }
+    this.db.prepare("UPDATE sessions SET status = 'orphaned' WHERE id = ?").run(sessionId);
+    this.logEvent({
+      sessionId,
+      projectId: session.project_id,
+      eventType: "orphan_recovery",
+      error: "claude_session_missing"
+    });
+  }
+
+  archiveSession(sessionId: string, reason: string): void {
+    const session = this.getSession(sessionId);
+    if (!session) {
+      return;
+    }
+    this.db
+      .prepare("UPDATE sessions SET status = 'archived', archived_at = ? WHERE id = ?")
+      .run(this.clock.nowIso(), sessionId);
+    this.logEvent({
+      sessionId,
+      projectId: session.project_id,
+      eventType: "archive",
+      error: reason
+    });
+  }
+
+  applySessionUpdate(sessionId: string, update: SessionUpdateData): void {
+    const apply = this.db.transaction(() => {
+      this.db.prepare("UPDATE sessions SET summary = ? WHERE id = ?").run(update.summary, sessionId);
+      this.db.prepare("DELETE FROM session_open_questions WHERE session_id = ?").run(sessionId);
+
+      for (const decision of update.decisions) {
+        this.insertUniqueValue("session_decisions", "decision", sessionId, decision);
+      }
+      for (const question of update.open_questions) {
+        this.insertValue("session_open_questions", "question", sessionId, question);
+      }
+      for (const file of update.files_discussed) {
+        this.insertUniqueValue("session_files", "path", sessionId, file);
+      }
+      for (const tag of update.tags) {
+        this.insertUniqueValue("session_tags", "tag", sessionId, tag);
+      }
+      for (const alias of update.aliases) {
+        this.insertUniqueValue("session_aliases", "alias", sessionId, alias);
+      }
+    });
+    apply();
+  }
+
+  countConsultLikeEvents(projectId: string, sinceIso: string): number {
+    const row = this.db
+      .prepare(
+        `SELECT COUNT(*) AS count
+         FROM session_events
+         WHERE project_id = ?
+           AND event_type IN (?, ?)
+           AND created_at >= ?`
+      )
+      .get(projectId, CONSULT_LIKE_EVENT_TYPES[0], CONSULT_LIKE_EVENT_TYPES[1], sinceIso) as { count: number };
+    return row.count;
+  }
+
+  countDistinctResumeFailuresSince(sinceIso: string): number {
+    const row = this.db
+      .prepare(
+        `SELECT COUNT(DISTINCT session_id) AS count
+         FROM session_events
+         WHERE event_type = 'resume_failed'
+           AND session_id IS NOT NULL
+           AND created_at >= ?`
+      )
+      .get(sinceIso) as { count: number };
+    return row.count;
+  }
+
+  oldestRecentConsultLikeEventIso(sessionId: string, limit: number): string | null {
+    const rows = this.db
+      .prepare(
+        `SELECT created_at
+         FROM session_events
+         WHERE session_id = ?
+           AND event_type IN (?, ?)
+         ORDER BY created_at DESC
+         LIMIT ?`
+      )
+      .all(sessionId, CONSULT_LIKE_EVENT_TYPES[0], CONSULT_LIKE_EVENT_TYPES[1], limit) as Array<{ created_at: string }>;
+
+    if (rows.length < limit) {
+      return null;
+    }
+
+    return rows[rows.length - 1]?.created_at ?? null;
+  }
+
+  countParseFailuresSince(sessionId: string, sinceIso: string): number {
+    const row = this.db
+      .prepare(
+        `SELECT COUNT(*) AS count
+         FROM session_events
+         WHERE session_id = ?
+           AND event_type = 'parse_failed'
+           AND created_at >= ?`
+      )
+      .get(sessionId, sinceIso) as { count: number };
+    return row.count;
   }
 
   private selectLifecycleSessions(projectId?: string): SessionRecord[] {
@@ -250,5 +429,17 @@ export class RouterDatabase {
       .prepare(`SELECT ${columnName} AS value FROM ${tableName} WHERE session_id = ? ORDER BY id ASC`)
       .all(sessionId) as Array<{ value: string }>;
     return rows.map((row) => row.value);
+  }
+
+  private insertValue(tableName: string, columnName: string, sessionId: string, value: string): void {
+    this.db
+      .prepare(`INSERT INTO ${tableName} (session_id, ${columnName}, created_at) VALUES (?, ?, ?)`)
+      .run(sessionId, value, this.clock.nowIso());
+  }
+
+  private insertUniqueValue(tableName: string, columnName: string, sessionId: string, value: string): void {
+    this.db
+      .prepare(`INSERT OR IGNORE INTO ${tableName} (session_id, ${columnName}, created_at) VALUES (?, ?, ?)`)
+      .run(sessionId, value, this.clock.nowIso());
   }
 }

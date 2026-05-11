@@ -9,6 +9,7 @@ import { ERROR_CODES } from "./constants.js";
 import { RouterDatabase } from "./db.js";
 import type { Logger } from "./logger.js";
 import { logger as defaultLogger } from "./logger.js";
+import { MemoryLockProvider, type LockProvider } from "./locks.js";
 
 export interface RuntimeOptions {
   cwd?: string;
@@ -16,6 +17,7 @@ export interface RuntimeOptions {
   clock?: Clock;
   logger?: Logger;
   claude?: ClaudeAdapter;
+  locks?: LockProvider;
 }
 
 export class RouterRuntime {
@@ -28,6 +30,7 @@ export class RouterRuntime {
     readonly config: RouterConfig,
     readonly db: RouterDatabase,
     readonly claude: ClaudeAdapter,
+    readonly locks: LockProvider,
     readonly clock: Clock,
     readonly logger: Logger
   ) {}
@@ -91,7 +94,8 @@ export async function createRuntime(options: RuntimeOptions = {}): Promise<Route
   const config = loadConfig({ cwd, configPath: options.configPath });
   const db = RouterDatabase.open(config.storage.dbPath, clock);
   const claude = options.claude ?? new CliClaudeAdapter(config);
-  const runtime = new RouterRuntime(cwd, config, db, claude, clock, log);
+  const locks = options.locks ?? new MemoryLockProvider();
+  const runtime = new RouterRuntime(cwd, config, db, claude, locks, clock, log);
   await runtime.boot();
   return runtime;
 }

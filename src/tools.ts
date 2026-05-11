@@ -1,6 +1,7 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { ERROR_CODES } from "./constants.js";
+import { ConsultService } from "./consult.js";
 import { errorPayload, SPEC_ERROR_MESSAGES } from "./errors.js";
 import { resolveProjectId } from "./project.js";
 import type { RouterRuntime } from "./runtime.js";
@@ -19,7 +20,19 @@ const sessionInspectInput = z.object({
   recent_events_limit: z.number().int().min(1).max(50).default(10)
 });
 
+const consultInput = z.object({
+  project_id: z.string().nullable().optional(),
+  session_id: z.string().nullable().optional(),
+  topic_hint: z.string(),
+  trigger: z.string(),
+  task: z.string(),
+  relevant_code: z.string(),
+  question: z.string()
+});
+
 export function registerTools(server: McpServer, runtime: RouterRuntime): void {
+  const consultService = new ConsultService(runtime, runtime.locks);
+
   server.registerTool(
     "claude_sessions_list",
     {
@@ -73,6 +86,29 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
         recent_events: inspection.recentEvents,
         recent_events_note: "truncated; default returns up to 10 events, hard max 50"
       });
+    }
+  );
+
+  server.registerTool(
+    "claude_consult",
+    {
+      title: "Consult Claude",
+      description: "Calls Claude in an auto-routed or selected persistent session.",
+      inputSchema: consultInput
+    },
+    async (input) => {
+      const projectId = resolveProjectId(input.project_id, runtime.cwd);
+      const result = await consultService.consult({
+        projectId,
+        sessionId: input.session_id,
+        topicHint: input.topic_hint,
+        trigger: input.trigger,
+        task: input.task,
+        relevantCode: input.relevant_code,
+        question: input.question
+      });
+
+      return jsonToolResult(result, "error" in result);
     }
   );
 }
