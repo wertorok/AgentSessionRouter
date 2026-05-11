@@ -2,6 +2,7 @@ import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
+import { parseClaudeJson } from "../src/claude.js";
 import { loadConfig } from "../src/config.js";
 import { MemoryLockProvider } from "../src/locks.js";
 import { findBestSessionMatch, normalizeTokens } from "../src/matching.js";
@@ -161,6 +162,22 @@ SESSION_UPDATE_JSON:
     expect(parsed?.update.summary).toBe("Fenced JSON should still update compact metadata.");
     expect(parsed?.update.files_discussed).toEqual(["src/auth/live-e2e.ts"]);
     expect(parsed?.update.aliases).toEqual(["live auth routing"]);
+  });
+
+  it("extracts nested Claude usage token counts", () => {
+    const parsed = parseClaudeJson(
+      JSON.stringify({
+        session_id: "claude-session",
+        result: "answer",
+        usage: {
+          input_tokens: 12,
+          output_tokens: 34
+        }
+      })
+    );
+
+    expect(parsed.tokensIn).toBe(12);
+    expect(parsed.tokensOut).toBe(34);
   });
 
   it("serializes memory locks per key", async () => {

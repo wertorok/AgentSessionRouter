@@ -67,3 +67,11 @@
 - MCP error payloads now preserve spec error codes/messages and add diagnostic fields: `reason`, `category`, and `operator_action`, so clients can tell whether to fix auth, billing, command path, hooks, or output-shape compatibility.
 - Live E2E exposed a parser fragility: Claude returned `SESSION_UPDATE_JSON` inside a fenced `json` block. The parser now accepts that live-shaped output while keeping the same sanitization caps and parse boundary.
 - Final live verdict in `LIVE_E2E_REPORT.md`: `LIVE_CONSULT_PASS`; real Claude consult created a session, related null consult auto-routed to the existing session, unrelated null consult created a separate session, restart persistence worked, degraded-mode errors remained actionable.
+
+## Post-Matrix Fixes
+
+- Null consults now reuse an active/dormant session with the same normalized topic before falling back to threshold scoring. This prevents duplicate sessions for concurrent same-topic creation even when Claude has not yet produced enough tags/files/aliases to make the weighted score exceed `0.55`.
+- Consult now revalidates the selected route after acquiring the per-session lock. If a session was archived or orphaned while the consult waited, the consult uses the fresh archived/orphan recovery path instead of reactivating stale state.
+- `claude_session_archive` now uses the same per-session lock as consults, so archive and resume cannot write the same Claude session concurrently.
+- Claude token metrics now read nested `usage.input_tokens` and `usage.output_tokens` from current Claude JSON output before falling back to estimates.
+- Degraded-mode diagnostics now classify `You've hit your limit` as `claude_usage_limit` with an operator action that says to wait for the reset time or switch to an account with available usage.

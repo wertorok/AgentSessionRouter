@@ -54,6 +54,15 @@ export function diagnoseClaudeFailure(reason: string | undefined): ClaudeFailure
     };
   }
 
+  if (normalized.includes("you've hit your limit") || normalized.includes("you have hit your limit")) {
+    return {
+      reason,
+      category: "claude_usage_limit",
+      operator_action:
+        "Wait until the Claude usage-limit reset time shown in the error, reduce live consult volume, or switch the Claude CLI to an account with available usage."
+    };
+  }
+
   if (normalized.includes("not logged in") || normalized.includes("/login")) {
     return {
       reason,

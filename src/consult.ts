@@ -73,10 +73,7 @@ export class ConsultService {
         if ("error" in route) {
           return route;
         }
-        if (route.selectedSession) {
-          return this.locks.withLock(route.selectedSession.claude_session_id, async () => this.invokeClaude(input, route));
-        }
-        return this.invokeClaude(input, route);
+        return this.invokeWithRouteLock(input, route);
       });
     }
 
@@ -90,11 +87,27 @@ export class ConsultService {
       if ("error" in route) {
         return route;
       }
-      const lockKey = route.selectedSession ? route.selectedSession.claude_session_id : explicitLockKey;
-      if (lockKey === explicitLockKey) {
-        return this.invokeClaude(input, route);
+      return this.invokeWithRouteLock(input, route);
+    });
+  }
+
+  private async invokeWithRouteLock(input: ClaudeConsultInput, route: RouteResolution): Promise<ConsultResult> {
+    if (!route.selectedSession) {
+      return this.invokeClaude(input, route);
+    }
+
+    return this.locks.withLock(route.selectedSession.claude_session_id, async () => {
+      const freshRoute = await this.resolveRoute(input);
+      if ("error" in freshRoute) {
+        return freshRoute;
       }
-      return this.locks.withLock(lockKey, async () => this.invokeClaude(input, route));
+      if (
+        freshRoute.selectedSession &&
+        freshRoute.selectedSession.claude_session_id !== route.selectedSession?.claude_session_id
+      ) {
+        return this.invokeWithRouteLock(input, freshRoute);
+      }
+      return this.invokeClaude(input, freshRoute);
     });
   }
 
@@ -261,6 +274,33 @@ export class ConsultService {
 
     this.runtime.db.applyLifecycle(input.projectId);
     const sessions = this.runtime.db.listMatchCandidates(input.projectId, false);
+    const exactTopicSession = sessions.find((session) => normalizeTopicKey(session.topic) === normalizeTopicKey(input.topicHint));
+    if (exactTopicSession) {
+      const selectedSession = this.runtime.db.getSession(exactTopicSession.id);
+      if (selectedSession) {
+        const exists = await this.runtime.claude.sessionFileExists(selectedSession.claude_session_id);
+        if (!exists) {
+          const oldView = this.runtime.db.getSessionView(selectedSession.id);
+          this.runtime.db.markSessionOrphaned(selectedSession.id);
+          return {
+            selectedSession: null,
+            selectedView: null,
+            bootstrapContext: oldView ? buildBootstrapContext(oldView, "orphaned") : undefined,
+            matchScore: 1,
+            matchReason: "Exact normalized topic match was orphaned; creating replacement from registry context.",
+            wasOrphanRecovery: true
+          };
+        }
+        return {
+          selectedSession,
+          selectedView: this.runtime.db.getSessionView(selectedSession.id),
+          matchScore: 1,
+          matchReason: "Exact normalized topic match within project; reusing existing session.",
+          wasOrphanRecovery: false
+        };
+      }
+    }
+
     const match = findBestSessionMatch(
       sessions,
       {

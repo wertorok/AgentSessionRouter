@@ -145,10 +145,26 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
         );
       }
 
-      runtime.db.archiveSession(input.session_id, input.reason);
-      return jsonToolResult({
-        ok: true,
-        status: "archived"
+      return runtime.locks.withLock(session.claude_session_id, async () => {
+        const lockedSession = runtime.db.getSession(input.session_id);
+        if (!lockedSession) {
+          return jsonToolResult(
+            errorPayload(ERROR_CODES.SESSION_NOT_FOUND, SPEC_ERROR_MESSAGES[ERROR_CODES.SESSION_NOT_FOUND]),
+            true
+          );
+        }
+        if (lockedSession.project_id !== projectId) {
+          return jsonToolResult(
+            errorPayload(ERROR_CODES.PROJECT_MISMATCH, SPEC_ERROR_MESSAGES[ERROR_CODES.PROJECT_MISMATCH]),
+            true
+          );
+        }
+
+        runtime.db.archiveSession(input.session_id, input.reason);
+        return jsonToolResult({
+          ok: true,
+          status: "archived"
+        });
       });
     }
   );

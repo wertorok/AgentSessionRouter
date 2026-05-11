@@ -61,6 +61,36 @@ describe("claude_consult service", () => {
     fixture.cleanup();
   });
 
+  it("reuses an exact normalized topic even before metadata makes the score high", async () => {
+    const fixture = createRuntimeFixture();
+    fixture.runtime.db.createSession({
+      id: "same-topic",
+      projectId: "project",
+      claudeSessionId: "same-topic-claude",
+      topic: "same normalized topic",
+      dormantAfterDays: 30,
+      archiveAfterDays: 90
+    });
+    fixture.claude.existingSessions.add("same-topic-claude");
+    const service = new ConsultService(fixture.runtime, fixture.runtime.locks);
+
+    const result = await service.consult({
+      ...baseInput(),
+      topicHint: "same normalized topic",
+      task: "Ask a second question before metadata exists",
+      relevantCode: "",
+      question: "Should this reuse the exact topic session?"
+    });
+
+    expect("error" in result).toBe(false);
+    if ("error" in result) {
+      throw new Error("unexpected error");
+    }
+    expect(result.session_id).toBe("same-topic");
+    expect(result.routing.match_reason).toContain("Exact normalized topic match");
+    fixture.cleanup();
+  });
+
   it("recovers orphaned direct sessions into a replacement session", async () => {
     const fixture = createRuntimeFixture();
     fixture.runtime.db.createSession({
@@ -117,6 +147,45 @@ describe("claude_consult service", () => {
     fixture.cleanup();
   });
 
+  it("revalidates a selected session after waiting for its lock", async () => {
+    const fixture = createRuntimeFixture();
+    fixture.runtime.db.createSession({
+      id: "existing",
+      projectId: "project",
+      claudeSessionId: "existing-claude",
+      topic: "auth system refactor",
+      dormantAfterDays: 30,
+      archiveAfterDays: 90
+    });
+    fixture.claude.existingSessions.add("existing-claude");
+    const service = new ConsultService(fixture.runtime, fixture.runtime.locks);
+    let releaseLock!: () => void;
+    const heldLock = fixture.runtime.locks.withLock(
+      "existing-claude",
+      async () =>
+        new Promise<void>((resolve) => {
+          releaseLock = resolve;
+        })
+    );
+
+    const consultPromise = service.consult({ ...baseInput(), sessionId: "existing" });
+    await Promise.resolve();
+    await Promise.resolve();
+    fixture.runtime.db.archiveSession("existing", "race archive before consult lock");
+    releaseLock();
+    await heldLock;
+    const result = await consultPromise;
+
+    expect("error" in result).toBe(false);
+    if ("error" in result) {
+      throw new Error("unexpected error");
+    }
+    expect(result.session_id).not.toBe("existing");
+    expect(result.routing.was_new_session).toBe(true);
+    expect(fixture.runtime.db.getSession("existing")?.status).toBe("archived");
+    fixture.cleanup();
+  });
+
   it("fails closed when cost limit is exceeded", async () => {
     const fixture = createRuntimeFixture();
     fixture.runtime.config.limits.maxConsultsPerHour = 0;
@@ -163,6 +232,24 @@ describe("claude_consult service", () => {
     expect(result.error.code).toBe(ERROR_CODES.CLAUDE_INCOMPATIBLE);
     expect(result.error.category).toBe("claude_auth");
     expect(result.error.operator_action).toContain("claude auth status");
+    fixture.cleanup();
+  });
+
+  it("returns an actionable usage-limit diagnostic when Claude quota is exhausted", async () => {
+    const fixture = createRuntimeFixture();
+    fixture.runtime.degradedMode = true;
+    fixture.runtime.degradedReason = "Claude CLI returned error result: You've hit your limit · resets 9:40pm (Europe/London)";
+    const service = new ConsultService(fixture.runtime, fixture.runtime.locks);
+
+    const result = await service.consult(baseInput());
+
+    expect("error" in result).toBe(true);
+    if (!("error" in result)) {
+      throw new Error("expected error");
+    }
+    expect(result.error.code).toBe(ERROR_CODES.CLAUDE_INCOMPATIBLE);
+    expect(result.error.category).toBe("claude_usage_limit");
+    expect(result.error.operator_action).toContain("usage-limit reset time");
     fixture.cleanup();
   });
 });

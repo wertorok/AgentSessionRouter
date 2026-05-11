@@ -110,7 +110,7 @@ export class CliClaudeAdapter implements ClaudeAdapter {
   }
 }
 
-function parseClaudeJson(stdout: string): ClaudeJsonResponse {
+export function parseClaudeJson(stdout: string): ClaudeJsonResponse {
   const parsed: unknown = JSON.parse(stdout);
   if (!isObject(parsed)) {
     throw new Error("Claude JSON response was not an object");
@@ -128,8 +128,16 @@ function parseClaudeJson(stdout: string): ClaudeJsonResponse {
   return {
     sessionId,
     result,
-    tokensIn: numberField(parsed, "tokens_in") ?? numberField(parsed, "input_tokens") ?? undefined,
-    tokensOut: numberField(parsed, "tokens_out") ?? numberField(parsed, "output_tokens") ?? undefined
+    tokensIn:
+      numberField(parsed, "tokens_in") ??
+      numberField(parsed, "input_tokens") ??
+      numberField(objectField(parsed, "usage"), "input_tokens") ??
+      undefined,
+    tokensOut:
+      numberField(parsed, "tokens_out") ??
+      numberField(parsed, "output_tokens") ??
+      numberField(objectField(parsed, "usage"), "output_tokens") ??
+      undefined
   };
 }
 
@@ -163,6 +171,11 @@ function stringField(source: Record<string, unknown>, key: string): string | nul
 function numberField(source: Record<string, unknown>, key: string): number | null {
   const value = source[key];
   return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+function objectField(source: Record<string, unknown>, key: string): Record<string, unknown> {
+  const value = source[key];
+  return isObject(value) ? value : {};
 }
 
 function runCommand(command: string, args: string[]): Promise<string> {
