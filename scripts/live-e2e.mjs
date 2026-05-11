@@ -10,6 +10,7 @@ import process from "node:process";
 const repoRoot = process.cwd();
 const serverEntry = path.join(repoRoot, "dist", "src", "index.js");
 const reportPath = path.join(repoRoot, "LIVE_E2E_REPORT.md");
+const diagnosisPath = path.join(repoRoot, "CLAUDE_LIVE_DIAGNOSIS.md");
 const tempRoot = mkdtempSync(path.join(os.tmpdir(), "claude-router-live-e2e-"));
 const liveCwd = path.join(tempRoot, "live-project");
 const brokenCwd = path.join(tempRoot, "broken-project");
@@ -30,6 +31,7 @@ let unrelatedSessionId = null;
 let seededDegradedSessionId = null;
 let realHealthProbe = "not_run";
 let liveVerdict = "FAIL";
+let liveRootCause = "";
 
 function shell(command, args) {
   const executable = process.platform === "win32" && command === "npm" ? "cmd.exe" : command;
@@ -202,7 +204,8 @@ async function runLiveScenarios() {
       addScenario(result, true);
     } else if (result.payload.error?.code === "CLAUDE_INCOMPATIBLE" || result.payload.error?.code === "CLAUDE_INVOCATION_FAILED") {
       addScenario(result, true);
-      liveVerdict = "DEGRADED_ONLY";
+      liveVerdict = "BLOCKED_BY_CLAUDE_ENV";
+      liveRootCause = result.payload.error.message;
       return;
     } else {
       addScenario(result, false);
@@ -397,8 +400,8 @@ function createReport(metrics, environment) {
 
   const passed = scenarioRows.filter((row) => row.pass).length;
   const failed = scenarioRows.length - passed;
-  if (liveVerdict !== "DEGRADED_ONLY") {
-    liveVerdict = failed === 0 ? "PASS" : "FAIL";
+  if (liveVerdict !== "BLOCKED_BY_CLAUDE_ENV") {
+    liveVerdict = failed === 0 ? "LIVE_CONSULT_PASS" : "FAIL";
   }
 
   return `# Live MCP E2E Report
@@ -454,6 +457,7 @@ ${markdownTable(metrics.lastEvents, ["created_at", "event_type", "match_score", 
 ## Final Verdict
 
 ${liveVerdict}: ${verdictText(liveVerdict)}
+${rootCauseEvidence()}
 
 ## Evidence JSON
 
@@ -463,12 +467,31 @@ ${JSON.stringify({ createdSessionId, createdClaudeSessionId, secondSessionId, un
 `;
 }
 
+function rootCauseEvidence() {
+  if (existsSync(diagnosisPath)) {
+    const diagnosis = readFileSync(diagnosisPath, "utf8");
+    const summary = extractMarkdownTableValue(diagnosis, "Summary");
+    const action = extractMarkdownTableValue(diagnosis, "Exact operator action");
+    return `\nRoot cause evidence: ${summary}\n\nExact operator action: ${action}\n`;
+  }
+  return liveRootCause ? `\nRoot cause evidence: ${liveRootCause}\n` : "";
+}
+
+function extractMarkdownTableValue(markdown, field) {
+  const line = markdown.split(/\r?\n/).find((candidate) => candidate.startsWith(`| ${field} |`));
+  if (!line) {
+    return "";
+  }
+  const cells = line.split("|").map((cell) => cell.trim());
+  return cells[2] ?? "";
+}
+
 function verdictText(verdict) {
-  if (verdict === "PASS") {
+  if (verdict === "LIVE_CONSULT_PASS") {
     return "The MCP worked as a real stdio MCP application with live Claude consults, persistent registry state, routing, archive, restart persistence, degraded-mode blocking, and SQLite observability.";
   }
-  if (verdict === "DEGRADED_ONLY") {
-    return "Claude consults could not complete live, but degraded behavior and read-only tooling were validated. See scenario evidence for the blocking error.";
+  if (verdict === "BLOCKED_BY_CLAUDE_ENV") {
+    return "The MCP works as a real stdio MCP application for tool registration, registry reads, inspect/archive, degraded-mode blocking, reset rejection, SQLite persistence, and observability; real Claude consult creation is blocked by external Claude CLI environment/billing/auth state. See diagnosis report.";
   }
   return "One or more live scenarios failed. See scenario table and evidence; failures were not hidden.";
 }

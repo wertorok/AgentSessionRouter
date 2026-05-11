@@ -118,6 +118,9 @@ function parseClaudeJson(stdout: string): ClaudeJsonResponse {
   if (!sessionId || !result) {
     throw new Error("Claude JSON response missing session_id or result");
   }
+  if (parsed.is_error === true) {
+    throw new Error(`Claude CLI returned error result: ${result}`);
+  }
 
   return {
     sessionId,
@@ -182,8 +185,21 @@ function runCommand(command: string, args: string[]): Promise<string> {
         resolve(stdout);
         return;
       }
-      reject(new Error(`Command failed: ${command} ${args.join(" ")}\n${stderr || stdout}`.trim()));
+      const jsonError = extractClaudeJsonError(stdout);
+      reject(new Error(`Command failed: ${command} ${args.join(" ")}\n${jsonError ?? stderr ?? stdout}`.trim()));
     });
     child.stdin.end();
   });
+}
+
+function extractClaudeJsonError(stdout: string): string | null {
+  try {
+    const parsed: unknown = JSON.parse(stdout);
+    if (isObject(parsed) && parsed.is_error === true && typeof parsed.result === "string") {
+      return `Claude CLI returned error result: ${parsed.result}`;
+    }
+  } catch {
+    return null;
+  }
+  return null;
 }

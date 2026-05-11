@@ -54,3 +54,9 @@
 
 3. Tests are 16 tests across 3 files, covering the required targets by grouping multiple coverage targets per test file.
    Constraint: no real Claude CLI is invoked in automated tests.
+
+## Phase 10 Live Claude Diagnosis
+
+- Real Claude CLI output shape was validated with manual commands in `CLAUDE_LIVE_DIAGNOSIS.md`; the installed CLI returns JSON containing `session_id` and `result`, so the parser shape is compatible.
+- Implementation change: `src/claude.ts` now treats Claude JSON `is_error: true` as a Claude invocation failure and surfaces the JSON `result` text in the error path, instead of obscuring it behind a generic process exit.
+- Final live blocker is external environment/billing state: the real adapter invocation returns `Credit balance is too low`; bare mode additionally reports `Not logged in`, which confirms live consult creation needs operator-side Claude account/credit remediation.

@@ -9,8 +9,8 @@
 | npm | 11.5.2 |
 | Claude CLI version | 2.1.131 (Claude Code) |
 | Server command | node C:\Users\Davinchi\AgentSessionRouter\dist\src\index.js |
-| DB path | C:\Users\Davinchi\AppData\Local\Temp\claude-router-live-e2e-tMOfoV\live-project\.claude-session-router\sessions.sqlite |
-| Raw logs path | C:\Users\Davinchi\AppData\Local\Temp\claude-router-live-e2e-tMOfoV\live-project\.claude-session-router\raw |
+| DB path | C:\Users\Davinchi\AppData\Local\Temp\claude-router-live-e2e-1uErLF\live-project\.claude-session-router\sessions.sqlite |
+| Raw logs path | C:\Users\Davinchi\AppData\Local\Temp\claude-router-live-e2e-1uErLF\live-project\.claude-session-router\raw |
 
 ## Health Probe Result
 
@@ -36,13 +36,13 @@ No successful routing metrics were available.
 
 | tool | duration_ms | is_error |
 | --- | --- | --- |
-| claude_sessions_list | 22 | false |
-| claude_consult | 10 | true |
-| claude_consult | 15 | true |
-| claude_sessions_list | 8 | false |
-| claude_session_inspect | 9 | false |
-| claude_session_archive | 176 | false |
-| claude_router_reset | 112 | true |
+| claude_sessions_list | 20 | false |
+| claude_consult | 18 | true |
+| claude_consult | 25 | true |
+| claude_sessions_list | 10 | false |
+| claude_session_inspect | 16 | false |
+| claude_session_archive | 328 | false |
+| claude_router_reset | 163 | true |
 
 Token metrics from SQLite last events:
 
@@ -53,8 +53,8 @@ Token metrics from SQLite last events:
 | archive |  |  |  |  | 0 | Phase 9 degraded archive validation |
 | degraded_mode_entered |  |  |  |  | 0 | spawn definitely-missing-claude-command ENOENT |
 | health_probe_failed |  |  |  |  | 0 | spawn definitely-missing-claude-command ENOENT |
-| degraded_mode_entered |  |  |  |  | 0 | Command failed: claude -p --output-format json ping<br>SessionEnd hook [node "${CLAUDE_PLUGIN_ROOT}/scripts/session-lifecycle-hook.mjs" SessionEnd] failed: Hook cancelled |
-| health_probe_failed |  |  |  |  | 0 | Command failed: claude -p --output-format json ping<br>SessionEnd hook [node "${CLAUDE_PLUGIN_ROOT}/scripts/session-lifecycle-hook.mjs" SessionEnd] failed: Hook cancelled |
+| degraded_mode_entered |  |  |  |  | 0 | Command failed: claude -p --output-format json ping<br>Claude CLI returned error result: Credit balance is too low |
+| health_probe_failed |  |  |  |  | 0 | Command failed: claude -p --output-format json ping<br>Claude CLI returned error result: Credit balance is too low |
 
 ## Registry Metrics
 
@@ -78,17 +78,22 @@ Last 10 events:
 
 | created_at | event_type | match_score | match_reason | was_new_session | was_orphan_recovery | duration_ms | tokens_in | tokens_out | error |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 2026-05-11T17:57:06.420Z | degraded_mode_entered |  |  | 0 | 0 |  |  |  | spawn definitely-missing-claude-command ENOENT |
-| 2026-05-11T17:57:06.338Z | health_probe_failed |  |  | 0 | 0 |  |  |  | spawn definitely-missing-claude-command ENOENT |
-| 2026-05-11T17:57:06.313Z | archive |  |  | 0 | 0 |  |  |  | Phase 9 degraded archive validation |
-| 2026-05-11T17:57:06.058Z | degraded_mode_entered |  |  | 0 | 0 |  |  |  | spawn definitely-missing-claude-command ENOENT |
-| 2026-05-11T17:57:05.968Z | health_probe_failed |  |  | 0 | 0 |  |  |  | spawn definitely-missing-claude-command ENOENT |
-| 2026-05-11T17:57:04.406Z | degraded_mode_entered |  |  | 0 | 0 |  |  |  | Command failed: claude -p --output-format json ping<br>SessionEnd hook [node "${CLAUDE_PLUGIN_ROOT}/scripts/session-lifecycle-hook.mjs" SessionEnd] failed: Hook cancelled |
-| 2026-05-11T17:57:04.384Z | health_probe_failed |  |  | 0 | 0 |  |  |  | Command failed: claude -p --output-format json ping<br>SessionEnd hook [node "${CLAUDE_PLUGIN_ROOT}/scripts/session-lifecycle-hook.mjs" SessionEnd] failed: Hook cancelled |
+| 2026-05-11T18:08:09.938Z | degraded_mode_entered |  |  | 0 | 0 |  |  |  | spawn definitely-missing-claude-command ENOENT |
+| 2026-05-11T18:08:09.804Z | health_probe_failed |  |  | 0 | 0 |  |  |  | spawn definitely-missing-claude-command ENOENT |
+| 2026-05-11T18:08:09.774Z | archive |  |  | 0 | 0 |  |  |  | Phase 9 degraded archive validation |
+| 2026-05-11T18:08:09.338Z | degraded_mode_entered |  |  | 0 | 0 |  |  |  | spawn definitely-missing-claude-command ENOENT |
+| 2026-05-11T18:08:09.295Z | health_probe_failed |  |  | 0 | 0 |  |  |  | spawn definitely-missing-claude-command ENOENT |
+| 2026-05-11T18:08:07.558Z | degraded_mode_entered |  |  | 0 | 0 |  |  |  | Command failed: claude -p --output-format json ping<br>Claude CLI returned error result: Credit balance is too low |
+| 2026-05-11T18:08:07.453Z | health_probe_failed |  |  | 0 | 0 |  |  |  | Command failed: claude -p --output-format json ping<br>Claude CLI returned error result: Credit balance is too low |
 
 ## Final Verdict
 
-DEGRADED_ONLY: Claude consults could not complete live, but degraded behavior and read-only tooling were validated. See scenario evidence for the blocking error.
+BLOCKED_BY_CLAUDE_ENV: The MCP works as a real stdio MCP application for tool registration, registry reads, inspect/archive, degraded-mode blocking, reset rejection, SQLite persistence, and observability; real Claude consult creation is blocked by external Claude CLI environment/billing/auth state. See diagnosis report.
+
+Root cause evidence: Claude CLI is installed and its JSON output shape is compatible, but the real adapter invocation returns `is_error: true` with `Credit balance is too low`.
+
+Exact operator action: Add/restore Claude API/Code credit or switch Claude CLI to an authenticated account with available usage, then rerun `node scripts/live-e2e.mjs`.
+
 
 ## Evidence JSON
 
