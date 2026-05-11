@@ -13,7 +13,7 @@ export function parseSessionUpdate(response: string): ParsedSessionUpdate | null
     return null;
   }
 
-  const answer = response.slice(0, markerIndex).trim();
+  const answer = cleanAnswerBeforeMarker(response.slice(0, markerIndex));
   const jsonText = normalizeUpdateJsonText(response.slice(markerIndex + UPDATE_MARKER.length));
   const parsed: any = JSON.parse(jsonText);
   return {
@@ -22,10 +22,17 @@ export function parseSessionUpdate(response: string): ParsedSessionUpdate | null
   };
 }
 
+function cleanAnswerBeforeMarker(text: string): string {
+  return text
+    .trim()
+    .replace(/\n?```(?:json)?\s*$/i, "")
+    .trim();
+}
+
 function normalizeUpdateJsonText(rawText: string): string {
-  const trimmed = rawText.trim();
+  let trimmed = rawText.trim();
   if (!trimmed.startsWith("```")) {
-    return trimmed;
+    return extractFirstJsonObject(trimmed);
   }
 
   const firstLineEnd = trimmed.indexOf("\n");
@@ -36,10 +43,57 @@ function normalizeUpdateJsonText(rawText: string): string {
   const withoutFenceStart = trimmed.slice(firstLineEnd + 1).trim();
   const fenceEnd = withoutFenceStart.lastIndexOf("```");
   if (fenceEnd < 0) {
-    return withoutFenceStart;
+    trimmed = withoutFenceStart;
+  } else {
+    trimmed = withoutFenceStart.slice(0, fenceEnd).trim();
   }
 
-  return withoutFenceStart.slice(0, fenceEnd).trim();
+  return extractFirstJsonObject(trimmed);
+}
+
+function extractFirstJsonObject(text: string): string {
+  const start = text.indexOf("{");
+  if (start < 0) {
+    return text.trim();
+  }
+
+  let depth = 0;
+  let inString = false;
+  let escaped = false;
+
+  for (let index = start; index < text.length; index += 1) {
+    const char = text[index];
+
+    if (escaped) {
+      escaped = false;
+      continue;
+    }
+
+    if (char === "\\") {
+      escaped = inString;
+      continue;
+    }
+
+    if (char === '"') {
+      inString = !inString;
+      continue;
+    }
+
+    if (inString) {
+      continue;
+    }
+
+    if (char === "{") {
+      depth += 1;
+    } else if (char === "}") {
+      depth -= 1;
+      if (depth === 0) {
+        return text.slice(start, index + 1).trim();
+      }
+    }
+  }
+
+  return text.slice(start).trim();
 }
 
 export function sanitizeSessionUpdate(update: any): SessionUpdateData {

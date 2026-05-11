@@ -20,7 +20,7 @@
 - The spec says to run a fixture resume probe if a stored test fixture session exists, but does not define fixture storage. Conservative implementation decision: skip fixture probe when absent and do not fail health because no fixture exists.
 - Claude session file lookup is required, but exact Claude storage layout may vary by CLI version. Conservative implementation decision: isolate lookup in `claude.ts` and search the default Claude project/session areas without adding extra config knobs.
 - MCP wire formatting is not specified beyond semantic JSON payloads. Conservative implementation decision: use the standard MCP SDK tool result format and put the spec JSON as the semantic payload.
-- `COMPATIBILITY.md` must use placeholder tested-version values until deliberate release verification is performed.
+- `COMPATIBILITY.md` used placeholder tested-version values during implementation. After live validation, Claude Code `2.1.138 (Claude Code)` was deliberately verified and recorded for release publication.
 
 ## Parking lot
 
@@ -75,3 +75,12 @@
 - `claude_session_archive` now uses the same per-session lock as consults, so archive and resume cannot write the same Claude session concurrently.
 - Claude token metrics now read nested `usage.input_tokens` and `usage.output_tokens` from current Claude JSON output before falling back to estimates.
 - Degraded-mode diagnostics now classify `You've hit your limit` as `claude_usage_limit` with an operator action that says to wait for the reset time or switch to an account with available usage.
+- SESSION_UPDATE_JSON parsing now accepts the live Claude shape where the marker appears inside a fenced `json` block and ignores trailing prose/fence text after the first balanced JSON object.
+
+## Publication Readiness Review
+
+- Helper documentation audit confirmed the release-facing docs needed verified compatibility, stale quota-note cleanup, generic MCP client paths, GitHub metadata, and post-fix live evidence in README.
+- Helper regression audit found no remaining production code must-fix after `LIVE_TARGETED_RERUN.md`; it recommended hardening the targeted rerun assertion so archive/consult race validation also verifies replacement-session creation.
+- Publication metadata now points at `https://github.com/wertorok/AgentSessionRouter` while keeping `"private": true` and `"license": "UNLICENSED"` until a license is deliberately chosen.
+- The historical full live matrix recommendation remains in `LIVE_TEST_LOG.md`, with a post-fix note pointing to the targeted live rerun that validated the fixed production paths.
+- Final targeted live rerun after parser hardening passed with 4 Haiku consult attempts: same-topic concurrent null consults, archive/consult serialization, and nested token metrics all passed with parsed session updates.

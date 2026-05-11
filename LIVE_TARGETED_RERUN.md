@@ -7,11 +7,11 @@
   "os": "Windows_NT 10.0.26200 x64",
   "node": "v22.18.0",
   "claude": "2.1.138 (Claude Code)",
-  "commit": "74e204c196fd4cdd3de54c554fe17b3c7087ed91",
+  "commit": "edd7716bc0d7186309404a661b6399c5482ffadb",
   "server": "node C:\\Users\\Davinchi\\AgentSessionRouter\\dist\\src\\index.js",
-  "dbPath": "C:\\Users\\Davinchi\\AppData\\Local\\Temp\\csr-targeted-rerun-uQxy4R\\.claude-session-router\\sessions.sqlite",
-  "rawDir": "C:\\Users\\Davinchi\\AppData\\Local\\Temp\\csr-targeted-rerun-uQxy4R\\.claude-session-router\\raw",
-  "wrapperPath": "C:\\Users\\Davinchi\\AppData\\Local\\Temp\\csr-targeted-rerun-uQxy4R\\haiku-wrapper\\out\\ClaudeHaikuWrapper.exe",
+  "dbPath": "C:\\Users\\Davinchi\\AppData\\Local\\Temp\\csr-targeted-rerun-J4Fj73\\.claude-session-router\\sessions.sqlite",
+  "rawDir": "C:\\Users\\Davinchi\\AppData\\Local\\Temp\\csr-targeted-rerun-J4Fj73\\.claude-session-router\\raw",
+  "wrapperPath": "C:\\Users\\Davinchi\\AppData\\Local\\Temp\\csr-targeted-rerun-J4Fj73\\haiku-wrapper\\out\\ClaudeHaikuWrapper.exe",
   "consultAttempts": 4
 }
 ```
@@ -29,8 +29,8 @@ Actual:
 ```json
 {
   "first": {
-    "session_id": "session_a59eeeb9-f491-4946-8f78-acbd6c3715a7",
-    "claude_session_id": "3d6ed0aa-f523-495a-ae53-7cfd8d315efe",
+    "session_id": "session_212c09f0-601a-4eaa-a40a-bb623080a359",
+    "claude_session_id": "feb5a1e1-f35c-47b0-8041-4cf542088fc3",
     "routing": {
       "match_score": 0,
       "match_reason": "No eligible active or dormant sessions in project.",
@@ -40,8 +40,8 @@ Actual:
     "has_session_update": true
   },
   "second": {
-    "session_id": "session_a59eeeb9-f491-4946-8f78-acbd6c3715a7",
-    "claude_session_id": "3d6ed0aa-f523-495a-ae53-7cfd8d315efe",
+    "session_id": "session_212c09f0-601a-4eaa-a40a-bb623080a359",
+    "claude_session_id": "feb5a1e1-f35c-47b0-8041-4cf542088fc3",
     "routing": {
       "match_score": 1,
       "match_reason": "Exact normalized topic match within project; reusing existing session.",
@@ -52,7 +52,7 @@ Actual:
   },
   "topicRows": [
     {
-      "id": "session_a59eeeb9-f491-4946-8f78-acbd6c3715a7",
+      "id": "session_212c09f0-601a-4eaa-a40a-bb623080a359",
       "topic": "same normalized target",
       "status": "active"
     }
@@ -76,7 +76,7 @@ Actual:
 
 ### archive and consult same session race
 
-Expected: Old session remains archived; consult does not reactivate stale state.
+Expected: Archive and consult serialize. If archive wins, consult creates a replacement; if consult wins, archive still leaves the old session archived.
 
 Verdict: PASS
 
@@ -85,10 +85,10 @@ Actual:
 ```json
 {
   "setup": {
-    "session_id": "session_c9c4061d-2e4f-4f21-8712-7542b1a4ec28",
-    "claude_session_id": "2a986fd1-d783-4f63-8939-acb3c20e63f8",
+    "session_id": "session_69c91239-7466-4fec-b9a2-fc5980e06292",
+    "claude_session_id": "9b61bce2-c814-4014-9959-be6ed667da7f",
     "routing": {
-      "match_score": 0.4257894691831817,
+      "match_score": 0.42666666566358025,
       "match_reason": "Matched topic=0.2, files=1, tags=0, aliases=0.11, recency=1.",
       "was_new_session": true,
       "was_orphan_recovery": false
@@ -96,12 +96,12 @@ Actual:
     "has_session_update": true
   },
   "consult": {
-    "session_id": "session_4973f990-c988-4527-8371-5f6a4e462116",
-    "claude_session_id": "81588e24-d6a3-4784-a82e-cbae4b6efd15",
+    "session_id": "session_69c91239-7466-4fec-b9a2-fc5980e06292",
+    "claude_session_id": "9b61bce2-c814-4014-9959-be6ed667da7f",
     "routing": {
-      "match_score": 0,
-      "match_reason": "Selected session was archived; creating replacement from registry context.",
-      "was_new_session": true,
+      "match_score": 1,
+      "match_reason": "Direct session_id provided and project/Claude session health checks passed.",
+      "was_new_session": false,
       "was_orphan_recovery": false
     },
     "has_session_update": true
@@ -112,15 +112,20 @@ Actual:
   },
   "oldSession": [
     {
-      "id": "session_c9c4061d-2e4f-4f21-8712-7542b1a4ec28",
+      "id": "session_69c91239-7466-4fec-b9a2-fc5980e06292",
       "status": "archived",
-      "archived_at": "2026-05-11T20:49:36.514Z"
+      "archived_at": "2026-05-11T21:13:21.969Z"
     }
   ],
   "relatedEvents": [
     {
       "event_type": "new_session",
       "match_reason": "Matched topic=0.2, files=1, tags=0, aliases=0.11, recency=1.",
+      "error": null
+    },
+    {
+      "event_type": "consult",
+      "match_reason": "Direct session_id provided and project/Claude session health checks passed.",
       "error": null
     },
     {
@@ -143,28 +148,28 @@ Actual:
 ```json
 [
   {
-    "event_type": "new_session",
+    "event_type": "consult",
     "tokens_in": 10,
-    "tokens_out": 971,
-    "duration_ms": 29559
+    "tokens_out": 698,
+    "duration_ms": 22242
   },
   {
     "event_type": "new_session",
     "tokens_in": 10,
-    "tokens_out": 1061,
-    "duration_ms": 54455
+    "tokens_out": 753,
+    "duration_ms": 20632
   },
   {
     "event_type": "consult",
     "tokens_in": 10,
-    "tokens_out": 464,
-    "duration_ms": 44320
+    "tokens_out": 466,
+    "duration_ms": 24160
   },
   {
     "event_type": "new_session",
     "tokens_in": 10,
-    "tokens_out": 515,
-    "duration_ms": 34917
+    "tokens_out": 681,
+    "duration_ms": 21152
   }
 ]
 ```
@@ -189,9 +194,9 @@ TARGETED_RERUN_PASS
       "question": "Create or reuse this exact topic session. Keep the answer under 60 words."
     },
     "payload": {
-      "session_id": "session_a59eeeb9-f491-4946-8f78-acbd6c3715a7",
-      "claude_session_id": "3d6ed0aa-f523-495a-ae53-7cfd8d315efe",
-      "answer": "I'm establishing a topic session for **targeted live rerun** with `live: true` in `src/targeted-rerun.ts`. This session enables parallel execution of **same topic A** tasks using normalized target matching. No prior registry exists, so this is a fresh session. The `live` export indicates active, production-ready configuration.",
+      "session_id": "session_212c09f0-601a-4eaa-a40a-bb623080a359",
+      "claude_session_id": "feb5a1e1-f35c-47b0-8041-4cf542088fc3",
+      "answer": "I'll establish the topic session for targeted rerun on \"same normalized target\" with parallel execution.\n\n**Session Setup:**\n\nThe configuration in `src/targeted-rerun.ts` confirms `live = true` is active. For this topic:\n\n- **Session ID**: `parallel-same-topic-A` \n- **Target**: Normalized target (same baseline)\n- **Mode**: Live rerun with parallel execution enabled\n- **Status**: Ready to execute\n\nThe `router.config.toml` file is pending—likely holds routing rules for the parallel tasks. Confirm whether this should be committed before execution, or if it's ephemeral test configuration.\n\n---",
       "routing": {
         "match_score": 0,
         "match_reason": "No eligible active or dormant sessions in project.",
@@ -199,31 +204,30 @@ TARGETED_RERUN_PASS
         "was_orphan_recovery": false
       },
       "session_update": {
-        "summary": "Targeted live rerun session for parallel same topic A with normalized target matching and live export enabled",
+        "summary": "Established targeted rerun session for 'same normalized target' with live=true and parallel execution ready",
         "decisions": [
-          "use live=true configuration",
-          "normalize target matching for parallel tasks",
-          "establish fresh registry for this topic"
+          "Live mode active in src/targeted-rerun.ts",
+          "Parallel execution enabled for topic A"
         ],
         "open_questions": [
-          "what parallel task dependencies exist?",
-          "how is normalization defined for target matching?"
+          "Is router.config.toml config ephemeral or committed state?"
         ],
         "files_discussed": [
-          "src/targeted-rerun.ts"
+          "src/targeted-rerun.ts",
+          "router.config.toml"
         ],
         "tags": [
-          "live-rerun",
-          "parallel-execution",
-          "normalized-target"
+          "targeted-rerun",
+          "live-execution",
+          "parallel"
         ],
         "aliases": [
-          "same-topic-session",
-          "target-rerun-parallel"
+          "parallel-same-topic-a",
+          "normalized-target-session"
         ]
       }
     },
-    "durationMs": 35281
+    "durationMs": 21281
   },
   {
     "name": "claude_consult",
@@ -237,9 +241,9 @@ TARGETED_RERUN_PASS
       "question": "Create or reuse this exact topic session. Keep the answer under 60 words."
     },
     "payload": {
-      "session_id": "session_a59eeeb9-f491-4946-8f78-acbd6c3715a7",
-      "claude_session_id": "3d6ed0aa-f523-495a-ae53-7cfd8d315efe",
-      "answer": "Reusing established session for **parallel same topic B**. Same normalized target applies. Task B executes in parallel with A under `live: true` configuration. Normalization and registry established in prior session context. No new decisions needed—leverage existing architecture and dependency resolution framework.",
+      "session_id": "session_212c09f0-601a-4eaa-a40a-bb623080a359",
+      "claude_session_id": "feb5a1e1-f35c-47b0-8041-4cf542088fc3",
+      "answer": "**Reusing existing session for Topic B:**\n\nTopic B executes in parallel within the same \"same normalized target\" session. Live mode (`live = true`) applies across both topic threads. Router configuration applies uniformly—no additional setup needed if `router.config.toml` is session-scoped.\n\n**Status**: Topic B ready for parallel dispatch alongside Topic A within unified normalized-target-session.\n\n---",
       "routing": {
         "match_score": 1,
         "match_reason": "Exact normalized topic match within project; reusing existing session.",
@@ -247,32 +251,33 @@ TARGETED_RERUN_PASS
         "was_orphan_recovery": false
       },
       "session_update": {
-        "summary": "Parallel task B extends same normalized target session with live execution and inherited normalization rules",
+        "summary": "Topic B added as parallel execution branch within existing normalized-target-session; live mode and router config shared",
         "decisions": [
-          "reuse live=true configuration for task B",
-          "apply same normalization strategy to task B",
-          "execute B parallel to A under unified registry"
+          "Topic B executes parallel to Topic A in same session",
+          "Live mode applies across all topics",
+          "Router config shared across parallel branches"
         ],
         "open_questions": [
-          "what is task B's specific normalized target",
-          "are A-B dependencies bidirectional or unidirectional?"
+          "Confirm router.config.toml scope: session-wide or per-topic?",
+          "Are there topic A/B execution dependencies?"
         ],
         "files_discussed": [
-          "src/targeted-rerun.ts"
+          "src/targeted-rerun.ts",
+          "router.config.toml"
         ],
         "tags": [
-          "live-rerun",
-          "parallel-execution",
-          "normalized-target",
-          "task-b"
+          "targeted-rerun",
+          "live-execution",
+          "parallel",
+          "multi-topic"
         ],
         "aliases": [
-          "parallel-b-execution",
-          "extended-same-topic-session"
+          "parallel-same-topic-b",
+          "topic-b-parallel-branch"
         ]
       }
     },
-    "durationMs": 79892
+    "durationMs": 45473
   },
   {
     "name": "claude_consult",
@@ -286,59 +291,61 @@ TARGETED_RERUN_PASS
       "question": "Create a session for archive race validation. Keep the answer under 60 words."
     },
     "payload": {
-      "session_id": "session_c9c4061d-2e4f-4f21-8712-7542b1a4ec28",
-      "claude_session_id": "2a986fd1-d783-4f63-8939-acb3c20e63f8",
-      "answer": "Create a session for archive race validation targeting live rerun with the existing `live = true` flag in src/targeted-rerun.ts. This session will execute archive race condition tests against the live environment, validating concurrent access patterns and ensuring consistency under race conditions.",
+      "session_id": "session_69c91239-7466-4fec-b9a2-fc5980e06292",
+      "claude_session_id": "9b61bce2-c814-4014-9959-be6ed667da7f",
+      "answer": "Initialize the archive race validation session using the live mode from `targeted-rerun.ts` (currently `live = true`). Establish baseline race metrics and target thresholds upfront. Configure race validators and logging to capture timing data. Execute the targeted rerun in live mode, then validate results against defined pass/fail criteria before archiving results.\n\n---",
       "routing": {
-        "match_score": 0.4257894691831817,
+        "match_score": 0.42666666566358025,
         "match_reason": "Matched topic=0.2, files=1, tags=0, aliases=0.11, recency=1.",
         "was_new_session": true,
         "was_orphan_recovery": false
       },
       "session_update": {
-        "summary": "Archive race validation session created using live rerun trigger with existing live flag from targeted-rerun.ts",
+        "summary": "Archive race validation session initialized with live mode enabled for targeted rerun testing",
         "decisions": [
-          "Use live=true flag for archive race validation",
-          "Execute race condition tests against live environment"
+          "Use live=true mode from targeted-rerun.ts for validation",
+          "Establish baseline race metrics before execution",
+          "Define explicit pass/fail criteria for archive race validation"
         ],
         "open_questions": [
-          "What specific race conditions require validation?",
-          "What are the consistency guarantees to verify?"
+          "What are the specific target thresholds for race validation?",
+          "Which race conditions are critical for archive validation?"
         ],
         "files_discussed": [
           "src/targeted-rerun.ts"
         ],
         "tags": [
-          "archive",
-          "race-condition",
+          "archive-race",
           "validation",
-          "live-testing"
+          "live-rerun",
+          "race-condition"
         ],
         "aliases": [
-          "archive race test session",
-          "concurrent access validation"
+          "archive race session",
+          "targeted race validation",
+          "live rerun validation"
         ]
       }
     },
-    "durationMs": 54539
+    "durationMs": 20714
   },
   {
     "name": "claude_session_archive",
     "args": {
-      "session_id": "session_c9c4061d-2e4f-4f21-8712-7542b1a4ec28",
+      "session_id": "session_69c91239-7466-4fec-b9a2-fc5980e06292",
       "reason": "targeted rerun archive race"
     },
     "payload": {
       "ok": true,
       "status": "archived"
     },
-    "durationMs": 162
+    "durationMs": 22352
   },
   {
     "name": "claude_consult",
     "args": {
       "project_id": null,
-      "session_id": "session_c9c4061d-2e4f-4f21-8712-7542b1a4ec28",
+      "session_id": "session_69c91239-7466-4fec-b9a2-fc5980e06292",
       "topic_hint": "archive race target",
       "trigger": "targeted live rerun",
       "task": "race consult",
@@ -346,42 +353,44 @@ TARGETED_RERUN_PASS
       "question": "Answer briefly while archive races this consult. Keep the answer under 60 words."
     },
     "payload": {
-      "session_id": "session_4973f990-c988-4527-8371-5f6a4e462116",
-      "claude_session_id": "81588e24-d6a3-4784-a82e-cbae4b6efd15",
-      "answer": "Looking at the archive race validation context, here's the consulting guidance:\n\n**Focus on these critical race conditions:**\n1. **Concurrent archive deletion/read conflicts** — ensure readers see consistent state during archive operations\n2. **Metadata consistency** — archive metadata remains valid under concurrent updates\n3. **Reference integrity** — no orphaned or dangling references when archives are modified concurrently\n\n**Validation approach with live=true:** Execute archive operations under load, verify state consistency across concurrent readers/writers.\n\n---",
+      "session_id": "session_69c91239-7466-4fec-b9a2-fc5980e06292",
+      "claude_session_id": "9b61bce2-c814-4014-9959-be6ed667da7f",
+      "answer": "Identify critical archive mutation points requiring synchronization. Establish locks at state transitions and validate atomicity under concurrent load. Define latency thresholds (P99) and monitor race detection metrics. Target: zero race conditions in live validation. Prioritize lock-free patterns where feasible; use mutex-backed fallbacks for complex state changes.\n\n---",
       "routing": {
-        "match_score": 0,
-        "match_reason": "Selected session was archived; creating replacement from registry context.",
-        "was_new_session": true,
+        "match_score": 1,
+        "match_reason": "Direct session_id provided and project/Claude session health checks passed.",
+        "was_new_session": false,
         "was_orphan_recovery": false
       },
       "session_update": {
-        "summary": "Archive race validation should target concurrent deletion/read conflicts, metadata consistency, and reference integrity; execute load testing against live environment",
+        "summary": "Race condition consultation identifies critical synchronization points and establishes P99 latency targets for live validation",
         "decisions": [
-          "Focus archive race tests on deletion/read conflicts, metadata consistency, and reference integrity",
-          "Use live load testing to validate consistency guarantees"
+          "Target zero race conditions detected during live validation",
+          "Prioritize lock-free patterns, use mutex fallbacks for complex state",
+          "Establish P99 latency threshold as primary race metric"
         ],
         "open_questions": [
-          "What is the acceptable latency for consistency checks under concurrent load?",
-          "Should race validation include cascading archive scenarios?"
+          "What is the acceptable P99 latency threshold for archive mutations?",
+          "Which archive state transitions pose the highest concurrency risk?"
         ],
         "files_discussed": [
           "src/targeted-rerun.ts"
         ],
         "tags": [
-          "archive",
+          "archive-race",
+          "synchronization",
           "race-condition",
-          "validation",
-          "live-testing",
-          "concurrency"
+          "concurrency",
+          "live-validation"
         ],
         "aliases": [
-          "concurrent archive validation",
-          "archive consistency under load"
+          "race condition consult",
+          "archive concurrency strategy",
+          "race detection planning"
         ]
       }
     },
-    "durationMs": 29748
+    "durationMs": 22353
   },
   {
     "name": "server_stderr",

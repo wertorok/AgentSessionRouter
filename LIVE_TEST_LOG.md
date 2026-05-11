@@ -688,7 +688,7 @@ DB state snapshot:
 Verdict: UNEXPECTED
 
 Notes:
-This is a deliberate spec/brief ambiguity from earlier discussion; implementation currently routes automatically.
+This was a deliberate spec/brief ambiguity from earlier discussion. Accepted behavior is now explicit: `session_id:null` means auto-route first, then create a new session only if no eligible same-project match reaches `threshold_low_confidence`.
 
 ---
 
@@ -15223,3 +15223,17 @@ Notes:
 
 ### Recommendation
 NEEDS FIXES
+
+## Post-Fix Regression Note
+
+The `NEEDS FIXES` recommendation above reflects the original full live matrix run.
+
+The critical findings from that run were fixed later and validated by `LIVE_TARGETED_RERUN.md`:
+
+- 7.2 duplicate sessions from concurrent null consults with the same normalized topic: fixed by exact normalized topic reuse plus route revalidation under the topic lock.
+- 13.4 archive + consult race: fixed by using the same per-session lock for archive and consult, and by preventing stale route reactivation after archive.
+- 14.1 token metrics from current Claude JSON: fixed by reading nested `usage.input_tokens` and `usage.output_tokens` before falling back to estimates.
+
+Post-fix targeted live verdict: `TARGETED_RERUN_PASS`.
+
+The full matrix was not rerun end-to-end after these fixes to avoid unnecessary live Claude spend. The targeted rerun exercised the exact production paths behind the critical findings with the real MCP server, real Claude CLI, real SQLite registry, and real stdio MCP client.

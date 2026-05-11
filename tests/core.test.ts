@@ -164,6 +164,44 @@ SESSION_UPDATE_JSON:
     expect(parsed?.update.aliases).toEqual(["live auth routing"]);
   });
 
+  it("parses SESSION_UPDATE_JSON when Claude places the marker inside a fenced json block", () => {
+    const parsed = parseSessionUpdate(`Answer text.
+
+\`\`\`json
+SESSION_UPDATE_JSON:
+{
+  "summary": "Marker inside fence should still parse.",
+  "decisions": ["Accept marker inside fence"],
+  "open_questions": [],
+  "files_discussed": ["src/auth/live-e2e.ts"],
+  "tags": ["Router"],
+  "aliases": ["Fenced Marker"]
+}
+\`\`\``);
+
+    expect(parsed?.answer).toBe("Answer text.");
+    expect(parsed?.update.summary).toBe("Marker inside fence should still parse.");
+    expect(parsed?.update.tags).toEqual(["router"]);
+    expect(parsed?.update.aliases).toEqual(["fenced marker"]);
+  });
+
+  it("ignores trailing prose after SESSION_UPDATE_JSON", () => {
+    const parsed = parseSessionUpdate(`Answer text.
+
+SESSION_UPDATE_JSON:
+{
+  "summary": "Trailing text should not break parsing.",
+  "decisions": [],
+  "open_questions": [],
+  "files_discussed": [],
+  "tags": [],
+  "aliases": []
+}
+Extra text from Claude.`);
+
+    expect(parsed?.update.summary).toBe("Trailing text should not break parsing.");
+  });
+
   it("extracts nested Claude usage token counts", () => {
     const parsed = parseClaudeJson(
       JSON.stringify({

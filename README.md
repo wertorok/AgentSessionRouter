@@ -4,6 +4,8 @@ Persistent Claude Session Router MCP is a local MCP server that lets a parent co
 
 It is not a thin proxy. It keeps a compact SQLite registry of Claude sessions, routing decisions, summaries, durable decisions, files, tags, aliases, lifecycle state, cost events, and error diagnostics. Claude's full conversation history stays in Claude Code's own session files; this server stores the durable index and routing memory around those sessions.
 
+Repository: https://github.com/wertorok/AgentSessionRouter
+
 ## What This Solves
 
 - Avoids resending full historical context on every consultation.
@@ -25,17 +27,14 @@ Implemented MVP tools:
 
 Validation performed:
 
-- Unit/integration tests: `21 passed`
-- Live MCP stdio E2E: passed before quota exhaustion
+- Unit/integration tests: `23 passed`
+- Live MCP stdio E2E: `LIVE_CONSULT_PASS`
 - Live matrix run: committed as `LIVE_TEST_LOG.md`
+- Post-fix targeted live rerun: `TARGETED_RERUN_PASS`
 
-Important current note: the latest live matrix run eventually hit the Claude account usage limit:
+The full live matrix found three important issues: duplicate same-topic concurrent sessions, archive/consult races, and incomplete token extraction for current Claude JSON. Those were fixed in `c24986c` and verified by `LIVE_TARGETED_RERUN.md`.
 
-```txt
-You've hit your limit; resets 9:40pm (Europe/London)
-```
-
-The server now classifies this as `claude_usage_limit` and returns an actionable `operator_action`.
+Claude usage-limit responses are classified as `claude_usage_limit` and include an actionable `operator_action`.
 
 ## Requirements
 
@@ -78,7 +77,7 @@ The process uses stdio for MCP transport. Do not expect normal logs on stdout; s
 Use the built server entry point:
 
 ```txt
-node C:\Users\Davinchi\AgentSessionRouter\dist\src\index.js
+node <repo-root>\dist\src\index.js
 ```
 
 Generic MCP server config shape:
@@ -89,7 +88,7 @@ Generic MCP server config shape:
     "claude-session-router": {
       "command": "node",
       "args": [
-        "C:\\Users\\Davinchi\\AgentSessionRouter\\dist\\src\\index.js"
+        "C:\\path\\to\\AgentSessionRouter\\dist\\src\\index.js"
       ]
     }
   }
@@ -146,6 +145,14 @@ To share one registry across multiple launched server cwd values, set absolute `
 ## Compatibility
 
 `COMPATIBILITY.md` records verified external CLI versions.
+
+Currently verified:
+
+```txt
+claude-code:
+  tested: ["2.1.138 (Claude Code)"]
+  last_verified: 2026-05-11
+```
 
 On startup the server:
 
@@ -676,15 +683,25 @@ Reports already present in this repo:
 - `CLAUDE_LIVE_DIAGNOSIS.md`
 - `LIVE_E2E_REPORT.md`
 - `LIVE_TEST_LOG.md`
+- `LIVE_TARGETED_RERUN.md`
 
-Run the live matrix harness:
+Preferred post-fix live regression:
+
+```powershell
+npm run build
+node scripts/live-targeted-rerun.mjs
+```
+
+This rerun makes a small number of real Claude calls and checks the production paths that were fixed after the full matrix: same-topic concurrent null consults, archive/consult races, and token metrics.
+
+Run the full live matrix harness when you need broader rehearsal coverage:
 
 ```powershell
 npm run build
 node scripts/live-test-matrix.mjs
 ```
 
-This harness makes real Claude calls and can consume account quota. It creates temporary projects under the OS temp directory and logs results into `LIVE_TEST_LOG.md`.
+The full matrix makes many real Claude calls and can consume account quota. It creates temporary projects under the OS temp directory and logs results into `LIVE_TEST_LOG.md`.
 
 The harness uses a Haiku wrapper for cost control on Windows because Node cannot spawn `.cmd` wrappers directly as a normal executable in this setup.
 
@@ -717,8 +734,31 @@ tests/
 scripts/
   diagnose-claude-live.mjs
   live-e2e.mjs
+  live-targeted-rerun.mjs
   live-test-matrix.mjs
 ```
+
+## Publication Notes
+
+This repository is prepared for GitHub publication at:
+
+```txt
+https://github.com/wertorok/AgentSessionRouter
+```
+
+The package remains `"private": true` and `"license": "UNLICENSED"` so it cannot be accidentally published to npm and does not grant an open-source license by implication. Choose and add a license before advertising the repository as open source.
+
+Suggested final publish flow:
+
+```powershell
+npm install
+npm run build
+npm test
+git remote add origin https://github.com/wertorok/AgentSessionRouter.git
+git push -u origin master
+```
+
+If `origin` already exists, use `git remote set-url origin https://github.com/wertorok/AgentSessionRouter.git`.
 
 ## Known MVP Boundaries
 
@@ -742,7 +782,7 @@ Before using in a real project:
 1. Run `npm run build`.
 2. Run `npm test`.
 3. Verify `claude -p --output-format json "ping"`.
-4. Update `COMPATIBILITY.md` with deliberately verified Claude CLI versions.
+4. Confirm your installed Claude CLI version is listed in `COMPATIBILITY.md`; update it only after deliberate verification.
 5. Decide whether registry storage should be project-local or absolute/shared.
 6. Configure cost limits for your account budget.
 7. Add the MCP server to your parent agent config.

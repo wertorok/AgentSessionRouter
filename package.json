@@ -1,11 +1,28 @@
 {
   "name": "persistent-claude-session-router-mcp",
   "version": "0.1.0",
+  "description": "MCP server that routes coding-agent consultations through persistent project-scoped Claude CLI sessions.",
   "private": true,
+  "license": "UNLICENSED",
   "type": "module",
   "engines": {
     "node": ">=20"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wertorok/AgentSessionRouter.git"
+  },
+  "bugs": {
+    "url": "https://github.com/wertorok/AgentSessionRouter/issues"
+  },
+  "homepage": "https://github.com/wertorok/AgentSessionRouter#readme",
+  "keywords": [
+    "mcp",
+    "claude",
+    "claude-code",
+    "session-router",
+    "sqlite"
+  ],
   "bin": {
     "claude-session-router-mcp": "./dist/src/index.js"
   },

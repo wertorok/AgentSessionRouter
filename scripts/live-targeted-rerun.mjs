@@ -170,11 +170,19 @@ async function scenarioArchiveConsultRace(client) {
   ]);
   const oldSession = rows("SELECT id, status, archived_at FROM sessions WHERE id = ?", [sessionId]);
   const relatedEvents = rows("SELECT event_type, match_reason, error FROM session_events WHERE session_id = ? ORDER BY id", [sessionId]);
+  const replacementCreated =
+    Boolean(consult.payload.session_id) &&
+    consult.payload.session_id !== sessionId &&
+    consult.payload.routing?.was_new_session === true;
   addScenario({
     name: "archive and consult same session race",
-    expected: "Old session remains archived; consult does not reactivate stale state.",
+    expected: "Archive and consult serialize. If archive wins, consult creates a replacement; if consult wins, archive still leaves the old session archived.",
     actual: { setup: summarize(setup.payload), consult: summarize(consult.payload), archive: archive.payload, oldSession, relatedEvents },
-    pass: oldSession[0]?.status === "archived" && Boolean(oldSession[0]?.archived_at)
+    pass:
+      archive.payload.ok === true &&
+      oldSession[0]?.status === "archived" &&
+      Boolean(oldSession[0]?.archived_at) &&
+      (replacementCreated || consult.payload.session_id === sessionId)
   });
 }
 
@@ -358,4 +366,3 @@ function tomlPath(filePath) {
 function tomlString(value) {
   return value.replaceAll("\\", "\\\\").replaceAll("\"", "\\\"");
 }
-

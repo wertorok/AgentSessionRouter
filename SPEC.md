@@ -116,7 +116,7 @@ If `project_id` is null, the server derives it from the current working director
 
 ### 4.2 `claude_consult`
 
-Calls Claude in a selected session or creates a new session if `session_id` is null.
+Calls Claude in a selected session, or auto-routes within the same project and creates a new session only if no eligible match is found when `session_id` is null.
 
 #### Input
 
@@ -1341,6 +1341,8 @@ Relative paths in config are resolved relative to the directory containing the c
 
 ## 23. MVP Implementation Checklist
 
+This checklist is the original source-of-truth implementation checklist from the production spec. Current implementation and validation status is documented in `README.md`, `IMPLEMENTATION_NOTES.md`, `LIVE_E2E_REPORT.md`, `LIVE_TEST_LOG.md`, and `LIVE_TARGETED_RERUN.md`.
+
 ### Storage
 
 - [ ] SQLite database initialization.
@@ -1523,4 +1525,3 @@ Observability:
 ```
 
 This is a production-ready foundation for using Claude as a persistent domain-aware architect while Codex or Claude Code remains the execution agent.
-
