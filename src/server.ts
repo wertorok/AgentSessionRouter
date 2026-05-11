@@ -2,6 +2,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import type { RouterRuntime, RuntimeOptions } from "./runtime.js";
 import { createRuntime } from "./runtime.js";
+import { registerTools } from "./tools.js";
 
 export class RouterServer {
   private runtime: RouterRuntime | null = null;
@@ -14,6 +15,7 @@ export class RouterServer {
       name: "persistent-claude-session-router-mcp",
       version: "0.1.0"
     });
+    registerTools(server, this.runtime);
 
     await server.connect(new StdioServerTransport());
   }

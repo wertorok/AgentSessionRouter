@@ -24,6 +24,7 @@ export class RouterRuntime {
   testedClaudeVersions: string[] = [];
 
   constructor(
+    readonly cwd: string,
     readonly config: RouterConfig,
     readonly db: RouterDatabase,
     readonly claude: ClaudeAdapter,
@@ -90,7 +91,7 @@ export async function createRuntime(options: RuntimeOptions = {}): Promise<Route
   const config = loadConfig({ cwd, configPath: options.configPath });
   const db = RouterDatabase.open(config.storage.dbPath, clock);
   const claude = options.claude ?? new CliClaudeAdapter(config);
-  const runtime = new RouterRuntime(config, db, claude, clock, log);
+  const runtime = new RouterRuntime(cwd, config, db, claude, clock, log);
   await runtime.boot();
   return runtime;
 }

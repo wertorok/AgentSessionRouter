@@ -2,8 +2,39 @@ import { mkdirSync } from "node:fs";
 import path from "node:path";
 import Database from "better-sqlite3";
 import type { Clock } from "./clock.js";
+import { daysBetweenIso } from "./clock.js";
+import type { SessionStatus } from "./constants.js";
 import type { EventType } from "./constants.js";
 import { SCHEMA_SQL } from "./schema.js";
+
+export interface SessionRecord {
+  id: string;
+  project_id: string;
+  claude_session_id: string;
+  topic: string;
+  summary: string | null;
+  status: SessionStatus;
+  ttl_days: number;
+  dormant_after_days: number;
+  archive_after_days: number;
+  archived_at: string | null;
+  last_used: string;
+  created_at: string;
+}
+
+export interface SessionListItem {
+  id: string;
+  claude_session_id: string;
+  topic: string;
+  status: SessionStatus;
+  last_used: string;
+  summary: string;
+  decisions: string[];
+  open_questions: string[];
+  files_discussed: string[];
+  tags: string[];
+  aliases: string[];
+}
 
 export interface EventInsert {
   sessionId?: string | null;
@@ -87,5 +118,97 @@ export class RouterDatabase {
   close(): void {
     this.db.close();
   }
-}
 
+  applyLifecycle(projectId?: string): void {
+    const sessions = this.selectLifecycleSessions(projectId);
+    for (const session of sessions) {
+      const ageDays = daysBetweenIso(this.clock, session.last_used);
+      if (ageDays >= session.archive_after_days && session.status !== "archived") {
+        const archivedAt = this.clock.nowIso();
+        this.db
+          .prepare("UPDATE sessions SET status = 'archived', archived_at = ? WHERE id = ?")
+          .run(archivedAt, session.id);
+        this.logEvent({
+          sessionId: session.id,
+          projectId: session.project_id,
+          eventType: "archive",
+          error: "lifecycle_archive_after_days"
+        });
+      } else if (ageDays >= session.dormant_after_days && session.status === "active") {
+        this.db.prepare("UPDATE sessions SET status = 'dormant' WHERE id = ?").run(session.id);
+        this.logEvent({
+          sessionId: session.id,
+          projectId: session.project_id,
+          eventType: "dormant",
+          error: "lifecycle_dormant_after_days"
+        });
+      }
+    }
+  }
+
+  listSessions(projectId: string, includeDormant: boolean, includeArchived: boolean, includeOrphaned: boolean): SessionListItem[] {
+    const statuses: SessionStatus[] = ["active"];
+    if (includeDormant) {
+      statuses.push("dormant");
+    }
+    if (includeArchived) {
+      statuses.push("archived");
+    }
+    if (includeOrphaned) {
+      statuses.push("orphaned");
+    }
+
+    const placeholders = statuses.map(() => "?").join(", ");
+    const rows = this.db
+      .prepare(
+        `SELECT *
+         FROM sessions
+         WHERE project_id = ?
+           AND status IN (${placeholders})
+         ORDER BY last_used DESC`
+      )
+      .all(projectId, ...statuses) as SessionRecord[];
+
+    return rows.map((row) => this.toSessionListItem(row));
+  }
+
+  getSession(sessionId: string): SessionRecord | null {
+    const row = this.db.prepare("SELECT * FROM sessions WHERE id = ?").get(sessionId) as SessionRecord | undefined;
+    return row ?? null;
+  }
+
+  private selectLifecycleSessions(projectId?: string): SessionRecord[] {
+    if (projectId) {
+      return this.db
+        .prepare("SELECT * FROM sessions WHERE project_id = ? AND status IN ('active', 'dormant')")
+        .all(projectId) as SessionRecord[];
+    }
+
+    return this.db
+      .prepare("SELECT * FROM sessions WHERE status IN ('active', 'dormant')")
+      .all() as SessionRecord[];
+  }
+
+  private toSessionListItem(row: SessionRecord): SessionListItem {
+    return {
+      id: row.id,
+      claude_session_id: row.claude_session_id,
+      topic: row.topic,
+      status: row.status,
+      last_used: row.last_used,
+      summary: row.summary ?? "",
+      decisions: this.listValues("session_decisions", "decision", row.id),
+      open_questions: this.listValues("session_open_questions", "question", row.id),
+      files_discussed: this.listValues("session_files", "path", row.id),
+      tags: this.listValues("session_tags", "tag", row.id),
+      aliases: this.listValues("session_aliases", "alias", row.id)
+    };
+  }
+
+  private listValues(tableName: string, columnName: string, sessionId: string): string[] {
+    const rows = this.db
+      .prepare(`SELECT ${columnName} AS value FROM ${tableName} WHERE session_id = ? ORDER BY id ASC`)
+      .all(sessionId) as Array<{ value: string }>;
+    return rows.map((row) => row.value);
+  }
+}
