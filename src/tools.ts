@@ -30,6 +30,16 @@ const consultInput = z.object({
   question: z.string()
 });
 
+const archiveInput = z.object({
+  project_id: z.string().nullable().optional(),
+  session_id: z.string(),
+  reason: z.string()
+});
+
+const routerResetInput = z.object({
+  reason: z.string()
+});
+
 export function registerTools(server: McpServer, runtime: RouterRuntime): void {
   const consultService = new ConsultService(runtime, runtime.locks);
 
@@ -109,6 +119,60 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
       });
 
       return jsonToolResult(result, "error" in result);
+    }
+  );
+
+  server.registerTool(
+    "claude_session_archive",
+    {
+      title: "Archive Claude session",
+      description: "Archives a session manually.",
+      inputSchema: archiveInput
+    },
+    async (input) => {
+      const projectId = resolveProjectId(input.project_id, runtime.cwd);
+      const session = runtime.db.getSession(input.session_id);
+      if (!session) {
+        return jsonToolResult(
+          errorPayload(ERROR_CODES.SESSION_NOT_FOUND, SPEC_ERROR_MESSAGES[ERROR_CODES.SESSION_NOT_FOUND]),
+          true
+        );
+      }
+      if (session.project_id !== projectId) {
+        return jsonToolResult(
+          errorPayload(ERROR_CODES.PROJECT_MISMATCH, SPEC_ERROR_MESSAGES[ERROR_CODES.PROJECT_MISMATCH]),
+          true
+        );
+      }
+
+      runtime.db.archiveSession(input.session_id, input.reason);
+      return jsonToolResult({
+        ok: true,
+        status: "archived"
+      });
+    }
+  );
+
+  server.registerTool(
+    "claude_router_reset",
+    {
+      title: "Reset Claude router",
+      description: "Exits degraded mode only after a successful health probe.",
+      inputSchema: routerResetInput
+    },
+    async (input) => {
+      const ok = await runtime.resetRouter(input.reason);
+      if (!ok) {
+        return jsonToolResult(
+          errorPayload(ERROR_CODES.ROUTER_RESET_REJECTED, SPEC_ERROR_MESSAGES[ERROR_CODES.ROUTER_RESET_REJECTED]),
+          true
+        );
+      }
+
+      return jsonToolResult({
+        ok: true,
+        mode: "normal"
+      });
     }
   );
 }

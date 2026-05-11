@@ -85,6 +85,21 @@ export class RouterRuntime {
       tested_versions: probe.testedVersions
     });
   }
+
+  async resetRouter(reason: string): Promise<boolean> {
+    const probe = await this.claude.healthProbe();
+    this.applyHealthProbe(probe, reason);
+    if (!probe.ok) {
+      return false;
+    }
+
+    this.db.logEvent({
+      projectId: "router",
+      eventType: "router_reset",
+      error: reason
+    });
+    return true;
+  }
 }
 
 export async function createRuntime(options: RuntimeOptions = {}): Promise<RouterRuntime> {
