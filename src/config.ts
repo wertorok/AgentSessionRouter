@@ -1,0 +1,148 @@
+import { existsSync, readFileSync } from "node:fs";
+import path from "node:path";
+import * as toml from "@iarna/toml";
+import { DEFAULT_CONFIG } from "./constants.js";
+
+export interface RouterConfig {
+  storage: {
+    dbPath: string;
+    rawLogsDir: string;
+  };
+  limits: {
+    maxConsultsPerHour: number;
+    maxConsultsPerDay: number;
+    maxTokensPerConsult: number;
+  };
+  lifecycle: {
+    defaultDormantAfterDays: number;
+    defaultArchiveAfterDays: number;
+  };
+  matching: {
+    useAliases: boolean;
+    useEmbeddings: boolean;
+    thresholdUse: number;
+    thresholdLowConfidence: number;
+  };
+  claude: {
+    command: string;
+    outputFormat: string;
+    resumeFailureWindowMinutes: number;
+    resumeFailureThreshold: number;
+    compatibilityFile: string;
+  };
+  configDir: string;
+}
+
+export interface LoadConfigOptions {
+  cwd: string;
+  configPath?: string;
+}
+
+type TomlObject = Record<string, unknown>;
+
+export function loadConfig(options: LoadConfigOptions): RouterConfig {
+  const configPath = options.configPath
+    ? path.resolve(options.cwd, options.configPath)
+    : path.resolve(options.cwd, "router.config.toml");
+  const configDir = existsSync(configPath) ? path.dirname(configPath) : options.cwd;
+  const parsed = existsSync(configPath) ? parseToml(readFileSync(configPath, "utf8")) : {};
+
+  const storage = objectAt(parsed, "storage");
+  const limits = objectAt(parsed, "limits");
+  const lifecycle = objectAt(parsed, "lifecycle");
+  const matching = objectAt(parsed, "matching");
+  const claude = objectAt(parsed, "claude");
+
+  return {
+    storage: {
+      dbPath: resolveFromConfigDir(configDir, stringAt(storage, "db_path", DEFAULT_CONFIG.storage.dbPath)),
+      rawLogsDir: resolveFromConfigDir(
+        configDir,
+        stringAt(storage, "raw_logs_dir", DEFAULT_CONFIG.storage.rawLogsDir)
+      )
+    },
+    limits: {
+      maxConsultsPerHour: numberAt(limits, "max_consults_per_hour", DEFAULT_CONFIG.limits.maxConsultsPerHour),
+      maxConsultsPerDay: numberAt(limits, "max_consults_per_day", DEFAULT_CONFIG.limits.maxConsultsPerDay),
+      maxTokensPerConsult: numberAt(limits, "max_tokens_per_consult", DEFAULT_CONFIG.limits.maxTokensPerConsult)
+    },
+    lifecycle: {
+      defaultDormantAfterDays: numberAt(
+        lifecycle,
+        "default_dormant_after_days",
+        DEFAULT_CONFIG.lifecycle.defaultDormantAfterDays
+      ),
+      defaultArchiveAfterDays: numberAt(
+        lifecycle,
+        "default_archive_after_days",
+        DEFAULT_CONFIG.lifecycle.defaultArchiveAfterDays
+      )
+    },
+    matching: {
+      useAliases: booleanAt(matching, "use_aliases", DEFAULT_CONFIG.matching.useAliases),
+      useEmbeddings: booleanAt(matching, "use_embeddings", DEFAULT_CONFIG.matching.useEmbeddings),
+      thresholdUse: numberAt(matching, "threshold_use", DEFAULT_CONFIG.matching.thresholdUse),
+      thresholdLowConfidence: numberAt(
+        matching,
+        "threshold_low_confidence",
+        DEFAULT_CONFIG.matching.thresholdLowConfidence
+      )
+    },
+    claude: {
+      command: stringAt(claude, "command", DEFAULT_CONFIG.claude.command),
+      outputFormat: stringAt(claude, "output_format", DEFAULT_CONFIG.claude.outputFormat),
+      resumeFailureWindowMinutes: numberAt(
+        claude,
+        "resume_failure_window_minutes",
+        DEFAULT_CONFIG.claude.resumeFailureWindowMinutes
+      ),
+      resumeFailureThreshold: numberAt(
+        claude,
+        "resume_failure_threshold",
+        DEFAULT_CONFIG.claude.resumeFailureThreshold
+      ),
+      compatibilityFile: resolveFromConfigDir(
+        configDir,
+        stringAt(claude, "compatibility_file", DEFAULT_CONFIG.claude.compatibilityFile)
+      )
+    },
+    configDir
+  };
+}
+
+function parseToml(source: string): TomlObject {
+  const parsed: unknown = toml.parse(source);
+  if (!isObject(parsed)) {
+    return {};
+  }
+  return parsed;
+}
+
+function resolveFromConfigDir(configDir: string, value: string): string {
+  return path.isAbsolute(value) ? value : path.resolve(configDir, value);
+}
+
+function objectAt(source: TomlObject, key: string): TomlObject {
+  const value = source[key];
+  return isObject(value) ? value : {};
+}
+
+function stringAt(source: TomlObject, key: string, fallback: string): string {
+  const value = source[key];
+  return typeof value === "string" ? value : fallback;
+}
+
+function numberAt(source: TomlObject, key: string, fallback: number): number {
+  const value = source[key];
+  return typeof value === "number" && Number.isFinite(value) ? value : fallback;
+}
+
+function booleanAt(source: TomlObject, key: string, fallback: boolean): boolean {
+  const value = source[key];
+  return typeof value === "boolean" ? value : fallback;
+}
+
+function isObject(value: unknown): value is TomlObject {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
