@@ -1,12 +1,9 @@
-import { execFile } from "node:child_process";
+import { spawn } from "node:child_process";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { promisify } from "node:util";
 import type { RouterConfig } from "./config.js";
 import { isKnownVersion, readCompatibility } from "./compatibility.js";
-
-const execFileAsync = promisify(execFile);
 
 export interface ClaudeJsonResponse {
   sessionId: string;
@@ -35,8 +32,7 @@ export class CliClaudeAdapter implements ClaudeAdapter {
   constructor(private readonly config: RouterConfig) {}
 
   async getVersion(): Promise<string> {
-    const { stdout } = await execFileAsync(this.config.claude.command, ["--version"]);
-    return stdout.trim();
+    return (await runCommand(this.config.claude.command, ["--version"])).trim();
   }
 
   async runPrompt(prompt: string, resumeSessionId?: string): Promise<ClaudeJsonResponse> {
@@ -46,9 +42,7 @@ export class CliClaudeAdapter implements ClaudeAdapter {
     }
     args.push(prompt);
 
-    const { stdout } = await execFileAsync(this.config.claude.command, args, {
-      maxBuffer: 10 * 1024 * 1024
-    });
+    const stdout = await runCommand(this.config.claude.command, args);
     return parseClaudeJson(stdout);
   }
 
@@ -163,4 +157,33 @@ function stringField(source: Record<string, unknown>, key: string): string | nul
 function numberField(source: Record<string, unknown>, key: string): number | null {
   const value = source[key];
   return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+function runCommand(command: string, args: string[]): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const child = spawn(command, args, {
+      stdio: ["pipe", "pipe", "pipe"],
+      windowsHide: true
+    });
+
+    let stdout = "";
+    let stderr = "";
+    child.stdout.setEncoding("utf8");
+    child.stderr.setEncoding("utf8");
+    child.stdout.on("data", (chunk) => {
+      stdout += chunk;
+    });
+    child.stderr.on("data", (chunk) => {
+      stderr += chunk;
+    });
+    child.on("error", reject);
+    child.on("close", (code) => {
+      if (code === 0) {
+        resolve(stdout);
+        return;
+      }
+      reject(new Error(`Command failed: ${command} ${args.join(" ")}\n${stderr || stdout}`.trim()));
+    });
+    child.stdin.end();
+  });
 }
