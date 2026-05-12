@@ -8,12 +8,21 @@ Repository: https://github.com/wertorok/AgentSessionRouter
 
 ## What This Solves
 
-- Avoids resending full historical context on every consultation.
-- Routes related questions back into the right long-lived Claude session.
-- Keeps compact architectural memory in SQLite: summaries, append-only decisions, open questions, files, tags, and aliases.
-- Protects Claude session files with per-session locks.
-- Fails closed on cost limits and degraded Claude CLI state.
-- Makes routing and failures observable through `session_events`.
+Coding agents often waste time and tokens rediscovering the same project before every consultation. This server gives a parent agent two reusable context layers:
+
+- **v1 session router**: routes related questions back into durable, project-scoped Claude sessions and keeps compact registry memory in SQLite.
+- **v2 cluster cache**: stores verified factsheets per task cluster and uses restricted Claude tool profiles, such as `--bare --tools ""`, to skip project rediscovery when the factsheet is enough.
+
+The v1 layer is the durable session and decision registry. The v2 layer is the verified cache layer on top. They work independently: you can use normal `claude_consult` sessions, cluster factsheet consults, or both.
+
+Measured on this repository during the v2 experiments:
+
+```txt
+Original broad Claude Code discovery: 264.8s, 56,051 input tokens, about $0.30
+Fresh cluster_consult without fork:     6.1s,    489 input tokens, about $0.015
+```
+
+The exact numbers depend on your Claude account, model, CLI version, and prompt size. The important behavior is that verified factsheets let Claude answer without repeating broad discovery.
 
 ## Current Status
 
@@ -30,15 +39,16 @@ Experimental cluster-cache tools:
 - `cluster_prepare`
 - `cluster_get`
 - `cluster_consult`
+- `cluster_refresh`
 - `cluster_list`
 
 Validation performed:
 
-- Unit/integration tests: `47 passed`
+- Unit/integration tests: `50 passed`
 - Live MCP stdio E2E: `LIVE_CONSULT_PASS`
 - Live matrix run: committed as `LIVE_TEST_LOG.md`
 - Post-fix targeted live rerun: `TARGETED_RERUN_PASS`
-- Post-install smoke: stub and live modes pass on Linux with Claude Code `2.1.92`
+- Post-install smoke: stub mode passes and covers v1 plus v2 cluster tools
 
 Research and next-architecture docs:
 
@@ -49,7 +59,7 @@ The full live matrix found three important issues: duplicate same-topic concurre
 
 Claude usage-limit responses are classified as `claude_usage_limit` and include an actionable `operator_action`.
 
-The cluster-cache implementation can store `static_verified` factsheets, optionally run an LLM verifier to promote them to `llm_verified`, and consult Claude through a verified factsheet without fork. It probes `bare`/`focused` tool profiles and deterministically downgrades `bare` to `focused` when needed. It does not yet implement fork baselines, refresh tooling, or auto-routing. See `docs/CLUSTER_CACHE_SPEC.md` for the remaining v2 phases.
+The cluster-cache implementation can store `static_verified` factsheets, optionally run an LLM verifier to promote them to `llm_verified`, consult Claude through a verified factsheet without fork, and refresh factsheet freshness with scoped file hash checks. It probes `bare`/`focused` tool profiles and deterministically downgrades `bare` to `focused` when needed. It does not yet implement fork baselines, distillation from existing v1 sessions, or auto-routing. See `docs/CLUSTER_CACHE_SPEC.md` for the remaining v2 phases.
 
 ## Requirements
 
@@ -94,6 +104,59 @@ npm run smoke:postinstall
 ```
 
 The default smoke test uses a stub Claude CLI, starts the real MCP server in a temporary project cwd, verifies a consult round trip, and confirms registry/raw logs stay under that project. Use `npm run smoke:postinstall:live` only when you intentionally want it to call the real Claude CLI.
+
+## Quick Cluster Cache Example
+
+Use `cluster_prepare` when you already know a small set of project facts and want future questions to avoid rediscovery. Each fact must cite local file evidence.
+
+```json
+{
+  "project_id": null,
+  "cluster_id": "config-and-cwd-isolation",
+  "name": "Config and cwd isolation",
+  "tool_profile_default": "bare",
+  "verification_mode": "llm",
+  "llm_verifier_profile": "focused",
+  "factsheet": {
+    "summary": "Verified config facts for Claude invocation policy.",
+    "facts": [
+      {
+        "id": "claude-extra-args",
+        "claim": "Claude extra args are configured through the claude.extra_args config field.",
+        "evidence": [
+          {
+            "path": "src/config.ts",
+            "selector": "extraArgs"
+          }
+        ]
+      }
+    ],
+    "forbidden_inferences": ["mcp.cwd", "claude.policy"]
+  }
+}
+```
+
+Then consult the cluster:
+
+```json
+{
+  "project_id": null,
+  "cluster_id": "config-and-cwd-isolation",
+  "question": "Which config field controls additional Claude CLI args?"
+}
+```
+
+Before or after code changes, recheck the factsheet without invoking Claude:
+
+```json
+{
+  "project_id": null,
+  "cluster_id": "config-and-cwd-isolation",
+  "mode": "verify_only"
+}
+```
+
+If any cited evidence file changed, `cluster_consult` and `cluster_refresh` return `CLUSTER_FACTSHEET_STALE` and the cluster is marked stale until a new verified factsheet is prepared or the current one verifies cleanly again.
 
 ## MCP Client Configuration
 
@@ -501,6 +564,39 @@ Output:
 }
 ```
 
+### `cluster_refresh`
+
+Revalidates the latest cluster factsheet without invoking Claude. The MVP supports `verify_only`, which checks only the scoped evidence files already attached to the factsheet.
+
+Input:
+
+```json
+{
+  "project_id": null,
+  "cluster_id": "config-and-cwd-isolation",
+  "mode": "verify_only"
+}
+```
+
+Fresh output:
+
+```json
+{
+  "cluster_id": "config-and-cwd-isolation",
+  "factsheet_id": "factsheet_...",
+  "factsheet_version": 1,
+  "mode": "verify_only",
+  "fresh": true,
+  "factsheet_status": "llm_verified",
+  "trust_state": "llm_verified",
+  "changed_files": [],
+  "verified_facts": 1,
+  "rejected_facts": 0
+}
+```
+
+If a scoped evidence file changed, the tool marks the factsheet and cluster stale and returns `CLUSTER_FACTSHEET_STALE`. It does not regenerate facts or call Claude in `verify_only` mode.
+
 ### `cluster_list`
 
 Lists cluster cache entries for a project without invoking Claude.
@@ -696,12 +792,19 @@ router_reset
 Cluster-cache actions write to `cluster_events`. Current event types:
 
 ```txt
+cluster_consult
+cluster_consult_failed
 cluster_created
+cluster_refresh
+cluster_refresh_required
 factsheet_static_verified
 factsheet_partially_static_verified
 factsheet_llm_verified
 factsheet_partially_llm_verified
 factsheet_rejected
+factsheet_stale
+llm_verifier
+tool_profile_downgraded
 ```
 
 Useful SQLite queries:
@@ -902,6 +1005,7 @@ src/
   claude.ts          Claude CLI adapter and health probe
   clock.ts           Centralized clock helpers
   clusterConsult.ts  cluster_consult factsheet invocation service
+  clusterRefresh.ts  cluster_refresh scoped factsheet revalidation service
   cluster.ts         Static cluster factsheet verification and preparation
   config.ts          TOML config loading and path resolution
   consult.ts         claude_consult routing and invocation service
@@ -921,6 +1025,7 @@ src/
 
 tests/
   clusterConsult.test.ts
+  clusterRefresh.test.ts
   cluster.test.ts
   consult.test.ts
   core.test.ts
