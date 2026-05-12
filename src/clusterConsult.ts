@@ -62,6 +62,7 @@ export async function consultCluster(
 
   const staleFiles = findStaleFiles(cwd, loaded.fileHashes);
   if (staleFiles.length > 0) {
+    db.markClusterFactsheetStale(loaded.factsheet.id);
     db.logClusterEvent({
       clusterId: input.clusterId,
       projectId: input.projectId,
@@ -172,6 +173,16 @@ function loadClusterContext(db: RouterDatabase, projectId: string, clusterId: st
   }
   const factsheet = db.getCurrentClusterFactsheet(clusterId);
   if (!factsheet) {
+    const latestFactsheet = db.getLatestClusterFactsheet(clusterId);
+    if (latestFactsheet?.status === "stale") {
+      return errorPayload(ERROR_CODES.CLUSTER_FACTSHEET_STALE, SPEC_ERROR_MESSAGES[ERROR_CODES.CLUSTER_FACTSHEET_STALE], {
+        cluster_id: clusterId,
+        details: {
+          factsheet_id: latestFactsheet.id,
+          factsheet_version: latestFactsheet.version
+        }
+      });
+    }
     return errorPayload(ERROR_CODES.CLUSTER_NOT_FOUND, SPEC_ERROR_MESSAGES[ERROR_CODES.CLUSTER_NOT_FOUND], {
       cluster_id: clusterId,
       reason: "Cluster has no current factsheet."

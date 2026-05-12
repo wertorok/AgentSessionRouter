@@ -1,6 +1,7 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { consultCluster } from "./clusterConsult.js";
+import { refreshCluster } from "./clusterRefresh.js";
 import { prepareCluster, type FactsheetInput } from "./cluster.js";
 import { ERROR_CODES } from "./constants.js";
 import { ConsultService } from "./consult.js";
@@ -109,6 +110,12 @@ const clusterConsultInput = z.object({
   question: z.string().min(1),
   tool_profile: clusterToolProfileInput.nullable().optional(),
   allow_static_factsheet: z.boolean().default(false)
+});
+
+const clusterRefreshInput = z.object({
+  project_id: z.string().nullable().optional(),
+  cluster_id: z.string().min(1),
+  mode: z.enum(["verify_only"]).default("verify_only")
 });
 
 export function registerTools(server: McpServer, runtime: RouterRuntime): void {
@@ -414,6 +421,31 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
         question: input.question,
         toolProfile: input.tool_profile,
         allowStaticFactsheet: input.allow_static_factsheet
+      });
+
+      return jsonToolResult(
+        {
+          project_id: projectId,
+          ...result
+        },
+        "error" in result
+      );
+    }
+  );
+
+  server.registerTool(
+    "cluster_refresh",
+    {
+      title: "Refresh cluster",
+      description: "Revalidates the latest cluster factsheet by checking scoped evidence file hashes and selectors.",
+      inputSchema: clusterRefreshInput
+    },
+    async (input) => {
+      const projectId = resolveProjectId(input.project_id, runtime.cwd);
+      const result = refreshCluster(runtime.db, runtime.cwd, {
+        projectId,
+        clusterId: input.cluster_id,
+        mode: input.mode
       });
 
       return jsonToolResult(

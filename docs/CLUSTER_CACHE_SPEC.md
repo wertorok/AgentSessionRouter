@@ -41,8 +41,9 @@ Current implementation status:
 - Implemented: Phase 2 LLM verifier loop as an explicit `verification_mode: "llm"` path.
 - Implemented: Phase 3 profile args, `bare`/`focused` probes, and deterministic `bare -> focused` downgrade.
 - Implemented: Phase 4 `cluster_consult` without fork, with append-system-prompt factsheet injection and stale hash refusal.
+- Implemented: Phase 6 `cluster_refresh` in `verify_only` mode and stale factsheet state.
 - Implemented early for observability: read-only `cluster_get` and `cluster_list`.
-- Not implemented yet: fork baseline, refresh tooling, and distillation from existing sessions.
+- Not implemented yet: fork baseline and distillation from existing sessions.
 
 The current `cluster_prepare` accepts direct factsheet JSON and stores only facts whose evidence passes deterministic local checks. By default these factsheets are marked `static_verified`, not `llm_verified`, because static checks prove evidence existence but not full semantic correctness. When `verification_mode` is `llm`, Claude is invoked with a no-tools verifier prompt and only `VERIFIED` facts are promoted to `llm_verified`.
 
@@ -787,6 +788,8 @@ This phase avoids building auto-distillation before storage and verification are
 
 - Add `cluster_refresh` with `verify_only`.
 - Add stale error path.
+- Implemented: `cluster_consult` refuses changed scoped evidence files, marks the factsheet stale, and records a refresh-required event.
+- Implemented: `cluster_refresh` rechecks the latest factsheet's scoped file hashes/selectors without invoking Claude.
 
 ### Phase 7: Inspect Tools
 

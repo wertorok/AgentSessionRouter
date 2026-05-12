@@ -103,6 +103,17 @@ try {
       clusterGet
     );
 
+    const clusterRefresh = await callTool(client, "cluster_refresh", {
+      project_id: null,
+      cluster_id: "post-install-smoke",
+      mode: "verify_only"
+    });
+    record(
+      "cluster_refresh",
+      clusterRefresh.cluster_id === "post-install-smoke" && clusterRefresh.fresh === true,
+      clusterRefresh
+    );
+
     const clusterConsult = await callTool(client, "cluster_consult", {
       project_id: null,
       cluster_id: "post-install-smoke",

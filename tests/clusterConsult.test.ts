@@ -92,6 +92,8 @@ describe("cluster_consult service", () => {
     expect(result.error.code).toBe(ERROR_CODES.CLUSTER_FACTSHEET_STALE);
     expect(result.error.details).toEqual({ changed_files: ["src/config.ts"] });
     expect(claude.lastPrompt).toBeUndefined();
+    expect(fixture.db.getLatestClusterFactsheet("router-ops")?.status).toBe("stale");
+    expect(fixture.db.getCluster("project", "router-ops")?.status).toBe("stale");
     expect(clusterEventTypes(fixture.db)).toContain("cluster_refresh_required");
     fixture.cleanup();
   });

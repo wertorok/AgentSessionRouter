@@ -724,10 +724,54 @@ export class RouterDatabase {
     return row ?? null;
   }
 
+  getLatestClusterFactsheet(clusterId: string): ClusterFactsheetRecord | null {
+    const row = this.db
+      .prepare(
+        `SELECT *
+         FROM cluster_factsheets
+         WHERE cluster_id = ?
+         ORDER BY version DESC
+         LIMIT 1`
+      )
+      .get(clusterId) as ClusterFactsheetRecord | undefined;
+    return row ?? null;
+  }
+
   listClusterFileHashes(factsheetId: string): ClusterFileHashRecord[] {
     return this.db
       .prepare("SELECT * FROM cluster_file_hashes WHERE factsheet_id = ? ORDER BY path ASC")
       .all(factsheetId) as ClusterFileHashRecord[];
+  }
+
+  markClusterFactsheetStale(factsheetId: string): void {
+    const factsheet = this.getClusterFactsheet(factsheetId);
+    if (!factsheet) {
+      return;
+    }
+    const now = this.clock.nowIso();
+    this.db
+      .prepare("UPDATE cluster_factsheets SET status = 'stale' WHERE id = ?")
+      .run(factsheetId);
+    this.db
+      .prepare("UPDATE clusters SET status = 'stale', trust_state = 'untrusted', last_used = ? WHERE id = ?")
+      .run(now, factsheet.cluster_id);
+  }
+
+  markClusterFactsheetFresh(factsheetId: string, status: "static_verified" | "llm_verified", trustState: ClusterTrustState): void {
+    const factsheet = this.getClusterFactsheet(factsheetId);
+    if (!factsheet) {
+      return;
+    }
+    const now = this.clock.nowIso();
+    this.db
+      .prepare("UPDATE cluster_factsheets SET status = ?, verified_at = ? WHERE id = ?")
+      .run(status, now, factsheetId);
+    this.db
+      .prepare("UPDATE cluster_file_hashes SET last_verified = ? WHERE factsheet_id = ?")
+      .run(now, factsheetId);
+    this.db
+      .prepare("UPDATE clusters SET status = 'active', trust_state = ?, last_used = ? WHERE id = ?")
+      .run(trustState, now, factsheet.cluster_id);
   }
 
   private selectLifecycleSessions(projectId?: string): SessionRecord[] {

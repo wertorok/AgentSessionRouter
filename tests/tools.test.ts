@@ -221,6 +221,42 @@ describe("cluster MCP tools", () => {
     expect(claude.lastOptions?.appendSystemPrompt).toContain("extraArgs exists");
     fixture.cleanup();
   });
+
+  it("refreshes a cluster factsheet through the MCP tool", async () => {
+    const fixture = createToolFixture();
+    const server = new FakeServer();
+    registerTools(server as unknown as McpServer, fixture.runtime);
+    mkdirSync(path.join(fixture.dir, "src"), { recursive: true });
+    writeFileSync(path.join(fixture.dir, "src", "config.ts"), "export const extraArgs = [];\n");
+
+    await server.call("cluster_prepare", {
+      project_id: "project",
+      cluster_id: "router-ops",
+      tool_profile_default: "bare",
+      factsheet: {
+        facts: [
+          {
+            id: "extra-args",
+            claim: "extraArgs exists.",
+            evidence: [{ path: "src/config.ts", selector: "extraArgs" }]
+          }
+        ]
+      }
+    });
+
+    const result = await server.call("cluster_refresh", {
+      project_id: "project",
+      cluster_id: "router-ops",
+      mode: "verify_only"
+    });
+    const payload = parseToolJson(result);
+
+    expect(result.isError).toBeFalsy();
+    expect(payload.fresh).toBe(true);
+    expect(payload.mode).toBe("verify_only");
+    expect(payload.changed_files).toEqual([]);
+    fixture.cleanup();
+  });
 });
 
 class FakeServer {
