@@ -158,6 +158,30 @@ Before or after code changes, recheck the factsheet without invoking Claude:
 
 If any cited evidence file changed, `cluster_consult` and `cluster_refresh` return `CLUSTER_FACTSHEET_STALE` and the cluster is marked stale until a new verified factsheet is prepared or the current one verifies cleanly again.
 
+## Consultation Method Selection
+
+Use the benchmark-backed decision tree below when choosing how a parent agent should consult Claude.
+
+Use `cluster_consult` when:
+
+- The question is factual: field names, event types, default values, exact config/API behavior.
+- The answer should fit the verified factsheet for an existing cluster.
+- Speed and bounded cost matter more than broad exploration.
+- An honest `NOT IN CONTEXT` response is acceptable when the factsheet lacks a needed fact.
+
+Use `claude_consult` with an existing routed/resumed session when:
+
+- The question requires reasoning about why code is shaped a certain way.
+- The question is open-ended: "suggest", "how would you", tradeoffs, or future design.
+- The answer must connect multiple code paths or registry decisions not captured as factsheet facts.
+- The decision is architecturally critical and shallow answers are risky.
+
+Use a fresh Claude exploration when:
+
+- The project or subsystem is new to the router.
+- No relevant session or cluster exists yet.
+- The question crosses multiple domains and needs real discovery before any factsheet can be trusted.
+
 ## MCP Client Configuration
 
 Use the built server entry point:

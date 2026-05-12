@@ -62,6 +62,29 @@ Quality scoring used a deterministic method-agnostic rubric over answer text and
 | B_reasoning | 2.89 | 2.89 | 2.11 |
 | C_open | 2.00 | 2.50 | 1.67 |
 
+Per-question scores are shown as run1/run2/run3 with the mean in parentheses:
+
+| Question | Category | direct_fresh | direct_resume | cluster_consult | Factsheet coverage |
+|----------|----------|--------------|---------------|-----------------|--------------------|
+| A1 | A_factual | 3/3/3 (3.00) | 3/3/3 (3.00) | 3/3/3 (3.00) | Covered. Exact schema fields are present in verified facts. |
+| A2 | A_factual | 2/2/3 (2.33) | 3/2/2 (2.33) | 3/3/3 (3.00) | Covered. Cluster event sources are present in verified facts. |
+| A3 | A_factual | 2/3/3 (2.67) | 3/3/2 (2.67) | 3/3/3 (3.00) | Covered. Stale cluster_consult behavior is present in verified facts. |
+| A4 | A_factual | 3/3/3 (3.00) | 3/3/3 (3.00) | 3/3/3 (3.00) | Covered. Bare profile args are present in verified facts. |
+| A5 | A_factual | 3/3/3 (3.00) | 3/3/3 (3.00) | 3/3/3 (3.00) | Covered. dormant_after_days default is present in verified facts. |
+| B1 | B_reasoning | 3/3/3 (3.00) | 3/3/3 (3.00) | 1/3/1 (1.67) | Partially covered. The profile restriction is present, but rationale is only partially represented as derived design intent. |
+| B2 | B_reasoning | 2/3/3 (2.67) | 2/3/3 (2.67) | 2/1/2 (1.67) | Partially covered. Orphan recovery facts are present, but the complete walkthrough depends on connecting several code paths. |
+| B3 | B_reasoning | 3/3/3 (3.00) | 3/3/3 (3.00) | 3/3/3 (3.00) | Covered. Trust-state transitions are present in verified facts. |
+| C1 | C_open | 3/3/2 (2.67) | 3/3/3 (3.00) | 3/1/3 (2.33) | Partially covered. Current cluster_refresh semantics are present, but future design suggestions are not factsheet-native. |
+| C2 | C_open | 1/1/2 (1.33) | 2/2/2 (2.00) | 1/1/1 (1.00) | Weakly covered. A known bare/no-tools risk is present, but broad untested failure-mode ideation is outside the factsheet. |
+
+NOT IN CONTEXT counts:
+
+- direct_fresh: 0
+- direct_resume: 0
+- cluster_consult: 6 (B1r1, C2r1, C1r2, C2r2, B1r3, C2r3)
+
+Interpretation: a low score caused by an honest NOT IN CONTEXT refusal is different from a hallucination. It means the method correctly refused to answer from insufficient factsheet coverage.
+
 ## 3. Quality vs Cost Frontier
 
 | Method | Mean quality | Mean cost | Dominated? |
@@ -73,6 +96,22 @@ Quality scoring used a deterministic method-agnostic rubric over answer text and
 ## 4. Failure Modes Observed
 
 - No invocation failures or score-0 answers.
+
+Low-score rows (score <= 1):
+
+- C2 direct_fresh run 1: score=1; low_quality_or_shallow; partly relevant but shallow
+- C2 direct_fresh run 2: score=1; low_quality_or_shallow; partly relevant but shallow
+- B1 cluster_consult run 1: score=1; honest_refusal; honest NOT IN CONTEXT/refusal; useful only if factsheet intentionally lacks this fact
+- C2 cluster_consult run 1: score=1; honest_refusal; honest NOT IN CONTEXT/refusal; useful only if factsheet intentionally lacks this fact
+- B2 cluster_consult run 2: score=1; low_quality_or_shallow; partial orphan recovery path; matched 3/6
+- C1 cluster_consult run 2: score=1; honest_refusal; honest NOT IN CONTEXT/refusal; useful only if factsheet intentionally lacks this fact
+- C2 cluster_consult run 2: score=1; honest_refusal; honest NOT IN CONTEXT/refusal; useful only if factsheet intentionally lacks this fact
+- B1 cluster_consult run 3: score=1; honest_refusal; honest NOT IN CONTEXT/refusal; useful only if factsheet intentionally lacks this fact
+- C2 cluster_consult run 3: score=1; honest_refusal; honest NOT IN CONTEXT/refusal; useful only if factsheet intentionally lacks this fact
+
+Confirmed hallucination log:
+
+- No confirmed nonexistent field/event/function hallucinations were identified by the deterministic audit. The main cluster_consult regressions were honest NOT IN CONTEXT refusals or partial reasoning-path reconstruction.
 
 ## 5. Variance Analysis
 

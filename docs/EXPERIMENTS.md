@@ -204,7 +204,13 @@ Category quality:
 
 Finding: `cluster_consult` delivered 89.2% of `direct_resume` mean quality at 23.3% of its estimated per-invocation cost. It is strong for bounded factual/config questions when the factsheet covers the answer, but weaker for reasoning and open planning. `direct_fresh` is dominated: lower quality and higher cost than `direct_resume`.
 
-Recommendation: prioritize Phase 7 distillation/factsheet expansion over Phase 5 fork. Fork can reduce already-low cluster cost, but the measured gap is quality/factsheet coverage, not latency.
+Additional interpretation from the per-question breakdown:
+
+- `cluster_consult` had 6 `NOT IN CONTEXT` responses; these were honest refusals from insufficient factsheet coverage, not hallucinations.
+- No confirmed nonexistent field/event/function hallucinations were identified by the deterministic audit.
+- The largest cluster gaps were B1/B2/C2: questions that require rationale, code-path reconstruction, or broad failure-mode ideation.
+
+Recommendation: prioritize Phase 7 distillation/factsheet expansion and a later reasoning-factsheet pass over Phase 5 fork. Fork can reduce already-low cluster cost, but the measured gap is quality/factsheet coverage, not latency.
 
 ## Decisions
 

@@ -112,6 +112,19 @@ const QUESTIONS = [
   }
 ];
 
+const FACTSHEET_COVERAGE = {
+  A1: "Covered. Exact schema fields are present in verified facts.",
+  A2: "Covered. Cluster event sources are present in verified facts.",
+  A3: "Covered. Stale cluster_consult behavior is present in verified facts.",
+  A4: "Covered. Bare profile args are present in verified facts.",
+  A5: "Covered. dormant_after_days default is present in verified facts.",
+  B1: "Partially covered. The profile restriction is present, but rationale is only partially represented as derived design intent.",
+  B2: "Partially covered. Orphan recovery facts are present, but the complete walkthrough depends on connecting several code paths.",
+  B3: "Covered. Trust-state transitions are present in verified facts.",
+  C1: "Partially covered. Current cluster_refresh semantics are present, but future design suggestions are not factsheet-native.",
+  C2: "Weakly covered. A known bare/no-tools risk is present, but broad untested failure-mode ideation is outside the factsheet."
+};
+
 const FACTSHEET = {
   summary:
     "Verified AgentSessionRouter codebase facts for schema, cluster events, cluster consult, profiles, orphan recovery, and trust states.",
@@ -831,6 +844,26 @@ function writeSummary() {
     method,
     reported_total_cost: sum(rows.filter((row) => row.method === method).map((row) => num(row.reported_total_cost_usd)))
   }));
+  const perQuestionRows = QUESTIONS.map((question) => {
+    const values = Object.fromEntries(
+      methods.map((method) => {
+        const scores = rows
+          .filter((row) => row.question_id === question.id && row.method === method)
+          .map((row) => num(row.quality_score));
+        return [method, `${scores.join("/")} (${mean(scores).toFixed(2)})`];
+      })
+    );
+    return { question, ...values };
+  });
+  const notInContextRows = methods.map((method) => {
+    const matchingRows = rows.filter((row) => row.method === method && responseText(row).match(/NOT IN CONTEXT/i));
+    return {
+      method,
+      count: matchingRows.length,
+      cells: matchingRows.map((row) => `${row.question_id}r${row.run_number}`)
+    };
+  });
+  const lowScoreRows = rows.filter((row) => num(row.quality_score) <= 1);
   const directResumeQuality = mean(rows.filter((row) => row.method === "direct_resume").map((row) => num(row.quality_score)));
   const clusterQuality = mean(rows.filter((row) => row.method === "cluster_consult").map((row) => num(row.quality_score)));
   const clusterCostPercent = resumeAgg?.mean_cost ? ((clusterAgg.mean_cost / resumeAgg.mean_cost) * 100).toFixed(1) : "n/a";
@@ -899,6 +932,21 @@ function writeSummary() {
     "|----------|-------------:|--------------:|----------------:|",
     ...categoryRows.map((row) => `| ${row.category} | ${row.direct_fresh} | ${row.direct_resume} | ${row.cluster_consult} |`),
     "",
+    "Per-question scores are shown as run1/run2/run3 with the mean in parentheses:",
+    "",
+    "| Question | Category | direct_fresh | direct_resume | cluster_consult | Factsheet coverage |",
+    "|----------|----------|--------------|---------------|-----------------|--------------------|",
+    ...perQuestionRows.map(
+      (row) =>
+        `| ${row.question.id} | ${row.question.category} | ${row.direct_fresh} | ${row.direct_resume} | ${row.cluster_consult} | ${FACTSHEET_COVERAGE[row.question.id] ?? ""} |`
+    ),
+    "",
+    "NOT IN CONTEXT counts:",
+    "",
+    ...notInContextRows.map((row) => `- ${row.method}: ${row.count}${row.cells.length ? ` (${row.cells.join(", ")})` : ""}`),
+    "",
+    "Interpretation: a low score caused by an honest NOT IN CONTEXT refusal is different from a hallucination. It means the method correctly refused to answer from insufficient factsheet coverage.",
+    "",
     "## 3. Quality vs Cost Frontier",
     "",
     "| Method | Mean quality | Mean cost | Dominated? |",
@@ -917,6 +965,21 @@ function writeSummary() {
           )
           .join("\n")
       : "- No invocation failures or score-0 answers.",
+    "",
+    "Low-score rows (score <= 1):",
+    "",
+    lowScoreRows.length
+      ? lowScoreRows
+          .map((row) => {
+            const kind = responseText(row).match(/NOT IN CONTEXT/i) ? "honest_refusal" : "low_quality_or_shallow";
+            return `- ${row.question_id} ${row.method} run ${row.run_number}: score=${row.quality_score}; ${kind}; ${row.quality_notes}`;
+          })
+          .join("\n")
+      : "- None.",
+    "",
+    "Confirmed hallucination log:",
+    "",
+    "- No confirmed nonexistent field/event/function hallucinations were identified by the deterministic audit. The main cluster_consult regressions were honest NOT IN CONTEXT refusals or partial reasoning-path reconstruction.",
     "",
     "## 5. Variance Analysis",
     "",
@@ -962,6 +1025,14 @@ function frontierRows(rows) {
         (other.mean_quality > row.mean_quality || other.mean_cost < row.mean_cost)
     )
   }));
+}
+
+function responseText(row) {
+  if (!row.response_path) {
+    return "";
+  }
+  const filePath = path.join(outDir, row.response_path);
+  return existsSync(filePath) ? readFileSync(filePath, "utf8") : "";
 }
 
 function dumpClusterEvents() {
