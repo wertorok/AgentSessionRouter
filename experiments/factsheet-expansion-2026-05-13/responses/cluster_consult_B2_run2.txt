@@ -1,0 +1,24 @@
+
+
+## Code Path for Missing `.jsonl` Session File
+
+Based on the verified factsheet, here's the path for a **missing session file on `claude_consult`**:
+
+### 1. Detection
+`consult.ts` calls `sessionFileExists(session.claude_session_id)` — this is the check that finds the `.jsonl` file is gone.
+
+### 2. Orphan the old session
+`this.runtime.db.markSessionOrphaned(session.id)` — this:
+- Sets the session status to `orphaned`
+- Writes an `orphan_recovery` event to `cluster_events`
+
+### 3. Replacement route from registry context
+The code logs `"Selected session was orphaned; creating replacement from registry context."` (or the equivalent auto-routed variant), then builds a `bootstrapContext` from the old registry view and creates a new replacement route.
+
+### 4. New session created
+`invokeClaude` sees no selected session, spawns a fresh Claude session, and the new registry session id is stored.
+
+### 5. Output exposes the recovery flag
+The consult result includes `routing.was_orphan_recovery: true`, which tests assert.
+
+**In summary:** deletion of the `.jsonl` file causes the registry session to be marked orphaned (with an `orphan_recovery` event written), a new replacement route is bootstrapped from the old registry context, and the consult result signals `was_orphan_recovery: true`.

@@ -1,0 +1,9 @@
+
+
+Based on the verified factsheet, three concrete suggestions:
+
+1. **AST-based selectors** (per the open question in `cluster-refresh-selector-improvement-open-question`): Store AST selectors instead of (or alongside) line-based selectors. This makes re-verification resilient to code movement and refactors, where line numbers shift but semantic identity remains.
+
+2. **Auto-verify or auto_refresh policy** (per `cluster-refresh-policy-options`): Instead of marking stale and returning `CLUSTER_FACTSHEET_STALE`, the refresh tool could automatically trigger LLM re-verification or even re-generation when changed files are detected, eliminating the manual round-trip.
+
+3. **Focused refresh mode** (per `cluster-refresh-future-modes`): Implement the reserved `focused_refresh` mode so that cluster_refresh only re-verifies facts related to the changed scoped evidence files, rather than blanket-rejecting the entire factsheet on any mutation.

@@ -1,0 +1,11 @@
+
+
+Based on the verified factsheet, three ways to make `cluster_refresh` smarter without breaking existing semantics:
+
+1. **Improve selector precision** — The spec leaves open whether factsheets should store exact line ranges, AST selectors, or both. Adding AST-aware selectors would make stale detection more accurate without changing verify-only semantics.
+
+2. **Implement `auto_verify` policy** — The spec reserves `strict`, `auto_verify`, and `auto_refresh` policies, with `strict` as the MVP default. Adding `auto_verify` would automatically re-run static verification when stale files are detected, before surfacing `CLUSTER_FACTSHEET_STALE`.
+
+3. **Implement `focused_refresh` mode** — The spec reserves `focused_refresh` (for scoped-file updates) and `agent_refresh` (for explicit broad exploration) as future modes. Adding `focused_refresh` would regenerate only facts affected by changed scoped files, rather than re-examining the full codebase.
+
+None of these break current `verify_only` behavior — they add optional modes and policies alongside it.

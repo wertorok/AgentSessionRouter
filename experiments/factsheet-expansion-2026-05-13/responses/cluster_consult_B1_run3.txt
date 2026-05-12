@@ -1,0 +1,10 @@
+
+
+**NOT IN CONTEXT**
+
+The factsheet does not contain the specific reason why the LLM verifier uses `bare` mode. However, the factsheet does state:
+
+- The LLM verifier is **restricted to `bare` or `focused` profiles and cannot use the `agent` profile** (`llm-verifier-profiles`)
+- It is **run without agent tools** because it must judge only the supplied evidence, avoid new discovery, avoid inference, and return VERIFIED only when the claim follows from that evidence (`llm-verifier-no-agent-rationale`)
+
+The factsheet confirms that `agent` mode is explicitly prohibited for the verifier, but the specific rationale for the `bare` vs `agent` distinction beyond "cannot use agent profile" is not provided.

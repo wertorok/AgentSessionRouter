@@ -1,0 +1,4 @@
+
+The LLM verifier is run in `bare` mode and not `agent` mode because **it must judge only the supplied evidence, avoid new discovery, avoid inference, and return VERIFIED only when the claim follows from the evidence**.
+
+As the factsheet states: "Do not infer. Do not use tools. Return JSON only." The agent profile would allow the model to discover new information via tools, which would undermine the verification task — the verifier must restrict itself to evaluating the already-supplied evidence rather than seeking additional facts. The LLM verifier is restricted to `bare` or `focused` profiles and cannot use the `agent` profile.

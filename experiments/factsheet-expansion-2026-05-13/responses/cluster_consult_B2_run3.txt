@@ -1,0 +1,21 @@
+
+
+Based on the verified factsheet, the code path for orphan recovery is:
+
+1. **Session lookup**: `claude_consult` finds a matching session in the registry — either by explicit `session_id`, exact topic match, or auto-routed topic.
+
+2. **File existence check**: The code calls `sessionFileExists(session.claude_session_id)` and finds the `.jsonl` file missing.
+
+3. **Mark orphaned**: The old registry session is marked orphaned via `db.markSessionOrphaned()`, which sets its status to `orphaned` and writes an `orphan_recovery` event to `cluster_events`.
+
+4. **Bootstrap context**: If the old session had a stored view, `buildBootstrapContext(oldView, "orphaned")` reconstructs a bootstrap context from it.
+
+5. **Replacement route**: A new route is created with `wasOrphanRecovery: true`.
+
+6. **New session**: `invokeClaude` runs with no selected session, so it creates a new registry session using the returned Claude session id.
+
+7. **Output**: The `claude_consult` result exposes `routing.was_orphan_recovery: true`.
+
+This applies regardless of whether the session was found via explicit `session_id`, exact topic match, or auto-routed — all three paths go through the same orphan recovery logic.
+
+**NOT IN CONTEXT**: The exact code location of `sessionFileExists` and `buildBootstrapContext` implementations — the factsheet describes their effects but not their internal paths.

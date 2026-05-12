@@ -1,0 +1,5 @@
+
+
+**Answer:**
+
+The LLM verifier is run in `bare` mode (or `focused` no-tools mode) because it must judge only the supplied evidence — avoid new discovery, avoid inference, and return VERIFIED only when the claim strictly follows from that evidence. Using `agent` mode would allow the model to explore beyond the provided evidence, which defeats the verification purpose.

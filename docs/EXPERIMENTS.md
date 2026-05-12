@@ -192,25 +192,55 @@ Summary:
 |--------|--------------|---------------------|---------------|
 | `direct_fresh` | 2.67 | $0.1745 | 19.7s |
 | `direct_resume` | 2.77 | $0.0702 | 10.9s |
-| `cluster_consult` | 2.47 | $0.0164 | 4.7s |
+| `cluster_consult` | 2.73 | $0.0164 | 4.7s |
 
 Category quality:
 
 | Category | direct_fresh | direct_resume | cluster_consult |
 |----------|--------------|---------------|-----------------|
 | Factual lookup | 2.80 | 2.80 | 3.00 |
-| Architectural reasoning | 2.89 | 2.89 | 2.11 |
-| Open planning | 2.00 | 2.50 | 1.67 |
+| Architectural reasoning | 2.89 | 2.89 | 2.44 |
+| Open planning | 2.00 | 2.50 | 2.50 |
 
-Finding: `cluster_consult` delivered 89.2% of `direct_resume` mean quality at 23.3% of its estimated per-invocation cost. It is strong for bounded factual/config questions when the factsheet covers the answer, but weaker for reasoning and open planning. `direct_fresh` is dominated: lower quality and higher cost than `direct_resume`.
+Finding: after calibrating the scorer so `NOT IN CONTEXT` caveats do not automatically down-score otherwise substantive answers, `cluster_consult` delivered 98.8% of `direct_resume` mean quality at 23.3% of its estimated per-invocation cost. It is strongest for bounded factual/config questions when the factsheet covers the answer. `direct_fresh` is dominated: lower quality and higher cost than `direct_resume`.
 
 Additional interpretation from the per-question breakdown:
 
-- `cluster_consult` had 6 `NOT IN CONTEXT` responses; these were honest refusals from insufficient factsheet coverage, not hallucinations.
+- `cluster_consult` had 6 `NOT IN CONTEXT` mentions; some were caveats appended to useful answers rather than pure refusals.
 - No confirmed nonexistent field/event/function hallucinations were identified by the deterministic audit.
-- The largest cluster gaps were B1/B2/C2: questions that require rationale, code-path reconstruction, or broad failure-mode ideation.
+- The largest remaining cluster gap was B2 in the baseline factsheet: orphan recovery required connecting more code-path facts than the original factsheet contained.
 
 Recommendation: prioritize Phase 7 distillation/factsheet expansion and a later reasoning-factsheet pass over Phase 5 fork. Fork can reduce already-low cluster cost, but the measured gap is quality/factsheet coverage, not latency.
+
+### Targeted Factsheet Expansion
+
+Full artifact: `experiments/factsheet-expansion-2026-05-13/`
+
+Targeted run after expanding the benchmark factsheet with verifier rationale, complete orphan-recovery paths, and spec-backed `cluster_refresh` extension options:
+
+- 3 questions: B1, B2, C1
+- 1 method: `cluster_consult`
+- 3 runs per question
+- 9 total invocations
+- 0 invocation failures
+- Factsheet prep: `llm_verified`, 33 verified facts, 0 rejected facts
+- Factsheet prep cost estimate: $0.1688
+
+Summary:
+
+| Method | Mean quality | Mean estimated cost | Mean duration |
+|--------|--------------|---------------------|---------------|
+| `cluster_consult` | 2.89 | $0.0240 | 7.2s |
+
+Per-question quality:
+
+| Question | Before expansion | After expansion | Finding |
+|----------|------------------|-----------------|---------|
+| B1 verifier rationale | 2/3/3 (2.67) | 3/2/3 (2.67) | Already mostly covered after scoring calibration; still has minor variance. |
+| B2 orphan recovery path | 2/1/2 (1.67) | 3/3/3 (3.00) | Expansion closed the code-path gap. |
+| C1 refresh improvements | 3/2/3 (2.67) | 3/3/3 (3.00) | Spec-backed future-mode facts made suggestions stable. |
+
+Finding: factsheet expansion removed all low-score rows in the targeted set and stabilized B2/C1 at 3/3/3. B1 still has one score-2 answer, so any further improvement should target clearer derived rationale facts or prompt wording rather than fork optimization.
 
 ## Decisions
 

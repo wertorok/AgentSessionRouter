@@ -1,0 +1,17 @@
+[
+  {
+    "id": "B1",
+    "category": "B_reasoning",
+    "text": "Why is the LLM verifier run in `bare` mode and not `agent` mode?"
+  },
+  {
+    "id": "B2",
+    "category": "B_reasoning",
+    "text": "If I delete a Claude .jsonl file, what happens on the next `claude_consult` to that session? Walk through the code path."
+  },
+  {
+    "id": "C1",
+    "category": "C_open",
+    "text": "Suggest 3 ways to make `cluster_refresh` smarter without breaking existing semantics."
+  }
+]

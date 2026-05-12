@@ -1,0 +1,9 @@
+
+
+Based on the verified factsheet:
+
+1. **Selector precision** — The spec leaves open whether factsheets should store exact line ranges, AST selectors, or both. Storing AST selectors (not just paths/line ranges) would make re-verification precise even when surrounding code shifts, reducing false stale detections. (Source: `cluster-refresh-selector-improvement-open-question`)
+
+2. **Future refresh modes** — The spec reserves `focused_refresh` for targeted scoped-file updates and `agent_refresh` for explicit broad exploration. Implementing these as non-breaking additions (alongside `verify_only`) would let callers choose depth vs. cost trade-offs without altering current behavior. (Source: `cluster-refresh-future-modes`)
+
+3. **Smarter invalidation policies** — The spec lists `auto_verify` and `auto_refresh` as future policy options beyond the MVP `strict` default. Using `auto_verify` would automatically re-check facts that depend on changed files rather than marking the entire factsheet stale, reducing unnecessary re-verification work. (Source: `cluster-refresh-policy-options`)

@@ -8,13 +8,15 @@ import path from "node:path";
 import process from "node:process";
 
 const repoRoot = process.cwd();
-const date = "2026-05-12";
-const defaultOutDir = path.join(os.tmpdir(), `cluster-comparison-${date}`);
 const args = parseArgs(process.argv.slice(2));
+const date = args.date ?? "2026-05-12";
+const defaultOutDir = path.join(os.tmpdir(), `cluster-comparison-${date}`);
 const runs = Number(args.runs ?? 1);
 const outDir = path.resolve(args.out ?? defaultOutDir);
 const clusterId = args.clusterId ?? "agentsessionrouter-codebase";
 const skipInvocations = Boolean(args.scoreOnly);
+const selectedQuestionIds = parseList(args.questions ?? args.questionIds);
+const methodsToRun = parseMethods(args.methods);
 const responseDir = path.join(outDir, "responses");
 const rawDir = path.join(outDir, "raw");
 const matrixPath = path.join(outDir, "matrix.csv");
@@ -112,7 +114,7 @@ const QUESTIONS = [
   }
 ];
 
-const FACTSHEET_COVERAGE = {
+const BASELINE_FACTSHEET_COVERAGE = {
   A1: "Covered. Exact schema fields are present in verified facts.",
   A2: "Covered. Cluster event sources are present in verified facts.",
   A3: "Covered. Stale cluster_consult behavior is present in verified facts.",
@@ -125,9 +127,16 @@ const FACTSHEET_COVERAGE = {
   C2: "Weakly covered. A known bare/no-tools risk is present, but broad untested failure-mode ideation is outside the factsheet."
 };
 
+const EXPANDED_FACTSHEET_COVERAGE = {
+  ...BASELINE_FACTSHEET_COVERAGE,
+  B1: "Expanded. Verifier restriction plus the no-tools/no-inference rationale are present in verified facts.",
+  B2: "Expanded. Explicit, exact-topic, and auto-routed orphan recovery paths plus was_orphan_recovery are present in verified facts.",
+  C1: "Expanded. Current refresh semantics plus spec-backed future modes and policy options are present in verified facts."
+};
+
 const FACTSHEET = {
   summary:
-    "Verified AgentSessionRouter codebase facts for schema, cluster events, cluster consult, profiles, orphan recovery, and trust states.",
+    "Verified AgentSessionRouter codebase facts for schema, cluster events, cluster consult, profiles, verifier rationale, orphan recovery, refresh extension options, and trust states.",
   facts: [
     {
       id: "clusters-table-fields",
@@ -223,6 +232,25 @@ const FACTSHEET = {
       evidence: [{ path: "src/cluster.ts", selector: "You are verifying a cluster factsheet" }]
     },
     {
+      id: "llm-verifier-no-agent-rationale",
+      claim:
+        "The LLM verifier is run without agent tools because it must judge only the supplied evidence, avoid new discovery, avoid inference, and return VERIFIED only when the claim follows from that evidence.",
+      evidence: [
+        { path: "src/cluster.ts", selector: "For each fact, decide whether the supplied evidence semantically supports the claim." },
+        { path: "src/cluster.ts", selector: "Return VERIFIED only when the claim follows from the evidence." },
+        { path: "src/cluster.ts", selector: "Do not infer. Do not use tools. Return JSON only." }
+      ]
+    },
+    {
+      id: "llm-verifier-profile-spec",
+      claim:
+        "The cluster cache spec says the LLM verifier runs with bare when available, otherwise focused no-tools mode; it does not use agent mode for verification.",
+      evidence: [
+        { path: "docs/CLUSTER_CACHE_SPEC.md", selector: "Runs with `bare` profile when available, otherwise `focused` no-tools profile." },
+        { path: "docs/CLUSTER_CACHE_SPEC.md", selector: "Do not use tools." }
+      ]
+    },
+    {
       id: "orphan-explicit-session",
       claim:
         "When claude_consult is given a session_id and the stored Claude session file no longer exists, the router marks the old registry session orphaned and creates a replacement route from bootstrap registry context.",
@@ -236,6 +264,35 @@ const FACTSHEET = {
       id: "orphan-session-event",
       claim: "markSessionOrphaned sets session status to orphaned and writes an orphan_recovery event.",
       evidence: [{ path: "src/db.ts", selector: "markSessionOrphaned(sessionId: string)" }]
+    },
+    {
+      id: "orphan-exact-topic-session",
+      claim:
+        "When auto-routing finds an exact topic session but its Claude session file is missing, claude_consult marks it orphaned, builds bootstrap context from the old view, creates a replacement route, and sets wasOrphanRecovery true.",
+      evidence: [
+        { path: "src/consult.ts", selector: "Exact normalized topic match was orphaned; creating replacement from registry context." },
+        { path: "src/consult.ts", selector: "this.runtime.db.markSessionOrphaned(selectedSession.id)" },
+        { path: "src/consult.ts", selector: "wasOrphanRecovery: true" }
+      ]
+    },
+    {
+      id: "orphan-auto-routed-session",
+      claim:
+        "When a matched non-exact auto-routed session has no Claude session file, claude_consult marks it orphaned, builds bootstrap context, creates a replacement route, and sets wasOrphanRecovery true.",
+      evidence: [
+        { path: "src/consult.ts", selector: "Auto-routed session was orphaned; creating replacement from registry context." },
+        { path: "src/consult.ts", selector: "bootstrapContext: oldView ? buildBootstrapContext(oldView, \"orphaned\") : undefined" },
+        { path: "src/consult.ts", selector: "wasOrphanRecovery: true" }
+      ]
+    },
+    {
+      id: "orphan-routing-output",
+      claim:
+        "Successful claude_consult output exposes routing.was_orphan_recovery, and tests assert it is true for explicit and auto-routed orphan recovery.",
+      evidence: [
+        { path: "src/consult.ts", selector: "was_orphan_recovery: route.wasOrphanRecovery" },
+        { path: "tests/consult.test.ts", selector: "expect(result.routing.was_orphan_recovery).toBe(true)" }
+      ]
     },
     {
       id: "replacement-session-created",
@@ -283,6 +340,30 @@ const FACTSHEET = {
       ]
     },
     {
+      id: "cluster-refresh-future-modes",
+      claim:
+        "The cluster cache spec reserves future cluster_refresh modes focused_refresh for scoped-file updates and agent_refresh for explicit broad exploration, while the MVP implements verify_only first.",
+      evidence: [
+        { path: "docs/CLUSTER_CACHE_SPEC.md", selector: "Allowed `mode` values:" },
+        { path: "docs/CLUSTER_CACHE_SPEC.md", selector: "MVP should implement `verify_only` first." }
+      ]
+    },
+    {
+      id: "cluster-refresh-policy-options",
+      claim:
+        "The cluster cache spec lists later invalidation policies strict, auto_verify, and auto_refresh; the MVP default is strict.",
+      evidence: [
+        { path: "docs/CLUSTER_CACHE_SPEC.md", selector: "Policy options for later:" },
+        { path: "docs/CLUSTER_CACHE_SPEC.md", selector: "MVP default: `strict`." }
+      ]
+    },
+    {
+      id: "cluster-refresh-selector-improvement-open-question",
+      claim:
+        "The cluster cache spec leaves open whether factsheets should store exact line ranges, AST selectors, or both, making selector precision a spec-backed refresh improvement area.",
+      evidence: [{ path: "docs/CLUSTER_CACHE_SPEC.md", selector: "Should factsheets store exact line ranges, AST selectors, or both?" }]
+    },
+    {
       id: "bare-profile-risk",
       claim:
         "A known risk of bare/no-tools cluster consulting is that missing facts should produce NOT IN CONTEXT rather than inferred API/config names.",
@@ -295,13 +376,20 @@ const FACTSHEET = {
   forbidden_inferences: ["mcp.cwd", "claude.policy", "profileArgs returns any value other than --bare --tools empty for bare"]
 };
 
+const activeQuestions = selectedQuestionIds.length
+  ? QUESTIONS.filter((question) => selectedQuestionIds.includes(question.id))
+  : QUESTIONS;
+
 await main();
 
 async function main() {
+  if (activeQuestions.length === 0) {
+    throw new Error(`No questions matched filter: ${selectedQuestionIds.join(",")}`);
+  }
   mkdirSync(responseDir, { recursive: true });
   mkdirSync(rawDir, { recursive: true });
   writeFileSync(path.join(outDir, "pricing.json"), JSON.stringify(PRICING, null, 2));
-  writeFileSync(path.join(outDir, "questions.json"), JSON.stringify(QUESTIONS, null, 2));
+  writeFileSync(path.join(outDir, "questions.json"), JSON.stringify(activeQuestions, null, 2));
 
   if (!skipInvocations) {
     if (!existsSync(serverEntry)) {
@@ -314,15 +402,21 @@ async function main() {
     const prep = await prepareClusterFactsheet();
     writeFileSync(path.join(outDir, "factsheet_prep.json"), JSON.stringify(prep, null, 2));
 
-    await runDirectFreshBlock();
-    await waitBetweenBlocks();
+    if (methodsToRun.includes("direct_fresh")) {
+      await runDirectFreshBlock();
+      await waitBetweenBlocks();
+    }
 
-    const resumeSetup = await createDirectResumeSession();
-    writeFileSync(path.join(outDir, "direct_resume_setup.json"), JSON.stringify(resumeSetup, null, 2));
-    await runDirectResumeBlock(resumeSetup.session_id);
-    await waitBetweenBlocks();
+    if (methodsToRun.includes("direct_resume")) {
+      const resumeSetup = await createDirectResumeSession();
+      writeFileSync(path.join(outDir, "direct_resume_setup.json"), JSON.stringify(resumeSetup, null, 2));
+      await runDirectResumeBlock(resumeSetup.session_id);
+      await waitBetweenBlocks();
+    }
 
-    await runClusterConsultBlock();
+    if (methodsToRun.includes("cluster_consult")) {
+      await runClusterConsultBlock();
+    }
 
     const endVersion = await runText("claude", ["--version"], repoRoot, 30_000);
     writeFileSync(path.join(outDir, "claude-version-end.txt"), endVersion.trim() + "\n");
@@ -360,7 +454,7 @@ async function prepareClusterFactsheet() {
 
 async function runDirectFreshBlock() {
   for (let run = 1; run <= runs; run += 1) {
-    for (const question of QUESTIONS) {
+    for (const question of activeQuestions) {
       const prompt = buildDirectQuestionPrompt(question.text);
       const result = await runClaudeStream(
         ["-p", "--output-format", "stream-json", "--verbose", "--allowedTools", "Read,Glob,Grep,LS", "--max-budget-usd", "1.00", prompt],
@@ -399,7 +493,7 @@ async function createDirectResumeSession() {
 
 async function runDirectResumeBlock(sessionId) {
   for (let run = 1; run <= runs; run += 1) {
-    for (const question of QUESTIONS) {
+    for (const question of activeQuestions) {
       const prompt = buildDirectQuestionPrompt(question.text);
       const result = await runClaudeStream(
         ["-p", "--output-format", "stream-json", "--verbose", "--allowedTools", "Read,Glob,Grep,LS", "--max-budget-usd", "0.75", "--resume", sessionId, prompt],
@@ -413,7 +507,7 @@ async function runDirectResumeBlock(sessionId) {
 async function runClusterConsultBlock() {
   await withMcpClient(async (client) => {
     for (let run = 1; run <= runs; run += 1) {
-      for (const question of QUESTIONS) {
+      for (const question of activeQuestions) {
         const started = Date.now();
         const name = `cluster_consult_${question.id}_run${run}`;
         try {
@@ -689,10 +783,23 @@ function scoreAnswer(questionId, answer) {
   if (!answer.trim()) {
     return { score: 0, notes: "empty answer" };
   }
+
+  const scored = scoreAnswerContent(questionId, answer);
   if (text.includes("not in context")) {
+    if (scored.score >= 2) {
+      return {
+        ...scored,
+        notes: `${scored.notes}; includes NOT IN CONTEXT caveat`
+      };
+    }
     return { score: 1, notes: "honest NOT IN CONTEXT/refusal; useful only if factsheet intentionally lacks this fact" };
   }
 
+  return scored;
+}
+
+function scoreAnswerContent(questionId, answer) {
+  const text = answer.toLowerCase();
   switch (questionId) {
     case "A1": {
       const expected = ["id", "project_id", "name", "description", "tool_profile_default", "baseline_session_id", "status", "trust_state", "created_at", "last_used"];
@@ -812,16 +919,21 @@ function scoreOpenAnswer(answer, expectedTerms) {
 function writeSummary() {
   const rows = readMatrixRows();
   const successfulRows = rows.filter((row) => !row.error);
-  const methods = ["direct_fresh", "direct_resume", "cluster_consult"];
+  const methods = ["direct_fresh", "direct_resume", "cluster_consult"].filter((method) =>
+    rows.some((row) => row.method === method)
+  );
+  const questions = QUESTIONS.filter((question) => rows.some((row) => row.question_id === question.id));
   const observedRuns = Math.max(...rows.map((row) => num(row.run_number)), 0);
   const costTable = methods.map((method) => aggregate(rows.filter((row) => row.method === method)));
-  const categoryRows = ["A_factual", "B_reasoning", "C_open"].map((category) => {
+  const categories = [...new Set(questions.map((question) => question.category))];
+  const categoryRows = categories.map((category) => {
     const values = Object.fromEntries(
       methods.map((method) => [method, mean(rows.filter((row) => row.method === method && row.question_category === category).map((row) => num(row.quality_score))).toFixed(2)])
     );
     return { category, ...values };
   });
   const prep = readJsonIfExists(path.join(outDir, "factsheet_prep.json"));
+  const factsheetCoverage = num(prep.verified_facts) >= 30 ? EXPANDED_FACTSHEET_COVERAGE : BASELINE_FACTSHEET_COVERAGE;
   const resumeSetup = readJsonIfExists(path.join(outDir, "direct_resume_setup.json"));
   const clusterAgg = costTable.find((row) => row.method === "cluster_consult");
   const resumeAgg = costTable.find((row) => row.method === "direct_resume");
@@ -830,7 +942,7 @@ function writeSummary() {
   const failureRows = rows.filter((row) => row.error || row.quality_score === "0");
   const varianceRows = [];
   for (const method of methods) {
-    for (const question of QUESTIONS) {
+    for (const question of questions) {
       const scores = rows
         .filter((row) => row.method === method && row.question_id === question.id)
         .map((row) => num(row.quality_score));
@@ -844,7 +956,7 @@ function writeSummary() {
     method,
     reported_total_cost: sum(rows.filter((row) => row.method === method).map((row) => num(row.reported_total_cost_usd)))
   }));
-  const perQuestionRows = QUESTIONS.map((question) => {
+  const perQuestionRows = questions.map((question) => {
     const values = Object.fromEntries(
       methods.map((method) => {
         const scores = rows
@@ -868,11 +980,15 @@ function writeSummary() {
   const clusterQuality = mean(rows.filter((row) => row.method === "cluster_consult").map((row) => num(row.quality_score)));
   const clusterCostPercent = resumeAgg?.mean_cost ? ((clusterAgg.mean_cost / resumeAgg.mean_cost) * 100).toFixed(1) : "n/a";
   const qualityPercent = directResumeQuality ? ((clusterQuality / directResumeQuality) * 100).toFixed(1) : "n/a";
+  const executiveLine =
+    resumeAgg && clusterAgg
+      ? `After ${rows.length} invocations across ${questions.length} questions and ${methods.length} methods: cluster_consult delivered ${qualityPercent}% of direct_resume's mean quality at ${clusterCostPercent}% of its estimated per-invocation cost. The strongest quality regressions are visible in any question rows scored 0 or 1 below. Recommendation: use cluster_consult for bounded factual/config questions only when the factsheet covers the needed facts; prefer direct_resume for questions that require broad code-path discovery until Phase 7 distillation expands factsheet coverage.`
+      : `After ${rows.length} invocations across ${questions.length} questions and ${methods.length} method(s): ${methods.join(", ")} completed with the quality and cost results below. This targeted run is meant to validate factsheet coverage changes, not replace the full 90-invocation comparison.`;
 
   const lines = [
     "# Quality & Cost Comparison",
     "",
-    `After ${rows.length} invocations across ${QUESTIONS.length} questions and ${methods.length} methods: cluster_consult delivered ${qualityPercent}% of direct_resume's mean quality at ${clusterCostPercent}% of its estimated per-invocation cost. The strongest quality regressions are visible in any question rows scored 0 or 1 below. Recommendation: use cluster_consult for bounded factual/config questions only when the factsheet covers the needed facts; prefer direct_resume for questions that require broad code-path discovery until Phase 7 distillation expands factsheet coverage.`,
+    executiveLine,
     "",
     "## Run Metadata",
     "",
@@ -898,9 +1014,13 @@ function writeSummary() {
     "",
     "Direct resume setup:",
     "",
-    `- session_id: ${resumeSetup.session_id ?? "unknown"}`,
-    `- estimated cost_usd: ${formatMoney(resumeSetup.cost_usd)}`,
-    `- reported_total_cost_usd: ${formatMoney(resumeSetup.reported_total_cost_usd)}`,
+    ...(resumeSetup.session_id
+      ? [
+          `- session_id: ${resumeSetup.session_id}`,
+          `- estimated cost_usd: ${formatMoney(resumeSetup.cost_usd)}`,
+          `- reported_total_cost_usd: ${formatMoney(resumeSetup.reported_total_cost_usd)}`
+        ]
+      : ["- not run in this targeted method set"]),
     "",
     "## 1. Cost Summary",
     "",
@@ -911,7 +1031,9 @@ function writeSummary() {
         `| ${row.method} | ${formatMoney(row.total_cost)} | ${formatMoney(row.mean_cost)} | ${row.mean_tokens_in.toFixed(1)} | ${row.mean_duration.toFixed(1)}ms | ${row.failures} |`
     ),
     "",
-    `Factsheet prep cost ${formatMoney(prep.cost_usd)}. cluster_consult saves ${formatMoney(savingsVsResume)} per invocation vs direct_resume by this estimate. Breakeven at ${breakeven ?? "n/a"} cluster_consult invocations.`,
+    resumeAgg && clusterAgg
+      ? `Factsheet prep cost ${formatMoney(prep.cost_usd)}. cluster_consult saves ${formatMoney(savingsVsResume)} per invocation vs direct_resume by this estimate. Breakeven at ${breakeven ?? "n/a"} cluster_consult invocations.`
+      : `Factsheet prep cost ${formatMoney(prep.cost_usd)}. Breakeven requires a comparison method and is not computed for this targeted method set.`,
     "",
     "Claude Code reported actual `total_cost_usd` for direct CLI calls, but the MCP adapter currently does not expose it for cluster_consult. Reported totals where available:",
     "",
@@ -928,24 +1050,24 @@ function writeSummary() {
         `| ${row.method} | ${row.mean_quality.toFixed(2)} | ${row.quality_variance.toFixed(2)} | ${row.wrong} | ${row.perfect} |`
     ),
     "",
-    "| Category | direct_fresh | direct_resume | cluster_consult |",
-    "|----------|-------------:|--------------:|----------------:|",
-    ...categoryRows.map((row) => `| ${row.category} | ${row.direct_fresh} | ${row.direct_resume} | ${row.cluster_consult} |`),
+    `| Category | ${methods.join(" | ")} |`,
+    `|----------|${methods.map(() => "-------------:").join("|")}|`,
+    ...categoryRows.map((row) => `| ${row.category} | ${methods.map((method) => row[method]).join(" | ")} |`),
     "",
     "Per-question scores are shown as run1/run2/run3 with the mean in parentheses:",
     "",
-    "| Question | Category | direct_fresh | direct_resume | cluster_consult | Factsheet coverage |",
-    "|----------|----------|--------------|---------------|-----------------|--------------------|",
+    `| Question | Category | ${methods.join(" | ")} | Factsheet coverage |`,
+    `|----------|----------|${methods.map(() => "--------------").join("|")}|--------------------|`,
     ...perQuestionRows.map(
       (row) =>
-        `| ${row.question.id} | ${row.question.category} | ${row.direct_fresh} | ${row.direct_resume} | ${row.cluster_consult} | ${FACTSHEET_COVERAGE[row.question.id] ?? ""} |`
+        `| ${row.question.id} | ${row.question.category} | ${methods.map((method) => row[method]).join(" | ")} | ${factsheetCoverage[row.question.id] ?? ""} |`
     ),
     "",
     "NOT IN CONTEXT counts:",
     "",
     ...notInContextRows.map((row) => `- ${row.method}: ${row.count}${row.cells.length ? ` (${row.cells.join(", ")})` : ""}`),
     "",
-    "Interpretation: a low score caused by an honest NOT IN CONTEXT refusal is different from a hallucination. It means the method correctly refused to answer from insufficient factsheet coverage.",
+    "Interpretation: NOT IN CONTEXT is audited separately from answer quality. A pure refusal indicates missing factsheet coverage; a caveat appended to a substantive answer is scored by the answer content.",
     "",
     "## 3. Quality vs Cost Frontier",
     "",
@@ -979,7 +1101,7 @@ function writeSummary() {
     "",
     "Confirmed hallucination log:",
     "",
-    "- No confirmed nonexistent field/event/function hallucinations were identified by the deterministic audit. The main cluster_consult regressions were honest NOT IN CONTEXT refusals or partial reasoning-path reconstruction.",
+    "- No confirmed nonexistent field/event/function hallucinations were identified by the deterministic audit. Remaining cluster_consult regressions were coverage gaps, NOT IN CONTEXT refusals/caveats, or partial reasoning-path reconstruction.",
     "",
     "## 5. Variance Analysis",
     "",
@@ -1131,6 +1253,29 @@ function parseArgs(argv) {
     index += 1;
   }
   return result;
+}
+
+function parseList(value) {
+  if (!value || value === true) {
+    return [];
+  }
+  return String(value)
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function parseMethods(value) {
+  const requested = parseList(value);
+  const defaultMethods = ["direct_fresh", "direct_resume", "cluster_consult"];
+  if (requested.length === 0) {
+    return defaultMethods;
+  }
+  const invalid = requested.filter((method) => !defaultMethods.includes(method));
+  if (invalid.length > 0) {
+    throw new Error(`Unknown method(s): ${invalid.join(", ")}`);
+  }
+  return requested;
 }
 
 function relativeOutPath(filePath) {

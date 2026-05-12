@@ -1,0 +1,529 @@
+{
+  "project_id": "AgentSessionRouter",
+  "profile_selection": {
+    "requested": "focused",
+    "selected": "focused",
+    "downgraded": false
+  },
+  "cluster_id": "agentsessionrouter-codebase-expanded",
+  "factsheet_id": "factsheet_2d8b7737-3892-4626-a590-ffff344ac391",
+  "factsheet_version": 1,
+  "verification_stage": "llm",
+  "trust_state": "llm_verified",
+  "verified_facts": 33,
+  "rejected_facts": 0,
+  "rejected_fact_details": [],
+  "factsheet": {
+    "schema_version": 1,
+    "cluster_id": "agentsessionrouter-codebase-expanded",
+    "summary": "Verified AgentSessionRouter codebase facts for schema, cluster events, cluster consult, profiles, verifier rationale, orphan recovery, refresh extension options, and trust states.",
+    "facts": [
+      {
+        "id": "clusters-table-fields",
+        "claim": "The clusters table fields are id, project_id, name, description, tool_profile_default, baseline_session_id, status, trust_state, created_at, and last_used.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/schema.ts",
+            "hash": "sha256:4ab202c217ec2171bcff78aad78416d109a05c0afdc6d414d5f4155be68b544b",
+            "selector": "CREATE TABLE IF NOT EXISTS clusters"
+          }
+        ]
+      },
+      {
+        "id": "cluster-events-table-fields",
+        "claim": "The cluster_events table fields are id, cluster_id, project_id, event_type, details_json, duration_ms, tokens_in, tokens_out, cost_usd, and created_at.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/schema.ts",
+            "hash": "sha256:4ab202c217ec2171bcff78aad78416d109a05c0afdc6d414d5f4155be68b544b",
+            "selector": "CREATE TABLE IF NOT EXISTS cluster_events"
+          }
+        ]
+      },
+      {
+        "id": "cluster-events-db-generated",
+        "claim": "insertClusterFactsheet can write factsheet_static_verified, factsheet_partially_static_verified, factsheet_llm_verified, factsheet_partially_llm_verified, factsheet_rejected, or factsheet_generated to cluster_events.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/db.ts",
+            "hash": "sha256:4ed466790a9683371300ce140693441ab2d95e9bb3ab150b07d9d4b8537caaed",
+            "selector": "function factsheetEventType"
+          }
+        ]
+      },
+      {
+        "id": "cluster-event-created",
+        "claim": "Creating a new cluster writes cluster_created to cluster_events.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/db.ts",
+            "hash": "sha256:4ed466790a9683371300ce140693441ab2d95e9bb3ab150b07d9d4b8537caaed",
+            "selector": "eventType: \"cluster_created\""
+          }
+        ]
+      },
+      {
+        "id": "cluster-event-llm-verifier",
+        "claim": "The LLM verifier path writes llm_verifier to cluster_events.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/cluster.ts",
+            "hash": "sha256:2e2c08b5d8dac752ad0203e462106fdee6d836dca5e2a3333394ea49217fe93f",
+            "selector": "eventType: \"llm_verifier\""
+          }
+        ]
+      },
+      {
+        "id": "cluster-event-consult",
+        "claim": "A successful cluster consult writes cluster_consult to cluster_events.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/clusterConsult.ts",
+            "hash": "sha256:4194b8a7efcdf7f42e0b01011df8a8d4f0e0799d80d9d2759a954f8bbe6e60f3",
+            "selector": "eventType: \"cluster_consult\""
+          }
+        ]
+      },
+      {
+        "id": "cluster-event-consult-failed",
+        "claim": "A failed cluster consult writes cluster_consult_failed to cluster_events.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/clusterConsult.ts",
+            "hash": "sha256:4194b8a7efcdf7f42e0b01011df8a8d4f0e0799d80d9d2759a954f8bbe6e60f3",
+            "selector": "eventType: \"cluster_consult_failed\""
+          }
+        ]
+      },
+      {
+        "id": "cluster-event-refresh-required",
+        "claim": "A stale factsheet detected before cluster_consult writes cluster_refresh_required to cluster_events.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/clusterConsult.ts",
+            "hash": "sha256:4194b8a7efcdf7f42e0b01011df8a8d4f0e0799d80d9d2759a954f8bbe6e60f3",
+            "selector": "eventType: \"cluster_refresh_required\""
+          }
+        ]
+      },
+      {
+        "id": "cluster-event-downgraded",
+        "claim": "A profile downgrade writes tool_profile_downgraded to cluster_events.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/tools.ts",
+            "hash": "sha256:575b52ea7a2a8a13bb0638b7087ca6ff88740a5f54601778e27ad2f01f314ab5",
+            "selector": "eventType: \"tool_profile_downgraded\""
+          }
+        ]
+      },
+      {
+        "id": "cluster-event-refresh",
+        "claim": "A successful verify-only cluster refresh writes cluster_refresh to cluster_events.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/clusterRefresh.ts",
+            "hash": "sha256:2146376796e691e6214b82c871f96c97b5d5ae0c7f60af7a0beca56e19130b6f",
+            "selector": "eventType: \"cluster_refresh\""
+          }
+        ]
+      },
+      {
+        "id": "cluster-event-factsheet-stale",
+        "claim": "A stale factsheet found by cluster_refresh writes factsheet_stale to cluster_events.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/clusterRefresh.ts",
+            "hash": "sha256:2146376796e691e6214b82c871f96c97b5d5ae0c7f60af7a0beca56e19130b6f",
+            "selector": "eventType: \"factsheet_stale\""
+          }
+        ]
+      },
+      {
+        "id": "stale-cluster-consult-behavior",
+        "claim": "When cluster_consult finds stale scoped evidence files, it marks the factsheet stale, logs cluster_refresh_required with changed_files, returns CLUSTER_FACTSHEET_STALE, and does not invoke Claude.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/clusterConsult.ts",
+            "hash": "sha256:4194b8a7efcdf7f42e0b01011df8a8d4f0e0799d80d9d2759a954f8bbe6e60f3",
+            "selector": "db.markClusterFactsheetStale"
+          },
+          {
+            "path": "src/clusterConsult.ts",
+            "hash": "sha256:4194b8a7efcdf7f42e0b01011df8a8d4f0e0799d80d9d2759a954f8bbe6e60f3",
+            "selector": "ERROR_CODES.CLUSTER_FACTSHEET_STALE"
+          },
+          {
+            "path": "tests/clusterConsult.test.ts",
+            "hash": "sha256:ff18ea8a5eee683b20cbdbec278cfe9f03d1d29909f0f5ab4de1277ed8d70737",
+            "selector": "should not run"
+          }
+        ]
+      },
+      {
+        "id": "bare-profile-args",
+        "claim": "The bare tool profile uses Claude CLI args: --bare --tools \"\".",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/profiles.ts",
+            "hash": "sha256:c4a400826f11b4248048bc4805ed34d3dc259357e7ce4974fcee4ee0d50f6ff8",
+            "selector": "case \"bare\""
+          }
+        ]
+      },
+      {
+        "id": "sessions-dormant-default",
+        "claim": "The sessions schema default for dormant_after_days is 30.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/schema.ts",
+            "hash": "sha256:4ab202c217ec2171bcff78aad78416d109a05c0afdc6d414d5f4155be68b544b",
+            "selector": "dormant_after_days INTEGER DEFAULT 30"
+          }
+        ]
+      },
+      {
+        "id": "llm-verifier-profiles",
+        "claim": "The LLM verifier is restricted to bare or focused profiles and cannot use the agent profile.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/profiles.ts",
+            "hash": "sha256:c4a400826f11b4248048bc4805ed34d3dc259357e7ce4974fcee4ee0d50f6ff8",
+            "selector": "export type VerifierToolProfile = \"bare\" | \"focused\""
+          },
+          {
+            "path": "src/tools.ts",
+            "hash": "sha256:575b52ea7a2a8a13bb0638b7087ca6ff88740a5f54601778e27ad2f01f314ab5",
+            "selector": "LLM verifier cannot use agent profile"
+          }
+        ]
+      },
+      {
+        "id": "llm-verifier-purpose",
+        "claim": "The verifier prompt tells Claude to verify supplied evidence semantically, return VERIFIED only when the claim follows from evidence, not infer, not use tools, and return JSON only.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/cluster.ts",
+            "hash": "sha256:2e2c08b5d8dac752ad0203e462106fdee6d836dca5e2a3333394ea49217fe93f",
+            "selector": "You are verifying a cluster factsheet"
+          }
+        ]
+      },
+      {
+        "id": "llm-verifier-no-agent-rationale",
+        "claim": "The LLM verifier is run without agent tools because it must judge only the supplied evidence, avoid new discovery, avoid inference, and return VERIFIED only when the claim follows from that evidence.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/cluster.ts",
+            "hash": "sha256:2e2c08b5d8dac752ad0203e462106fdee6d836dca5e2a3333394ea49217fe93f",
+            "selector": "For each fact, decide whether the supplied evidence semantically supports the claim."
+          },
+          {
+            "path": "src/cluster.ts",
+            "hash": "sha256:2e2c08b5d8dac752ad0203e462106fdee6d836dca5e2a3333394ea49217fe93f",
+            "selector": "Return VERIFIED only when the claim follows from the evidence."
+          },
+          {
+            "path": "src/cluster.ts",
+            "hash": "sha256:2e2c08b5d8dac752ad0203e462106fdee6d836dca5e2a3333394ea49217fe93f",
+            "selector": "Do not infer. Do not use tools. Return JSON only."
+          }
+        ]
+      },
+      {
+        "id": "llm-verifier-profile-spec",
+        "claim": "The cluster cache spec says the LLM verifier runs with bare when available, otherwise focused no-tools mode; it does not use agent mode for verification.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "docs/CLUSTER_CACHE_SPEC.md",
+            "hash": "sha256:62bdf2eb0aef7540ff9e446071b3adaa1cb389a9bee8c5a98ce7ee516386d13a",
+            "selector": "Runs with `bare` profile when available, otherwise `focused` no-tools profile."
+          },
+          {
+            "path": "docs/CLUSTER_CACHE_SPEC.md",
+            "hash": "sha256:62bdf2eb0aef7540ff9e446071b3adaa1cb389a9bee8c5a98ce7ee516386d13a",
+            "selector": "Do not use tools."
+          }
+        ]
+      },
+      {
+        "id": "orphan-explicit-session",
+        "claim": "When claude_consult is given a session_id and the stored Claude session file no longer exists, the router marks the old registry session orphaned and creates a replacement route from bootstrap registry context.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/consult.ts",
+            "hash": "sha256:db9c149b830b947df82ead8973daa1b1061610633eab613bdeddd8da07e6b85c",
+            "selector": "sessionFileExists(session.claude_session_id)"
+          },
+          {
+            "path": "src/consult.ts",
+            "hash": "sha256:db9c149b830b947df82ead8973daa1b1061610633eab613bdeddd8da07e6b85c",
+            "selector": "this.runtime.db.markSessionOrphaned(session.id)"
+          },
+          {
+            "path": "src/consult.ts",
+            "hash": "sha256:db9c149b830b947df82ead8973daa1b1061610633eab613bdeddd8da07e6b85c",
+            "selector": "Selected session was orphaned; creating replacement from registry context."
+          }
+        ]
+      },
+      {
+        "id": "orphan-session-event",
+        "claim": "markSessionOrphaned sets session status to orphaned and writes an orphan_recovery event.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/db.ts",
+            "hash": "sha256:4ed466790a9683371300ce140693441ab2d95e9bb3ab150b07d9d4b8537caaed",
+            "selector": "markSessionOrphaned(sessionId: string)"
+          }
+        ]
+      },
+      {
+        "id": "orphan-exact-topic-session",
+        "claim": "When auto-routing finds an exact topic session but its Claude session file is missing, claude_consult marks it orphaned, builds bootstrap context from the old view, creates a replacement route, and sets wasOrphanRecovery true.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/consult.ts",
+            "hash": "sha256:db9c149b830b947df82ead8973daa1b1061610633eab613bdeddd8da07e6b85c",
+            "selector": "Exact normalized topic match was orphaned; creating replacement from registry context."
+          },
+          {
+            "path": "src/consult.ts",
+            "hash": "sha256:db9c149b830b947df82ead8973daa1b1061610633eab613bdeddd8da07e6b85c",
+            "selector": "this.runtime.db.markSessionOrphaned(selectedSession.id)"
+          },
+          {
+            "path": "src/consult.ts",
+            "hash": "sha256:db9c149b830b947df82ead8973daa1b1061610633eab613bdeddd8da07e6b85c",
+            "selector": "wasOrphanRecovery: true"
+          }
+        ]
+      },
+      {
+        "id": "orphan-auto-routed-session",
+        "claim": "When a matched non-exact auto-routed session has no Claude session file, claude_consult marks it orphaned, builds bootstrap context, creates a replacement route, and sets wasOrphanRecovery true.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/consult.ts",
+            "hash": "sha256:db9c149b830b947df82ead8973daa1b1061610633eab613bdeddd8da07e6b85c",
+            "selector": "Auto-routed session was orphaned; creating replacement from registry context."
+          },
+          {
+            "path": "src/consult.ts",
+            "hash": "sha256:db9c149b830b947df82ead8973daa1b1061610633eab613bdeddd8da07e6b85c",
+            "selector": "bootstrapContext: oldView ? buildBootstrapContext(oldView, \"orphaned\") : undefined"
+          },
+          {
+            "path": "src/consult.ts",
+            "hash": "sha256:db9c149b830b947df82ead8973daa1b1061610633eab613bdeddd8da07e6b85c",
+            "selector": "wasOrphanRecovery: true"
+          }
+        ]
+      },
+      {
+        "id": "orphan-routing-output",
+        "claim": "Successful claude_consult output exposes routing.was_orphan_recovery, and tests assert it is true for explicit and auto-routed orphan recovery.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/consult.ts",
+            "hash": "sha256:db9c149b830b947df82ead8973daa1b1061610633eab613bdeddd8da07e6b85c",
+            "selector": "was_orphan_recovery: route.wasOrphanRecovery"
+          },
+          {
+            "path": "tests/consult.test.ts",
+            "hash": "sha256:4cd21c943eb1349ed4d0534625599f4e117ac4b3c31ce507fdf7ff58d1602b0e",
+            "selector": "expect(result.routing.was_orphan_recovery).toBe(true)"
+          }
+        ]
+      },
+      {
+        "id": "replacement-session-created",
+        "claim": "When invokeClaude runs with no selected session, it creates a new registry session using the returned Claude session id.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/consult.ts",
+            "hash": "sha256:db9c149b830b947df82ead8973daa1b1061610633eab613bdeddd8da07e6b85c",
+            "selector": "if (!route.selectedSession)"
+          }
+        ]
+      },
+      {
+        "id": "trust-static-verified",
+        "claim": "static_verified trust_state occurs when static verification stores at least one valid fact and no facts were rejected.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/cluster.ts",
+            "hash": "sha256:2e2c08b5d8dac752ad0203e462106fdee6d836dca5e2a3333394ea49217fe93f",
+            "selector": "verification.rejectedFacts.length === 0 ? \"static_verified\" : \"partial_static\""
+          }
+        ]
+      },
+      {
+        "id": "trust-llm-verified",
+        "claim": "llm_verified trust_state occurs when LLM verification accepts all facts and there are no static or LLM rejected facts.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/cluster.ts",
+            "hash": "sha256:2e2c08b5d8dac752ad0203e462106fdee6d836dca5e2a3333394ea49217fe93f",
+            "selector": "rejectedFacts.length === 0 ? \"llm_verified\" : \"partial_llm\""
+          }
+        ]
+      },
+      {
+        "id": "trust-partial-llm",
+        "claim": "partial_llm trust_state occurs after LLM verification when at least one fact is rejected but at least one LLM verified fact remains stored.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/cluster.ts",
+            "hash": "sha256:2e2c08b5d8dac752ad0203e462106fdee6d836dca5e2a3333394ea49217fe93f",
+            "selector": "const rejectedFacts = [...verification.rejectedFacts, ...llmVerification.rejectedFacts]"
+          },
+          {
+            "path": "src/cluster.ts",
+            "hash": "sha256:2e2c08b5d8dac752ad0203e462106fdee6d836dca5e2a3333394ea49217fe93f",
+            "selector": "trustState = rejectedFacts.length === 0 ? \"llm_verified\" : \"partial_llm\""
+          }
+        ]
+      },
+      {
+        "id": "cluster-refresh-verify-only",
+        "claim": "cluster_refresh verify_only revalidates the latest factsheet by checking scoped evidence file hashes and selectors without invoking Claude.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/tools.ts",
+            "hash": "sha256:575b52ea7a2a8a13bb0638b7087ca6ff88740a5f54601778e27ad2f01f314ab5",
+            "selector": "cluster_refresh"
+          },
+          {
+            "path": "src/clusterRefresh.ts",
+            "hash": "sha256:2146376796e691e6214b82c871f96c97b5d5ae0c7f60af7a0beca56e19130b6f",
+            "selector": "verifyFactsheetStatic"
+          }
+        ]
+      },
+      {
+        "id": "cluster-refresh-stale-semantics",
+        "claim": "cluster_refresh marks the factsheet stale when scoped file hashes change or static re-verification rejects facts; it does not regenerate facts in verify_only mode.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/clusterRefresh.ts",
+            "hash": "sha256:2146376796e691e6214b82c871f96c97b5d5ae0c7f60af7a0beca56e19130b6f",
+            "selector": "changedFiles.length > 0 || rejectedFacts.length > 0"
+          },
+          {
+            "path": "src/clusterRefresh.ts",
+            "hash": "sha256:2146376796e691e6214b82c871f96c97b5d5ae0c7f60af7a0beca56e19130b6f",
+            "selector": "db.markClusterFactsheetStale"
+          }
+        ]
+      },
+      {
+        "id": "cluster-refresh-future-modes",
+        "claim": "The cluster cache spec reserves future cluster_refresh modes focused_refresh for scoped-file updates and agent_refresh for explicit broad exploration, while the MVP implements verify_only first.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "docs/CLUSTER_CACHE_SPEC.md",
+            "hash": "sha256:62bdf2eb0aef7540ff9e446071b3adaa1cb389a9bee8c5a98ce7ee516386d13a",
+            "selector": "Allowed `mode` values:"
+          },
+          {
+            "path": "docs/CLUSTER_CACHE_SPEC.md",
+            "hash": "sha256:62bdf2eb0aef7540ff9e446071b3adaa1cb389a9bee8c5a98ce7ee516386d13a",
+            "selector": "MVP should implement `verify_only` first."
+          }
+        ]
+      },
+      {
+        "id": "cluster-refresh-policy-options",
+        "claim": "The cluster cache spec lists later invalidation policies strict, auto_verify, and auto_refresh; the MVP default is strict.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "docs/CLUSTER_CACHE_SPEC.md",
+            "hash": "sha256:62bdf2eb0aef7540ff9e446071b3adaa1cb389a9bee8c5a98ce7ee516386d13a",
+            "selector": "Policy options for later:"
+          },
+          {
+            "path": "docs/CLUSTER_CACHE_SPEC.md",
+            "hash": "sha256:62bdf2eb0aef7540ff9e446071b3adaa1cb389a9bee8c5a98ce7ee516386d13a",
+            "selector": "MVP default: `strict`."
+          }
+        ]
+      },
+      {
+        "id": "cluster-refresh-selector-improvement-open-question",
+        "claim": "The cluster cache spec leaves open whether factsheets should store exact line ranges, AST selectors, or both, making selector precision a spec-backed refresh improvement area.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "docs/CLUSTER_CACHE_SPEC.md",
+            "hash": "sha256:62bdf2eb0aef7540ff9e446071b3adaa1cb389a9bee8c5a98ce7ee516386d13a",
+            "selector": "Should factsheets store exact line ranges, AST selectors, or both?"
+          }
+        ]
+      },
+      {
+        "id": "bare-profile-risk",
+        "claim": "A known risk of bare/no-tools cluster consulting is that missing facts should produce NOT IN CONTEXT rather than inferred API/config names.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/clusterConsult.ts",
+            "hash": "sha256:4194b8a7efcdf7f42e0b01011df8a8d4f0e0799d80d9d2759a954f8bbe6e60f3",
+            "selector": "If a required fact is absent, write NOT IN CONTEXT."
+          },
+          {
+            "path": "docs/CLUSTER_CACHE_SPEC.md",
+            "hash": "sha256:62bdf2eb0aef7540ff9e446071b3adaa1cb389a9bee8c5a98ce7ee516386d13a",
+            "selector": "If a fact is not present in the factsheet, write NOT IN CONTEXT."
+          }
+        ]
+      }
+    ],
+    "pitfalls": [],
+    "forbidden_inferences": [
+      "mcp.cwd",
+      "claude.policy",
+      "profileArgs returns any value other than --bare --tools empty for bare"
+    ],
+    "omitted_facts": 0
+  },
+  "verifier_metrics": {
+    "tool_profile": "focused",
+    "duration_ms": 25556,
+    "tokens_in": 39500,
+    "tokens_out": 3355
+  },
+  "duration_ms_observed": 39725,
+  "cost_usd": 0.168825
+}

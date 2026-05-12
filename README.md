@@ -24,6 +24,19 @@ Fresh cluster_consult without fork:     6.1s,    489 input tokens, about $0.015
 
 The exact numbers depend on your Claude account, model, CLI version, and prompt size. The important behavior is that verified factsheets let Claude answer without repeating broad discovery.
 
+Measured quality comparison, 90 invocations on 2026-05-12:
+
+- On factual lookup questions, `cluster_consult` matched or beat `direct_resume` quality: `3.00` vs `2.80`.
+- With calibrated scoring, `cluster_consult` reached `98.8%` of `direct_resume` mean quality across the full matrix: `2.73` vs `2.77`.
+- `cluster_consult` ran at `23.3%` of `direct_resume` estimated per-invocation cost: `$0.0164` vs `$0.0702`.
+- No confirmed nonexistent field, event, or function hallucinations were found across 30 `cluster_consult` responses.
+- For questions outside factsheet coverage, `cluster_consult` returned `NOT IN CONTEXT` instead of guessing.
+- v1 `claude_consult` remains the right default for reasoning/open-ended questions; it also reduced estimated cost versus fresh Claude calls from `$0.1745` to `$0.0702` at comparable quality.
+
+Full benchmark data is committed under `experiments/quality-comparison-2026-05-12/`.
+
+Targeted factsheet expansion on 2026-05-13 added verifier rationale, orphan-recovery paths, and `cluster_refresh` extension facts. On the three previously weak questions B1/B2/C1, `cluster_consult` scored `2.89` mean quality with no low-score rows; B2 and C1 stabilized at `3/3/3`. Artifact: `experiments/factsheet-expansion-2026-05-13/`.
+
 ## Current Status
 
 Implemented MVP tools:

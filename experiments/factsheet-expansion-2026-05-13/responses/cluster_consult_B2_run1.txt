@@ -1,0 +1,15 @@
+**Code path for a deleted `.jsonl` session file on next `claude_consult`:**
+
+1. **`claude_consult` is called** — the router looks up the session by the provided `session_id` (explicit), by exact topic match, or by auto-routing.
+
+2. **Session file existence check** — the code calls `sessionFileExists(session.claude_session_id)` (`src/consult.ts`). This returns false because the `.jsonl` file has been deleted.
+
+3. **Orphan marking** — `this.runtime.db.markSessionOrphaned(session.id)` is called. This sets the session's status to `orphaned` in the registry and writes an `orphan_recovery` event to `cluster_events` (per `orphan-session-event`).
+
+4. **Bootstrap context built** — the router reads the old session's view/registry context and calls `buildBootstrapContext(oldView, "orphaned")` to construct replacement bootstrap context.
+
+5. **Replacement route created** — a new route is built from the bootstrap context, with `wasOrphanRecovery: true`.
+
+6. **New session created** — `invokeClaude` runs with no selected session. It creates a **new registry session** using the returned Claude session id from the newly started Claude process (`replacement-session-created`).
+
+7. **Output** — `claude_consult` returns with `routing.was_orphan_recovery: true` (verified by tests in `tests/consult.test.ts`).
