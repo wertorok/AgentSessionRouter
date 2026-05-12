@@ -12,6 +12,12 @@ export interface ClaudeJsonResponse {
   tokensOut?: number;
 }
 
+export interface ClaudePromptOptions {
+  resumeSessionId?: string;
+  extraArgs?: string[];
+  includeConfiguredExtraArgs?: boolean;
+}
+
 export interface HealthProbeResult {
   ok: boolean;
   degraded: boolean;
@@ -24,6 +30,7 @@ export interface HealthProbeResult {
 export interface ClaudeAdapter {
   getVersion(): Promise<string>;
   runPrompt(prompt: string, resumeSessionId?: string): Promise<ClaudeJsonResponse>;
+  runPromptWithOptions?(prompt: string, options: ClaudePromptOptions): Promise<ClaudeJsonResponse>;
   healthProbe(): Promise<HealthProbeResult>;
   sessionFileExists(claudeSessionId: string): Promise<boolean>;
 }
@@ -36,9 +43,19 @@ export class CliClaudeAdapter implements ClaudeAdapter {
   }
 
   async runPrompt(prompt: string, resumeSessionId?: string): Promise<ClaudeJsonResponse> {
-    const args = ["-p", ...this.config.claude.extraArgs, "--output-format", this.config.claude.outputFormat];
-    if (resumeSessionId) {
-      args.push("--resume", resumeSessionId);
+    return this.runPromptWithOptions(prompt, { resumeSessionId });
+  }
+
+  async runPromptWithOptions(prompt: string, options: ClaudePromptOptions = {}): Promise<ClaudeJsonResponse> {
+    const args = [
+      "-p",
+      ...(options.includeConfiguredExtraArgs === false ? [] : this.config.claude.extraArgs),
+      ...(options.extraArgs ?? []),
+      "--output-format",
+      this.config.claude.outputFormat
+    ];
+    if (options.resumeSessionId) {
+      args.push("--resume", options.resumeSessionId);
     }
     args.push(prompt);
 

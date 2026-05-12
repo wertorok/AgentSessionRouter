@@ -4,7 +4,7 @@ import path from "node:path";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { describe, expect, it } from "vitest";
-import type { ClaudeAdapter, ClaudeJsonResponse, HealthProbeResult } from "../src/claude.js";
+import type { ClaudeAdapter, ClaudeJsonResponse, ClaudePromptOptions, HealthProbeResult } from "../src/claude.js";
 import type { Clock } from "../src/clock.js";
 import { loadConfig } from "../src/config.js";
 import { ERROR_CODES } from "../src/constants.js";
@@ -93,6 +93,42 @@ describe("cluster MCP tools", () => {
     expect(payload.error.code).toBe(ERROR_CODES.CLUSTER_PROJECT_MISMATCH);
     fixture.cleanup();
   });
+
+  it("runs LLM verification when requested by cluster_prepare", async () => {
+    const claude = new FakeClaude({
+      facts: [{ id: "extra-args", verdict: "VERIFIED", reason: "Evidence supports the claim." }]
+    });
+    const fixture = createToolFixture(claude);
+    const server = new FakeServer();
+    registerTools(server as unknown as McpServer, fixture.runtime);
+    mkdirSync(path.join(fixture.dir, "src"), { recursive: true });
+    writeFileSync(path.join(fixture.dir, "src", "config.ts"), "export const extraArgs = [];\n");
+
+    const result = await server.call("cluster_prepare", {
+      project_id: "project",
+      cluster_id: "router-ops",
+      tool_profile_default: "bare",
+      verification_mode: "llm",
+      llm_verifier_profile: "focused",
+      factsheet: {
+        facts: [
+          {
+            id: "extra-args",
+            claim: "extraArgs exists.",
+            evidence: [{ path: "src/config.ts", selector: "extraArgs" }]
+          }
+        ]
+      }
+    });
+    const payload = parseToolJson(result);
+
+    expect(result.isError).toBeFalsy();
+    expect(payload.verification_stage).toBe("llm");
+    expect(payload.trust_state).toBe("llm_verified");
+    expect(payload.factsheet.facts[0].confidence).toBe("llm_verified");
+    expect(claude.lastOptions?.extraArgs).toEqual(["--tools", ""]);
+    fixture.cleanup();
+  });
 });
 
 class FakeServer {
@@ -116,6 +152,10 @@ class FakeServer {
 }
 
 class FakeClaude implements ClaudeAdapter {
+  lastOptions: ClaudePromptOptions | undefined;
+
+  constructor(private readonly verifierResult: unknown = { facts: [] }) {}
+
   async getVersion(): Promise<string> {
     return "VERSION_A";
   }
@@ -126,6 +166,16 @@ class FakeClaude implements ClaudeAdapter {
       result: "ok",
       tokensIn: 1,
       tokensOut: 1
+    };
+  }
+
+  async runPromptWithOptions(_prompt: string, options: ClaudePromptOptions): Promise<ClaudeJsonResponse> {
+    this.lastOptions = options;
+    return {
+      sessionId: "verifier-session",
+      result: JSON.stringify(this.verifierResult),
+      tokensIn: 10,
+      tokensOut: 5
     };
   }
 
@@ -173,13 +223,13 @@ function parseToolJson(result: CallToolResult): any {
   return JSON.parse(content.text);
 }
 
-function createToolFixture(): { runtime: RouterRuntime; dir: string; cleanup: () => void } {
+function createToolFixture(claude = new FakeClaude()): { runtime: RouterRuntime; dir: string; cleanup: () => void } {
   const dir = path.join(os.tmpdir(), `router-tools-${process.pid}-${Math.random().toString(16).slice(2)}`);
   mkdirSync(dir, { recursive: true });
   const clock = new FakeClock();
   const config = loadConfig({ cwd: dir });
   const db = RouterDatabase.open(config.storage.dbPath, clock);
-  const runtime = new RouterRuntime(dir, config, db, new FakeClaude(), new MemoryLockProvider(), clock, new NoopLogger());
+  const runtime = new RouterRuntime(dir, config, db, claude, new MemoryLockProvider(), clock, new NoopLogger());
 
   return {
     runtime,

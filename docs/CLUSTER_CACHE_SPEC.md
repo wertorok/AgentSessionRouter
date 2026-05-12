@@ -38,10 +38,11 @@ Current implementation status:
 
 - Implemented: Phase 0 schema/storage.
 - Implemented: Phase 1 direct `cluster_prepare` with static local-file verification.
+- Implemented: Phase 2 LLM verifier loop as an explicit `verification_mode: "llm"` path.
 - Implemented early for observability: read-only `cluster_get` and `cluster_list`.
-- Not implemented yet: LLM verifier, bare probe/profile builder, `cluster_consult`, fork baseline, refresh/invalidation, and distillation from existing sessions.
+- Not implemented yet: bare probe/profile builder, `cluster_consult`, fork baseline, refresh/invalidation, and distillation from existing sessions.
 
-The current `cluster_prepare` accepts direct factsheet JSON and stores only facts whose evidence passes deterministic local checks. It does not invoke Claude. These factsheets are marked `static_verified`, not `llm_verified`, because static checks prove evidence existence but not full semantic correctness.
+The current `cluster_prepare` accepts direct factsheet JSON and stores only facts whose evidence passes deterministic local checks. By default these factsheets are marked `static_verified`, not `llm_verified`, because static checks prove evidence existence but not full semantic correctness. When `verification_mode` is `llm`, Claude is invoked with a no-tools verifier prompt and only `VERIFIED` facts are promoted to `llm_verified`.
 
 ## 3. Core Terms
 
@@ -402,7 +403,8 @@ Input:
   "cluster_id": "config-and-cwd-isolation",
   "description": "Cwd, project isolation, and Claude CLI invocation behavior.",
   "source_session_id": "session_...",
-  "tool_profile": "agent",
+  "verification_mode": "llm",
+  "llm_verifier_profile": "focused",
   "create_baseline": true
 }
 ```
@@ -414,8 +416,8 @@ Behavior:
 3. If source is missing, run explicit exploration with `agent` profile only if requested.
 4. Distill draft factsheet.
 5. Run static verifier.
-6. Run LLM verifier.
-7. Store verified factsheet.
+6. If `verification_mode` is `llm`, run LLM verifier with `--tools ""` or `--bare --tools ""`.
+7. Store `static_verified` or `llm_verified` factsheet.
 8. Hash evidence files.
 9. Optionally create a baseline Claude session using the verified factsheet.
 
@@ -749,7 +751,7 @@ Metrics are first-class because cluster design is justified by measured performa
 - Add `cluster_prepare` with direct supplied factsheet JSON in dev/test mode.
 - Run static verifier.
 - Store verified factsheet and hashes.
-- No LLM verifier, no distillation, no baseline session yet.
+- No LLM verifier in this phase; no distillation or baseline session yet.
 
 This phase avoids building auto-distillation before storage and verification are proven.
 

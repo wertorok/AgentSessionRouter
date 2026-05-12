@@ -1,6 +1,6 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { prepareStaticCluster, type FactsheetInput } from "./cluster.js";
+import { prepareCluster, type FactsheetInput } from "./cluster.js";
 import { ERROR_CODES } from "./constants.js";
 import { ConsultService } from "./consult.js";
 import type { ClusterFactsheetRecord } from "./db.js";
@@ -83,6 +83,8 @@ const clusterPrepareInput = z.object({
   name: z.string().nullable().optional(),
   description: z.string().nullable().optional(),
   tool_profile_default: clusterToolProfileInput.default("bare"),
+  verification_mode: z.enum(["static", "llm"]).default("static"),
+  llm_verifier_profile: z.enum(["focused", "bare"]).default("focused"),
   source_session_id: z.string().nullable().optional(),
   git_rev: z.string().nullable().optional(),
   factsheet: factsheetInput
@@ -263,13 +265,25 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
     {
       title: "Prepare cluster factsheet",
       description:
-        "Stores a static_verified cluster factsheet. This MVP does not invoke Claude; every fact must cite local evidence.",
+        "Stores a static_verified factsheet, or runs no-tools LLM verification when verification_mode is llm.",
       inputSchema: clusterPrepareInput
     },
     async (input) => {
       const projectId = resolveProjectId(input.project_id, runtime.cwd);
+      if ((input.verification_mode ?? "static") === "llm" && runtime.degradedMode) {
+        const diagnosis = diagnoseClaudeFailure(runtime.degradedReason);
+        return jsonToolResult(
+          errorPayload(ERROR_CODES.CLAUDE_INCOMPATIBLE, SPEC_ERROR_MESSAGES[ERROR_CODES.CLAUDE_INCOMPATIBLE], {
+            cluster_id: input.cluster_id,
+            reason: diagnosis.reason,
+            category: diagnosis.category,
+            operator_action: diagnosis.operator_action
+          }),
+          true
+        );
+      }
       try {
-        const result = prepareStaticCluster(runtime.db, runtime.cwd, {
+        const result = await prepareCluster(runtime.db, runtime.cwd, runtime.claude, {
           projectId,
           clusterId: input.cluster_id,
           name: input.name ?? undefined,
@@ -277,7 +291,9 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
           toolProfileDefault: input.tool_profile_default,
           factsheet: input.factsheet as FactsheetInput,
           sourceSessionId: input.source_session_id,
-          gitRev: input.git_rev
+          gitRev: input.git_rev,
+          verificationMode: input.verification_mode ?? "static",
+          llmVerifierProfile: input.llm_verifier_profile ?? "focused"
         });
 
         return jsonToolResult({
@@ -288,6 +304,8 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
         const reason = error instanceof Error ? error.message : String(error);
         const code = reason.includes("belongs to project")
           ? ERROR_CODES.CLUSTER_PROJECT_MISMATCH
+          : reason.includes("Claude") || reason.includes("Command failed")
+            ? ERROR_CODES.CLAUDE_INVOCATION_FAILED
           : ERROR_CODES.CLUSTER_FACTSHEET_INVALID;
         return jsonToolResult(
           errorPayload(code, SPEC_ERROR_MESSAGES[code], {

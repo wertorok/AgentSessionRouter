@@ -1,6 +1,7 @@
 import { createHash, randomUUID } from "node:crypto";
 import { existsSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
+import type { ClaudeAdapter, ClaudeJsonResponse } from "./claude.js";
 import type { ClusterToolProfile, RouterDatabase } from "./db.js";
 
 export interface FactsheetEvidence {
@@ -32,7 +33,7 @@ export interface VerifiedFactsheet {
   facts: Array<{
     id: string;
     claim: string;
-    confidence: "static_verified";
+    confidence: "static_verified" | "llm_verified";
     evidence: Array<{
       path: string;
       hash: string;
@@ -69,18 +70,41 @@ export interface PrepareClusterInput {
   factsheet: FactsheetInput;
   sourceSessionId?: string | null;
   gitRev?: string | null;
+  verificationMode?: "static" | "llm";
+  llmVerifierProfile?: "focused" | "bare";
 }
 
 export interface PrepareClusterResult {
   cluster_id: string;
   factsheet_id: string;
   factsheet_version: number;
-  verification_stage: "static";
-  trust_state: "static_verified" | "partial_static";
+  verification_stage: "static" | "llm";
+  trust_state: "static_verified" | "partial_static" | "llm_verified" | "partial_llm";
   verified_facts: number;
   rejected_facts: number;
   rejected_fact_details: RejectedFact[];
   factsheet: VerifiedFactsheet;
+  verifier_metrics?: {
+    tool_profile: "focused" | "bare";
+    duration_ms: number;
+    tokens_in?: number;
+    tokens_out?: number;
+  };
+}
+
+export interface LlmVerifierFactResult {
+  id: string;
+  verdict: "VERIFIED" | "UNVERIFIED" | "AMBIGUOUS";
+  reason: string;
+}
+
+export interface LlmFactsheetVerification {
+  factsheet: VerifiedFactsheet;
+  rejectedFacts: RejectedFact[];
+  verifierResults: LlmVerifierFactResult[];
+  response: ClaudeJsonResponse;
+  durationMs: number;
+  toolProfile: "focused" | "bare";
 }
 
 interface VerifiedEvidenceFile {
@@ -102,42 +126,140 @@ export function prepareStaticCluster(
     description: input.description,
     toolProfileDefault: input.toolProfileDefault
   });
-
   const verification = verifyFactsheetStatic(cwd, input.clusterId, input.factsheet);
-  if (verification.factsheet.facts.length === 0) {
-    db.logClusterEvent({
-      clusterId: input.clusterId,
-      projectId: input.projectId,
-      eventType: "factsheet_rejected",
-      details: {
-        rejected_facts: verification.rejectedFacts
-      }
-    });
-    throw new Error("factsheet has no statically verified facts");
-  }
+  ensureHasVerifiedFacts(db, input.projectId, input.clusterId, verification);
 
-  const factsheetId = `factsheet_${randomUUID()}`;
+  const trustState = verification.rejectedFacts.length === 0 ? "static_verified" : "partial_static";
   const factsheetRecord = db.insertClusterFactsheet({
-    id: factsheetId,
+    id: `factsheet_${randomUUID()}`,
     clusterId: cluster.id,
     contentJson: JSON.stringify(verification.factsheet),
     sourceSessionId: input.sourceSessionId,
     gitRev: input.gitRev,
     status: "static_verified",
-    trustState: verification.rejectedFacts.length === 0 ? "static_verified" : "partial_static",
+    trustState,
     fileHashes: verification.fileHashes
   });
 
   return {
     cluster_id: cluster.id,
-    factsheet_id: factsheetId,
+    factsheet_id: factsheetRecord.id,
     factsheet_version: factsheetRecord.version,
     verification_stage: "static",
-    trust_state: verification.rejectedFacts.length === 0 ? "static_verified" : "partial_static",
+    trust_state: trustState,
     verified_facts: verification.factsheet.facts.length,
     rejected_facts: verification.rejectedFacts.length,
     rejected_fact_details: verification.rejectedFacts,
     factsheet: verification.factsheet
+  };
+}
+
+export async function prepareCluster(
+  db: RouterDatabase,
+  cwd: string,
+  claude: ClaudeAdapter,
+  input: PrepareClusterInput
+): Promise<PrepareClusterResult> {
+  const cluster = db.upsertCluster({
+    id: input.clusterId,
+    projectId: input.projectId,
+    name: input.name ?? input.clusterId,
+    description: input.description,
+    toolProfileDefault: input.toolProfileDefault
+  });
+
+  const verification = verifyFactsheetStatic(cwd, input.clusterId, input.factsheet);
+  ensureHasVerifiedFacts(db, input.projectId, input.clusterId, verification);
+
+  if ((input.verificationMode ?? "static") !== "llm") {
+    const trustState = verification.rejectedFacts.length === 0 ? "static_verified" : "partial_static";
+    const factsheetRecord = db.insertClusterFactsheet({
+      id: `factsheet_${randomUUID()}`,
+      clusterId: cluster.id,
+      contentJson: JSON.stringify(verification.factsheet),
+      sourceSessionId: input.sourceSessionId,
+      gitRev: input.gitRev,
+      status: "static_verified",
+      trustState,
+      fileHashes: verification.fileHashes
+    });
+
+    return {
+      cluster_id: cluster.id,
+      factsheet_id: factsheetRecord.id,
+      factsheet_version: factsheetRecord.version,
+      verification_stage: "static",
+      trust_state: trustState,
+      verified_facts: verification.factsheet.facts.length,
+      rejected_facts: verification.rejectedFacts.length,
+      rejected_fact_details: verification.rejectedFacts,
+      factsheet: verification.factsheet
+    };
+  }
+
+  const llmVerification = await verifyFactsheetWithLlm(
+    claude,
+    cwd,
+    verification.factsheet,
+    input.llmVerifierProfile ?? "focused"
+  );
+  if (llmVerification.factsheet.facts.length === 0) {
+    db.logClusterEvent({
+      clusterId: input.clusterId,
+      projectId: input.projectId,
+      eventType: "factsheet_rejected",
+      details: {
+        static_rejected_facts: verification.rejectedFacts,
+        llm_rejected_facts: llmVerification.rejectedFacts
+      }
+    });
+    throw new Error("factsheet has no LLM verified facts");
+  }
+
+  const rejectedFacts = [...verification.rejectedFacts, ...llmVerification.rejectedFacts];
+  llmVerification.factsheet.omitted_facts = rejectedFacts.length;
+  const trustState = rejectedFacts.length === 0 ? "llm_verified" : "partial_llm";
+  const factsheetRecord = db.insertClusterFactsheet({
+    id: `factsheet_${randomUUID()}`,
+    clusterId: cluster.id,
+    contentJson: JSON.stringify(llmVerification.factsheet),
+    sourceSessionId: input.sourceSessionId,
+    gitRev: input.gitRev,
+    status: "llm_verified",
+    trustState,
+    fileHashes: fileHashesForFacts(verification.fileHashes, llmVerification.factsheet)
+  });
+  db.logClusterEvent({
+    clusterId: cluster.id,
+    projectId: input.projectId,
+    eventType: "llm_verifier",
+    details: {
+      tool_profile: llmVerification.toolProfile,
+      factsheet_id: factsheetRecord.id,
+      factsheet_version: factsheetRecord.version,
+      verifier_results: llmVerification.verifierResults
+    },
+    durationMs: llmVerification.durationMs,
+    tokensIn: llmVerification.response.tokensIn,
+    tokensOut: llmVerification.response.tokensOut
+  });
+
+  return {
+    cluster_id: cluster.id,
+    factsheet_id: factsheetRecord.id,
+    factsheet_version: factsheetRecord.version,
+    verification_stage: "llm",
+    trust_state: trustState,
+    verified_facts: llmVerification.factsheet.facts.length,
+    rejected_facts: rejectedFacts.length,
+    rejected_fact_details: rejectedFacts,
+    factsheet: llmVerification.factsheet,
+    verifier_metrics: {
+      tool_profile: llmVerification.toolProfile,
+      duration_ms: llmVerification.durationMs,
+      tokens_in: llmVerification.response.tokensIn,
+      tokens_out: llmVerification.response.tokensOut
+    }
   };
 }
 
@@ -229,6 +351,87 @@ export function verifyFactsheetStatic(
   };
 }
 
+export async function verifyFactsheetWithLlm(
+  claude: ClaudeAdapter,
+  cwd: string,
+  factsheet: VerifiedFactsheet,
+  toolProfile: "focused" | "bare"
+): Promise<LlmFactsheetVerification> {
+  const prompt = buildLlmVerifierPrompt(cwd, factsheet);
+  const start = Date.now();
+  const response =
+    claude.runPromptWithOptions !== undefined
+      ? await claude.runPromptWithOptions(prompt, {
+          extraArgs: toolProfile === "bare" ? ["--bare", "--tools", ""] : ["--tools", ""],
+          includeConfiguredExtraArgs: false
+        })
+      : await claude.runPrompt(prompt);
+  const durationMs = Date.now() - start;
+  const verifierResults = parseLlmVerifierResponse(response.result);
+  const resultById = new Map(verifierResults.map((result) => [result.id, result]));
+  const promotedFacts: VerifiedFactsheet["facts"] = [];
+  const rejectedFacts: RejectedFact[] = [];
+
+  for (const fact of factsheet.facts) {
+    const verdict = resultById.get(fact.id);
+    if (verdict?.verdict === "VERIFIED") {
+      promotedFacts.push({
+        ...fact,
+        confidence: "llm_verified"
+      });
+      continue;
+    }
+    rejectedFacts.push({
+      id: fact.id,
+      claim: fact.claim,
+      reason: `llm_verifier:${verdict?.verdict ?? "MISSING"} ${verdict?.reason ?? "verifier did not return this fact"}`
+    });
+  }
+
+  return {
+    factsheet: {
+      ...factsheet,
+      facts: promotedFacts,
+      omitted_facts: factsheet.omitted_facts + rejectedFacts.length
+    },
+    rejectedFacts,
+    verifierResults,
+    response,
+    durationMs,
+    toolProfile
+  };
+}
+
+export function parseLlmVerifierResponse(source: string): LlmVerifierFactResult[] {
+  const json = extractJsonObject(source);
+  const parsed: unknown = JSON.parse(json);
+  if (!isObject(parsed) || !Array.isArray(parsed.facts)) {
+    throw new Error("LLM verifier response must be a JSON object with a facts array");
+  }
+
+  const results: LlmVerifierFactResult[] = [];
+  for (const item of parsed.facts) {
+    if (!isObject(item)) {
+      continue;
+    }
+    const id = stringOrEmpty(item.id);
+    const verdict = stringOrEmpty(item.verdict).toUpperCase();
+    if (!id || (verdict !== "VERIFIED" && verdict !== "UNVERIFIED" && verdict !== "AMBIGUOUS")) {
+      continue;
+    }
+    results.push({
+      id,
+      verdict,
+      reason: stringOrEmpty(item.reason).slice(0, 500)
+    });
+  }
+
+  if (results.length === 0) {
+    throw new Error("LLM verifier response did not contain usable fact verdicts");
+  }
+  return results;
+}
+
 function readVerifiedEvidenceFile(cwd: string, inputPath: string): VerifiedEvidenceFile {
   const relativePath = normalizeEvidencePath(inputPath);
   const absoluteCwd = path.resolve(cwd);
@@ -250,6 +453,90 @@ function readVerifiedEvidenceFile(cwd: string, inputPath: string): VerifiedEvide
     fileSize: stat.size,
     content
   };
+}
+
+function ensureHasVerifiedFacts(
+  db: RouterDatabase,
+  projectId: string,
+  clusterId: string,
+  verification: StaticFactsheetVerification
+): void {
+  if (verification.factsheet.facts.length > 0) {
+    return;
+  }
+  db.logClusterEvent({
+    clusterId,
+    projectId,
+    eventType: "factsheet_rejected",
+    details: {
+      rejected_facts: verification.rejectedFacts
+    }
+  });
+  throw new Error("factsheet has no statically verified facts");
+}
+
+function fileHashesForFacts(
+  staticFileHashes: StaticFactsheetVerification["fileHashes"],
+  factsheet: VerifiedFactsheet
+): StaticFactsheetVerification["fileHashes"] {
+  const usedPaths = new Set(factsheet.facts.flatMap((fact) => fact.evidence.map((evidence) => evidence.path)));
+  return staticFileHashes.filter((file) => usedPaths.has(file.path));
+}
+
+function buildLlmVerifierPrompt(cwd: string, factsheet: VerifiedFactsheet): string {
+  const facts = factsheet.facts.map((fact) => ({
+    id: fact.id,
+    claim: fact.claim,
+    evidence: fact.evidence.map((evidence) => {
+      const file = readVerifiedEvidenceFile(cwd, evidence.path);
+      return {
+        path: evidence.path,
+        selector: evidence.selector ?? null,
+        snippet: snippetForEvidence(file.content, evidence.selector)
+      };
+    })
+  }));
+
+  return [
+    "You are verifying a cluster factsheet for AgentSessionRouter.",
+    "For each fact, decide whether the supplied evidence semantically supports the claim.",
+    "Return VERIFIED only when the claim follows from the evidence.",
+    "Return UNVERIFIED when support is missing or the claim names APIs/config that are not shown.",
+    "Return AMBIGUOUS when the evidence is related but insufficient.",
+    "Do not infer. Do not use tools. Return JSON only.",
+    "",
+    "Expected JSON shape:",
+    '{"facts":[{"id":"fact-id","verdict":"VERIFIED|UNVERIFIED|AMBIGUOUS","reason":"short reason"}]}',
+    "",
+    `Factsheet cluster_id: ${factsheet.cluster_id}`,
+    `Facts to verify: ${JSON.stringify(facts, null, 2)}`
+  ].join("\n");
+}
+
+function snippetForEvidence(content: string, selector: string | undefined): string {
+  const maxLength = 1600;
+  if (!selector) {
+    return content.slice(0, maxLength);
+  }
+  const index = content.indexOf(selector);
+  if (index < 0) {
+    return content.slice(0, maxLength);
+  }
+  const start = Math.max(0, index - 500);
+  const end = Math.min(content.length, index + selector.length + 900);
+  return content.slice(start, end);
+}
+
+function extractJsonObject(source: string): string {
+  const trimmed = source.trim();
+  const fenced = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  const candidate = fenced?.[1]?.trim() ?? trimmed;
+  const start = candidate.indexOf("{");
+  const end = candidate.lastIndexOf("}");
+  if (start < 0 || end < start) {
+    throw new Error("LLM verifier response did not include a JSON object");
+  }
+  return candidate.slice(start, end + 1);
 }
 
 function normalizeEvidencePath(inputPath: string): string {

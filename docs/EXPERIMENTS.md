@@ -113,6 +113,22 @@ Fork from the non-bare verified-factsheet session:
 
 Finding: non-bare fork keeps a large Claude Code baseline cost. It is faster than fresh, but not cheaper than bare.
 
+### MCP Phase 2 LLM Verifier Implementation
+
+One live `cluster_prepare` run through the implemented LLM verifier path:
+
+- Profile: `focused` (`--tools ""`)
+- Duration: 21.9s
+- Input tokens: 13,407
+- Output tokens: 325
+- Result: `partial_llm`
+- Verified facts: 1
+- Rejected facts: 1
+
+Scenario: static verifier accepted both facts because both selectors appeared in the file, including a false `claude.policy` claim present only in a comment. The LLM verifier promoted the real `extraArgs` fact and rejected the false `claude.policy` field claim.
+
+Finding: the LLM verifier closes the semantic gap left by static evidence checks and correctly distinguishes selector presence from supported API/config truth.
+
 ## Decisions
 
 - Use verified factsheet cache as source of truth. Do not use opaque Claude session state as the only source of truth.

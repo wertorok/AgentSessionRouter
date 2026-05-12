@@ -33,7 +33,7 @@ Experimental cluster-cache tools:
 
 Validation performed:
 
-- Unit/integration tests: `35 passed`
+- Unit/integration tests: `38 passed`
 - Live MCP stdio E2E: `LIVE_CONSULT_PASS`
 - Live matrix run: committed as `LIVE_TEST_LOG.md`
 - Post-fix targeted live rerun: `TARGETED_RERUN_PASS`
@@ -48,7 +48,7 @@ The full live matrix found three important issues: duplicate same-topic concurre
 
 Claude usage-limit responses are classified as `claude_usage_limit` and include an actionable `operator_action`.
 
-The first cluster-cache implementation is intentionally static: it stores only facts backed by local file evidence and does not yet invoke Claude, fork sessions, refresh stale factsheets, or auto-route questions to clusters. See `docs/CLUSTER_CACHE_SPEC.md` for the remaining v2 phases.
+The cluster-cache implementation can store `static_verified` factsheets and can optionally run an LLM verifier to promote them to `llm_verified`. It does not yet implement cluster consults, fork baselines, refresh/invalidation, or auto-routing. See `docs/CLUSTER_CACHE_SPEC.md` for the remaining v2 phases.
 
 ## Requirements
 
@@ -399,7 +399,7 @@ Failure:
 
 ### `cluster_prepare`
 
-Stores a `static_verified` cluster factsheet. This tool does not invoke Claude in the current phase. Every fact must cite a relative local file path, and optional selectors/hashes must match the current file content. This proves evidence existence, not final semantic correctness; the later LLM verifier phase will promote factsheets to `llm_verified`.
+Stores a cluster factsheet. By default it performs static local-file verification and stores `static_verified`. With `verification_mode: "llm"`, it first runs static verification, then asks Claude in a no-tools verifier profile to promote only semantically supported facts to `llm_verified`.
 
 Input:
 
@@ -409,6 +409,8 @@ Input:
   "cluster_id": "config-and-cwd-isolation",
   "name": "Config and cwd isolation",
   "tool_profile_default": "bare",
+  "verification_mode": "static",
+  "llm_verifier_profile": "focused",
   "factsheet": {
     "summary": "Verified facts for config/cwd isolation.",
     "facts": [
@@ -444,6 +446,8 @@ Output:
 ```
 
 If some facts fail static verification but at least one fact is valid, the factsheet is stored with only the statically verified facts and cluster `trust_state` is `partial_static`. If no facts verify, the tool returns `CLUSTER_FACTSHEET_INVALID`.
+
+LLM verification uses `llm_verifier_profile: "focused"` as the portable default, which invokes Claude with `--tools ""`. `llm_verifier_profile: "bare"` invokes Claude with `--bare --tools ""` when the local Claude auth supports it.
 
 ### `cluster_get`
 
