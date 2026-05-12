@@ -3,6 +3,7 @@ import { existsSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import type { ClaudeAdapter, ClaudeJsonResponse } from "./claude.js";
 import type { ClusterToolProfile, RouterDatabase } from "./db.js";
+import { profilePromptOptions, type VerifierToolProfile } from "./profiles.js";
 
 export interface FactsheetEvidence {
   path: string;
@@ -71,7 +72,7 @@ export interface PrepareClusterInput {
   sourceSessionId?: string | null;
   gitRev?: string | null;
   verificationMode?: "static" | "llm";
-  llmVerifierProfile?: "focused" | "bare";
+  llmVerifierProfile?: VerifierToolProfile;
 }
 
 export interface PrepareClusterResult {
@@ -85,7 +86,7 @@ export interface PrepareClusterResult {
   rejected_fact_details: RejectedFact[];
   factsheet: VerifiedFactsheet;
   verifier_metrics?: {
-    tool_profile: "focused" | "bare";
+    tool_profile: VerifierToolProfile;
     duration_ms: number;
     tokens_in?: number;
     tokens_out?: number;
@@ -104,7 +105,7 @@ export interface LlmFactsheetVerification {
   verifierResults: LlmVerifierFactResult[];
   response: ClaudeJsonResponse;
   durationMs: number;
-  toolProfile: "focused" | "bare";
+  toolProfile: VerifierToolProfile;
 }
 
 interface VerifiedEvidenceFile {
@@ -355,16 +356,13 @@ export async function verifyFactsheetWithLlm(
   claude: ClaudeAdapter,
   cwd: string,
   factsheet: VerifiedFactsheet,
-  toolProfile: "focused" | "bare"
+  toolProfile: VerifierToolProfile
 ): Promise<LlmFactsheetVerification> {
   const prompt = buildLlmVerifierPrompt(cwd, factsheet);
   const start = Date.now();
   const response =
     claude.runPromptWithOptions !== undefined
-      ? await claude.runPromptWithOptions(prompt, {
-          extraArgs: toolProfile === "bare" ? ["--bare", "--tools", ""] : ["--tools", ""],
-          includeConfiguredExtraArgs: false
-        })
+      ? await claude.runPromptWithOptions(prompt, profilePromptOptions(toolProfile))
       : await claude.runPrompt(prompt);
   const durationMs = Date.now() - start;
   const verifierResults = parseLlmVerifierResponse(response.result);

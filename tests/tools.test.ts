@@ -125,8 +125,59 @@ describe("cluster MCP tools", () => {
     expect(result.isError).toBeFalsy();
     expect(payload.verification_stage).toBe("llm");
     expect(payload.trust_state).toBe("llm_verified");
+    expect(payload.profile_selection).toEqual({
+      requested: "focused",
+      selected: "focused",
+      downgraded: false
+    });
     expect(payload.factsheet.facts[0].confidence).toBe("llm_verified");
     expect(claude.lastOptions?.extraArgs).toEqual(["--tools", ""]);
+    fixture.cleanup();
+  });
+
+  it("downgrades LLM verifier from bare to focused when bare probe fails", async () => {
+    const claude = new FakeClaude(
+      {
+        facts: [{ id: "extra-args", verdict: "VERIFIED", reason: "Evidence supports the claim." }]
+      },
+      { failBareProbe: true }
+    );
+    const fixture = createToolFixture(claude);
+    const server = new FakeServer();
+    registerTools(server as unknown as McpServer, fixture.runtime);
+    mkdirSync(path.join(fixture.dir, "src"), { recursive: true });
+    writeFileSync(path.join(fixture.dir, "src", "config.ts"), "export const extraArgs = [];\n");
+
+    const result = await server.call("cluster_prepare", {
+      project_id: "project",
+      cluster_id: "router-ops",
+      tool_profile_default: "bare",
+      verification_mode: "llm",
+      llm_verifier_profile: "bare",
+      factsheet: {
+        facts: [
+          {
+            id: "extra-args",
+            claim: "extraArgs exists.",
+            evidence: [{ path: "src/config.ts", selector: "extraArgs" }]
+          }
+        ]
+      }
+    });
+    const payload = parseToolJson(result);
+    const events = fixture.runtime.db.db
+      .prepare("SELECT event_type FROM cluster_events WHERE cluster_id = ? ORDER BY id")
+      .all("router-ops") as Array<{ event_type: string }>;
+
+    expect(result.isError).toBeFalsy();
+    expect(payload.profile_selection).toMatchObject({
+      requested: "bare",
+      selected: "focused",
+      downgraded: true
+    });
+    expect(payload.verifier_metrics.tool_profile).toBe("focused");
+    expect(claude.lastOptions?.extraArgs).toEqual(["--tools", ""]);
+    expect(events.map((event) => event.event_type)).toContain("tool_profile_downgraded");
     fixture.cleanup();
   });
 });
@@ -154,7 +205,10 @@ class FakeServer {
 class FakeClaude implements ClaudeAdapter {
   lastOptions: ClaudePromptOptions | undefined;
 
-  constructor(private readonly verifierResult: unknown = { facts: [] }) {}
+  constructor(
+    private readonly verifierResult: unknown = { facts: [] },
+    private readonly options: { failBareProbe?: boolean } = {}
+  ) {}
 
   async getVersion(): Promise<string> {
     return "VERSION_A";
@@ -170,6 +224,9 @@ class FakeClaude implements ClaudeAdapter {
   }
 
   async runPromptWithOptions(_prompt: string, options: ClaudePromptOptions): Promise<ClaudeJsonResponse> {
+    if (this.options.failBareProbe && _prompt.includes("PROFILE_OK") && options.extraArgs?.includes("--bare")) {
+      throw new Error("bare auth failed");
+    }
     this.lastOptions = options;
     return {
       sessionId: "verifier-session",
@@ -196,7 +253,7 @@ class FakeClaude implements ClaudeAdapter {
 
 class FakeClock implements Clock {
   now(): Date {
-    throw new Error("FakeClock.now is not used by these tests");
+    return new Date("2026-05-11T12:00:00.000Z");
   }
 
   nowIso(): string {

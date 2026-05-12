@@ -129,6 +129,16 @@ Scenario: static verifier accepted both facts because both selectors appeared in
 
 Finding: the LLM verifier closes the semantic gap left by static evidence checks and correctly distinguishes selector presence from supported API/config truth.
 
+### MCP Phase 3 Profile Probe Implementation
+
+One live profile availability probe through the implemented profile module:
+
+- `focused` (`--tools ""`): available, 6.6s, 37 input tokens, 36 output tokens
+- `bare` (`--bare --tools ""`): available, 2.3s, 0 input tokens, 29 output tokens
+- Selection for requested `bare`: selected `bare`, no downgrade
+
+Finding: this machine supports both no-tools profiles. The router can now detect profile availability before LLM verification and deterministically downgrade `bare -> focused` when bare is unavailable, without escalating to `agent`.
+
 ## Decisions
 
 - Use verified factsheet cache as source of truth. Do not use opaque Claude session state as the only source of truth.

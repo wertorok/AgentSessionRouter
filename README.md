@@ -33,7 +33,7 @@ Experimental cluster-cache tools:
 
 Validation performed:
 
-- Unit/integration tests: `38 passed`
+- Unit/integration tests: `43 passed`
 - Live MCP stdio E2E: `LIVE_CONSULT_PASS`
 - Live matrix run: committed as `LIVE_TEST_LOG.md`
 - Post-fix targeted live rerun: `TARGETED_RERUN_PASS`
@@ -48,7 +48,7 @@ The full live matrix found three important issues: duplicate same-topic concurre
 
 Claude usage-limit responses are classified as `claude_usage_limit` and include an actionable `operator_action`.
 
-The cluster-cache implementation can store `static_verified` factsheets and can optionally run an LLM verifier to promote them to `llm_verified`. It does not yet implement cluster consults, fork baselines, refresh/invalidation, or auto-routing. See `docs/CLUSTER_CACHE_SPEC.md` for the remaining v2 phases.
+The cluster-cache implementation can store `static_verified` factsheets and can optionally run an LLM verifier to promote them to `llm_verified`. It probes `bare`/`focused` tool profiles and deterministically downgrades `bare` to `focused` when needed. It does not yet implement cluster consults, fork baselines, refresh/invalidation, or auto-routing. See `docs/CLUSTER_CACHE_SPEC.md` for the remaining v2 phases.
 
 ## Requirements
 

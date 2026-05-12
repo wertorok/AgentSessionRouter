@@ -12,6 +12,7 @@ import { RouterDatabase } from "./db.js";
 import type { Logger } from "./logger.js";
 import { logger as defaultLogger } from "./logger.js";
 import { MemoryLockProvider, type LockProvider } from "./locks.js";
+import { detectAvailableProfiles, type ProfileAvailability } from "./profiles.js";
 
 export interface RuntimeOptions {
   cwd?: string;
@@ -27,6 +28,7 @@ export class RouterRuntime {
   detectedClaudeVersion: string | undefined;
   testedClaudeVersions: string[] = [];
   degradedReason: string | undefined;
+  private profileAvailability: ProfileAvailability | null = null;
   private maintenanceTimer: NodeJS.Timeout | null = null;
 
   constructor(
@@ -132,6 +134,26 @@ export class RouterRuntime {
       error: reason
     });
     return true;
+  }
+
+  async getProfileAvailability(force = false): Promise<ProfileAvailability> {
+    if (!force && this.profileAvailability) {
+      return this.profileAvailability;
+    }
+    this.profileAvailability = await detectAvailableProfiles(this.claude, this.clock.now.bind(this.clock));
+    if (!this.profileAvailability.bare.available) {
+      this.db.logClusterEvent({
+        clusterId: "router",
+        projectId: "router",
+        eventType: "bare_probe_failed",
+        details: {
+          error: this.profileAvailability.bare.error,
+          focused_available: this.profileAvailability.focused.available
+        },
+        durationMs: this.profileAvailability.bare.duration_ms
+      });
+    }
+    return this.profileAvailability;
   }
 }
 

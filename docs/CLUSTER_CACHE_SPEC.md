@@ -39,8 +39,9 @@ Current implementation status:
 - Implemented: Phase 0 schema/storage.
 - Implemented: Phase 1 direct `cluster_prepare` with static local-file verification.
 - Implemented: Phase 2 LLM verifier loop as an explicit `verification_mode: "llm"` path.
+- Implemented: Phase 3 profile args, `bare`/`focused` probes, and deterministic `bare -> focused` downgrade.
 - Implemented early for observability: read-only `cluster_get` and `cluster_list`.
-- Not implemented yet: bare probe/profile builder, `cluster_consult`, fork baseline, refresh/invalidation, and distillation from existing sessions.
+- Not implemented yet: `cluster_consult`, fork baseline, refresh/invalidation, and distillation from existing sessions.
 
 The current `cluster_prepare` accepts direct factsheet JSON and stores only facts whose evidence passes deterministic local checks. By default these factsheets are marked `static_verified`, not `llm_verified`, because static checks prove evidence existence but not full semantic correctness. When `verification_mode` is `llm`, Claude is invoked with a no-tools verifier prompt and only `VERIFIED` facts are promoted to `llm_verified`.
 
@@ -307,16 +308,17 @@ Properties:
 
 ## 8. Auth and Profile Probing
 
-On router boot or first cluster use:
+On first profile-gated cluster use:
 
 1. Run a short `bare` probe:
 
    ```bash
-   claude -p --bare --tools "" --output-format json "Return exactly: BARE_OK"
+   claude -p --bare --tools "" --output-format json "Return exactly: PROFILE_OK"
    ```
 
 2. If it succeeds, mark `bare_available = true`.
 3. If it fails, record `bare_probe_failed` and use `focused` where a cluster default says `bare`.
+4. Probe `focused` with `--tools ""`; if focused is also unavailable, fail closed.
 
 The downgrade is deterministic:
 
@@ -768,6 +770,7 @@ This phase avoids building auto-distillation before storage and verification are
 - Add bare availability probe.
 - Add profile-to-CLI-args builder.
 - Add tests for `bare`, `focused`, and `agent` arg construction.
+- Do not escalate from `bare` or `focused` to `agent`.
 
 ### Phase 4: Cluster Consult Without Fork
 

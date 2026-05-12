@@ -5,6 +5,7 @@ import { ERROR_CODES } from "./constants.js";
 import { ConsultService } from "./consult.js";
 import type { ClusterFactsheetRecord } from "./db.js";
 import { diagnoseClaudeFailure, errorPayload, SPEC_ERROR_MESSAGES } from "./errors.js";
+import { pickProfile, type ProfileSelection } from "./profiles.js";
 import { resolveProjectId } from "./project.js";
 import type { RouterRuntime } from "./runtime.js";
 import { jsonToolResult } from "./toolResult.js";
@@ -270,6 +271,7 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
     },
     async (input) => {
       const projectId = resolveProjectId(input.project_id, runtime.cwd);
+      let profileSelection: ProfileSelection | null = null;
       if ((input.verification_mode ?? "static") === "llm" && runtime.degradedMode) {
         const diagnosis = diagnoseClaudeFailure(runtime.degradedReason);
         return jsonToolResult(
@@ -283,6 +285,14 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
         );
       }
       try {
+        if ((input.verification_mode ?? "static") === "llm") {
+          const availability = await runtime.getProfileAvailability();
+          profileSelection = pickProfile(input.llm_verifier_profile ?? "focused", availability);
+          if (profileSelection.selected === "agent") {
+            throw new Error("LLM verifier cannot use agent profile");
+          }
+        }
+
         const result = await prepareCluster(runtime.db, runtime.cwd, runtime.claude, {
           projectId,
           clusterId: input.cluster_id,
@@ -293,11 +303,20 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
           sourceSessionId: input.source_session_id,
           gitRev: input.git_rev,
           verificationMode: input.verification_mode ?? "static",
-          llmVerifierProfile: input.llm_verifier_profile ?? "focused"
+          llmVerifierProfile: profileSelection?.selected === "bare" ? "bare" : "focused"
         });
+        if (profileSelection?.downgraded) {
+          runtime.db.logClusterEvent({
+            clusterId: input.cluster_id,
+            projectId,
+            eventType: "tool_profile_downgraded",
+            details: profileSelection
+          });
+        }
 
         return jsonToolResult({
           project_id: projectId,
+          ...(profileSelection ? { profile_selection: profileSelection } : {}),
           ...result
         });
       } catch (error: unknown) {
