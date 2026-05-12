@@ -1,0 +1,11 @@
+
+
+**From the verified factsheet:**
+
+The LLM verifier is restricted to `bare` or `focused` profiles and cannot use the `agent` profile.
+
+The rationale is implicit in the verifier's purpose: it should "verify supplied evidence semantically, return VERIFIED only when the claim follows from evidence, **not infer, not use tools**, and return JSON only."
+
+Since the `bare` profile uses `--bare --tools ""` (disabling all tools), and the verifier must not use tools, the `agent` profile would be inappropriate.
+
+**The explicit causal reason for this restriction is NOT IN CONTEXT.**

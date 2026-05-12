@@ -1,0 +1,20 @@
+
+
+## Code Path: Deleted .jsonl File on Next `claude_consult`
+
+Based on the verified factsheet, here's what happens:
+
+1. **`claude_consult`** is called with the `session_id` pointing to the deleted `.jsonl` file.
+
+2. **Session file existence check** — The router detects the stored Claude session file no longer exists:
+   > *"When claude_consult is given a session_id and the stored Claude session file no longer exists, the router marks the old registry session orphaned and creates a replacement route from bootstrap registry context."*
+
+3. **Orphan marking** — The router calls `markSessionOrphaned`:
+   > *"markSessionOrphaned sets session status to orphaned and writes an orphan_recovery event."*
+
+4. **Replacement route** — A replacement route is created from bootstrap registry context.
+
+5. **`invokeClaude` with no selected session** — A new registry session is created:
+   > *"When invokeClaude runs with no selected session, it creates a new registry session using the returned Claude session id."*
+
+**Summary**: The orphaned session is marked `orphaned`, an `orphan_recovery` event is logged, and a new registry session is created from bootstrap context.

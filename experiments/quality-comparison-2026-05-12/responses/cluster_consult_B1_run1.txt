@@ -1,0 +1,5 @@
+
+
+The factsheet confirms the restriction but does not state the reason:
+
+**NOT IN CONTEXT** — The factsheet records that "The LLM verifier is restricted to bare or focused profiles and cannot use the agent profile" (`llm-verifier-profiles`), but the design rationale for excluding `agent` mode is not included in the verified facts.

@@ -1,0 +1,18 @@
+Based on the codebase, the **bare tool profile** uses the following Claude CLI args:
+
+```
+--bare --tools ""
+```
+
+This is defined in `src/profiles.ts:32-33`:
+
+```ts
+case "bare":
+  return ["--bare", "--tools", ""];
+```
+
+**Key details:**
+- `--bare` skips project discovery and OAuth/keychain auth reads
+- `--tools ""` (empty tools list) runs Claude with no tool access
+- The `bare` profile can deterministically downgrade to `focused` (`--tools ""` without `--bare`) if the bare probe fails due to auth incompatibility, but never escalates to `agent`
+- Probe command used to detect bare availability: `claude -p --bare --tools "" --output-format json "Return exactly: PROFILE_OK"`

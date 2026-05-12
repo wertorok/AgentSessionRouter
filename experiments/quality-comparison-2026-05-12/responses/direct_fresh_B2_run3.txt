@@ -1,0 +1,78 @@
+
+
+Here's the code path when a `.jsonl` file is deleted before a `claude_consult`:
+
+**1. Route resolution — `resolveRoute` at `src/consult.ts:249`**
+
+If you pass `sessionId` explicitly (or auto-match finds one), the first thing that happens is a file existence check at **line 271**:
+
+```typescript
+const exists = await this.runtime.claude.sessionFileExists(session.claude_session_id);
+```
+
+**2. The existence check — `CliClaudeAdapter.sessionFileExists` at `src/consult.ts:104-122`**
+
+```typescript
+async sessionFileExists(claudeSessionId: string): Promise<boolean> {
+  const candidates = [
+    path.join(home, ".claude", "sessions", `${claudeSessionId}.json`),
+    path.join(home, ".claude", "sessions", `${claudeSessionId}.jsonl`),  // ← your deleted file
+    path.join(home, ".claude", "projects")
+  ];
+  if (existsSync(candidates[0]) || existsSync(candidates[1])) {
+    return true;
+  }
+  // Also checks ~/.claude/projects recursively for .jsonl, depth 3
+  return findFile(projectsDir, `${claudeSessionId}.jsonl`, 3);
+}
+```
+
+If the `.jsonl` is gone, this returns **`false`**.
+
+**3. Orphan recovery — `src/consult.ts:272-282`**
+
+```typescript
+if (!exists) {
+  const oldView = this.runtime.db.getSessionView(session.id);
+  this.runtime.db.markSessionOrphaned(session.id);        // DB status → "orphaned"
+  return {
+    selectedSession: null,                                 // ← no session to resume
+    bootstrapContext: oldView ? buildBootstrapContext(oldView, "orphaned") : undefined,
+    wasOrphanRecovery: true
+  };
+}
+```
+
+- The DB record is marked **`orphaned`** (not deleted)
+- `selectedSession` is set to **null** — meaning `--resume` is **not passed** to the Claude CLI
+- A `bootstrapContext` is built from the **last known session view** (snippets of recent Q&A stored in the DB)
+
+**4. Fresh session invoke — `src/consult.ts:117-148`**
+
+Since `route.selectedSession` is `null`, `invokeClaude` calls:
+
+```typescript
+const claudeResponse = await this.runtime.claude.runPrompt(prompt, undefined);
+//                                            ↑ no resume session ID
+```
+
+And a **new session** is created in the DB at line 155:
+
+```typescript
+this.runtime.db.createSession({ id: sessionId, claudeSessionId: claudeResponse.sessionId, ... });
+```
+
+The `was_orphan_recovery: true` flag is returned in the response, so the caller knows this happened.
+
+**Summary:**
+
+| What | Outcome |
+|---|---|
+| Deleted `.jsonl` file | Detected via `sessionFileExists` → `false` |
+| DB record | Marked **`orphaned`**, not deleted |
+| Claude CLI call | Made **without** `--resume` (fresh session) |
+| Old session view | Saved as `bootstrapContext` → passed as system prompt to new session |
+| New session created | Yes, new `claudeSessionId` registered in DB |
+| Consult result flag | `was_orphan_recovery: true` |
+
+The deletion is graceful — no error is thrown to the caller. The orphaned session's context is bootstrapped into a fresh one, so prior conversation context is preserved in the new session via the bootstrap prompt.

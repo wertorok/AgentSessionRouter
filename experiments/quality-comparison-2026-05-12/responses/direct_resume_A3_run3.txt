@@ -1,0 +1,9 @@
+From `src/clusterConsult.ts:63-80`:
+
+1. **`findStaleFiles`** re-hashes every evidence file in `cluster_file_hashes` against stored hashes
+2. If any file changed:
+   - `db.markClusterFactsheetStale()` — sets factsheet to `stale`, cluster `trust_state` to `untrusted` (`src/db.ts:746-758`)
+   - `logClusterEvent(..., "cluster_refresh_required", ...)` — records changed files for observability
+   - Returns `CLUSTER_FACTSHEET_STALE` error — **consult is blocked**, no Claude called
+
+The fix is to run `cluster_refresh` first to re-verify the evidence files.

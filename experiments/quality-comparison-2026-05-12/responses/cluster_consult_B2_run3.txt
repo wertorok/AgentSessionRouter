@@ -1,0 +1,21 @@
+
+
+## Code Path: Deleted `.jsonl` Session on Next `claude_consult`
+
+1. **`claude_consult`** is called with a `session_id` pointing to a now-deleted `.jsonl` file.
+
+2. **`sessionFileExists(session.claude_session_id)`** returns `false`.
+
+3. **`markSessionOrphaned(session.id)`** is called, which:
+   - Sets the session's status to `orphaned`
+   - Writes an `orphan_recovery` event to the session events table
+
+4. Router logs: *"Selected session was orphaned; creating replacement from registry context."*
+
+5. A replacement route is created from **bootstrap registry context** (no selected session).
+
+6. **`invokeClaude`** runs with no selected session, so it:
+   - Creates a new registry session
+   - Uses the returned Claude session ID for the new session
+
+**Result:** The deleted session is marked orphaned and replaced transparently.

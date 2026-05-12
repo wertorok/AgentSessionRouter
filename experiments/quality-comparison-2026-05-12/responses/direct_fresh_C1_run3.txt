@@ -1,0 +1,59 @@
+
+
+Here are 3 targeted improvements that preserve existing semantics while adding intelligence:
+
+## 1. Weighted Change Detection
+
+Currently `findChangedFiles` treats all file changes equally (`clusterRefresh.ts:150-166`). A smarter approach would weight changes by impact:
+
+```typescript
+// In findChangedFiles, add severity ranking:
+// - Config files (package.json, tsconfig.json) → high impact
+// - Source files (.ts, .js) → medium impact  
+// - Documentation (.md) → low impact
+
+const impactRank: Record<string, number> = {
+  "package.json": 3, "tsconfig.json": 3, 
+  ".ts": 2, ".js": 2, ".tsx": 2,
+  ".md": 1, ".json": 1
+};
+```
+
+Then in `refreshCluster` at line 68, instead of just checking `changedFiles.length > 0`, compute a weighted change score and only mark stale if threshold exceeded.
+
+---
+
+## 2. Selective Factsheet Verification with Confidence Thresholds
+
+`verifyFactsheetStatic` at line 55-66 catches all errors and treats them identically as rejected facts. A smarter approach:
+
+- **Severity-weight rejected facts**: Distinguish between fatal errors (schema mismatch, missing required fields) vs minor assertion failures
+- **Partial refresh**: If 80% of facts verify and rejected facts are low-severity, allow a "provisional" fresh state with `trust_state: "provisional"` instead of full stale
+- **Confidence scoring**: At line 89-91, return `confidence_score: 0.0-1.0` alongside `factsheet_status` to let consumers decide
+
+---
+
+## 3. Staleness Scoring with Time Decay
+
+Currently staleness is binary (`changedFiles.length > 0 || rejectedFacts.length > 0` at line 68). Add time-aware scoring:
+
+```typescript
+// In refreshCluster, after computing changedFiles/rejectedFacts:
+const hoursSinceRefresh = loaded.factsheet.verified_at
+  ? (Date.now() - new Date(loaded.factsheet.verified_at).getTime()) / 3_600_000
+  : Infinity;
+
+const staleScore = 
+  (changedFiles.length * 10) + 
+  (rejectedFacts.length * 25) + 
+  Math.min(hoursSinceRefresh / 24, 50);  // max 50 pts from age
+```
+
+Then mark stale only if `staleScore > threshold` (e.g., 50). This allows a factsheet with 1 minor changed file and recent verification to remain fresh, while an older one with the same change would be flagged.
+
+---
+
+**Why these don't break semantics:**
+- All 3 return the same `ClusterRefreshResult` union type
+- Default thresholds preserve existing binary behavior for users who don't configure them
+- `fresh: true/false` remains the primary signal; the intelligence is in *what* triggers fresh vs stale

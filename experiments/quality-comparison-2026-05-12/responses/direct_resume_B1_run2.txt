@@ -1,0 +1,20 @@
+Two reasons, both intentional:
+
+**1. The verifier task must be bounded and read-only**
+
+The verifier prompt at `src/cluster.ts:498-511` explicitly says:
+> *"Do not infer. Do not use tools. Return JSON only."*
+
+The verifier's job is to check whether the supplied evidence files semantically support the claimed facts. It is not supposed to explore, discover, or reason beyond the provided snippets. Running in `agent` mode would allow `Glob`/`Read`/`Agent` tool use, defeating the point — the verifier could "find" evidence that isn't actually in the factsheet's scoped files.
+
+**2. `bare` is the cheapest mode that satisfies the constraint**
+
+`src/profiles.ts:32-33`:
+```ts
+case "bare":
+  return ["--bare", "--tools", ""];
+```
+
+If `bare` passes its availability probe, it's used. If not, `focused` (`--tools ""`) is the fallback (`src/cluster.ts:355`). In both cases the mode is no-tools, which is the required property. `agent` is never considered because it allows tools — which is the opposite of what the verifier needs.
+
+The spec frames this explicitly in `docs/CLUSTER_CACHE_SPEC.md §7`: the verifier runs with "no-tools profile" to keep the verification signal clean.

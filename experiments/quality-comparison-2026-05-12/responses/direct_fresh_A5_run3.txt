@@ -1,0 +1,7 @@
+The default value of `dormant_after_days` in the sessions schema is **`30`** (days).
+
+This is defined in `src/schema.sql:15`:
+
+```sql
+dormant_after_days INTEGER DEFAULT 30,
+```

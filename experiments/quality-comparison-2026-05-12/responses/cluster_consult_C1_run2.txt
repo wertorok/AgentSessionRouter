@@ -1,0 +1,5 @@
+
+
+NOT IN CONTEXT
+
+The factsheet documents the current behavior of `cluster_refresh` (it revalidates factsheets by checking file hashes and selectors in verify_only mode, and marks factsheets stale when changes are detected), but it contains no information about potential enhancements or improvement strategies for the feature.

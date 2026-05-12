@@ -1,0 +1,33 @@
+
+
+## AgentSessionRouter — Project Map
+
+**Type:** MCP server (TypeScript/Node.js) that routes Claude CLI sessions for coding agents.
+
+**Two layers:**
+
+### v1 — Session Router (SPEC.md: primary spec)
+Core routing of `claude_consult` calls to persistent Claude sessions, with project scoping, lifecycle (active/dormant/archived/orphaned), Jaccard-based matching, SESSION_UPDATE_JSON parsing, cost circuit breakers, and degraded mode.
+
+| File | Role |
+|------|------|
+| `src/consult.ts` | `ConsultService` — orchestrates routing, locking, cost limits, token anomaly detection, parse-failure threshold |
+| `src/claude.ts` | `CliClaudeAdapter` — spawns `claude -p --output-format json [--resume]` CLI process, parses JSON response, health probe |
+| `src/profiles.ts` | `detectAvailableProfiles()` + `pickProfile()` — probes `bare`/`focused` availability, deterministic downgrade |
+| `src/db.ts` | `RouterDatabase` — SQLite wrapper: session CRUD, lifecycle, event logging, cluster/cluster_factsheet/cluster_file_hashes tables |
+| `src/schema.ts` | `SCHEMA_SQL` — full SQLite schema for sessions + cluster layer |
+| `src/tools.ts` | MCP tool registration (sessions + cluster tools) |
+| `src/clusterConsult.ts` | `consultCluster()` — loads cluster context, checks stale file hashes, injects factsheet via `--append-system-prompt`, returns `NOT IN CONTEXT` on missing facts |
+| `src/clusterRefresh.ts` | `refreshCluster()` — `verify_only` mode: re-hashes evidence files, marks stale if changed |
+| `src/cluster.ts` | `prepareCluster()` / `prepareStaticCluster()` + `verifyFactsheetStatic()` / `verifyFactsheetWithLlm()` — creates/verifies factsheets |
+
+### v2 — Cluster Cache (docs/CLUSTER_CACHE_SPEC.md: extension spec)
+Verified factsheets (static or LLM-verified) with scoped evidence hashes. Tool profiles (`bare`/`focused`/`agent`). Fork-from-baseline not yet implemented.
+
+**Key relationships:**
+- `tools.ts` registers all MCP tools
+- `clusterConsult.ts` and `clusterRefresh.ts` are the two runtime consumption points for factsheets
+- `cluster.ts` is the build-time factsheet creation/verification path
+- `db.ts` holds both session and cluster data; cluster tables mirror session patterns (events, file hashes, versioning)
+
+Ready for follow-up questions.

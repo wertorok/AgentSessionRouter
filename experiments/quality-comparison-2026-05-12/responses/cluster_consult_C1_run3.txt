@@ -1,0 +1,11 @@
+
+
+Based on the verified factsheet:
+
+1. **Selector-level change detection** – Currently `cluster_refresh` checks file hashes (`changedFiles`). Enhance it to validate that the evidence selector still locates the same semantic content (e.g., a selector still matches but the surrounding context shifted).
+
+2. **Per-fact dependency tracking** – Map each stored fact to its source evidence file. Instead of marking the entire factsheet stale on any file change, re-verify only facts whose evidence files changed, leaving unchanged facts untouched.
+
+3. **Incremental static re-verification** – Instead of re-running full static verification against all facts, cache prior verification results and skip facts whose evidence files are unchanged, reducing redundant computation on large factsheets.
+
+These additions preserve the existing verify-only semantics (no Claude invocation, stale detection, no fact regeneration) while making the refresh cycle more targeted and efficient.

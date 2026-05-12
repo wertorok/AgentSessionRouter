@@ -1,0 +1,51 @@
+The untested failure mode I'd be most concerned about: **`--bare --resume` session resumption in bare mode.**
+
+### Why it's likely untested
+
+`consultCluster` in `src/clusterConsult.ts:94-99` always creates a **new** session when consulting:
+```ts
+const response = claude.runPromptWithOptions
+  ? await claude.runPromptWithOptions(buildClusterQuestionPrompt(input.question), {
+      ...profilePromptOptions(profileSelection.selected),
+      appendSystemPrompt: buildClusterSystemPrompt(loaded)
+    })
+  : await claude.runPrompt(buildClusterFallbackPrompt(loaded, input.question));
+```
+
+No `--resume` is ever passed here. The `CliClaudeAdapter` in `src/claude.ts:50-64` only adds `--resume` when `options.resumeSessionId` is set, which `consultCluster` never provides.
+
+So we have no test coverage for the combination: `--bare --tools "" --resume <session_id>`.
+
+### What could go wrong
+
+- The `--bare` flag may require a specific auth state that differs from a normal session
+- The `.jsonl` session file format when created with `--bare` may be subtly different (no tool context), causing `--resume` to behave unexpectedly or fail
+- If Phase 5 (fork from baseline) is implemented with `--fork-session --resume <baseline>`, this failure would silently produce wrong answers rather than an error
+
+### How to detect it
+
+Add a probe that actually resumes a session in bare mode:
+
+```ts
+// In src/profiles.ts probeProfile — extend to test resume
+async function probeProfile(claude: ClaudeAdapter, profile: VerifierToolProfile): Promise<ProfileProbeResult> {
+  // ... existing no-resume probe ...
+  
+  // New: probe bare with resume using a fixture session
+  if (profile === "bare" && fixtureSessionId) {
+    try {
+      await claude.runPromptWithOptions("ping", {
+        resumeSessionId: fixtureSessionId,
+        extraArgs: ["--bare", "--tools", ""],
+        includeConfiguredExtraArgs: false
+      });
+      // bare + resume works
+    } catch (error) {
+      // bare + resume silently fails but bare alone works
+      return { available: false, duration_ms: 0, error: "bare+resume unsupported" };
+    }
+  }
+}
+```
+
+The fixture session created at boot in `src/claude.ts:124-131` (`fixture_resume_session_id.txt`) would be the test vehicle — probe both bare alone and bare+resume separately, and surface the delta.

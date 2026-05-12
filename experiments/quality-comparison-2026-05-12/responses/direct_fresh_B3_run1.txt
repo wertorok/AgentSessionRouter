@@ -1,0 +1,27 @@
+
+
+## Trust States
+
+The three states represent progressive verification levels after cluster factsheet preparation:
+
+### `static_verified`
+**When:** After static local-file verification, when **zero facts are rejected**.
+- The verifier checks that claimed evidence files actually exist on disk
+- `src/cluster.ts:133`: `verification.rejectedFacts.length === 0 ? "static_verified" : "partial_static"`
+- Acts as a quick-pass cache: fast, no LLM calls, but proves only evidence existence, not semantic correctness
+
+### `partial_llm`
+**When:** After LLM verification, when **at least one fact is rejected but at least one LLM-verified fact remains**.
+- `src/cluster.ts:222`: `rejectedFacts.length === 0 ? "llm_verified" : "partial_llm"`
+- Indicates the LLM那道dismissing some facts as not supported by the evidence
+- The factsheet still has usable content, just with reduced confidence
+
+### `llm_verified`
+**When:** After LLM verification, when **zero facts are rejected**.
+- `src/cluster.ts:222`: `rejectedFacts.length === 0 ? "llm_verified" : "partial_llm"`
+- Full semantic check: Claude in no-tools verifier profile confirms all facts are supported by evidence
+- Only this state is injected into `bare` consult prompts by default (`src/clusterConsult.ts:56`)
+
+---
+
+There's also `partial_static` (static verification with some rejections) which precedes these three — a transitional state during Phase 1 before LLM verification runs.

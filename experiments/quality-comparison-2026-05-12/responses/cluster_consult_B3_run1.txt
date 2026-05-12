@@ -1,0 +1,9 @@
+
+
+From the verified factsheet:
+
+**`static_verified`** — Occurs when static verification stores at least one valid fact and no facts were rejected. (cluster.ts evidence: `verification.rejectedFacts.length === 0 ? "static_verified" : "partial_static"`)
+
+**`llm_verified`** — Occurs when LLM verification accepts all facts and there are no static or LLM rejected facts. (cluster.ts evidence: `rejectedFacts.length === 0 ? "llm_verified" : "partial_llm"`)
+
+**`partial_llm`** — Occurs after LLM verification when at least one fact is rejected but at least one LLM verified fact remains stored. (cluster.ts evidence: combines both `verification.rejectedFacts` and `llmVerification.rejectedFacts` into a single `rejectedFacts` check)

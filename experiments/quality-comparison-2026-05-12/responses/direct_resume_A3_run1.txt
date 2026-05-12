@@ -1,0 +1,30 @@
+From `src/clusterConsult.ts:63-80`:
+
+```ts
+const staleFiles = findStaleFiles(cwd, loaded.fileHashes);
+if (staleFiles.length > 0) {
+  db.markClusterFactsheetStale(loaded.factsheet.id);
+  db.logClusterEvent({
+    clusterId: input.clusterId,
+    projectId: input.projectId,
+    eventType: "cluster_refresh_required",
+    details: {
+      factsheet_id: loaded.factsheet.id,
+      factsheet_version: loaded.factsheet.version,
+      changed_files: staleFiles
+    }
+  });
+  return errorPayload(ERROR_CODES.CLUSTER_FACTSHEET_STALE, SPEC_ERROR_MESSAGES[ERROR_CODES.CLUSTER_FACTSHEET_STALE], {
+    cluster_id: input.clusterId,
+    details: { changed_files: staleFiles }
+  });
+}
+```
+
+Three things happen atomically:
+
+1. **`db.markClusterFactsheetStale()`** — marks the factsheet record as `stale` and sets the cluster's `trust_state` to `untrusted` (`src/db.ts:746-758`).
+2. **`cluster_refresh_required` event logged** — records the stale files and factsheet version for observability.
+3. **Error returned** — `CLUSTER_FACTSHEET_STALE` error with the list of changed files. The consult does **not** proceed.
+
+The stale check is done by re-hashing every file in `cluster_file_hashes` against the stored hash/size (`src/clusterConsult.ts:199-215`). Only files scoped in the factsheet trigger invalidation — unrelated repo changes are ignored.

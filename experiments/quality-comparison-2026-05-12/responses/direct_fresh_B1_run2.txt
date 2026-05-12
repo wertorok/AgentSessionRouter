@@ -1,0 +1,15 @@
+The LLM verifier is intentionally restricted to `bare` or `focused` profiles — never `agent` — for two reasons:
+
+**1. Scope isolation**: The verifier only needs to read a pre-verified factsheet. It doesn't need project context, file access, or tool use. Running `agent` mode would invoke full project rediscovery, which defeats the purpose of the factsheet cache and adds unnecessary cost.
+
+**2. Design rule**: `bare → focused → never agent`. As documented in `src/profiles.ts:4`:
+
+```typescript
+export type VerifierToolProfile = "bare" | "focused";
+```
+
+The `agent` profile (`case "agent": return []` — no special args) gives you the full Claude with all tools. The profile selector in `src/profiles.ts:78-93` implements a strict downgrade path: `bare` can fall back to `focused`, but `focused` never escalates to `agent`. The `pickProfile` function (line 55) also throws if `agent` is unavailable rather than downgrading.
+
+The quality comparison script at `scripts/quality-comparison.mjs:200` explicitly encodes this constraint as a testable claim:
+
+> "The LLM verifier is restricted to bare or focused profiles and cannot use the agent profile."

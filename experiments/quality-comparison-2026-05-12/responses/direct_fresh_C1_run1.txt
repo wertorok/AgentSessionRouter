@@ -1,0 +1,53 @@
+
+Based on the implementation, here are 3 ways to make `cluster_refresh` smarter while preserving existing semantics:
+
+## 1. Incremental File Hash Checking
+
+**Problem**: `findChangedFiles` (`clusterRefresh.ts:150`) re-hashes every evidence file on every call, even if most files haven't been touched.
+
+**Improvement**: Track file `mtime` in `cluster_file_hashes` alongside the content hash. On refresh, stat only files whose mtime is newer than the last refresh timestamp before computing content hashes:
+
+```typescript
+// Instead of hashing every file, stat first
+const stat = statSync(absolutePath);
+if (stat.mtimeMs <= file.last_verified_ms) continue; // skip unchanged
+// Only hash if mtime suggests modification
+```
+
+This avoids expensive SHA-256 computation on large evidence files that haven't been touched.
+
+## 2. Per-Fact Dependency Tracking (Partial Staleness)
+
+**Problem**: `findChangedFiles` marks the *entire* factsheet stale when any single file changes (`clusterRefresh.ts:68`). This is blunt—if only `src/config.ts` changed, facts about `src/tools.ts` shouldn't be invalidated.
+
+**Improvement**: Extend `cluster_file_hashes` to store `fact_ids TEXT[]` (which facts reference this file). Then:
+
+- `cluster_consult` can refuse only stale facts and answer with remaining fresh facts
+- `cluster_refresh` can return partial staleness with `affected_facts` vs `intact_facts`
+- The `CLUSTER_FACTSHEET_STALE` error becomes `CLUSTER_FACTSHEET_PARTIALLY_STALE` with granular detail
+
+This is already hinted at in SPEC.md §11's `strict` vs `auto_verify` policy options.
+
+## 3. Proactive Refresh Prediction
+
+**Problem**: `cluster_refresh` is currently purely reactive—consult fails → stale error → user calls refresh → wait for full verification.
+
+**Improvement**: On every `cluster_consult` (`clusterConsult.ts`), compute a `next_refresh_hint` based on:
+- File sizes and typical edit frequency
+- Cluster `last_used` timestamp vs evidence file `last_verified`
+- Git blame data if available for evidence files
+
+Return a hint in consult response:
+```json
+{
+  "refresh_recommended": true,
+  "reason": "evidence file src/config.ts modified 3h ago",
+  "refresh_estimate_ms": 5000
+}
+```
+
+This lets callers schedule background refresh before the factsheet actually goes stale, eliminating the user-facing error entirely for well-trafficked clusters.
+
+---
+
+All three preserve the existing `verify_only` semantics and error codes—they reduce wasted work, enable partial freshness, and shift from reactive to proactive refresh.

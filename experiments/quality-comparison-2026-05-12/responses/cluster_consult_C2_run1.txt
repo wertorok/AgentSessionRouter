@@ -1,0 +1,10 @@
+Based on the verified factsheet:
+
+**Known risk (`bare-profile-risk`):** The failure mode is that the LLM **fabricates or infers** facts instead of correctly responding "NOT IN CONTEXT" when evidence is absent.
+
+**Detection method (`llm-verifier-purpose`):** The verifier prompt instructs Claude to "not infer" and return "NOT IN CONTEXT" when a fact is absent. However, the factsheet does not describe whether this behavior is **actively tested** with deliberately evidence-free queries.
+
+**NOT IN CONTEXT:** The factsheet does not include:
+- Test coverage details for the bare profile's NOT IN CONTEXT compliance
+- Specific test scenarios or assertions that verify the LLM does not fabricate
+- Detection mechanisms beyond the verifier prompt itself

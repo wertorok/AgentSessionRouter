@@ -1,0 +1,8 @@
+
+
+When `cluster_consult` finds stale scoped evidence files, it:
+
+1. **Marks the factsheet stale** via `db.markClusterFactsheetStale`
+2. **Logs `cluster_refresh_required`** to cluster_events with `changed_files`
+3. **Returns `CLUSTER_FACTSHEET_STALE`** error code
+4. **Does not invoke Claude** — the consult stops without calling the model

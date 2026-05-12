@@ -1,0 +1,7 @@
+
+
+**`static_verified`** — Static verification stored at least one valid fact and rejected zero facts.
+
+**`llm_verified`** — LLM verification accepted all facts with no static or LLM rejections.
+
+**`partial_llm`** — After LLM verification, at least one fact was rejected (from either static or LLM checks) but at least one LLM-verified fact remains stored.

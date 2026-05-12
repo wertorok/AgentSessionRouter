@@ -1,0 +1,38 @@
+
+
+The code path in `src/consult.ts`:
+
+**Entry**: `claude_consult({ session_id: "X", ... })` → `ConsultService.consult()` → `resolveRoute()`
+
+**Explicit session path (lines 250–291):**
+
+1. **DB lookup** (line 251): Finds the session record in the registry via `session_id`. The registry entry still exists even if the `.jsonl` file is gone.
+
+2. **File existence check** (line 271):
+   ```ts
+   const exists = await this.runtime.claude.sessionFileExists(session.claude_session_id);
+   if (!exists) { ... }
+   ```
+   This calls into the Claude runtime wrapper. If the `.jsonl` file is missing, `sessionFileExists` returns `false`.
+
+3. **Orphan marking** (line 274): The registry entry is marked orphaned:
+   ```ts
+   this.runtime.db.markSessionOrphaned(session.id);
+   ```
+
+4. **Bootstrap context** (line 273–278): The old session's view is captured and wrapped in a bootstrap prompt so context isn't lost:
+   ```ts
+   const oldView = this.runtime.db.getSessionView(session.id);
+   return {
+     selectedSession: null,
+     bootstrapContext: oldView ? buildBootstrapContext(oldView, "orphaned") : undefined,
+     wasOrphanRecovery: true,
+     ...
+   };
+   ```
+
+5. **Invoke with no selected session** (line 98–99): `invokeWithRouteLock` sees `route.selectedSession === null` and calls `invokeClaude()` directly.
+
+6. **New session creation** (lines 154–162): Since there's no `route.selectedSession`, `invokeClaude` calls `this.runtime.db.createSession(...)` with the fresh `claudeResponse.sessionId` from the new Claude invocation — effectively a new `.jsonl` file.
+
+**Result**: The old registry entry becomes `status: "orphaned"`. A brand new session is created and the consult succeeds with `was_orphan_recovery: true` in the response. The old `.jsonl` context is gone — the new session starts fresh with only the bootstrap context (topic, last decision summary, archive reason) from the registry view.

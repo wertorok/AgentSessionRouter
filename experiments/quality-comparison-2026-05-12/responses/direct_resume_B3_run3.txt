@@ -1,0 +1,25 @@
+From `src/db.ts:86-92`:
+
+```ts
+export type ClusterTrustState =
+  | "static_verified"   // all facts statically verified
+  | "llm_verified"      // all facts LLM-verified
+  | "partial_static"    // some facts rejected in static
+  | "partial_llm"      // some facts rejected in LLM
+  | "untrusted";
+```
+
+| Trust State | When |
+|---|---|
+| `static_verified` | `cluster_prepare` with `verification_mode: "static"` (default) — zero rejected facts after static checks |
+| `llm_verified` | `cluster_prepare` with `verification_mode: "llm"` — LLM verifier promoted every fact to `VERIFIED` |
+| `partial_llm` | `cluster_prepare` with `verification_mode: "llm"` — LLM verifier rejected ≥1 facts |
+
+Assignment logic (`src/cluster.ts:133`, `src/cluster.ts:221-222`):
+```ts
+// static path
+const trustState = verification.rejectedFacts.length === 0 ? "static_verified" : "partial_static";
+
+// llm path
+const trustState = rejectedFacts.length === 0 ? "llm_verified" : "partial_llm";
+```

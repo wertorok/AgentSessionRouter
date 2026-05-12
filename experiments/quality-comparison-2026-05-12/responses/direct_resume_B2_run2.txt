@@ -1,0 +1,50 @@
+For an explicit `session_id` consult, the path is in `src/consult.ts`:
+
+**1. `resolveRoute` called** with `sessionId` set (`src/consult.ts:250-291`)
+
+**2. Session looked up** (`src/consult.ts:251`):
+```ts
+const session = this.runtime.db.getSession(input.sessionId);
+```
+
+**3. Project mismatch check** (`src/consult.ts:255-257`) — returns error if `project_id` differs.
+
+**4. Status check** (`src/consult.ts:258`) — if already `orphaned`/`archived`, skip to orphan recovery directly.
+
+**5. Claude session file existence check** (`src/consult.ts:271`):
+```ts
+const exists = await this.runtime.claude.sessionFileExists(session.claude_session_id);
+```
+`src/claude.ts:104-122` checks `~/.claude/sessions/` for the `.json`/`.jsonl` file — returns `false` since it's deleted.
+
+**6. Session marked orphaned** (`src/consult.ts:274`):
+```ts
+this.runtime.db.markSessionOrphaned(session.id);
+```
+`src/db.ts:418-430` sets status to `orphaned` and logs `orphan_recovery` event.
+
+**7. Bootstrap context built** from old registry view (`src/consult.ts:273,278`):
+```ts
+const oldView = this.runtime.db.getSessionView(session.id);
+// ...
+bootstrapContext: buildBootstrapContext(oldView, "orphaned")
+```
+
+**8. `wasOrphanRecovery: true`** returned in `RouteResolution` (`src/consult.ts:280`).
+
+**9. `invokeWithRouteLock` → `invokeClaude`** — since `selectedSession` is `null`, it skips the session lock and calls Claude directly (`src/consult.ts:98-100`).
+
+**10. New session created** (`src/consult.ts:155-162`):
+```ts
+this.runtime.db.createSession({
+  id: createInternalSessionId(),
+  projectId: input.projectId,
+  claudeSessionId: claudeResponse.sessionId,  // new one
+  topic: input.topicHint,
+  ...
+});
+```
+
+**11. Event logged** with `was_orphan_recovery: true` (`src/consult.ts:198`).
+
+**Summary:** The orphaned session's `.jsonl` file is gone, so the session is marked `orphaned` in SQLite, its compact metadata is used as bootstrap context for the new session, a brand-new Claude session is created, and the event is flagged `was_orphan_recovery: true`.

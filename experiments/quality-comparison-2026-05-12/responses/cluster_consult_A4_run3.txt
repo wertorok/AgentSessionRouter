@@ -1,0 +1,6 @@
+
+From the verified factsheet:
+
+The bare tool profile uses Claude CLI args: `--bare --tools ""`.
+
+(Fact id: `bare-profile-args`)

@@ -1,0 +1,47 @@
+
+Looking at `src/clusterRefresh.ts` and `docs/CLUSTER_CACHE_SPEC.md §11`, here are three concrete improvements:
+
+---
+
+### 1. Git-aware invalidation (scoped diff instead of full hash scan)
+
+Currently every `cluster_refresh` re-hashes every evidence file blindly. A smarter approach:
+
+```ts
+// Pseudo-code — check git diff for the factsheet's scoped paths only
+const changed = execGitDiff(cwd, factsheet.scopedPaths);
+if (changed.length === 0) {
+  // all files unchanged since last verified_at — skip re-hashing entirely
+  return { fresh: true, checked_via: "git_diff", ... };
+}
+```
+
+This would skip expensive I/O when the repo hasn't changed the scoped files. Implementation point: `src/clusterRefresh.ts:150-166` (`findChangedFiles`) would be the injection point.
+
+---
+
+### 2. Per-fact staleness (partial re-verification)
+
+Currently the entire factsheet is marked stale if *any* evidence file changes. A smarter approach:
+
+- Track which evidence entries belong to which facts
+- When files change, mark only affected facts as `omitted_facts += 1` rather than the whole factsheet
+- Keep the factsheet usable for facts whose evidence is still valid, with a `partial_stale` status
+
+This avoids throwing away a 20-fact factsheet because one of its 20 evidence files changed. Implementation point: `src/clusterRefresh.ts:51-66` (the rejection logic) and `src/db.ts` staleness tracking.
+
+---
+
+### 3. Auto-promotion to `llm_verified` when static passes
+
+Currently `verify_only` mode never promotes a `static_verified` factsheet to `llm_verified`. A smarter `cluster_refresh` could:
+
+- After confirming all static checks pass, automatically run LLM verification in the background
+- Promote the factsheet to `llm_verified` if the LLM verifier confirms the facts
+- Set a `partial_llm` flag if the verifier rejects some facts
+
+This closes the gap where a `static_verified` factsheet never gets the semantic validation that would catch drifted claims (even if evidence files are unchanged). Implementation point: `src/clusterRefresh.ts:44` (`refreshCluster`) would call `verifyFactsheetWithLlm` from `src/cluster.ts` after static confirmation.
+
+---
+
+None of these change the `verify_only` behavior for existing callers — they only add new paths when the caller opts in or when the system has capacity to do more.

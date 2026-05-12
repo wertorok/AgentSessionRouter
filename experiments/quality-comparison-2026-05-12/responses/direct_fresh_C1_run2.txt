@@ -1,0 +1,38 @@
+
+
+Here are three concrete improvements that preserve existing semantics:
+
+## 1. Semantic File Hashing for Config/Code Files
+
+Currently `findChangedFiles` (line 150) does raw byte comparison via SHA-256. This flags trivial changes (formatting, comments) as stale.
+
+**Smarter approach**: Use a purpose-specific hasher that normalizes whitespace/comments for relevant file types before hashing. E.g., for `.json`/`.ts`/`.js` files, strip comments and normalize whitespace before hashing — identical semantic content = no refresh needed.
+
+**Impact**: Reduces false-positive stale events from auto-formatters or linter fixes.
+
+---
+
+## 2. Incremental Fact Verification
+
+`verifyFactsheetStatic` is called on every refresh (line 55) with the full factsheet. If the factsheet has 50 facts but only 2 files changed, re-verifying all 50 facts is wasteful.
+
+**Smarter approach**: Track which file each fact depends on (via `fact.file_refs` or similar). On refresh, only call `verifyFactsheetStatic` for facts whose dependent files actually changed. Facts for unchanged files pass through unchanged.
+
+**Impact**: Faster refresh cycles, especially for large factsheets with many facts referencing few frequently-stable files (schema, types, constants).
+
+---
+
+## 3. Partial Trust State for Changed Files
+
+Currently if *any* file changes, the whole factsheet is marked `stale` and `rejectedFacts` accumulates all errors. The `findChangedFiles` loop (line 150) also silently marks missing files as changed without distinguishing *why* a file is gone.
+
+**Smarter approach**:
+- Distinguish between **deleted** files (risk: broken refs) vs **modified** files (risk: stale content) vs **new** files (opportunity: new coverage)
+- If only "new" files were added, increment `factsheet_version` and mark `partial_static` rather than full staleness
+- If only known-stable files changed (test files, docs), use a relaxed threshold
+
+**Impact**: More nuanced trust states let callers make informed decisions rather than binary fresh/stale.
+
+---
+
+All three changes are additive — the existing `ClusterRefreshSuccess` shape and error codes remain intact, so no breaking semantics.

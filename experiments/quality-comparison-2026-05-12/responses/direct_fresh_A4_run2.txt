@@ -1,0 +1,10 @@
+
+
+The bare tool profile uses the CLI args: `["--bare", "--tools", ""]`
+
+This is defined in `src/profiles.ts:33` within the `profileArgs()` function:
+
+```typescript
+case "bare":
+  return ["--bare", "--tools", ""];
+```

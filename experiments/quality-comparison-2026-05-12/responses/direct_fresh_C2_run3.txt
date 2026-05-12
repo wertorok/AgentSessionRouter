@@ -1,0 +1,20 @@
+
+
+Based on the code, a likely untested failure mode:
+
+## `--permission-mode` Dropped on Profile Switch
+
+**The failure:** When `profilePromptOptions` is called with `includeConfiguredExtraArgs: false` (`src/profiles.ts:132`), the profile args **completely replace** the configured `extraArgs`. But the base config already has `["--tools", "", "--permission-mode", "default"]` (tests/core.test.ts:57). Switching to `bare` replaces those with just `["--bare", "--tools", ""]`, losing `--permission-mode default`.
+
+**Why it matters:** `--permission-mode default` is what authorizes file reads and command execution. Without it, `--bare --tools ""` may still return "PROFILE_OK" on availability probe (because the probe prompt needs no permissions), but fail silently on actual cluster consults that require filesystem access.
+
+**Detection:** Compare cluster consult output from `bare` vs `focused` on the same factsheet:
+
+```
+claude -p --bare --tools "" --output-format json "<factsheet + question requiring file read>"
+claude -p --tools "" --permission-mode default --output-format json "<same>"
+```
+
+If bare returns truncated/empty responses or permission errors while focused succeeds, that's the failure mode. Check `stderr` for `permission denied` or `EACCES`, or diff the response lengths — the quality comparison script (`scripts/quality-comparison.mjs:111`) already asks this exact question but doesn't yet implement the diff.
+
+The signal to add to the test matrix: `cluster_consult` with `tool_profile=bare` against a factsheet that references files that need read permission. If it returns but produces degraded answers compared to `focused`, the `--permission-mode` was implicitly required.

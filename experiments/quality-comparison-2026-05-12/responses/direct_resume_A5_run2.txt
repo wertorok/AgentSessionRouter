@@ -1,0 +1,5 @@
+**30 days** — from `src/schema.ts:16`:
+
+```sql
+dormant_after_days INTEGER DEFAULT 30
+```

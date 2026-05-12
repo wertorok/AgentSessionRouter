@@ -1,0 +1,42 @@
+The likely untested failure mode: **`--bare --resume <session_id>` together**.
+
+### Why it's untested
+
+`consultCluster` (`src/clusterConsult.ts:94-99`) always creates a new session — it never passes `resumeSessionId`:
+```ts
+const response = claude.runPromptWithOptions
+  ? await claude.runPromptWithOptions(buildClusterQuestionPrompt(input.question), {
+      ...profilePromptOptions(profileSelection.selected),
+      appendSystemPrompt: buildClusterSystemPrompt(loaded)
+    })
+  : await claude.runPrompt(...)
+```
+
+And `CliClaudeAdapter` (`src/claude.ts:50-64`) only adds `--resume` when `options.resumeSessionId` is set, which `consultCluster` never provides. So we have no coverage for the combination.
+
+### What could go wrong
+
+- `--bare` may create sessions with auth state that can't be resumed with `--resume` (bare sessions may use a different auth handshake)
+- The `.jsonl` file format when created with `--bare` may be incompatible with `--resume` — the resume path may silently produce degraded output or fail mid-stream
+- When Phase 5 (`--fork-session --resume <baseline>`) is implemented, this silent incompatibility would produce wrong answers rather than errors
+
+### How to detect it
+
+Add a resume-capable probe using the existing fixture session (`src/claude.ts:124-131`):
+```ts
+// In probeProfile — test bare with resume separately from bare alone
+if (profile === "bare" && fixtureSessionId) {
+  try {
+    await claude.runPromptWithOptions("ping", {
+      resumeSessionId: fixtureSessionId,
+      extraArgs: ["--bare", "--tools", ""],
+      includeConfiguredExtraArgs: false
+    });
+    // bare+resume works
+  } catch (error) {
+    return { available: false, duration_ms: 0, error: `bare+resume failed: ${error.message}` };
+  }
+}
+```
+
+Track it as a separate capability alongside `bare.available` — if bare+resume fails but bare alone succeeds, surface the delta so operators know before a Phase 5 fork silently produces bad results.

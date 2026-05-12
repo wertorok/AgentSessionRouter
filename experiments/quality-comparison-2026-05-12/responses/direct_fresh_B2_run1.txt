@@ -1,0 +1,81 @@
+
+
+## Code Path: Deleting a Claude `.jsonl` File Before `claude_consult`
+
+Here's the full trace:
+
+### 1. `claude_consult` tool is called (`src/tools.ts:181–201`)
+The handler calls `consultService.consult({ projectId, sessionId, ... })`.
+
+### 2. `ConsultService.consult` → `resolveRoute` (`src/consult.ts:52, 249`)
+If an explicit `session_id` is provided, the DB lookup happens at line 251. If no session_id is provided, it falls through to auto-routing (topic matching, etc.), which also ultimately hits `resolveRoute`.
+
+### 3. `sessionFileExists` check (`src/consult.ts:271`)
+For each candidate session, before using it, the code calls:
+```typescript
+const exists = await this.runtime.claude.sessionFileExists(session.claude_session_id);
+```
+This delegates to `CliClaudeAdapter.sessionFileExists` (`src/claude.ts:104–122`).
+
+### 4. `CliClaudeAdapter.sessionFileExists` (`src/claude.ts:104–122`)
+```typescript
+async sessionFileExists(claudeSessionId: string): Promise<boolean> {
+  const candidates = [
+    path.join(home, ".claude", "sessions", `${claudeSessionId}.json`),
+    path.join(home, ".claude", "sessions", `${claudeSessionId}.jsonl`),
+    path.join(home, ".claude", "projects")
+  ];
+
+  if (existsSync(candidates[0]) || existsSync(candidates[1])) {
+    return true;
+  }
+
+  // Also searches ~/.claude/projects/ recursively up to depth 3
+  return findFile(projectsDir, `${claudeSessionId}.jsonl`, 3);
+}
+```
+
+**If the `.jsonl` is deleted**, both `.json` and `.jsonl` checks return `false`, and `findFile` over `~/.claude/projects/` also finds nothing → returns `false`.
+
+### 5. Session is marked orphaned (`src/consult.ts:272–283`)
+```typescript
+if (!exists) {
+  const oldView = this.runtime.db.getSessionView(session.id);
+  this.runtime.db.markSessionOrphaned(session.id);   // ← DB updated here
+  return {
+    selectedSession: null,
+    selectedView: null,
+    bootstrapContext: oldView ? buildBootstrapContext(oldView, "orphaned") : undefined,
+    matchScore: 0,
+    matchReason: "Selected session was orphaned; creating replacement from registry context.",
+    wasOrphanRecovery: true
+  };
+}
+```
+
+### 6. New session is created (`src/consult.ts:154–162`)
+Because `selectedSession` is `null`, `invokeClaude` creates a brand-new session instead of reusing:
+```typescript
+if (!route.selectedSession) {
+  this.runtime.db.createSession({
+    id: sessionId,
+    projectId: input.projectId,
+    claudeSessionId: claudeResponse.sessionId,   // ← new Claude session ID from fresh response
+    topic: input.topicHint,
+    ...
+  });
+}
+```
+
+### Summary
+
+| Step | What happens |
+|------|-------------|
+| `.jsonl` file deleted | — |
+| `claude_consult` called | `resolveRoute` checks `sessionFileExists` |
+| `sessionFileExists` returns `false` | Session marked **orphaned** in DB via `markSessionOrphaned` |
+| Bootstrap context built from old session view | Preserves topic, tags, aliases, file history |
+| `invokeClaude` receives `selectedSession: null` | Creates a **brand new session** with a fresh `claudeSessionId` from Claude's response |
+| Registry now reflects orphaned old + new replacement | Old session stays orphaned; new session takes over |
+
+The orphaned session remains in the DB (status `orphaned`) so it can be inspected later, but it will never be auto-routed to again unless manually recovered.

@@ -1,0 +1,14 @@
+
+
+In `cluster_consult`, when the factsheet is stale, two scenarios can occur depending on where staleness is detected:
+
+**Scenario 1 — Stale files detected during consult (line 63-79):**
+When files on disk have changed since the factsheet was built (hash/size mismatch detected by `findStaleFiles`), the function:
+1. Calls `db.markClusterFactsheetStale(loaded.factsheet.id)` — marks the factsheet stale in the DB
+2. Logs a `cluster_refresh_required` event to the cluster event log
+3. Returns an error payload with code `CLUSTER_FACTSHEET_STALE`, including the list of changed files
+
+**Scenario 2 — No current factsheet, but latest is stale (line 176-185):**
+When `getCurrentClusterFactsheet` returns `null` (no current factsheet exists), it checks the latest factsheet — and if that latest has `status === "stale"`, it returns a `CLUSTER_FACTSHEET_STALE` error with the stale factsheet's ID and version.
+
+**In both cases the result is the same:** the consult fails with `ERROR_CODES.CLUSTER_FACTSHEET_STALE` and the caller must run `cluster_prepare` (with fresh verification) to refresh the factsheet before `cluster_consult` will succeed again.

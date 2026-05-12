@@ -1,0 +1,22 @@
+The LLM verifier is intentionally restricted to `bare` mode (or `focused` as fallback) because `agent` mode is designed for interactive tool-driven sessions, not for stateless fact verification. Here's the key design rationale:
+
+**The verifier only needs to read factsheet data and emit a judgment** — it doesn't need to spawn sub-agents, maintain conversation context, or use tools. From `src/profiles.ts:3-4`:
+
+```typescript
+export type ClaudeToolProfile = "bare" | "focused" | "agent";
+export type VerifierToolProfile = "bare" | "focused";
+```
+
+The `VerifierToolProfile` type explicitly excludes `agent` — there's no `agent` variant for verification.
+
+**Why `bare` specifically is preferred** (`src/profiles.ts:78-83`):
+- `bare` mode runs with `--bare --tools ""` — no tools at all, pure text generation
+- This is the cheapest, fastest, most reliable profile since there's no tool negotiation overhead
+- The verifier is a pure extraction/judgment task: read factsheet claims, emit `VERIFIED`/`REJECTED`/`PARTIAL`
+
+**Fallback chain** (`src/profiles.ts:78-99`):
+1. Request `bare` → use it if available
+2. Fall back to `focused` (no-tools mode via `--tools ""`) if `bare` probe fails
+3. Never escalate to `agent` — that's for actual interactive sessions
+
+As documented in `docs/CLUSTER_CACHE_SPEC.md:761`: *"Run verifier in `bare` no-tools mode when available, otherwise focused no-tools mode."* This keeps verification lightweight, deterministic, and avoids the overhead/cost of agentic tool loops that would provide no benefit for the verifier's single-pass judgment task.

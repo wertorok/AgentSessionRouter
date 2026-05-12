@@ -1,0 +1,19 @@
+The `clusters` table fields are defined in `src/schema.ts:113–125`:
+
+```sql
+CREATE TABLE IF NOT EXISTS clusters (
+  id TEXT PRIMARY KEY,
+  project_id TEXT NOT NULL,
+  name TEXT NOT NULL,
+  description TEXT NOT NULL DEFAULT '',
+  tool_profile_default TEXT NOT NULL DEFAULT 'bare',
+  baseline_session_id TEXT,
+  status TEXT NOT NULL DEFAULT 'active',
+  trust_state TEXT NOT NULL DEFAULT 'unprepared',
+  created_at TEXT NOT NULL,
+  last_used TEXT NOT NULL,
+  UNIQUE(project_id, id)
+);
+```
+
+The 11 fields are: `id`, `project_id`, `name`, `description`, `tool_profile_default`, `baseline_session_id`, `status`, `trust_state`, `created_at`, `last_used`.

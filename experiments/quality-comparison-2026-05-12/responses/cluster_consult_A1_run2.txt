@@ -1,0 +1,14 @@
+
+
+**clusters** table fields:
+
+1. `id`
+2. `project_id`
+3. `name`
+4. `description`
+5. `tool_profile_default`
+6. `baseline_session_id`
+7. `status`
+8. `trust_state`
+9. `created_at`
+10. `last_used`

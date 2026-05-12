@@ -1,0 +1,7 @@
+The verifier prompt (`src/cluster.ts:498-511`) explicitly instructs Claude: *"Do not infer. Do not use tools. Return JSON only."*
+
+The verifier is a bounded, read-only task — it checks whether the supplied evidence files support the claimed facts. Running it in `agent` mode would allow `Glob`/`Read`/`Agent` tool use, letting the verifier "discover" evidence that isn't actually in the factsheet's scoped files, defeating the purpose.
+
+`bare` (`--bare --tools ""`) provides the strongest no-tools guarantee at the lowest cost. If `bare` is unavailable, `focused` (`--tools ""`) is the fallback. `agent` is never used because it allows tools — the opposite of what verification requires.
+
+This is also why the spec (`docs/CLUSTER_CACHE_SPEC.md §7`) calls the verifier a "no-tools profile" task.

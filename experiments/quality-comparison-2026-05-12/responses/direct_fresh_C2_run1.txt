@@ -1,0 +1,29 @@
+
+
+Based on my analysis, here's the likely untested failure mode:
+
+## Failure Mode: Empty string `""` passed to `--tools` is interpreted as a positional (file path) argument, not an empty tool list
+
+**How it happens:**
+
+When `profileArgs("bare")` returns `["--bare", "--tools", ""]`, this array is passed directly to `spawn()` with no shell interpretation. So the CLI receives:
+```
+claude -p --bare --tools "" "prompt text"
+```
+
+The `""` empty string argument may not be parsed as "no tools" by the Claude CLI — instead, it could be interpreted as a file path argument to `--tools`, causing the CLI to either:
+- Fail with an error like "file not found: "
+- Fall back to default tool loading silently
+- Hang waiting for input
+
+**Why existing tests miss it:**
+
+`ProbeClaude` in `tests/profiles.test.ts:57` mocks `runPromptWithOptions` — it never actually spawns the `claude` CLI process. So the actual CLI argument parsing is never exercised.
+
+**Detection:**
+
+1. **Capture stderr** — the error message from the CLI would appear in `child.stderr` (currently only `stdout` is captured in `runCommand`)
+2. **Check exit code** — non-zero exit means the command failed
+3. **Add integration test** that actually spawns `claude` with `["--bare", "--tools", ""]` and verifies it succeeds rather than mocking `runPromptWithOptions`
+
+The fix would likely be to detect and validate the actual behavior of `--tools ""` in a smoke test before relying on it, or use a flag format the CLI guarantees (e.g., `--no-tools` if supported).

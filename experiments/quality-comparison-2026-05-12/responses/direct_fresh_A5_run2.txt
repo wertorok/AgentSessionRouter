@@ -1,0 +1,6 @@
+The default value of `dormant_after_days` in the sessions schema is **30**.
+
+This is defined in multiple places, including:
+- `src/schema.ts:16`
+- `src/schema.sql:15`
+- `SPEC.md:396` and `SPEC.md:904`

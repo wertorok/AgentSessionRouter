@@ -1,0 +1,6 @@
+The default value of `dormant_after_days` in the sessions schema is **30 days**.
+
+This is defined in:
+- `src/schema.ts:16` — `dormant_after_days INTEGER DEFAULT 30,`
+- `src/schema.sql:15` — `dormant_after_days INTEGER DEFAULT 30,`
+- `src/config.ts:78` — also references `default_dormant_after_days = 30`

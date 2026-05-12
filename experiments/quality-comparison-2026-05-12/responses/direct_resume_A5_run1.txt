@@ -1,0 +1,11 @@
+From `src/schema.ts:15-17`:
+
+```sql
+CREATE TABLE IF NOT EXISTS sessions (
+  ...
+  dormant_after_days INTEGER DEFAULT 30,
+  ...
+);
+```
+
+The default is **30 days**.

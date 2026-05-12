@@ -1,0 +1,34 @@
+From `src/db.ts:86-92` and the trust state assignment logic:
+
+```ts
+export type ClusterTrustState =
+  | "static_verified"   // all facts statically verified
+  | "llm_verified"      // all facts LLM-verified
+  | "partial_static"    // some facts rejected in static verification
+  | "partial_llm"       // some facts rejected in LLM verification
+  | "untrusted";
+```
+
+**`static_verified`** — set when a factsheet passes static-only verification with zero rejected facts (`src/cluster.ts:133`, `src/clusterRefresh.ts:176-181`):
+```ts
+const trustState = verification.rejectedFacts.length === 0 ? "static_verified" : "partial_static";
+```
+
+**`partial_llm`** — set when LLM verification runs but some facts were rejected or not promoted (`src/cluster.ts:221-222`):
+```ts
+const rejectedFacts = [...verification.rejectedFacts, ...llmVerification.rejectedFacts];
+llmVerification.factsheet.omitted_facts = rejectedFacts.length;
+const trustState = rejectedFacts.length === 0 ? "llm_verified" : "partial_llm";
+```
+
+**`llm_verified`** — set when LLM verification runs and zero facts were rejected (`src/cluster.ts:222`).
+
+**When each occurs:**
+
+| Trust State | When |
+|---|---|
+| `static_verified` | `cluster_prepare` with `verification_mode: "static"` (the default) — static verifier accepts all facts, no LLM step |
+| `llm_verified` | `cluster_prepare` with `verification_mode: "llm"` — LLM verifier promoted every fact to `VERIFIED` |
+| `partial_llm` | `cluster_prepare` with `verification_mode: "llm"` — LLM verifier rejected at least one fact; some omitted |
+
+`partial_static` follows the same pattern for the static-only path.

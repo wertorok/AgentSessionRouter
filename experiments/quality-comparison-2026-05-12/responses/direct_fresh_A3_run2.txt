@@ -1,0 +1,15 @@
+
+
+There are two places where staleness is handled:
+
+**1. At load time** (`loadClusterContext`, lines 177-185): If no current factsheet exists but the latest one has `status === "stale"`, it returns an error immediately without further file checks.
+
+**2. At consult time** (`consultCluster`, lines 63-80): This is the main path. It calls `findStaleFiles` which compares each file's current hash and size against the stored `ClusterFileHashRecord`. If any file has changed (or is unreadable):
+
+1. **Marks the factsheet stale** via `db.markClusterFactsheetStale(loaded.factsheet.id)`
+2. **Logs a `cluster_refresh_required` event** with the changed files list
+3. **Returns an `ERROR_CODES.CLUSTER_FACTSHEET_STALE` error** — the consult does **not** proceed
+
+The error payload includes `changed_files` listing the stale files so the caller knows what triggered the refresh requirement. The caller must then run `cluster_prepare` with verification to refresh before retrying.
+
+Note: A factsheet that is `llm_verified` but has stale file hashes is treated the same as one that is `stale` — the consult is blocked until refreshed.

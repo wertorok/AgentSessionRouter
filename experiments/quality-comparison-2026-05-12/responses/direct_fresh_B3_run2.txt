@@ -1,0 +1,26 @@
+## Trust States: `static_verified`, `partial_llm`, and `llm_verified`
+
+These are defined in `src/db.ts:86-92` as `ClusterTrustState`.
+
+### `static_verified`
+**When:** A factsheet passes static analysis (file-hash verification, no rejected facts).
+- Set in `src/cluster.ts:133` and `src/cluster.ts:176` when `verification.rejectedFacts.length === 0` after static-only or static-first verification.
+- Also the inferred default when a factsheet has all facts with `confidence === "static_verified"` and no omitted facts (`src/clusterRefresh.ts:168-181`).
+
+### `llm_verified`
+**When:** A factsheet passes full LLM verification — all facts were presented to the LLM and none were rejected.
+- Set in `src/cluster.ts:222` when running with `verification_mode=llm` and `rejectedFacts.length === 0`.
+- The factsheet `status` is `"llm_verified"` and `trust_state` is `"llm_verified"` when zero facts were omitted/rejected.
+
+### `partial_llm`
+**When:** A factsheet goes through LLM verification but some facts were rejected or omitted.
+- Set in `src/cluster.ts:222` when LLM verification results in `rejectedFacts.length > 0`.
+- Also inferred in `src/clusterRefresh.ts:178-179` when status is `"llm_verified"` but `omitted_facts > 0`.
+
+### The sibling `partial_static` / `static_verified` follow the same pattern for static-only verification.
+
+### Key distinction
+- **`trust_state`** (on the cluster) tracks how trustworthy the current cached factsheet is for routing decisions.
+- **`factsheet status`** (`static_verified` / `llm_verified`) is the verification level the factsheet itself was produced under.
+
+`llm_verified` > `static_verified` > `partial_*` > `untrusted`. A cluster with `partial_llm` is usable but has known rejected facts — it won't block routing but those facts shouldn't be trusted.

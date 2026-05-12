@@ -1,0 +1,43 @@
+Here's the full walkthrough for an explicit `session_id` consult:
+
+**1. `resolveRoute` is called** (`src/consult.ts:250`)
+
+**2. Session looked up in SQLite** (`src/consult.ts:251`)
+```ts
+const session = this.runtime.db.getSession(input.sessionId);
+```
+Found. Status is `active`. Proceeds.
+
+**3. Project ID verified** (`src/consult.ts:255-257`) — must match.
+
+**4. Claude session file existence check** (`src/consult.ts:271`):
+```ts
+const exists = await this.runtime.claude.sessionFileExists(session.claude_session_id);
+```
+
+`sessionFileExists` in `src/claude.ts:104-122` checks for the `.json` or `.jsonl` file under `~/.claude/sessions/`. Since the file is deleted, `exists = false`.
+
+**5. Session marked orphaned** (`src/consult.ts:274`):
+```ts
+this.runtime.db.markSessionOrphaned(session.id);
+```
+`src/db.ts:418-430` sets status to `orphaned` and logs an `orphan_recovery` event.
+
+**6. Bootstrap context built** from the old registry view (`src/consult.ts:273,278`):
+```ts
+const oldView = this.runtime.db.getSessionView(session.id);
+bootstrapContext: oldView ? buildBootstrapContext(oldView, "orphaned") : undefined,
+```
+
+**7. `RouteResolution` returned with `selectedSession: null`** (`src/consult.ts:275-282`), `wasOrphanRecovery: true`.
+
+**8. `invokeWithRouteLock` sees no selected session** (`src/consult.ts:98-100`), calls `invokeClaude` directly.
+
+**9. `invokeClaude` creates a new Claude session** (`src/consult.ts:155-162`):
+```ts
+this.runtime.db.createSession({ ... new internal session id ... })
+```
+
+**10. `was_orphan_recovery = true` is logged** in the event (`src/consult.ts:198`).
+
+So the answer: the old session is marked `orphaned`, its compact registry metadata is used as bootstrap context, a brand-new Claude session is created, and `was_orphan_recovery` is recorded in the event log.

@@ -1,0 +1,16 @@
+The `clusters` table has these fields (from `src/schema.sql` and `src/schema.ts`):
+
+| Field | Type | Default |
+|-------|------|---------|
+| `id` | TEXT | PRIMARY KEY |
+| `project_id` | TEXT | NOT NULL |
+| `name` | TEXT | NOT NULL |
+| `description` | TEXT | NOT NULL DEFAULT '' |
+| `tool_profile_default` | TEXT | NOT NULL DEFAULT 'bare' |
+| `baseline_session_id` | TEXT | (nullable) |
+| `status` | TEXT | NOT NULL DEFAULT 'active' |
+| `trust_state` | TEXT | NOT NULL DEFAULT 'unprepared' |
+| `created_at` | TEXT | NOT NULL |
+| `last_used` | TEXT | NOT NULL |
+
+There's also a `UNIQUE(project_id, id)` constraint and an index on `clusters(project_id, status)`.

@@ -1,0 +1,22 @@
+## Trust States
+
+The four trust states represent escalating verification levels:
+
+| State | Verification | Rejected Facts | Meaning |
+|-------|-------------|----------------|---------|
+| `static_verified` | Static only | 0 | All facts pass file-hash/presence checks |
+| `partial_static` | Static only | ≥1 | Some facts failed; valid ones are stored |
+| `llm_verified` | Static + LLM | 0 | LLM confirmed all facts semantically |
+| `partial_llm` | Static + LLM | ≥1 | LLM rejected some facts; only confirmed ones stored |
+
+**When each occurs:**
+
+- **`static_verified`** — `cluster_prepare` or `cluster_refresh` runs with default `verification_mode: "static"` and all facts pass the static checks (src/cluster.ts:133)
+
+- **`partial_static`** — Static verification runs but some facts fail (missing files, hash mismatch). At least one fact must verify or it returns `CLUSTER_FACTSHEET_INVALID` (src/cluster.ts:176)
+
+- **`llm_verified`** — `verification_mode: "llm"` completes with zero rejected facts after the LLM verifier promotes the statically-verified facts (src/cluster.ts:222)
+
+- **`partial_llm`** — LLM verification runs but the LLM rejects ≥1 facts. Those are omitted from the stored factsheet (src/cluster.ts:222)
+
+The progression is one-way: static-only states arise from `static` verification, while `llm_verified`/`partial_llm` require the LLM pass after static succeeds.

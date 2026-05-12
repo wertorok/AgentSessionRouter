@@ -1,0 +1,20 @@
+
+
+The LLM verifier is intentionally restricted to `bare` or `focused` profiles and cannot use `agent`. Here's why:
+
+**Type constraint**: `src/profiles.ts:4`
+```typescript
+export type VerifierToolProfile = "bare" | "focused";
+```
+The `agent` profile is excluded from the verifier's allowed profiles.
+
+**Design rationale** from the codebase docs and specs:
+
+1. **Cost control**: `agent` mode brings full project rediscovery, which defeats the purpose of a lightweight verification pass. The verifier's job is to confirm facts cheaply, not to re-analyze the project.
+
+2. **Fallback hierarchy** (`src/profiles.ts:78-91`): The profile selector probes `bare` first, and if unavailable, downgrades to `focused`. It never escalates to `agent`:
+   > "The router must not silently escalate `bare` or `focused` to `agent`." — CLUSTER_CACHE_SPEC.md:333
+
+3. **Verifier purpose**: The LLM verifier runs after static verification to promote `static_verified` facts to `llm_verified` by asking Claude to confirm semantic correctness. This is a narrow, bounded task that doesn't need full agent capabilities — just a no-tools confirmation pass with `--bare --tools ""` or `--tools ""`.
+
+So `bare` is preferred (cheapest, no tools, no project context), and `focused` is the portable fallback when `--bare` auth fails. `agent` is forbidden because it would inflate cost and scope beyond what verification requires.

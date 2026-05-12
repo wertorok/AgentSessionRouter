@@ -1,0 +1,5 @@
+
+
+According to the verified factsheet (id: `clusters-table-fields`):
+
+`id`, `project_id`, `name`, `description`, `tool_profile_default`, `baseline_session_id`, `status`, `trust_state`, `created_at`, `last_used`

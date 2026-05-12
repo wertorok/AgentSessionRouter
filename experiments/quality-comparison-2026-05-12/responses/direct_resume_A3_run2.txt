@@ -1,0 +1,17 @@
+From `src/clusterConsult.ts:63-80`:
+
+1. **`findStaleFiles`** re-hashes every evidence file against the stored `cluster_file_hashes` — any hash or size mismatch marks the file as changed.
+
+2. If `staleFiles.length > 0`, three things happen:
+   - `db.markClusterFactsheetStale()` (`src/db.ts:746-758`) — sets the factsheet record to `stale` and cluster `trust_state` to `untrusted`
+   - `logClusterEvent(..., "cluster_refresh_required", ...)` — records the changed files for observability
+   - Returns error `CLUSTER_FACTSHEET_STALE` — consult is **blocked**, no Claude is called
+
+```ts
+return errorPayload(ERROR_CODES.CLUSTER_FACTSHEET_STALE, SPEC_ERROR_MESSAGES[ERROR_CODES.CLUSTER_FACTSHEET_STALE], {
+  cluster_id: input.clusterId,
+  details: { changed_files: staleFiles }
+});
+```
+
+The recovery action is to run `cluster_refresh` to re-verify the evidence files, not to fall back to a new session.

@@ -1,0 +1,19 @@
+
+
+All event types written to `cluster_events` (from `README.md:792-808`):
+
+```txt
+cluster_consult
+cluster_consult_failed
+cluster_created
+cluster_refresh
+cluster_refresh_required
+factsheet_static_verified
+factsheet_partially_static_verified
+factsheet_llm_verified
+factsheet_partially_llm_verified
+factsheet_rejected
+factsheet_stale
+llm_verifier
+tool_profile_downgraded
+```

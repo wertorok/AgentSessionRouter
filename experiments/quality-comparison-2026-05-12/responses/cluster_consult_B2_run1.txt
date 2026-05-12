@@ -1,0 +1,21 @@
+
+
+From the factsheet, the code path is:
+
+1. **`claude_consult`** receives a `session_id` with an associated `claude_session_id` pointing to the `.jsonl` file.
+
+2. The router calls **`sessionFileExists(session.claude_session_id)`** (in `src/consult.ts`). This returns `false` because the file was deleted.
+
+3. The router calls **`db.markSessionOrphaned(session.id)`** (in `src/consult.ts`) to mark the registry session as orphaned.
+
+4. **`markSessionOrphaned`** (in `src/db.ts`) sets the session's status to `orphaned` and writes an **`orphan_recovery` event** to the database.
+
+5. The router then logs: *"Selected session was orphaned; creating replacement from registry context."*
+
+6. **`invokeClaude`** is called with **no selected session** (`!route.selectedSession`).
+
+7. **`invokeClaude`** creates a **new registry session** using the new Claude session ID returned by the Claude CLI, completing the orphan recovery.
+
+---
+
+**Summary**: Deleted `.jsonl` → session marked orphaned → `orphan_recovery` event written → new session created and registered.

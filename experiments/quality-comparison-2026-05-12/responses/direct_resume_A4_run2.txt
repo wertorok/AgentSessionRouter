@@ -1,0 +1,6 @@
+`["--bare", "--tools", ""]` — from `src/profiles.ts:33`:
+
+```ts
+case "bare":
+  return ["--bare", "--tools", ""];
+```

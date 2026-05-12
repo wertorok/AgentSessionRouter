@@ -1,0 +1,29 @@
+
+
+When the factsheet is stale, `cluster_consult` returns an error and does **not** answer the question.
+
+There are two stale detection paths in `consultCluster`:
+
+**1. Stale latest factsheet (no current factsheet exists)** — `loadClusterContext` at line 176-185:
+```typescript
+const latestFactsheet = db.getLatestClusterFactsheet(clusterId);
+if (latestFactsheet?.status === "stale") {
+  return errorPayload(ERROR_CODES.CLUSTER_FACTSHEET_STALE, ...);
+}
+```
+
+**2. Current factsheet with changed files** — lines 63-80:
+```typescript
+const staleFiles = findStaleFiles(cwd, loaded.fileHashes);
+if (staleFiles.length > 0) {
+  db.markClusterFactsheetStale(loaded.factsheet.id);   // marks DB record as stale
+  db.logClusterEvent({ eventType: "cluster_refresh_required", ... });
+  return errorPayload(ERROR_CODES.CLUSTER_FACTSHEET_STALE, ..., {
+    details: { changed_files: staleFiles }
+  });
+}
+```
+
+`findStaleFiles` (line 199) compares each tracked file's current hash and size against the stored `fileHashes`. If any file has changed or is missing, it's added to the stale list.
+
+The error code returned in both cases is `CLUSTER_FACTSHEET_STALE`, signaling that `cluster_prepare` must be re-run with verification before `cluster_consult` can proceed again.

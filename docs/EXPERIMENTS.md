@@ -173,6 +173,39 @@ Answer correctly used the factsheet passed via `--append-system-prompt` and iden
 
 Finding: Phase 4 turns the factsheet cache into a usable consult path. Fresh non-fork `bare` cluster consults can answer from an `llm_verified` factsheet with low latency and without project discovery.
 
+### Quality Comparison Matrix
+
+Full artifact: `experiments/quality-comparison-2026-05-12/`
+
+Controlled run:
+
+- 10 AgentSessionRouter questions
+- 3 methods: `direct_fresh`, `direct_resume`, `cluster_consult`
+- 3 runs per question/method
+- 90 total invocations
+- 0 invocation failures
+- Factsheet prep: `llm_verified`, 25 verified facts, 0 rejected facts
+
+Summary:
+
+| Method | Mean quality | Mean estimated cost | Mean duration |
+|--------|--------------|---------------------|---------------|
+| `direct_fresh` | 2.67 | $0.1745 | 19.7s |
+| `direct_resume` | 2.77 | $0.0702 | 10.9s |
+| `cluster_consult` | 2.47 | $0.0164 | 4.7s |
+
+Category quality:
+
+| Category | direct_fresh | direct_resume | cluster_consult |
+|----------|--------------|---------------|-----------------|
+| Factual lookup | 2.80 | 2.80 | 3.00 |
+| Architectural reasoning | 2.89 | 2.89 | 2.11 |
+| Open planning | 2.00 | 2.50 | 1.67 |
+
+Finding: `cluster_consult` delivered 89.2% of `direct_resume` mean quality at 23.3% of its estimated per-invocation cost. It is strong for bounded factual/config questions when the factsheet covers the answer, but weaker for reasoning and open planning. `direct_fresh` is dominated: lower quality and higher cost than `direct_resume`.
+
+Recommendation: prioritize Phase 7 distillation/factsheet expansion over Phase 5 fork. Fork can reduce already-low cluster cost, but the measured gap is quality/factsheet coverage, not latency.
+
 ## Decisions
 
 - Use verified factsheet cache as source of truth. Do not use opaque Claude session state as the only source of truth.

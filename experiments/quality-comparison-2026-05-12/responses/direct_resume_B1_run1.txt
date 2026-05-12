@@ -1,0 +1,22 @@
+From `src/cluster.ts:355-366` and `docs/CLUSTER_CACHE_SPEC.md §7`:
+
+```ts
+export async function verifyFactsheetWithLlm(
+  claude: ClaudeAdapter,
+  cwd: string,
+  factsheet: VerifiedFactsheet,
+  toolProfile: VerifierToolProfile
+): Promise<LlmFactsheetVerification> {
+  const prompt = buildLlmVerifierPrompt(cwd, factsheet);
+  ...
+  const response =
+    claude.runPromptWithOptions !== undefined
+      ? await claude.runPromptWithOptions(prompt, profilePromptOptions(toolProfile))
+      : await claude.runPrompt(prompt);
+```
+
+The verifier prompt at `src/cluster.ts:498-511` instructs Claude:
+
+> *"Do not infer. Do not use tools. Return JSON only."*
+
+The verifier is intentionally a **no-tools, no-inference** task — it just checks whether evidence files support the claims in the factsheet. Running it in `agent` mode would allow tool use and exploration, which defeats the purpose: the verifier should read only the provided evidence, not discover new code. `bare` (or `focused` as fallback) enforces this constraint at the CLI level.

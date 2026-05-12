@@ -1,0 +1,50 @@
+Here are three concrete improvements to `cluster_refresh` (defined in `src/clusterRefresh.ts`) that preserve existing semantics:
+
+---
+
+### 1. Git-aware diff skip
+
+Currently `findChangedFiles` (`src/clusterRefresh.ts:150-166`) re-hashes every evidence file on every refresh. A git-aware shortcut:
+
+```ts
+// Before hashing, check git diff for scoped paths
+const changedFiles = execGitDiff(cwd, factsheetPaths);
+if (changedFiles.length === 0) {
+  return { /* all evidence files unchanged since last verify */ };
+}
+// Fall through to full hash verification for remaining files
+```
+
+**Why it matters:** On repos with large evidence files, hashing every file on every refresh is I/O-heavy and slow. If git can confirm no scoped paths changed, the re-hash is unnecessary. This is a pure optimization — the hash check is still the source of truth if git reports changes.
+
+---
+
+### 2. Per-fact re-verification (partial stale, not full stale)
+
+Currently if any evidence file changes, the entire factsheet is marked `stale` and the consult is blocked. Instead, track which evidence entry belongs to which fact:
+
+- When files change, recompute only the affected facts' evidence
+- Keep facts whose evidence is still valid
+- Mark only the affected facts as `omitted` rather than the whole factsheet
+- Allow consults to proceed with a `partial_stale` flag
+
+**Implementation point:** `src/clusterRefresh.ts:51-66` (the rejection block) would split from blanket staleness into per-fact tracking. The `VerifiedFactsheet` type in `src/cluster.ts:34-46` already has per-fact `confidence` — this would extend that to track which facts are invalidated by which file changes.
+
+---
+
+### 3. Background LLM re-promotion on static-only factsheets
+
+`verify_only` mode never promotes a `static_verified` factsheet to `llm_verified` — the LLM step is only run during `cluster_prepare`. Over time, static-only factsheets can have claims that are factually correct (static checks pass) but semantically drifted from the code.
+
+Add an opt-in mode:
+
+```ts
+if (input.mode === "verify_and_promote") {
+  const llmResult = await verifyFactsheetWithLlm(claude, cwd, factsheet, "focused");
+  if (llmResult.rejectedFacts.length === 0) {
+    db.markClusterFactsheetFresh(factsheet.id, "llm_verified", "llm_verified");
+  }
+}
+```
+
+This closes the gap where a factsheet is statically valid but never receives the LLM semantic validation that would catch drifted claims. **Existing `verify_only` callers are unaffected** — this only activates when explicitly requested.

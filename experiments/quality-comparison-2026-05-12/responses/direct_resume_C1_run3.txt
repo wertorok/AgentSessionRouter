@@ -1,0 +1,47 @@
+From `src/clusterRefresh.ts` and `docs/CLUSTER_CACHE_SPEC.md §11`:
+
+---
+
+### 1. Git-aware diff skip (avoid unnecessary re-hashing)
+
+`findChangedFiles` (`src/clusterRefresh.ts:150-166`) re-hashes every evidence file on every call. A git diff on the scoped paths is a fast shortcut:
+
+```ts
+const changedViaGit = execGitDiff(cwd, factsheetPaths);
+if (changedViaGit.length === 0) {
+  return { fresh: true, checked_via: "git_diff" };
+}
+```
+
+Only fall through to full hash verification if git reports changes. Pure optimization — hashing remains the source of truth.
+
+---
+
+### 2. Per-fact staleness tracking (partial stale, not full stale)
+
+Currently any changed evidence file marks the entire factsheet stale. Instead, track per-fact evidence membership:
+
+- When `findChangedFiles` returns a changed file, identify which facts reference it
+- Mark only those facts as `omitted_facts += 1` rather than the whole factsheet
+- The factsheet remains usable for unaffected facts, with a `partial_stale` status
+- Consults can proceed with a warning listing the affected facts
+
+Implementation point: `src/clusterRefresh.ts:51-66` (the rejection block) splits from blanket staleness into per-fact tracking.
+
+---
+
+### 3. Auto-promote `static_verified` → `llm_verified` on refresh
+
+`verify_only` mode never runs LLM verification, so a `static_verified` factsheet stays that way indefinitely even if its claims have semantically drifted.
+
+Add an opt-in `refresh_mode: "verify_and_promote"`:
+```ts
+if (input.mode === "verify_and_promote" && factsheet.status === "static_verified") {
+  const llmResult = await verifyFactsheetWithLlm(claude, cwd, factsheet, "focused");
+  if (llmResult.rejectedFacts.length === 0) {
+    db.markClusterFactsheetFresh(factsheet.id, "llm_verified", "llm_verified");
+  }
+}
+```
+
+Existing `verify_only` callers are unaffected — this only activates on explicit opt-in.

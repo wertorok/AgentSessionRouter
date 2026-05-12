@@ -1,0 +1,36 @@
+For an explicit `session_id` consult, tracing `src/consult.ts`:
+
+**1. `resolveRoute`** — `src/consult.ts:250`
+Session looked up from SQLite (`src/consult.ts:251`). Project ID verified.
+
+**2. `sessionFileExists` check** — `src/consult.ts:271`
+```ts
+const exists = await this.runtime.claude.sessionFileExists(session.claude_session_id);
+```
+`src/claude.ts:104-122` checks `~/.claude/sessions/` — file is gone, returns `false`.
+
+**3. Mark orphaned** — `src/consult.ts:274`
+```ts
+this.runtime.db.markSessionOrphaned(session.id);
+```
+`src/db.ts:418-430`: status set to `orphaned`, `orphan_recovery` event logged.
+
+**4. Bootstrap context** — `src/consult.ts:273,278`
+```ts
+const oldView = this.runtime.db.getSessionView(session.id);
+bootstrapContext: buildBootstrapContext(oldView, "orphaned")
+```
+Old session's compact metadata (topic, summary, decisions, files, tags, aliases) packed into bootstrap prompt.
+
+**5. `RouteResolution` returned** — `src/consult.ts:275-282`
+`selectedSession: null`, `wasOrphanRecovery: true`.
+
+**6. New session created** — `src/consult.ts:155-162`
+```ts
+this.runtime.db.createSession({ id: createInternalSessionId(), claudeSessionId: claudeResponse.sessionId, ... })
+```
+Brand-new `.jsonl` file created by Claude CLI.
+
+**7. Event logged** with `was_orphan_recovery: true` — `src/consult.ts:198`.
+
+**Summary:** The orphaned session's `.jsonl` is gone → session marked `orphaned` in SQLite → old registry metadata used as bootstrap → new Claude session created → `was_orphan_recovery` flagged in the event log.

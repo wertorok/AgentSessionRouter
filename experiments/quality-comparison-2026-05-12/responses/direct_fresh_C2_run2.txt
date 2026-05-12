@@ -1,0 +1,46 @@
+
+
+## Analysis: Untested Failure Mode of `--bare --tools ""`
+
+### The Failure Mode
+
+**The probe prompt "PROFILE_OK" leaks into the user's conversation context in bare mode.**
+
+Here's why:
+
+1. **`probeProfile`** (`src/profiles.ts:102-127`) sends the fixed prompt `PROFILE_OK` via `runPromptWithOptions` with `extraArgs: ["--bare", "--tools", ""]`
+
+2. In bare mode, `--tools ""` means **no tools available** — but the prompt is still processed as user input
+
+3. The probe only checks that the call **doesn't throw** (`src/profiles.ts:112-126`). It never validates the response content. So even if Claude responds with an actual answer to "PROFILE_OK", the probe passes.
+
+4. The test `detectAvailableProfiles` in `tests/profiles.test.ts:16-27` verifies this by checking `availability.bare.available === true`, but **never checks that bare mode actually restricted tools** — it only checks the call succeeded.
+
+### Why This Matters
+
+A real failure would be: **Claude version X starts in bare mode but still loads tools from a config file or plugin, making `--tools ""` a no-op.** The probe would report "bare available" when in reality bare mode wasn't truly bare. You'd only catch this in production when the cluster consult returns answers that reference tools that should have been stripped.
+
+### How to Detect It
+
+```typescript
+// Add to tests/profiles.test.ts
+it("bare probe does not accidentally resolve as user input with tool access", async () => {
+  const claude = new ProbeClaude();
+  await detectAvailableProfiles(claude, () => new Date());
+
+  const bareCall = claude.calls.find(c => 
+    c.options.extraArgs?.includes("--bare")
+  );
+  
+  // The probe prompt should NOT be processed as a user message
+  // that could access tools — verify the response is purely structural
+  // A real implementation would check: does bare mode strip all tool access?
+});
+```
+
+Or instrument the probe to send a prompt that **would fail if tools were available** — e.g., a prompt that implicitly references a tool. In true bare mode with no tools, Claude must answer directly; with tools loaded, it might try to use them.
+
+**Key files:**
+- `src/profiles.ts:30-39` — `profileArgs("bare")` returns `["--bare", "--tools", ""]`
+- `src/profiles.ts:102-127` — `probeProfile` only catches errors, never validates response semantics
+- `tests/profiles.test.ts:16-27` — test only asserts availability, not behavioral correctness of bare restriction

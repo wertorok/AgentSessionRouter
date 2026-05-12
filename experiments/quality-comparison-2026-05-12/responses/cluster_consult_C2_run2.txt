@@ -1,0 +1,12 @@
+
+
+Based on the verified factsheet:
+
+**Untested failure mode:** The `--tools ""` empty string argument may be mishandled by the Claude CLI subprocess, causing unexpected behavior (hang, exit error, or incorrect tool resolution) rather than cleanly disabling all tools.
+
+**How to detect it:**
+1. Add a timeout on bare-profile invoke calls; detect unexpected hangs or premature exits
+2. Capture and assert on stderr output for parse errors or unexpected CLI messages
+3. Verify the process exits cleanly with exit code 0 before trusting the response
+
+The factsheet only confirms the args exist (`bare-profile-args`) and that the known tested risk is about NOT IN CONTEXT for missing facts (`bare-profile-risk`). The subprocess argument parsing edge case around an empty-string `--tools` value is not covered in the factsheet.

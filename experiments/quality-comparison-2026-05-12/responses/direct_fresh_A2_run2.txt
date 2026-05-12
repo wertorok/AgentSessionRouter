@@ -1,0 +1,24 @@
+
+
+Based on the codebase, here are all event types written to `cluster_events`:
+
+| Event Type | Location | When Written |
+|---|---|---|
+| `cluster_created` | `src/db.ts:585` | New cluster is created |
+| `cluster_consult` | `src/clusterConsult.ts:120` | Successful cluster consult |
+| `cluster_consult_failed` | `src/clusterConsult.ts:148` | Failed cluster consult |
+| `cluster_refresh` | `src/clusterRefresh.ts:97` | Successful verify-only refresh |
+| `cluster_refresh_required` | `src/clusterConsult.ts:69` | Stale factsheet detected before consult |
+| `factsheet_static_verified` | `src/db.ts:837` | Factsheet passed static verification |
+| `factsheet_partially_static_verified` | `src/db.ts:831` | Static verification with some rejected facts |
+| `factsheet_llm_verified` | `src/db.ts:840` | Factsheet passed LLM verification |
+| `factsheet_partially_llm_verified` | `src/db.ts:834` | LLM verification with some rejected facts |
+| `factsheet_rejected` | `src/db.ts:842` | Factsheet rejected by verifier |
+| `factsheet_stale` | `src/clusterRefresh.ts:80` | Stale factsheet found during refresh |
+| `llm_verifier` | `src/cluster.ts:236` | LLM verifier path completed |
+| `tool_profile_downgraded` | `src/tools.ts:328`, `src/clusterConsult.ts:138` | Profile downgrade occurred |
+| `bare_probe_failed` | `src/runtime.ts:148` | Bare tool profile not available |
+
+**Total: 14 event types**
+
+Note: The README (`README.md:792-808`) lists 13 types but is missing `bare_probe_failed`, which is written in `src/runtime.ts:148`.

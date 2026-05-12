@@ -1,0 +1,9 @@
+
+
+Based on the factsheet, here are 3 ways to make `cluster_refresh` smarter without breaking existing semantics:
+
+1. **Selective re-verification**: Currently `cluster_refresh` in verify-only mode rechecks all selectors when a scoped file's hash changes. Track which specific selectors in a changed file actually failed, and re-verify only those instead of the whole file.
+
+2. **Proactive stale pre-detection in cluster_consult**: The consult path already detects stale scoped evidence and logs `cluster_refresh_required` with `changed_files`. Make `cluster_refresh` ingest that signal so it can warm-refresh the factsheet *before* the next consult rather than reacting on-demand.
+
+3. **Hot-path prioritization**: Add a simple heuristic to weight facts by staleness frequency or consult hit-count, so `cluster_refresh` prioritizes regenerating high-utility facts over low-traffic ones when full regeneration is eventually triggered.

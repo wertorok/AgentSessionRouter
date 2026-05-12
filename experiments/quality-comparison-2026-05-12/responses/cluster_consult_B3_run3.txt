@@ -1,0 +1,9 @@
+
+
+From the verified factsheet:
+
+- **static_verified**: Set when static verification stores at least one valid fact and no facts were rejected. (Evidence: `src/cluster.ts`)
+
+- **llm_verified**: Set when LLM verification accepts all facts and there are no static or LLM rejected facts. (Evidence: `src/cluster.ts`)
+
+- **partial_llm**: Set after LLM verification when at least one fact is rejected but at least one LLM-verified fact remains stored. (Evidence: `src/cluster.ts`)

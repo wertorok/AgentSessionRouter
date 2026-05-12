@@ -1,0 +1,5 @@
+
+
+Based on the factsheet, the LLM verifier is restricted to `bare` or `focused` profiles and **cannot** use the `agent` profile.
+
+The reason is implied by its stated purpose: the verifier prompt instructs Claude to "verify supplied evidence semantically, return VERIFIED only when the claim follows from evidence, not infer, not use tools, and return JSON only." Agent mode enables tool use and agentic behavior, which would be counterproductive to a simple semantic verification task that explicitly requires no tools.

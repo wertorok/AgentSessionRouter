@@ -1,0 +1,19 @@
+
+
+Based on the verified factsheet, the following event types are written to `cluster_events`:
+
+1. `factsheet_static_verified`
+2. `factsheet_partially_static_verified`
+3. `factsheet_llm_verified`
+4. `factsheet_partially_llm_verified`
+5. `factsheet_rejected`
+6. `factsheet_generated`
+7. `cluster_created`
+8. `llm_verifier`
+9. `cluster_consult`
+10. `cluster_consult_failed`
+11. `cluster_refresh_required`
+12. `tool_profile_downgraded`
+13. `cluster_refresh`
+14. `factsheet_stale`
+15. `orphan_recovery`

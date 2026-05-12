@@ -1,0 +1,18 @@
+From `src/profiles.ts:30-38`:
+
+```ts
+export function profileArgs(profile: ClaudeToolProfile): string[] {
+  switch (profile) {
+    case "bare":
+      return ["--bare", "--tools", ""];
+    case "focused":
+      return ["--tools", ""];
+    case "agent":
+      return [];
+  }
+}
+```
+
+So for `bare`: `["--bare", "--tools", ""]`
+
+This is used in `src/claude.ts:50-64` when building the full CLI command, where these args are inserted between the configured `extraArgs` and the prompt.

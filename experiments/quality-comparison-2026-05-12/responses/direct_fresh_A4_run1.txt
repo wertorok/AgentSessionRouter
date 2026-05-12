@@ -1,0 +1,12 @@
+
+
+The bare tool profile uses these CLI arguments:
+
+```typescript
+["--bare", "--tools", ""]
+```
+
+From `src/profiles.ts:30-33`, the `profileArgs()` function returns:
+- **bare**: `["--bare", "--tools", ""]`
+- **focused**: `["--tools", ""]`
+- **agent**: `[]` (no special args)

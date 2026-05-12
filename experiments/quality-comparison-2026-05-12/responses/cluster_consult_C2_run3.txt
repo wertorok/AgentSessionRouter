@@ -1,0 +1,3 @@
+
+
+NOT IN CONTEXT — the factsheet doesn't identify specific **untested** failure modes of `--bare --tools ""`. It only documents the known risk (missing facts should return NOT IN CONTEXT rather than inferred names) and confirms the bare profile uses those exact CLI args. Testing gaps and failure modes not yet observed aren't present in the factsheet.
