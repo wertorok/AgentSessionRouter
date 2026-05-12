@@ -103,6 +103,18 @@ try {
       clusterGet
     );
 
+    const clusterConsult = await callTool(client, "cluster_consult", {
+      project_id: null,
+      cluster_id: "post-install-smoke",
+      question: "Which smoke fixture field is present?",
+      allow_static_factsheet: true
+    });
+    record(
+      "cluster_consult",
+      clusterConsult.cluster_id === "post-install-smoke" && clusterConsult.used_fork === false,
+      summarizeClusterConsult(clusterConsult)
+    );
+
     const clusterList = await callTool(client, "cluster_list", {
       project_id: null,
       include_archived: false
@@ -194,6 +206,18 @@ function summarizeConsult(payload) {
     claude_session_id: payload.claude_session_id,
     was_new_session: payload.routing?.was_new_session,
     diagnostics: payload.diagnostics ?? null
+  };
+}
+
+function summarizeClusterConsult(payload) {
+  return {
+    cluster_id: payload.cluster_id,
+    factsheet_version: payload.factsheet_version,
+    factsheet_status: payload.factsheet_status,
+    tool_profile: payload.tool_profile,
+    used_fork: payload.used_fork,
+    claude_session_id: payload.claude_session_id,
+    metrics: payload.metrics
   };
 }
 

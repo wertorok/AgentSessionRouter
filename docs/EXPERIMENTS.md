@@ -139,6 +139,40 @@ One live profile availability probe through the implemented profile module:
 
 Finding: this machine supports both no-tools profiles. The router can now detect profile availability before LLM verification and deterministically downgrade `bare -> focused` when bare is unavailable, without escalating to `agent`.
 
+### MCP Phase 4 Cluster Consult Without Fork
+
+One live `cluster_prepare` + `cluster_consult` run through the implemented non-fork cluster path:
+
+Prepare:
+
+- Profile: `bare` (`--bare --tools ""`)
+- Duration: 4.7s
+- Input tokens: 345
+- Output tokens: 221
+- Result: `llm_verified`
+- Verified facts: 1
+- Rejected facts: 0
+
+Profile probe:
+
+- `bare`: available, 1.5s, 146 input tokens, 34 output tokens
+- `focused`: available, 3.5s, 13,783 input tokens, 18 output tokens
+- Selection for requested `bare`: selected `bare`, no downgrade
+
+Consult:
+
+- Factsheet status: `llm_verified`
+- Profile: `bare`
+- Duration: 6.1s
+- Input tokens: 489
+- Output tokens: 104
+- Used fork: false
+- Events: `cluster_created`, `factsheet_llm_verified`, `llm_verifier`, `cluster_consult`
+
+Answer correctly used the factsheet passed via `--append-system-prompt` and identified `extraArgs` as the verified config field.
+
+Finding: Phase 4 turns the factsheet cache into a usable consult path. Fresh non-fork `bare` cluster consults can answer from an `llm_verified` factsheet with low latency and without project discovery.
+
 ## Decisions
 
 - Use verified factsheet cache as source of truth. Do not use opaque Claude session state as the only source of truth.

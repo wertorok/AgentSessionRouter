@@ -40,8 +40,9 @@ Current implementation status:
 - Implemented: Phase 1 direct `cluster_prepare` with static local-file verification.
 - Implemented: Phase 2 LLM verifier loop as an explicit `verification_mode: "llm"` path.
 - Implemented: Phase 3 profile args, `bare`/`focused` probes, and deterministic `bare -> focused` downgrade.
+- Implemented: Phase 4 `cluster_consult` without fork, with append-system-prompt factsheet injection and stale hash refusal.
 - Implemented early for observability: read-only `cluster_get` and `cluster_list`.
-- Not implemented yet: `cluster_consult`, fork baseline, refresh/invalidation, and distillation from existing sessions.
+- Not implemented yet: fork baseline, refresh tooling, and distillation from existing sessions.
 
 The current `cluster_prepare` accepts direct factsheet JSON and stores only facts whose evidence passes deterministic local checks. By default these factsheets are marked `static_verified`, not `llm_verified`, because static checks prove evidence existence but not full semantic correctness. When `verification_mode` is `llm`, Claude is invoked with a no-tools verifier prompt and only `VERIFIED` facts are promoted to `llm_verified`.
 
@@ -475,7 +476,7 @@ Output:
 
 ### `cluster_consult`
 
-Consults Claude using a verified factsheet and optional fork.
+Consults Claude using a verified factsheet. Phase 4 does not use fork sessions; fork support is Phase 5.
 
 Input:
 
@@ -485,7 +486,7 @@ Input:
   "cluster_id": "config-and-cwd-isolation",
   "question": "Which cwd isolation issues remain?",
   "tool_profile": null,
-  "use_fork": true
+  "allow_static_factsheet": false
 }
 ```
 
@@ -497,13 +498,8 @@ Behavior:
    - explicit input profile if provided,
    - cluster default otherwise,
    - deterministic downgrade from `bare` to `focused` if bare probe failed.
-4. If `use_fork` and baseline exists:
-
-   ```bash
-   claude -p --resume <baseline_session_id> --fork-session ...
-   ```
-
-5. Otherwise inject factsheet inline.
+4. Reject stale factsheets by checking scoped evidence file hashes.
+5. Inject the factsheet with `--append-system-prompt`.
 6. Require answer to cite only factsheet facts or return `NOT IN CONTEXT`.
 7. Log cluster event metrics.
 
@@ -513,9 +509,10 @@ Output follows `claude_consult` shape with cluster metadata:
 {
   "cluster_id": "config-and-cwd-isolation",
   "factsheet_version": 1,
-  "used_fork": true,
+  "factsheet_status": "llm_verified",
+  "used_fork": false,
   "tool_profile": "bare",
-  "claude_session_id": "new-fork-session-id",
+  "claude_session_id": "new-session-id",
   "answer": "...",
   "metrics": {
     "duration_ms": 11500,

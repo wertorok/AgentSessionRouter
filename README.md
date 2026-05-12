@@ -29,11 +29,12 @@ Experimental cluster-cache tools:
 
 - `cluster_prepare`
 - `cluster_get`
+- `cluster_consult`
 - `cluster_list`
 
 Validation performed:
 
-- Unit/integration tests: `43 passed`
+- Unit/integration tests: `47 passed`
 - Live MCP stdio E2E: `LIVE_CONSULT_PASS`
 - Live matrix run: committed as `LIVE_TEST_LOG.md`
 - Post-fix targeted live rerun: `TARGETED_RERUN_PASS`
@@ -48,7 +49,7 @@ The full live matrix found three important issues: duplicate same-topic concurre
 
 Claude usage-limit responses are classified as `claude_usage_limit` and include an actionable `operator_action`.
 
-The cluster-cache implementation can store `static_verified` factsheets and can optionally run an LLM verifier to promote them to `llm_verified`. It probes `bare`/`focused` tool profiles and deterministically downgrades `bare` to `focused` when needed. It does not yet implement cluster consults, fork baselines, refresh/invalidation, or auto-routing. See `docs/CLUSTER_CACHE_SPEC.md` for the remaining v2 phases.
+The cluster-cache implementation can store `static_verified` factsheets, optionally run an LLM verifier to promote them to `llm_verified`, and consult Claude through a verified factsheet without fork. It probes `bare`/`focused` tool profiles and deterministically downgrades `bare` to `focused` when needed. It does not yet implement fork baselines, refresh tooling, or auto-routing. See `docs/CLUSTER_CACHE_SPEC.md` for the remaining v2 phases.
 
 ## Requirements
 
@@ -463,6 +464,43 @@ Input:
 }
 ```
 
+### `cluster_consult`
+
+Consults Claude with the current cluster factsheet. The current phase injects the factsheet through `--append-system-prompt` and does not use fork sessions.
+
+Input:
+
+```json
+{
+  "project_id": null,
+  "cluster_id": "config-and-cwd-isolation",
+  "question": "Which config field controls Claude extra args?",
+  "tool_profile": null,
+  "allow_static_factsheet": false
+}
+```
+
+Behavior:
+
+- Requires the current factsheet to be `llm_verified` by default.
+- Set `allow_static_factsheet: true` only when you intentionally accept static-only evidence checks.
+- Checks scoped evidence file hashes before invoking Claude.
+- Returns `CLUSTER_FACTSHEET_STALE` if cited files changed.
+- Selects `bare`, `focused`, or `agent` through the profile selector; `bare` can downgrade to `focused`, but never to `agent`.
+
+Output:
+
+```json
+{
+  "cluster_id": "config-and-cwd-isolation",
+  "factsheet_version": 1,
+  "factsheet_status": "llm_verified",
+  "tool_profile": "bare",
+  "used_fork": false,
+  "answer": "..."
+}
+```
+
 ### `cluster_list`
 
 Lists cluster cache entries for a project without invoking Claude.
@@ -716,6 +754,8 @@ Spec error codes are preserved exactly:
 - `CLUSTER_NOT_FOUND`
 - `CLUSTER_PROJECT_MISMATCH`
 - `CLUSTER_FACTSHEET_INVALID`
+- `CLUSTER_FACTSHEET_STALE`
+- `CLUSTER_FACTSHEET_UNTRUSTED`
 
 Diagnostic fields may be included:
 
@@ -861,6 +901,7 @@ The harness uses a Haiku wrapper for cost control on Windows because Node cannot
 src/
   claude.ts          Claude CLI adapter and health probe
   clock.ts           Centralized clock helpers
+  clusterConsult.ts  cluster_consult factsheet invocation service
   cluster.ts         Static cluster factsheet verification and preparation
   config.ts          TOML config loading and path resolution
   consult.ts         claude_consult routing and invocation service
@@ -869,6 +910,7 @@ src/
   errors.ts          Spec error payloads and Claude failure diagnosis
   locks.ts           In-memory per-key lock provider
   matching.ts        Deterministic routing score logic
+  profiles.ts        Claude tool profile probes and selection
   prompt.ts          Prompt and bootstrap context builders
   project.ts         project_id derivation
   runtime.ts         Runtime state, degraded mode, lifecycle timer
@@ -878,10 +920,12 @@ src/
   tools.ts           MCP tool registrations
 
 tests/
+  clusterConsult.test.ts
   cluster.test.ts
   consult.test.ts
   core.test.ts
   db.test.ts
+  profiles.test.ts
   tools.test.ts
 
 scripts/

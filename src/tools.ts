@@ -1,5 +1,6 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
+import { consultCluster } from "./clusterConsult.js";
 import { prepareCluster, type FactsheetInput } from "./cluster.js";
 import { ERROR_CODES } from "./constants.js";
 import { ConsultService } from "./consult.js";
@@ -100,6 +101,14 @@ const clusterGetInput = z.object({
 const clusterListInput = z.object({
   project_id: z.string().nullable().optional(),
   include_archived: z.boolean().default(false)
+});
+
+const clusterConsultInput = z.object({
+  project_id: z.string().nullable().optional(),
+  cluster_id: z.string().min(1),
+  question: z.string().min(1),
+  tool_profile: clusterToolProfileInput.nullable().optional(),
+  allow_static_factsheet: z.boolean().default(false)
 });
 
 export function registerTools(server: McpServer, runtime: RouterRuntime): void {
@@ -373,6 +382,47 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
         current_factsheet: factsheet ? serializeFactsheet(factsheet) : null,
         file_hashes: factsheet ? runtime.db.listClusterFileHashes(factsheet.id) : []
       });
+    }
+  );
+
+  server.registerTool(
+    "cluster_consult",
+    {
+      title: "Consult cluster",
+      description: "Consults Claude with a verified cluster factsheet inline. Fork support is not implemented in this phase.",
+      inputSchema: clusterConsultInput
+    },
+    async (input) => {
+      const projectId = resolveProjectId(input.project_id, runtime.cwd);
+      if (runtime.degradedMode) {
+        const diagnosis = diagnoseClaudeFailure(runtime.degradedReason);
+        return jsonToolResult(
+          errorPayload(ERROR_CODES.CLAUDE_INCOMPATIBLE, SPEC_ERROR_MESSAGES[ERROR_CODES.CLAUDE_INCOMPATIBLE], {
+            cluster_id: input.cluster_id,
+            reason: diagnosis.reason,
+            category: diagnosis.category,
+            operator_action: diagnosis.operator_action
+          }),
+          true
+        );
+      }
+
+      const availability = await runtime.getProfileAvailability();
+      const result = await consultCluster(runtime.db, runtime.cwd, runtime.claude, availability, {
+        projectId,
+        clusterId: input.cluster_id,
+        question: input.question,
+        toolProfile: input.tool_profile,
+        allowStaticFactsheet: input.allow_static_factsheet
+      });
+
+      return jsonToolResult(
+        {
+          project_id: projectId,
+          ...result
+        },
+        "error" in result
+      );
     }
   );
 

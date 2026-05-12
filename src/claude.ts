@@ -16,6 +16,7 @@ export interface ClaudePromptOptions {
   resumeSessionId?: string;
   extraArgs?: string[];
   includeConfiguredExtraArgs?: boolean;
+  appendSystemPrompt?: string;
 }
 
 export interface HealthProbeResult {
@@ -54,6 +55,9 @@ export class CliClaudeAdapter implements ClaudeAdapter {
       "--output-format",
       this.config.claude.outputFormat
     ];
+    if (options.appendSystemPrompt) {
+      args.push("--append-system-prompt", options.appendSystemPrompt);
+    }
     if (options.resumeSessionId) {
       args.push("--resume", options.resumeSessionId);
     }

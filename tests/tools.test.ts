@@ -180,6 +180,47 @@ describe("cluster MCP tools", () => {
     expect(events.map((event) => event.event_type)).toContain("tool_profile_downgraded");
     fixture.cleanup();
   });
+
+  it("consults a cluster through the MCP tool", async () => {
+    const claude = new FakeClaude({
+      facts: [{ id: "extra-args", verdict: "VERIFIED", reason: "Evidence supports the claim." }]
+    });
+    const fixture = createToolFixture(claude);
+    const server = new FakeServer();
+    registerTools(server as unknown as McpServer, fixture.runtime);
+    mkdirSync(path.join(fixture.dir, "src"), { recursive: true });
+    writeFileSync(path.join(fixture.dir, "src", "config.ts"), "export const extraArgs = [];\n");
+
+    await server.call("cluster_prepare", {
+      project_id: "project",
+      cluster_id: "router-ops",
+      tool_profile_default: "bare",
+      verification_mode: "llm",
+      factsheet: {
+        facts: [
+          {
+            id: "extra-args",
+            claim: "extraArgs exists.",
+            evidence: [{ path: "src/config.ts", selector: "extraArgs" }]
+          }
+        ]
+      }
+    });
+    claude.verifierResult = "Cluster answer.";
+    const result = await server.call("cluster_consult", {
+      project_id: "project",
+      cluster_id: "router-ops",
+      question: "What config field exists?"
+    });
+    const payload = parseToolJson(result);
+
+    expect(result.isError).toBeFalsy();
+    expect(payload.answer).toBe("Cluster answer.");
+    expect(payload.used_fork).toBe(false);
+    expect(payload.tool_profile).toBe("bare");
+    expect(claude.lastOptions?.appendSystemPrompt).toContain("extraArgs exists");
+    fixture.cleanup();
+  });
 });
 
 class FakeServer {
@@ -206,7 +247,7 @@ class FakeClaude implements ClaudeAdapter {
   lastOptions: ClaudePromptOptions | undefined;
 
   constructor(
-    private readonly verifierResult: unknown = { facts: [] },
+    public verifierResult: unknown = { facts: [] },
     private readonly options: { failBareProbe?: boolean } = {}
   ) {}
 
@@ -230,7 +271,7 @@ class FakeClaude implements ClaudeAdapter {
     this.lastOptions = options;
     return {
       sessionId: "verifier-session",
-      result: JSON.stringify(this.verifierResult),
+      result: typeof this.verifierResult === "string" ? this.verifierResult : JSON.stringify(this.verifierResult),
       tokensIn: 10,
       tokensOut: 5
     };
