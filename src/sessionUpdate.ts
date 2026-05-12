@@ -6,20 +6,39 @@ export interface ParsedSessionUpdate {
 }
 
 const UPDATE_MARKER = "SESSION_UPDATE_JSON:";
+const UPDATE_MARKER_PATTERN = /(^|\n)[ \t]*(?:#{1,6}[ \t]*)?SESSION_UPDATE_JSON[ \t]*:?[ \t]*(?:\n|$)/g;
 
 export function parseSessionUpdate(response: string): ParsedSessionUpdate | null {
-  const markerIndex = response.lastIndexOf(UPDATE_MARKER);
-  if (markerIndex < 0) {
+  const marker = findLastUpdateMarker(response);
+  if (!marker) {
     return null;
   }
 
-  const answer = cleanAnswerBeforeMarker(response.slice(0, markerIndex));
-  const jsonText = normalizeUpdateJsonText(response.slice(markerIndex + UPDATE_MARKER.length));
+  const answer = cleanAnswerBeforeMarker(response.slice(0, marker.index));
+  const jsonText = normalizeUpdateJsonText(response.slice(marker.end));
   const parsed: any = JSON.parse(jsonText);
   return {
     answer,
     update: sanitizeSessionUpdate(parsed)
   };
+}
+
+function findLastUpdateMarker(response: string): { index: number; end: number } | null {
+  let lastMarker: { index: number; end: number } | null = null;
+  for (const match of response.matchAll(UPDATE_MARKER_PATTERN)) {
+    const leadingNewline = match[1] ?? "";
+    lastMarker = {
+      index: match.index + leadingNewline.length,
+      end: match.index + match[0].length
+    };
+  }
+
+  if (lastMarker) {
+    return lastMarker;
+  }
+
+  const legacyIndex = response.lastIndexOf(UPDATE_MARKER);
+  return legacyIndex >= 0 ? { index: legacyIndex, end: legacyIndex + UPDATE_MARKER.length } : null;
 }
 
 function cleanAnswerBeforeMarker(text: string): string {

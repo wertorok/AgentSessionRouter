@@ -12,6 +12,8 @@ export interface RouterConfig {
     maxConsultsPerHour: number;
     maxConsultsPerDay: number;
     maxTokensPerConsult: number;
+    tokenAnomalyRatio: number;
+    tokenAnomalyMinDelta: number;
   };
   lifecycle: {
     defaultDormantAfterDays: number;
@@ -26,6 +28,8 @@ export interface RouterConfig {
   claude: {
     command: string;
     outputFormat: string;
+    extraArgs: string[];
+    commandTimeoutMs: number;
     resumeFailureWindowMinutes: number;
     resumeFailureThreshold: number;
     compatibilityFile: string;
@@ -64,7 +68,9 @@ export function loadConfig(options: LoadConfigOptions): RouterConfig {
     limits: {
       maxConsultsPerHour: numberAt(limits, "max_consults_per_hour", DEFAULT_CONFIG.limits.maxConsultsPerHour),
       maxConsultsPerDay: numberAt(limits, "max_consults_per_day", DEFAULT_CONFIG.limits.maxConsultsPerDay),
-      maxTokensPerConsult: numberAt(limits, "max_tokens_per_consult", DEFAULT_CONFIG.limits.maxTokensPerConsult)
+      maxTokensPerConsult: numberAt(limits, "max_tokens_per_consult", DEFAULT_CONFIG.limits.maxTokensPerConsult),
+      tokenAnomalyRatio: numberAt(limits, "token_anomaly_ratio", DEFAULT_CONFIG.limits.tokenAnomalyRatio),
+      tokenAnomalyMinDelta: numberAt(limits, "token_anomaly_min_delta", DEFAULT_CONFIG.limits.tokenAnomalyMinDelta)
     },
     lifecycle: {
       defaultDormantAfterDays: numberAt(
@@ -91,6 +97,8 @@ export function loadConfig(options: LoadConfigOptions): RouterConfig {
     claude: {
       command: stringAt(claude, "command", DEFAULT_CONFIG.claude.command),
       outputFormat: stringAt(claude, "output_format", DEFAULT_CONFIG.claude.outputFormat),
+      extraArgs: stringArrayAt(claude, "extra_args", DEFAULT_CONFIG.claude.extraArgs),
+      commandTimeoutMs: numberAt(claude, "command_timeout_ms", DEFAULT_CONFIG.claude.commandTimeoutMs),
       resumeFailureWindowMinutes: numberAt(
         claude,
         "resume_failure_window_minutes",
@@ -132,6 +140,14 @@ function stringAt(source: TomlObject, key: string, fallback: string): string {
   return typeof value === "string" ? value : fallback;
 }
 
+function stringArrayAt(source: TomlObject, key: string, fallback: readonly string[]): string[] {
+  const value = source[key];
+  if (!Array.isArray(value) || !value.every((item) => typeof item === "string")) {
+    return [...fallback];
+  }
+  return [...value] as string[];
+}
+
 function numberAt(source: TomlObject, key: string, fallback: number): number {
   const value = source[key];
   return typeof value === "number" && Number.isFinite(value) ? value : fallback;
@@ -145,4 +161,3 @@ function booleanAt(source: TomlObject, key: string, fallback: boolean): boolean 
 function isObject(value: unknown): value is TomlObject {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
-

@@ -55,6 +55,8 @@ The MCP server stores an internal registry of Claude sessions. The actual Claude
 9. Concurrent writes to the same Claude session must be locked.
 10. Cost limits must fail closed.
 11. The local registry is the durable source of compact architectural memory, not Claude's volatile full context.
+12. MCP server cwd must be an explicit project directory, not a broad home/root directory.
+13. Claude CLI calls must be bounded by an operator-configurable timeout and observable when degraded.
 
 ---
 
@@ -170,9 +172,20 @@ If `session_id` is null:
     "files_discussed": ["src/auth/", "src/routes/oauth.ts"],
     "tags": ["auth", "oauth", "passport", "jwt"],
     "aliases": ["social login", "oauth login", "user identity provider"]
+  },
+  "diagnostics": {
+    "token_anomaly": {
+      "estimated_tokens": 1200,
+      "actual_tokens_in": 32000,
+      "ratio": 26.67,
+      "threshold_ratio": 4,
+      "min_delta": 20000
+    }
   }
 }
 ```
+
+`diagnostics.token_anomaly` is optional and appears only when Claude reports input token usage far above the router's prompt estimate.
 
 ---
 
@@ -758,6 +771,8 @@ The MCP server must prevent runaway Claude calls.
 max_consults_per_hour = 30
 max_consults_per_day = 200
 max_tokens_per_consult = 8000
+token_anomaly_ratio = 4.0
+token_anomaly_min_delta = 20000
 ```
 
 ### Behavior
@@ -843,6 +858,8 @@ health_check_failed
 health_probe_passed
 health_probe_failed
 unknown_claude_version
+broad_cwd_warning
+token_anomaly
 resume_systematic_failure
 degraded_mode_entered
 router_reset
@@ -1003,6 +1020,10 @@ claude -p --output-format json --resume <claude_session_id>
 ```txt
 claude -p --output-format json
 ```
+
+Operator-configured `claude.extra_args` are inserted after `-p` and before router-managed output/resume/prompt arguments. This is the supported place for Claude Code tool policy flags such as disabling tool access for consultation-only deployments.
+
+Every Claude CLI process must be bounded by `claude.command_timeout_ms`. Timeout failures enter the same degraded or invocation-failure diagnostic paths as other Claude command failures.
 
 The MCP server must parse Claude JSON output and extract the returned Claude session id.
 
@@ -1316,6 +1337,8 @@ raw_logs_dir = ".claude-session-router/raw"
 max_consults_per_hour = 30
 max_consults_per_day = 200
 max_tokens_per_consult = 8000
+token_anomaly_ratio = 4.0
+token_anomaly_min_delta = 20000
 
 [lifecycle]
 default_dormant_after_days = 30
@@ -1330,6 +1353,8 @@ threshold_low_confidence = 0.55
 [claude]
 command = "claude"
 output_format = "json"
+command_timeout_ms = 90000
+extra_args = []
 resume_failure_window_minutes = 60
 resume_failure_threshold = 5
 compatibility_file = "COMPATIBILITY.md"

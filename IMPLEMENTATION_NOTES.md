@@ -77,6 +77,14 @@
 - Degraded-mode diagnostics now classify `You've hit your limit` as `claude_usage_limit` with an operator action that says to wait for the reset time or switch to an account with available usage.
 - SESSION_UPDATE_JSON parsing now accepts the live Claude shape where the marker appears inside a fenced `json` block and ignores trailing prose/fence text after the first balanced JSON object.
 
+## Operational Isolation Hardening
+
+- Startup now logs `broad_cwd_warning` when the MCP process cwd is the filesystem root or the operator home directory; global MCP clients must set `cwd` to the target repository.
+- Claude CLI invocations now honor `claude.command_timeout_ms` for version probes, health probes, and consult calls, preventing unbounded startup or tool-call hangs.
+- `claude.extra_args` allows operator-managed Claude Code tool policy without hardcoding a policy in the router.
+- Consult responses and `session_events` now surface `token_anomaly` when reported Claude input tokens exceed both the ratio and minimum-delta thresholds, which helps detect accidental context bleed without flagging normal Claude Code baseline overhead.
+- `scripts/post-install-smoke.mjs` provides a stubbed post-install MCP smoke test that verifies project-scoped cwd inheritance, event persistence, raw log location, and optional Codex config cwd safety.
+
 ## Publication Readiness Review
 
 - Helper documentation audit confirmed the release-facing docs needed verified compatibility, stale quota-note cleanup, generic MCP client paths, GitHub metadata, and post-fix live evidence in README.

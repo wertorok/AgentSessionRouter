@@ -32,17 +32,17 @@ export class CliClaudeAdapter implements ClaudeAdapter {
   constructor(private readonly config: RouterConfig) {}
 
   async getVersion(): Promise<string> {
-    return (await runCommand(this.config.claude.command, ["--version"])).trim();
+    return (await runCommand(this.config.claude.command, ["--version"], this.config.claude.commandTimeoutMs)).trim();
   }
 
   async runPrompt(prompt: string, resumeSessionId?: string): Promise<ClaudeJsonResponse> {
-    const args = ["-p", "--output-format", this.config.claude.outputFormat];
+    const args = ["-p", ...this.config.claude.extraArgs, "--output-format", this.config.claude.outputFormat];
     if (resumeSessionId) {
       args.push("--resume", resumeSessionId);
     }
     args.push(prompt);
 
-    const stdout = await runCommand(this.config.claude.command, args);
+    const stdout = await runCommand(this.config.claude.command, args, this.config.claude.commandTimeoutMs);
     return parseClaudeJson(stdout);
   }
 
@@ -178,7 +178,7 @@ function objectField(source: Record<string, unknown>, key: string): Record<strin
   return isObject(value) ? value : {};
 }
 
-function runCommand(command: string, args: string[]): Promise<string> {
+function runCommand(command: string, args: string[], timeoutMs: number): Promise<string> {
   return new Promise((resolve, reject) => {
     const child = spawn(command, args, {
       stdio: ["pipe", "pipe", "pipe"],
@@ -187,6 +187,21 @@ function runCommand(command: string, args: string[]): Promise<string> {
 
     let stdout = "";
     let stderr = "";
+    let timedOut = false;
+    let killTimer: NodeJS.Timeout | null = null;
+    const timer =
+      timeoutMs > 0
+        ? setTimeout(() => {
+            timedOut = true;
+            child.kill("SIGTERM");
+            killTimer = setTimeout(() => {
+              child.kill("SIGKILL");
+            }, 2_000);
+            killTimer.unref();
+          }, timeoutMs)
+        : null;
+    timer?.unref();
+
     child.stdout.setEncoding("utf8");
     child.stderr.setEncoding("utf8");
     child.stdout.on("data", (chunk) => {
@@ -195,17 +210,43 @@ function runCommand(command: string, args: string[]): Promise<string> {
     child.stderr.on("data", (chunk) => {
       stderr += chunk;
     });
-    child.on("error", reject);
+    child.on("error", (error) => {
+      if (timer) {
+        clearTimeout(timer);
+      }
+      if (killTimer) {
+        clearTimeout(killTimer);
+      }
+      reject(error);
+    });
     child.on("close", (code) => {
+      if (timer) {
+        clearTimeout(timer);
+      }
+      if (killTimer) {
+        clearTimeout(killTimer);
+      }
+      if (timedOut) {
+        reject(
+          new Error(
+            `Command timed out after ${timeoutMs}ms: ${command} ${formatArgsForError(args)}`
+          )
+        );
+        return;
+      }
       if (code === 0) {
         resolve(stdout);
         return;
       }
       const jsonError = extractClaudeJsonError(stdout);
-      reject(new Error(`Command failed: ${command} ${args.join(" ")}\n${jsonError ?? stderr ?? stdout}`.trim()));
+      reject(new Error(`Command failed: ${command} ${formatArgsForError(args)}\n${jsonError ?? stderr ?? stdout}`.trim()));
     });
     child.stdin.end();
   });
+}
+
+function formatArgsForError(args: string[]): string {
+  return args.map((arg) => (arg.length > 200 ? `[arg length=${arg.length}]` : arg)).join(" ");
 }
 
 function extractClaudeJsonError(stdout: string): string | null {

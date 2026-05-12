@@ -16,6 +16,8 @@ export const EVENT_TYPES = [
   "health_probe_passed",
   "health_probe_failed",
   "unknown_claude_version",
+  "broad_cwd_warning",
+  "token_anomaly",
   "resume_systematic_failure",
   "degraded_mode_entered",
   "router_reset"
@@ -45,7 +47,9 @@ export const DEFAULT_CONFIG = {
   limits: {
     maxConsultsPerHour: 30,
     maxConsultsPerDay: 200,
-    maxTokensPerConsult: 8000
+    maxTokensPerConsult: 8000,
+    tokenAnomalyRatio: 4,
+    tokenAnomalyMinDelta: 20_000
   },
   lifecycle: {
     defaultDormantAfterDays: 30,
@@ -60,9 +64,10 @@ export const DEFAULT_CONFIG = {
   claude: {
     command: "claude",
     outputFormat: "json",
+    extraArgs: [],
+    commandTimeoutMs: 90_000,
     resumeFailureWindowMinutes: 60,
     resumeFailureThreshold: 5,
     compatibilityFile: "COMPATIBILITY.md"
   }
 } as const;
-

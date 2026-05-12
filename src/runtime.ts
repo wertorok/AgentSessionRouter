@@ -1,4 +1,6 @@
 import { mkdirSync } from "node:fs";
+import os from "node:os";
+import path from "node:path";
 import type { ClaudeAdapter, HealthProbeResult } from "./claude.js";
 import { CliClaudeAdapter } from "./claude.js";
 import type { RouterConfig } from "./config.js";
@@ -39,9 +41,24 @@ export class RouterRuntime {
 
   async boot(): Promise<void> {
     mkdirSync(this.config.storage.rawLogsDir, { recursive: true });
+    this.warnIfBroadCwd();
     this.startLifecycleMaintenance();
     const probe = await this.claude.healthProbe();
     this.applyHealthProbe(probe, "startup");
+  }
+
+  private warnIfBroadCwd(): void {
+    const warning = broadCwdWarning(this.cwd);
+    if (!warning) {
+      return;
+    }
+
+    this.db.logEvent({
+      projectId: "router",
+      eventType: "broad_cwd_warning",
+      error: warning
+    });
+    this.logger.warn("broad_cwd_warning", { cwd: this.cwd, warning });
   }
 
   startLifecycleMaintenance(): void {
@@ -119,7 +136,7 @@ export class RouterRuntime {
 }
 
 export async function createRuntime(options: RuntimeOptions = {}): Promise<RouterRuntime> {
-  const cwd = options.cwd ?? process.cwd();
+  const cwd = path.resolve(options.cwd ?? process.cwd());
   const clock = options.clock ?? systemClock;
   const log = options.logger ?? defaultLogger;
   const config = loadConfig({ cwd, configPath: options.configPath });
@@ -129,4 +146,15 @@ export async function createRuntime(options: RuntimeOptions = {}): Promise<Route
   const runtime = new RouterRuntime(cwd, config, db, claude, locks, clock, log);
   await runtime.boot();
   return runtime;
+}
+
+function broadCwdWarning(cwd: string): string | null {
+  const normalized = path.resolve(cwd);
+  if (normalized === path.parse(normalized).root) {
+    return `MCP cwd points at filesystem root (${normalized}); set cwd to the repository directory for project isolation.`;
+  }
+  if (normalized === path.resolve(os.homedir())) {
+    return `MCP cwd points at the home directory (${normalized}); set cwd to the repository directory for project isolation.`;
+  }
+  return null;
 }

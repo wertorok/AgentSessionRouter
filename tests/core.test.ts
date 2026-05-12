@@ -1,8 +1,8 @@
-import { mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { chmodSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { parseClaudeJson } from "../src/claude.js";
+import { CliClaudeAdapter, parseClaudeJson } from "../src/claude.js";
 import { loadConfig } from "../src/config.js";
 import { MemoryLockProvider } from "../src/locks.js";
 import { findBestSessionMatch, normalizeTokens } from "../src/matching.js";
@@ -31,6 +31,31 @@ describe("core utilities", () => {
     expect(config.storage.dbPath).toBe(path.join(configDir, "data", "sessions.sqlite"));
     expect(config.storage.rawLogsDir).toBe(path.join(configDir, "raw"));
     expect(config.claude.compatibilityFile).toBe(path.join(configDir, "COMPATIBILITY.md"));
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  it("loads Claude CLI policy and anomaly threshold config", () => {
+    const dir = makeTempDir("config-cli-policy");
+    mkdirSync(dir, { recursive: true });
+    const configPath = path.join(dir, "router.config.toml");
+    writeFileSync(
+      configPath,
+      [
+        "[limits]",
+        "token_anomaly_ratio = 2.5",
+        "token_anomaly_min_delta = 5000",
+        "[claude]",
+        "extra_args = [\"--tools\", \"\", \"--permission-mode\", \"default\"]",
+        "command_timeout_ms = 1500"
+      ].join("\n")
+    );
+
+    const config = loadConfig({ cwd: dir });
+
+    expect(config.limits.tokenAnomalyRatio).toBe(2.5);
+    expect(config.limits.tokenAnomalyMinDelta).toBe(5000);
+    expect(config.claude.extraArgs).toEqual(["--tools", "", "--permission-mode", "default"]);
+    expect(config.claude.commandTimeoutMs).toBe(1500);
     rmSync(dir, { recursive: true, force: true });
   });
 
@@ -185,6 +210,26 @@ SESSION_UPDATE_JSON:
     expect(parsed?.update.aliases).toEqual(["fenced marker"]);
   });
 
+  it("parses SESSION_UPDATE_JSON when Claude formats the marker as a markdown heading", () => {
+    const parsed = parseSessionUpdate(`Answer text.
+
+### SESSION_UPDATE_JSON
+\`\`\`json
+{
+  "summary": "Markdown heading marker should parse.",
+  "decisions": ["Accept heading marker"],
+  "open_questions": [],
+  "files_discussed": ["src/sessionUpdate.ts"],
+  "tags": ["Router"],
+  "aliases": []
+}
+\`\`\``);
+
+    expect(parsed?.answer).toBe("Answer text.");
+    expect(parsed?.update.summary).toBe("Markdown heading marker should parse.");
+    expect(parsed?.update.decisions).toEqual(["Accept heading marker"]);
+  });
+
   it("ignores trailing prose after SESSION_UPDATE_JSON", () => {
     const parsed = parseSessionUpdate(`Answer text.
 
@@ -216,6 +261,61 @@ Extra text from Claude.`);
 
     expect(parsed.tokensIn).toBe(12);
     expect(parsed.tokensOut).toBe(34);
+  });
+
+  it("passes configured Claude CLI extra args before router-managed output args", async () => {
+    const dir = makeTempDir("claude-extra-args");
+    mkdirSync(dir, { recursive: true });
+    const argsPath = path.join(dir, "args.json");
+    const scriptPath = path.join(dir, "fake-claude.mjs");
+    writeFileSync(
+      scriptPath,
+      [
+        "#!/usr/bin/env node",
+        "import { writeFileSync } from 'node:fs';",
+        `const argsPath = ${JSON.stringify(argsPath)};`,
+        "const args = process.argv.slice(2);",
+        "if (args.includes('--version')) { console.log('1.0.0'); process.exit(0); }",
+        "writeFileSync(argsPath, JSON.stringify(args));",
+        "console.log(JSON.stringify({ session_id: 'fake-session', result: 'ok' }));"
+      ].join("\n")
+    );
+    chmodSync(scriptPath, 0o755);
+    const config = loadConfig({ cwd: dir });
+    config.claude.command = scriptPath;
+    config.claude.extraArgs = ["--tools", "", "--permission-mode", "default"];
+    const adapter = new CliClaudeAdapter(config);
+
+    await adapter.runPrompt("hello", "resume-id");
+
+    expect(JSON.parse(readFileSync(argsPath, "utf8"))).toEqual([
+      "-p",
+      "--tools",
+      "",
+      "--permission-mode",
+      "default",
+      "--output-format",
+      "json",
+      "--resume",
+      "resume-id",
+      "hello"
+    ]);
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  it("bounds Claude CLI command latency with a timeout", async () => {
+    const dir = makeTempDir("claude-timeout");
+    mkdirSync(dir, { recursive: true });
+    const scriptPath = path.join(dir, "slow-claude.mjs");
+    writeFileSync(scriptPath, ["#!/usr/bin/env node", "setTimeout(() => {}, 10_000);"].join("\n"));
+    chmodSync(scriptPath, 0o755);
+    const config = loadConfig({ cwd: dir });
+    config.claude.command = scriptPath;
+    config.claude.commandTimeoutMs = 30;
+    const adapter = new CliClaudeAdapter(config);
+
+    await expect(adapter.runPrompt("ping")).rejects.toThrow("Command timed out after 30ms");
+    rmSync(dir, { recursive: true, force: true });
   });
 
   it("serializes memory locks per key", async () => {

@@ -27,10 +27,16 @@ Implemented MVP tools:
 
 Validation performed:
 
-- Unit/integration tests: `23 passed`
+- Unit/integration tests: `28 passed`
 - Live MCP stdio E2E: `LIVE_CONSULT_PASS`
 - Live matrix run: committed as `LIVE_TEST_LOG.md`
 - Post-fix targeted live rerun: `TARGETED_RERUN_PASS`
+- Post-install smoke: stub and live modes pass on Linux with Claude Code `2.1.92`
+
+Research and next-architecture docs:
+
+- `docs/EXPERIMENTS.md`
+- `docs/CLUSTER_CACHE_SPEC.md`
 
 The full live matrix found three important issues: duplicate same-topic concurrent sessions, archive/consult races, and incomplete token extraction for current Claude JSON. Those were fixed in `c24986c` and verified by `LIVE_TARGETED_RERUN.md`.
 
@@ -72,6 +78,14 @@ node dist/src/index.js
 
 The process uses stdio for MCP transport. Do not expect normal logs on stdout; stdout is reserved for MCP protocol messages. Operational logs go to stderr.
 
+Run the post-install isolation smoke test after building:
+
+```powershell
+npm run smoke:postinstall
+```
+
+The default smoke test uses a stub Claude CLI, starts the real MCP server in a temporary project cwd, verifies a consult round trip, and confirms registry/raw logs stay under that project. Use `npm run smoke:postinstall:live` only when you intentionally want it to call the real Claude CLI.
+
 ## MCP Client Configuration
 
 Use the built server entry point:
@@ -89,13 +103,26 @@ Generic MCP server config shape:
       "command": "node",
       "args": [
         "C:\\path\\to\\AgentSessionRouter\\dist\\src\\index.js"
-      ]
+      ],
+      "cwd": "C:\\path\\to\\your-project"
     }
   }
 }
 ```
 
 For project-specific behavior, start the MCP server with its working directory set to the project you want to route for. If `project_id` is omitted in tool calls, the server derives it from the Git root directory name, or from the cwd basename if no Git root exists.
+
+For global clients such as Codex, do not leave the MCP `cwd` at your home directory. Configure each MCP entry with the repository directory it should serve:
+
+```toml
+[mcp_servers.claude-session-router]
+command = "node"
+args = ["/root/projects/AgentSessionRouter/dist/src/index.js"]
+cwd = "/root/projects/your-project"
+startup_timeout_sec = 180
+```
+
+If you need the router available in several projects, run one MCP server entry per project with a distinct `cwd`. A shared SQLite registry is supported by using absolute `storage.db_path` and `storage.raw_logs_dir`, but routing remains project-scoped by `project_id`.
 
 ## Configuration
 
@@ -112,6 +139,8 @@ raw_logs_dir = ".claude-session-router/raw"
 max_consults_per_hour = 30
 max_consults_per_day = 200
 max_tokens_per_consult = 8000
+token_anomaly_ratio = 4.0
+token_anomaly_min_delta = 20000
 
 [lifecycle]
 default_dormant_after_days = 30
@@ -126,6 +155,8 @@ threshold_low_confidence = 0.55
 [claude]
 command = "claude"
 output_format = "json"
+command_timeout_ms = 90000
+extra_args = []
 resume_failure_window_minutes = 60
 resume_failure_threshold = 5
 compatibility_file = "COMPATIBILITY.md"
@@ -141,6 +172,15 @@ By default, registry files live under the current project:
 ```
 
 To share one registry across multiple launched server cwd values, set absolute `db_path` and `raw_logs_dir` values in each config.
+
+`claude.extra_args` is appended to every `claude -p` invocation before the router-managed `--output-format`, `--resume`, and prompt arguments. This lets operators choose their Claude Code tool policy. For example, to force answer-only consultations:
+
+```toml
+[claude]
+extra_args = ["--tools", ""]
+```
+
+`claude.command_timeout_ms` bounds each Claude CLI command, including startup health probes and consult calls. Set the MCP client's startup timeout above this value plus process startup overhead.
 
 ## Compatibility
 
@@ -170,6 +210,15 @@ If the probe fails, the server starts in degraded mode. In degraded mode:
 - `claude_session_archive` works
 - `claude_router_reset` can attempt recovery
 - `claude_consult` returns `CLAUDE_INCOMPATIBLE`
+
+## Isolation Diagnostics
+
+The router records isolation and context-drift signals in `session_events`:
+
+- `broad_cwd_warning`: startup cwd is the filesystem root or home directory. Set MCP `cwd` to the target repository.
+- `token_anomaly`: Claude reported input tokens above both `token_anomaly_ratio` and `token_anomaly_min_delta`. Inspect the event's `error`, `tokens_in`, and recent consult context to check for accidental context bleed.
+
+`claude_session_inspect` includes recent event `duration_ms` and `error` fields so these diagnostics are visible without opening SQLite directly.
 
 ## Tools
 

@@ -217,6 +217,37 @@ describe("claude_consult service", () => {
     fixture.cleanup();
   });
 
+  it("logs and returns diagnostics for suspicious Claude input token inflation", async () => {
+    const fixture = createRuntimeFixture();
+    fixture.runtime.config.limits.tokenAnomalyRatio = 1.1;
+    fixture.claude.tokensIn = 100_000;
+    const service = new ConsultService(fixture.runtime, fixture.runtime.locks);
+
+    const result = await service.consult(baseInput());
+
+    expect("error" in result).toBe(false);
+    if ("error" in result) {
+      throw new Error("unexpected error");
+    }
+    expect(result.diagnostics?.token_anomaly?.actual_tokens_in).toBe(100_000);
+    expect(result.diagnostics?.token_anomaly?.min_delta).toBe(20_000);
+    const eventTypes = fixture.runtime.db.inspectSession(result.session_id, 10)?.recentEvents.map((event) => event.event_type);
+    expect(eventTypes).toContain("token_anomaly");
+    fixture.cleanup();
+  });
+
+  it("logs broad cwd warnings during boot", async () => {
+    const fixture = createRuntimeFixture(os.homedir());
+
+    await fixture.runtime.boot();
+
+    const warning = fixture.runtime.db.db
+      .prepare("SELECT event_type, error FROM session_events WHERE event_type = 'broad_cwd_warning'")
+      .get() as { event_type: string; error: string } | undefined;
+    expect(warning?.error).toContain("home directory");
+    fixture.cleanup();
+  });
+
   it("returns incompatible when runtime is degraded", async () => {
     const fixture = createRuntimeFixture();
     fixture.runtime.degradedMode = true;
@@ -257,6 +288,8 @@ describe("claude_consult service", () => {
 class FakeClaude implements ClaudeAdapter {
   existingSessions = new Set<string>();
   lastResumeSessionId: string | undefined;
+  tokensIn = 100;
+  tokensOut = 50;
 
   async getVersion(): Promise<string> {
     return "VERSION_A";
@@ -277,8 +310,8 @@ SESSION_UPDATE_JSON:
   "tags": ["auth", "oauth"],
   "aliases": ["social login"]
 }`,
-      tokensIn: 100,
-      tokensOut: 50
+      tokensIn: this.tokensIn,
+      tokensOut: this.tokensOut
     };
   }
 
@@ -330,7 +363,7 @@ function baseInput() {
   };
 }
 
-function createRuntimeFixture(): {
+function createRuntimeFixture(runtimeCwd?: string): {
   runtime: RouterRuntime;
   claude: FakeClaude;
   cleanup: () => void;
@@ -341,7 +374,7 @@ function createRuntimeFixture(): {
   const config = loadConfig({ cwd: dir });
   const db = RouterDatabase.open(config.storage.dbPath, clock);
   const claude = new FakeClaude();
-  const runtime = new RouterRuntime(dir, config, db, claude, new MemoryLockProvider(), clock, new NoopLogger());
+  const runtime = new RouterRuntime(runtimeCwd ?? dir, config, db, claude, new MemoryLockProvider(), clock, new NoopLogger());
 
   return {
     runtime,

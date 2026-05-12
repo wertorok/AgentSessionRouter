@@ -52,6 +52,8 @@ export interface RecentEventView {
   match_reason: string | null;
   tokens_in: number | null;
   tokens_out: number | null;
+  duration_ms: number | null;
+  error: string | null;
 }
 
 export interface SessionUpdateData {
@@ -248,7 +250,7 @@ export class RouterDatabase {
 
     const recentEvents = this.db
       .prepare(
-        `SELECT event_type, created_at, match_score, match_reason, tokens_in, tokens_out
+        `SELECT event_type, created_at, match_score, match_reason, tokens_in, tokens_out, duration_ms, error
          FROM session_events
          WHERE session_id = ?
          ORDER BY id DESC

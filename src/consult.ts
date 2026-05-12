@@ -36,6 +36,9 @@ export interface ConsultSuccess {
     code: typeof ERROR_CODES.SESSION_UPDATE_PARSE_FAILED;
     message: string;
   };
+  diagnostics?: {
+    token_anomaly?: TokenAnomalyDiagnostic;
+  };
 }
 
 export type ConsultResult = ConsultSuccess | ErrorPayload;
@@ -166,6 +169,21 @@ export class ConsultService {
       if (parsedUpdate.update) {
         this.runtime.db.applySessionUpdate(sessionId, parsedUpdate.update);
       }
+      const tokensIn = claudeResponse.tokensIn ?? estimatedTokens;
+      const tokensOut = claudeResponse.tokensOut ?? estimateTokens(parsedUpdate.answer);
+      const tokenAnomaly = this.detectTokenAnomaly(estimatedTokens, tokensIn);
+      if (tokenAnomaly) {
+        this.runtime.db.logEvent({
+          sessionId,
+          projectId: input.projectId,
+          eventType: "token_anomaly",
+          question: input.question,
+          tokensIn,
+          tokensOut,
+          durationMs,
+          error: `actual_tokens_in=${tokensIn} estimated_tokens=${estimatedTokens} ratio=${tokenAnomaly.ratio.toFixed(2)} threshold_ratio=${tokenAnomaly.threshold_ratio} min_delta=${tokenAnomaly.min_delta}`
+        });
+      }
 
       this.runtime.db.logEvent({
         sessionId,
@@ -178,8 +196,8 @@ export class ConsultService {
         matchReason: route.matchReason,
         wasNewSession: !route.selectedSession,
         wasOrphanRecovery: route.wasOrphanRecovery,
-        tokensIn: claudeResponse.tokensIn ?? estimatedTokens,
-        tokensOut: claudeResponse.tokensOut ?? estimateTokens(parsedUpdate.answer),
+        tokensIn,
+        tokensOut,
         durationMs
       });
 
@@ -196,7 +214,8 @@ export class ConsultService {
           was_orphan_recovery: route.wasOrphanRecovery
         },
         ...(parsedUpdate.update ? { session_update: parsedUpdate.update } : {}),
-        ...(parsedUpdate.warning ? { warning: parsedUpdate.warning } : {})
+        ...(parsedUpdate.warning ? { warning: parsedUpdate.warning } : {}),
+        ...(tokenAnomaly ? { diagnostics: { token_anomaly: tokenAnomaly } } : {})
       };
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
@@ -506,6 +525,25 @@ export class ConsultService {
     writeFileSync(filePath, rawResponse, "utf8");
     return filePath;
   }
+
+  private detectTokenAnomaly(estimatedTokens: number, actualTokensIn: number): TokenAnomalyDiagnostic | null {
+    const thresholdRatio = this.runtime.config.limits.tokenAnomalyRatio;
+    const minDelta = this.runtime.config.limits.tokenAnomalyMinDelta;
+    if (thresholdRatio <= 0) {
+      return null;
+    }
+    const ratio = actualTokensIn / Math.max(estimatedTokens, 1);
+    if (ratio <= thresholdRatio || actualTokensIn - estimatedTokens <= minDelta) {
+      return null;
+    }
+    return {
+      estimated_tokens: estimatedTokens,
+      actual_tokens_in: actualTokensIn,
+      ratio,
+      threshold_ratio: thresholdRatio,
+      min_delta: minDelta
+    };
+  }
 }
 
 interface RouteResolution {
@@ -524,6 +562,14 @@ interface ParsedUpdateResult {
     code: typeof ERROR_CODES.SESSION_UPDATE_PARSE_FAILED;
     message: string;
   };
+}
+
+interface TokenAnomalyDiagnostic {
+  estimated_tokens: number;
+  actual_tokens_in: number;
+  ratio: number;
+  threshold_ratio: number;
+  min_delta: number;
 }
 
 function estimateTokens(text: string): number {
