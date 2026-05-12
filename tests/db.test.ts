@@ -84,16 +84,16 @@ describe("database registry", () => {
       id: "factsheet-1",
       clusterId: "router-ops",
       contentJson: JSON.stringify({ facts: [{ id: "f1" }] }),
-      status: "verified",
-      trustState: "verified",
+      status: "static_verified",
+      trustState: "static_verified",
       fileHashes: [{ path: "src/config.ts", hash: "sha256:one", fileSize: 10 }]
     });
     const second = fixture.db.insertClusterFactsheet({
       id: "factsheet-2",
       clusterId: "router-ops",
       contentJson: JSON.stringify({ facts: [{ id: "f2" }] }),
-      status: "verified",
-      trustState: "partial",
+      status: "static_verified",
+      trustState: "partial_static",
       fileHashes: [{ path: "src/tools.ts", hash: "sha256:two", fileSize: 20 }]
     });
 
@@ -103,7 +103,7 @@ describe("database registry", () => {
     expect(fixture.db.listClusterFileHashes("factsheet-2")).toMatchObject([
       { cluster_id: "router-ops", factsheet_id: "factsheet-2", path: "src/tools.ts", hash: "sha256:two" }
     ]);
-    expect(fixture.db.getCluster("project", "router-ops")?.trust_state).toBe("partial");
+    expect(fixture.db.getCluster("project", "router-ops")?.trust_state).toBe("partial_static");
     fixture.cleanup();
   });
 });

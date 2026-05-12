@@ -41,7 +41,7 @@ Current implementation status:
 - Implemented early for observability: read-only `cluster_get` and `cluster_list`.
 - Not implemented yet: LLM verifier, bare probe/profile builder, `cluster_consult`, fork baseline, refresh/invalidation, and distillation from existing sessions.
 
-The current `cluster_prepare` accepts direct factsheet JSON and stores only facts whose evidence passes deterministic local checks. It does not invoke Claude.
+The current `cluster_prepare` accepts direct factsheet JSON and stores only facts whose evidence passes deterministic local checks. It does not invoke Claude. These factsheets are marked `static_verified`, not `llm_verified`, because static checks prove evidence existence but not full semantic correctness.
 
 ## 3. Core Terms
 
@@ -115,8 +115,10 @@ Allowed `status` values:
 Allowed `trust_state` values:
 
 - `unprepared`
-- `verified`
-- `partial`
+- `static_verified`
+- `llm_verified`
+- `partial_static`
+- `partial_llm`
 - `untrusted`
 
 ### `cluster_factsheets`
@@ -140,7 +142,8 @@ CREATE TABLE cluster_factsheets (
 Allowed `status` values:
 
 - `draft`
-- `verified`
+- `static_verified`
+- `llm_verified`
 - `rejected`
 - `stale`
 
@@ -181,7 +184,10 @@ Suggested event types:
 
 - `cluster_created`
 - `factsheet_generated`
-- `factsheet_verified`
+- `factsheet_static_verified`
+- `factsheet_partially_static_verified`
+- `factsheet_llm_verified`
+- `factsheet_partially_llm_verified`
 - `factsheet_rejected`
 - `factsheet_stale`
 - `baseline_created`
@@ -204,7 +210,7 @@ Factsheets are structured JSON, not free prose.
     {
       "id": "fact.routerconfig.claude.extra_args",
       "claim": "RouterConfig.claude.extraArgs exists and is appended before router-managed output/resume/prompt args.",
-      "confidence": "verified",
+      "confidence": "static_verified",
       "evidence": [
         {
           "path": "src/config.ts",
@@ -234,11 +240,12 @@ Factsheets are structured JSON, not free prose.
 
 Allowed fact confidence values:
 
-- `verified`
+- `static_verified`
+- `llm_verified`
 - `ambiguous`
 - `unverified`
 
-Only `verified` facts are injected into `bare` consult prompts by default.
+Only `llm_verified` facts are injected into `bare` consult prompts by default after Phase 2. During Phase 1, `static_verified` factsheets are inspectable and seedable but should not be treated as final semantic truth.
 
 ## 7. Tool Profiles
 
@@ -374,7 +381,7 @@ Only `VERIFIED` facts are promoted into the stored factsheet.
 
 Before every `cluster_consult`:
 
-- Check factsheet status is `verified`.
+- Check factsheet status is `llm_verified` for normal consults, or explicitly allow `static_verified` while Phase 2 is not implemented.
 - Check all scoped file hashes.
 - Check baseline session exists if fork is requested.
 - Check selected tool profile is available.
@@ -419,7 +426,7 @@ Output:
   "cluster_id": "config-and-cwd-isolation",
   "factsheet_id": "factsheet_...",
   "factsheet_version": 1,
-  "trust_state": "verified",
+  "trust_state": "llm_verified",
   "baseline_session_id": "claude-session-id-or-null",
   "verified_facts": 12,
   "rejected_facts": 3
@@ -448,14 +455,14 @@ Output:
     "id": "config-and-cwd-isolation",
     "project_id": "AgentSessionRouter",
     "status": "active",
-    "trust_state": "verified",
+    "trust_state": "llm_verified",
     "tool_profile_default": "bare",
     "baseline_session_id": "..."
   },
   "factsheet": {
     "id": "factsheet_...",
     "version": 1,
-    "status": "verified",
+    "status": "llm_verified",
     "verified_at": "2026-05-12T00:00:00.000Z",
     "content": {}
   }
@@ -559,7 +566,7 @@ Output:
     {
       "id": "config-and-cwd-isolation",
       "status": "active",
-      "trust_state": "verified",
+      "trust_state": "llm_verified",
       "tool_profile_default": "bare",
       "factsheet_version": 1,
       "baseline_session_id": "..."
@@ -806,7 +813,7 @@ Out of MVP. Consider only after explicit cluster id flow is stable.
 MVP is acceptable when:
 
 - Existing v1 tools still pass all tests.
-- A cluster can be created with a verified factsheet.
+- A cluster can be created with a `static_verified` factsheet in Phase 1 and an `llm_verified` factsheet after Phase 2.
 - `cluster_consult` with `bare` profile succeeds when bare probe passes.
 - If bare probe fails, `cluster_consult` uses focused profile and records downgrade.
 - `cluster_consult` refuses stale factsheet by default.

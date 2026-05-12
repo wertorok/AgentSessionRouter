@@ -47,12 +47,15 @@ describe("cluster factsheet preparation", () => {
     const stored = fixture.db.getCurrentClusterFactsheet("config-and-cwd-isolation");
     const content = JSON.parse(stored?.content_json ?? "{}") as { facts?: unknown[] };
 
-    expect(result.trust_state).toBe("partial");
+    expect(result.verification_stage).toBe("static");
+    expect(result.trust_state).toBe("partial_static");
     expect(result.verified_facts).toBe(1);
     expect(result.rejected_facts).toBe(1);
+    expect(result.factsheet.facts[0]?.confidence).toBe("static_verified");
     expect(result.factsheet.facts[0]?.evidence[0]?.hash).toMatch(/^sha256:/);
     expect(content.facts).toHaveLength(1);
-    expect(fixture.db.getCluster("project", "config-and-cwd-isolation")?.trust_state).toBe("partial");
+    expect(fixture.db.getCluster("project", "config-and-cwd-isolation")?.trust_state).toBe("partial_static");
+    expect(stored?.status).toBe("static_verified");
     expect(stored?.version).toBe(1);
     expect(fixture.db.listClusterFileHashes(stored!.id)).toMatchObject([{ path: "src/config.ts" }]);
     fixture.cleanup();

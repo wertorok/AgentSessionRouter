@@ -263,7 +263,7 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
     {
       title: "Prepare cluster factsheet",
       description:
-        "Stores a statically verified cluster factsheet. This MVP does not invoke Claude; every fact must cite local evidence.",
+        "Stores a static_verified cluster factsheet. This MVP does not invoke Claude; every fact must cite local evidence.",
       inputSchema: clusterPrepareInput
     },
     async (input) => {
@@ -304,7 +304,7 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
     "cluster_get",
     {
       title: "Get cluster",
-      description: "Returns cluster metadata and the current verified factsheet without invoking Claude.",
+      description: "Returns cluster metadata and the current static_verified or llm_verified factsheet without invoking Claude.",
       inputSchema: clusterGetInput
     },
     async (input) => {

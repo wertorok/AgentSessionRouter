@@ -50,8 +50,10 @@ describe("cluster MCP tools", () => {
     const list = parseToolJson(await server.call("cluster_list", { project_id: "project" }));
 
     expect(prepare.isError).toBeFalsy();
-    expect(prepared.trust_state).toBe("verified");
-    expect(get.cluster.trust_state).toBe("verified");
+    expect(prepared.verification_stage).toBe("static");
+    expect(prepared.trust_state).toBe("static_verified");
+    expect(get.cluster.trust_state).toBe("static_verified");
+    expect(get.current_factsheet.status).toBe("static_verified");
     expect(get.current_factsheet.content.facts).toHaveLength(1);
     expect(get.file_hashes).toHaveLength(1);
     expect(list.clusters).toHaveLength(1);

@@ -399,7 +399,7 @@ Failure:
 
 ### `cluster_prepare`
 
-Stores a statically verified cluster factsheet. This tool does not invoke Claude in the current phase. Every fact must cite a relative local file path, and optional selectors/hashes must match the current file content.
+Stores a `static_verified` cluster factsheet. This tool does not invoke Claude in the current phase. Every fact must cite a relative local file path, and optional selectors/hashes must match the current file content. This proves evidence existence, not final semantic correctness; the later LLM verifier phase will promote factsheets to `llm_verified`.
 
 Input:
 
@@ -436,17 +436,18 @@ Output:
   "cluster_id": "config-and-cwd-isolation",
   "factsheet_id": "factsheet_...",
   "factsheet_version": 1,
-  "trust_state": "verified",
+  "verification_stage": "static",
+  "trust_state": "static_verified",
   "verified_facts": 1,
   "rejected_facts": 0
 }
 ```
 
-If some facts fail static verification but at least one fact is valid, the factsheet is stored with only the verified facts and cluster `trust_state` is `partial`. If no facts verify, the tool returns `CLUSTER_FACTSHEET_INVALID`.
+If some facts fail static verification but at least one fact is valid, the factsheet is stored with only the statically verified facts and cluster `trust_state` is `partial_static`. If no facts verify, the tool returns `CLUSTER_FACTSHEET_INVALID`.
 
 ### `cluster_get`
 
-Returns cluster metadata, the current verified factsheet, and the scoped file hashes without invoking Claude.
+Returns cluster metadata, the current `static_verified` or `llm_verified` factsheet, and the scoped file hashes without invoking Claude.
 
 Input:
 
@@ -654,8 +655,10 @@ Cluster-cache actions write to `cluster_events`. Current event types:
 
 ```txt
 cluster_created
-factsheet_verified
-factsheet_partially_verified
+factsheet_static_verified
+factsheet_partially_static_verified
+factsheet_llm_verified
+factsheet_partially_llm_verified
 factsheet_rejected
 ```
 

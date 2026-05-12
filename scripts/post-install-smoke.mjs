@@ -129,7 +129,7 @@ try {
   }
 
   record("sqlite_events_written", sqliteEventTypes().includes("new_session"), { event_types: sqliteEventTypes() });
-  record("sqlite_cluster_events_written", sqliteClusterEventTypes().includes("factsheet_verified"), {
+  record("sqlite_cluster_events_written", sqliteClusterEventTypes().includes("factsheet_static_verified"), {
     event_types: sqliteClusterEventTypes()
   });
   record(

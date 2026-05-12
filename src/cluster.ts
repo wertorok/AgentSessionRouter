@@ -32,7 +32,7 @@ export interface VerifiedFactsheet {
   facts: Array<{
     id: string;
     claim: string;
-    confidence: "verified";
+    confidence: "static_verified";
     evidence: Array<{
       path: string;
       hash: string;
@@ -75,7 +75,8 @@ export interface PrepareClusterResult {
   cluster_id: string;
   factsheet_id: string;
   factsheet_version: number;
-  trust_state: "verified" | "partial";
+  verification_stage: "static";
+  trust_state: "static_verified" | "partial_static";
   verified_facts: number;
   rejected_facts: number;
   rejected_fact_details: RejectedFact[];
@@ -122,8 +123,8 @@ export function prepareStaticCluster(
     contentJson: JSON.stringify(verification.factsheet),
     sourceSessionId: input.sourceSessionId,
     gitRev: input.gitRev,
-    status: "verified",
-    trustState: verification.rejectedFacts.length === 0 ? "verified" : "partial",
+    status: "static_verified",
+    trustState: verification.rejectedFacts.length === 0 ? "static_verified" : "partial_static",
     fileHashes: verification.fileHashes
   });
 
@@ -131,7 +132,8 @@ export function prepareStaticCluster(
     cluster_id: cluster.id,
     factsheet_id: factsheetId,
     factsheet_version: factsheetRecord.version,
-    trust_state: verification.rejectedFacts.length === 0 ? "verified" : "partial",
+    verification_stage: "static",
+    trust_state: verification.rejectedFacts.length === 0 ? "static_verified" : "partial_static",
     verified_facts: verification.factsheet.facts.length,
     rejected_facts: verification.rejectedFacts.length,
     rejected_fact_details: verification.rejectedFacts,
@@ -207,7 +209,7 @@ export function verifyFactsheetStatic(
     verifiedFacts.push({
       id: factId,
       claim,
-      confidence: "verified",
+      confidence: "static_verified",
       evidence: verifiedEvidence
     });
   }

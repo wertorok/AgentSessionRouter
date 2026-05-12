@@ -83,9 +83,15 @@ export interface EventInsert {
 }
 
 export type ClusterStatus = "active" | "stale" | "invalidated" | "archived";
-export type ClusterTrustState = "unprepared" | "verified" | "partial" | "untrusted";
+export type ClusterTrustState =
+  | "unprepared"
+  | "static_verified"
+  | "llm_verified"
+  | "partial_static"
+  | "partial_llm"
+  | "untrusted";
 export type ClusterToolProfile = "bare" | "focused" | "agent";
-export type ClusterFactsheetStatus = "draft" | "verified" | "rejected" | "stale";
+export type ClusterFactsheetStatus = "draft" | "static_verified" | "llm_verified" | "rejected" | "stale";
 
 export interface ClusterRecord {
   id: string;
@@ -650,7 +656,7 @@ export class RouterDatabase {
           input.baselineSessionId ?? null,
           input.gitRev ?? null,
           now,
-          input.status === "verified" ? now : null,
+          isVerifiedFactsheetStatus(input.status) ? now : null,
           input.status
         );
 
@@ -669,7 +675,13 @@ export class RouterDatabase {
           .run(input.clusterId, input.id, file.path, file.hash, file.fileSize, now);
       }
 
-      const trustState: ClusterTrustState = input.trustState ?? (input.status === "verified" ? "verified" : "partial");
+      const trustState: ClusterTrustState =
+        input.trustState ??
+        (input.status === "llm_verified"
+          ? "llm_verified"
+          : input.status === "static_verified"
+            ? "static_verified"
+            : "untrusted");
       this.db
         .prepare("UPDATE clusters SET trust_state = ?, last_used = ? WHERE id = ?")
         .run(trustState, now, input.clusterId);
@@ -681,12 +693,7 @@ export class RouterDatabase {
     this.logClusterEvent({
       clusterId: input.clusterId,
       projectId: this.getClusterById(input.clusterId)?.project_id ?? "",
-      eventType:
-        input.trustState === "partial"
-          ? "factsheet_partially_verified"
-          : input.status === "verified"
-            ? "factsheet_verified"
-            : "factsheet_generated",
+      eventType: factsheetEventType(input.status, input.trustState),
       details: {
         factsheet_id: input.id,
         version: factsheet.version,
@@ -709,7 +716,7 @@ export class RouterDatabase {
         `SELECT *
          FROM cluster_factsheets
          WHERE cluster_id = ?
-           AND status = 'verified'
+           AND status IN ('static_verified', 'llm_verified')
          ORDER BY version DESC
          LIMIT 1`
       )
@@ -769,4 +776,24 @@ export class RouterDatabase {
       .prepare(`INSERT OR IGNORE INTO ${tableName} (session_id, ${columnName}, created_at) VALUES (?, ?, ?)`)
       .run(sessionId, value, this.clock.nowIso());
   }
+}
+
+function isVerifiedFactsheetStatus(status: ClusterFactsheetStatus): boolean {
+  return status === "static_verified" || status === "llm_verified";
+}
+
+function factsheetEventType(status: ClusterFactsheetStatus, trustState: ClusterTrustState | undefined): string {
+  if (trustState === "partial_static") {
+    return "factsheet_partially_static_verified";
+  }
+  if (trustState === "partial_llm") {
+    return "factsheet_partially_llm_verified";
+  }
+  if (status === "static_verified") {
+    return "factsheet_static_verified";
+  }
+  if (status === "llm_verified") {
+    return "factsheet_llm_verified";
+  }
+  return status === "rejected" ? "factsheet_rejected" : "factsheet_generated";
 }
