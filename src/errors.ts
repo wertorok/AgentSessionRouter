@@ -11,6 +11,8 @@ export interface ErrorPayload {
     reason?: string;
     category?: string;
     operator_action?: string;
+    cluster_id?: string;
+    details?: unknown;
   };
 }
 
@@ -33,7 +35,11 @@ export const SPEC_ERROR_MESSAGES = {
     "Claude answered, but SESSION_UPDATE_JSON could not be parsed. Metadata was not updated.",
   [ERROR_CODES.CLAUDE_INCOMPATIBLE]: "Claude CLI version is incompatible. See COMPATIBILITY.md. Server is in degraded mode.",
   [ERROR_CODES.ROUTER_RESET_REJECTED]:
-    "Health probe has not passed since degraded mode was entered. Fix compatibility issues and run reset again."
+    "Health probe has not passed since degraded mode was entered. Fix compatibility issues and run reset again.",
+  [ERROR_CODES.CLUSTER_NOT_FOUND]: "No cluster found for the provided cluster_id.",
+  [ERROR_CODES.CLUSTER_PROJECT_MISMATCH]: "Cluster belongs to another project_id. Refusing to use it.",
+  [ERROR_CODES.CLUSTER_FACTSHEET_INVALID]:
+    "Cluster factsheet failed static verification. Store only facts backed by local evidence."
 } as const;
 
 export interface ClaudeFailureDiagnosis {

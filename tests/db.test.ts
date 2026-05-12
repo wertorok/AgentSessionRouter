@@ -70,6 +70,42 @@ describe("database registry", () => {
     expect(fixture.db.getSession("s1")?.status).toBe("archived");
     fixture.cleanup();
   });
+
+  it("stores cluster factsheet versions and scoped file hashes", () => {
+    const fixture = createDbFixture();
+    fixture.db.upsertCluster({
+      id: "router-ops",
+      projectId: "project",
+      name: "Router Ops",
+      toolProfileDefault: "bare"
+    });
+
+    const first = fixture.db.insertClusterFactsheet({
+      id: "factsheet-1",
+      clusterId: "router-ops",
+      contentJson: JSON.stringify({ facts: [{ id: "f1" }] }),
+      status: "verified",
+      trustState: "verified",
+      fileHashes: [{ path: "src/config.ts", hash: "sha256:one", fileSize: 10 }]
+    });
+    const second = fixture.db.insertClusterFactsheet({
+      id: "factsheet-2",
+      clusterId: "router-ops",
+      contentJson: JSON.stringify({ facts: [{ id: "f2" }] }),
+      status: "verified",
+      trustState: "partial",
+      fileHashes: [{ path: "src/tools.ts", hash: "sha256:two", fileSize: 20 }]
+    });
+
+    expect(first.version).toBe(1);
+    expect(second.version).toBe(2);
+    expect(fixture.db.getCurrentClusterFactsheet("router-ops")?.id).toBe("factsheet-2");
+    expect(fixture.db.listClusterFileHashes("factsheet-2")).toMatchObject([
+      { cluster_id: "router-ops", factsheet_id: "factsheet-2", path: "src/tools.ts", hash: "sha256:two" }
+    ]);
+    expect(fixture.db.getCluster("project", "router-ops")?.trust_state).toBe("partial");
+    fixture.cleanup();
+  });
 });
 
 class FakeClock implements Clock {
@@ -106,4 +142,3 @@ function createDbFixture(): { db: RouterDatabase; clock: FakeClock; cleanup: () 
     }
   };
 }
-

@@ -82,6 +82,74 @@ export interface EventInsert {
   error?: string | null;
 }
 
+export type ClusterStatus = "active" | "stale" | "invalidated" | "archived";
+export type ClusterTrustState = "unprepared" | "verified" | "partial" | "untrusted";
+export type ClusterToolProfile = "bare" | "focused" | "agent";
+export type ClusterFactsheetStatus = "draft" | "verified" | "rejected" | "stale";
+
+export interface ClusterRecord {
+  id: string;
+  project_id: string;
+  name: string;
+  description: string;
+  tool_profile_default: ClusterToolProfile;
+  baseline_session_id: string | null;
+  status: ClusterStatus;
+  trust_state: ClusterTrustState;
+  created_at: string;
+  last_used: string;
+}
+
+export interface ClusterFactsheetRecord {
+  id: string;
+  cluster_id: string;
+  version: number;
+  content_json: string;
+  source_session_id: string | null;
+  baseline_session_id: string | null;
+  git_rev: string | null;
+  generated_at: string;
+  verified_at: string | null;
+  status: ClusterFactsheetStatus;
+}
+
+export interface ClusterFileHashRecord {
+  id: number;
+  cluster_id: string;
+  factsheet_id: string;
+  path: string;
+  hash: string;
+  file_size: number;
+  last_verified: string;
+}
+
+export interface ClusterEventInsert {
+  clusterId: string;
+  projectId: string;
+  eventType: string;
+  details?: unknown;
+  durationMs?: number | null;
+  tokensIn?: number | null;
+  tokensOut?: number | null;
+  costUsd?: number | null;
+}
+
+export interface ClusterFactsheetInput {
+  id: string;
+  clusterId: string;
+  contentJson: string;
+  sourceSessionId?: string | null;
+  baselineSessionId?: string | null;
+  gitRev?: string | null;
+  status: ClusterFactsheetStatus;
+  trustState?: ClusterTrustState;
+  fileHashes: Array<{
+    path: string;
+    hash: string;
+    fileSize: number;
+  }>;
+}
+
 export class RouterDatabase {
   constructor(
     readonly db: Database.Database,
@@ -140,6 +208,34 @@ export class RouterDatabase {
         event.tokensOut ?? null,
         event.durationMs ?? null,
         event.error ?? null,
+        this.clock.nowIso()
+      );
+  }
+
+  logClusterEvent(event: ClusterEventInsert): void {
+    this.db
+      .prepare(
+        `INSERT INTO cluster_events (
+          cluster_id,
+          project_id,
+          event_type,
+          details_json,
+          duration_ms,
+          tokens_in,
+          tokens_out,
+          cost_usd,
+          created_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      )
+      .run(
+        event.clusterId,
+        event.projectId,
+        event.eventType,
+        event.details === undefined ? null : JSON.stringify(event.details),
+        event.durationMs ?? null,
+        event.tokensIn ?? null,
+        event.tokensOut ?? null,
+        event.costUsd ?? null,
         this.clock.nowIso()
       );
   }
@@ -437,6 +533,194 @@ export class RouterDatabase {
       )
       .get(sessionId) as { error: string | null } | undefined;
     return row?.error ?? null;
+  }
+
+  upsertCluster(input: {
+    id: string;
+    projectId: string;
+    name: string;
+    description?: string;
+    toolProfileDefault: ClusterToolProfile;
+  }): ClusterRecord {
+    const existing = this.getClusterById(input.id);
+    if (existing && existing.project_id !== input.projectId) {
+      throw new Error(`cluster_id ${input.id} belongs to project ${existing.project_id}`);
+    }
+
+    const now = this.clock.nowIso();
+    if (!existing) {
+      this.db
+        .prepare(
+          `INSERT INTO clusters (
+            id,
+            project_id,
+            name,
+            description,
+            tool_profile_default,
+            baseline_session_id,
+            status,
+            trust_state,
+            created_at,
+            last_used
+          ) VALUES (?, ?, ?, ?, ?, NULL, 'active', 'unprepared', ?, ?)`
+        )
+        .run(
+          input.id,
+          input.projectId,
+          input.name,
+          input.description ?? "",
+          input.toolProfileDefault,
+          now,
+          now
+        );
+      this.logClusterEvent({
+        clusterId: input.id,
+        projectId: input.projectId,
+        eventType: "cluster_created"
+      });
+    } else {
+      this.db
+        .prepare(
+          `UPDATE clusters
+           SET name = ?,
+               description = ?,
+               tool_profile_default = ?,
+               status = 'active',
+               last_used = ?
+           WHERE id = ?`
+        )
+        .run(input.name, input.description ?? existing.description, input.toolProfileDefault, now, input.id);
+    }
+
+    return this.getCluster(input.projectId, input.id)!;
+  }
+
+  getCluster(projectId: string, clusterId: string): ClusterRecord | null {
+    const row = this.db.prepare("SELECT * FROM clusters WHERE project_id = ? AND id = ?").get(projectId, clusterId) as
+      | ClusterRecord
+      | undefined;
+    return row ?? null;
+  }
+
+  getClusterById(clusterId: string): ClusterRecord | null {
+    const row = this.db.prepare("SELECT * FROM clusters WHERE id = ?").get(clusterId) as ClusterRecord | undefined;
+    return row ?? null;
+  }
+
+  listClusters(projectId: string, includeArchived: boolean): ClusterRecord[] {
+    if (includeArchived) {
+      return this.db
+        .prepare("SELECT * FROM clusters WHERE project_id = ? ORDER BY last_used DESC")
+        .all(projectId) as ClusterRecord[];
+    }
+    return this.db
+      .prepare("SELECT * FROM clusters WHERE project_id = ? AND status != 'archived' ORDER BY last_used DESC")
+      .all(projectId) as ClusterRecord[];
+  }
+
+  insertClusterFactsheet(input: ClusterFactsheetInput): ClusterFactsheetRecord {
+    const insert = this.db.transaction(() => {
+      const versionRow = this.db
+        .prepare("SELECT MAX(version) AS maxVersion FROM cluster_factsheets WHERE cluster_id = ?")
+        .get(input.clusterId) as { maxVersion: number | null };
+      const version = (versionRow.maxVersion ?? 0) + 1;
+      const now = this.clock.nowIso();
+
+      this.db
+        .prepare(
+          `INSERT INTO cluster_factsheets (
+            id,
+            cluster_id,
+            version,
+            content_json,
+            source_session_id,
+            baseline_session_id,
+            git_rev,
+            generated_at,
+            verified_at,
+            status
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        )
+        .run(
+          input.id,
+          input.clusterId,
+          version,
+          input.contentJson,
+          input.sourceSessionId ?? null,
+          input.baselineSessionId ?? null,
+          input.gitRev ?? null,
+          now,
+          input.status === "verified" ? now : null,
+          input.status
+        );
+
+      for (const file of input.fileHashes) {
+        this.db
+          .prepare(
+            `INSERT INTO cluster_file_hashes (
+              cluster_id,
+              factsheet_id,
+              path,
+              hash,
+              file_size,
+              last_verified
+            ) VALUES (?, ?, ?, ?, ?, ?)`
+          )
+          .run(input.clusterId, input.id, file.path, file.hash, file.fileSize, now);
+      }
+
+      const trustState: ClusterTrustState = input.trustState ?? (input.status === "verified" ? "verified" : "partial");
+      this.db
+        .prepare("UPDATE clusters SET trust_state = ?, last_used = ? WHERE id = ?")
+        .run(trustState, now, input.clusterId);
+
+      return this.getClusterFactsheet(input.id)!;
+    });
+
+    const factsheet = insert();
+    this.logClusterEvent({
+      clusterId: input.clusterId,
+      projectId: this.getClusterById(input.clusterId)?.project_id ?? "",
+      eventType:
+        input.trustState === "partial"
+          ? "factsheet_partially_verified"
+          : input.status === "verified"
+            ? "factsheet_verified"
+            : "factsheet_generated",
+      details: {
+        factsheet_id: input.id,
+        version: factsheet.version,
+        file_hashes: input.fileHashes.length
+      }
+    });
+    return factsheet;
+  }
+
+  getClusterFactsheet(factsheetId: string): ClusterFactsheetRecord | null {
+    const row = this.db.prepare("SELECT * FROM cluster_factsheets WHERE id = ?").get(factsheetId) as
+      | ClusterFactsheetRecord
+      | undefined;
+    return row ?? null;
+  }
+
+  getCurrentClusterFactsheet(clusterId: string): ClusterFactsheetRecord | null {
+    const row = this.db
+      .prepare(
+        `SELECT *
+         FROM cluster_factsheets
+         WHERE cluster_id = ?
+           AND status = 'verified'
+         ORDER BY version DESC
+         LIMIT 1`
+      )
+      .get(clusterId) as ClusterFactsheetRecord | undefined;
+    return row ?? null;
+  }
+
+  listClusterFileHashes(factsheetId: string): ClusterFileHashRecord[] {
+    return this.db
+      .prepare("SELECT * FROM cluster_file_hashes WHERE factsheet_id = ? ORDER BY path ASC")
+      .all(factsheetId) as ClusterFileHashRecord[];
   }
 
   private selectLifecycleSessions(projectId?: string): SessionRecord[] {

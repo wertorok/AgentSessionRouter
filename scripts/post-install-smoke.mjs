@@ -30,6 +30,7 @@ if (!useLiveClaude) {
   writeFakeClaude();
 }
 writeRouterConfig();
+writeClusterFixture();
 
 const report = {
   mode: useLiveClaude ? "live" : "stub",
@@ -67,6 +68,50 @@ try {
       recent_events_limit: 10
     });
     record("session_inspect", inspect.session?.id === consult.session_id, inspect);
+
+    const clusterPrepare = await callTool(client, "cluster_prepare", {
+      project_id: null,
+      cluster_id: "post-install-smoke",
+      name: "Post-install smoke",
+      tool_profile_default: "bare",
+      factsheet: {
+        summary: "Post-install smoke factsheet.",
+        facts: [
+          {
+            id: "fixture-extra-args",
+            claim: "The smoke fixture exposes extraArgs as local evidence.",
+            evidence: [{ path: "src/cluster-fixture.ts", selector: "extraArgs" }]
+          }
+        ],
+        forbidden_inferences: ["Do not infer uncited smoke fixture fields."]
+      }
+    });
+    record(
+      "cluster_prepare",
+      clusterPrepare.cluster_id === "post-install-smoke" && clusterPrepare.verified_facts === 1,
+      clusterPrepare
+    );
+
+    const clusterGet = await callTool(client, "cluster_get", {
+      project_id: null,
+      cluster_id: "post-install-smoke",
+      include_factsheet: true
+    });
+    record(
+      "cluster_get",
+      clusterGet.current_factsheet?.content?.facts?.length === 1 && clusterGet.file_hashes?.length === 1,
+      clusterGet
+    );
+
+    const clusterList = await callTool(client, "cluster_list", {
+      project_id: null,
+      include_archived: false
+    });
+    record(
+      "cluster_list",
+      clusterList.clusters?.some((cluster) => cluster.id === "post-install-smoke"),
+      clusterList
+    );
   });
 
   if (!useLiveClaude) {
@@ -84,6 +129,9 @@ try {
   }
 
   record("sqlite_events_written", sqliteEventTypes().includes("new_session"), { event_types: sqliteEventTypes() });
+  record("sqlite_cluster_events_written", sqliteClusterEventTypes().includes("factsheet_verified"), {
+    event_types: sqliteClusterEventTypes()
+  });
   record(
     "raw_logs_written_under_project",
     existsSync(rawLogsDir) && rawLogsDir.startsWith(projectDir),
@@ -164,6 +212,21 @@ function sqliteEventTypes() {
   }
 }
 
+function sqliteClusterEventTypes() {
+  if (!existsSync(dbPath)) {
+    return [];
+  }
+  const db = new Database(dbPath, { readonly: true });
+  try {
+    return db
+      .prepare("SELECT DISTINCT event_type FROM cluster_events ORDER BY event_type")
+      .all()
+      .map((row) => row.event_type);
+  } finally {
+    db.close();
+  }
+}
+
 function writeRouterConfig() {
   const compatibilityFile = path.join(repoRoot, "COMPATIBILITY.md").replaceAll("\\", "\\\\");
   const command = (useLiveClaude ? "claude" : fakeClaudePath).replaceAll("\\", "\\\\");
@@ -180,6 +243,16 @@ compatibility_file = "${compatibilityFile}"
 command_timeout_ms = ${commandTimeoutMs}
 extra_args = ["--tools", "", "--permission-mode", "default"]
 `,
+    "utf8"
+  );
+}
+
+function writeClusterFixture() {
+  const srcDir = path.join(projectDir, "src");
+  mkdirSync(srcDir, { recursive: true });
+  writeFileSync(
+    path.join(srcDir, "cluster-fixture.ts"),
+    "export const extraArgs = ['--tools', ''];\n",
     "utf8"
   );
 }

@@ -25,9 +25,15 @@ Implemented MVP tools:
 - `claude_session_inspect`
 - `claude_router_reset`
 
+Experimental cluster-cache tools:
+
+- `cluster_prepare`
+- `cluster_get`
+- `cluster_list`
+
 Validation performed:
 
-- Unit/integration tests: `28 passed`
+- Unit/integration tests: `35 passed`
 - Live MCP stdio E2E: `LIVE_CONSULT_PASS`
 - Live matrix run: committed as `LIVE_TEST_LOG.md`
 - Post-fix targeted live rerun: `TARGETED_RERUN_PASS`
@@ -41,6 +47,8 @@ Research and next-architecture docs:
 The full live matrix found three important issues: duplicate same-topic concurrent sessions, archive/consult races, and incomplete token extraction for current Claude JSON. Those were fixed in `c24986c` and verified by `LIVE_TARGETED_RERUN.md`.
 
 Claude usage-limit responses are classified as `claude_usage_limit` and include an actionable `operator_action`.
+
+The first cluster-cache implementation is intentionally static: it stores only facts backed by local file evidence and does not yet invoke Claude, fork sessions, refresh stale factsheets, or auto-route questions to clusters. See `docs/CLUSTER_CACHE_SPEC.md` for the remaining v2 phases.
 
 ## Requirements
 
@@ -389,6 +397,80 @@ Failure:
 }
 ```
 
+### `cluster_prepare`
+
+Stores a statically verified cluster factsheet. This tool does not invoke Claude in the current phase. Every fact must cite a relative local file path, and optional selectors/hashes must match the current file content.
+
+Input:
+
+```json
+{
+  "project_id": null,
+  "cluster_id": "config-and-cwd-isolation",
+  "name": "Config and cwd isolation",
+  "tool_profile_default": "bare",
+  "factsheet": {
+    "summary": "Verified facts for config/cwd isolation.",
+    "facts": [
+      {
+        "id": "claude-extra-args",
+        "claim": "Claude extra args are configured under the claude config section.",
+        "evidence": [
+          {
+            "path": "src/config.ts",
+            "selector": "extraArgs"
+          }
+        ]
+      }
+    ],
+    "forbidden_inferences": ["mcp.cwd", "claude.policy"]
+  }
+}
+```
+
+Output:
+
+```json
+{
+  "project_id": "AgentSessionRouter",
+  "cluster_id": "config-and-cwd-isolation",
+  "factsheet_id": "factsheet_...",
+  "factsheet_version": 1,
+  "trust_state": "verified",
+  "verified_facts": 1,
+  "rejected_facts": 0
+}
+```
+
+If some facts fail static verification but at least one fact is valid, the factsheet is stored with only the verified facts and cluster `trust_state` is `partial`. If no facts verify, the tool returns `CLUSTER_FACTSHEET_INVALID`.
+
+### `cluster_get`
+
+Returns cluster metadata, the current verified factsheet, and the scoped file hashes without invoking Claude.
+
+Input:
+
+```json
+{
+  "project_id": null,
+  "cluster_id": "config-and-cwd-isolation",
+  "include_factsheet": true
+}
+```
+
+### `cluster_list`
+
+Lists cluster cache entries for a project without invoking Claude.
+
+Input:
+
+```json
+{
+  "project_id": null,
+  "include_archived": false
+}
+```
+
 ## Routing Model
 
 When `claude_consult.session_id` is `null`, routing is project-scoped and deterministic.
@@ -568,6 +650,15 @@ degraded_mode_entered
 router_reset
 ```
 
+Cluster-cache actions write to `cluster_events`. Current event types:
+
+```txt
+cluster_created
+factsheet_verified
+factsheet_partially_verified
+factsheet_rejected
+```
+
 Useful SQLite queries:
 
 ```sql
@@ -615,6 +706,9 @@ Spec error codes are preserved exactly:
 - `SESSION_UPDATE_PARSE_FAILED`
 - `CLAUDE_INCOMPATIBLE`
 - `ROUTER_RESET_REJECTED`
+- `CLUSTER_NOT_FOUND`
+- `CLUSTER_PROJECT_MISMATCH`
+- `CLUSTER_FACTSHEET_INVALID`
 
 Diagnostic fields may be included:
 
@@ -760,6 +854,7 @@ The harness uses a Haiku wrapper for cost control on Windows because Node cannot
 src/
   claude.ts          Claude CLI adapter and health probe
   clock.ts           Centralized clock helpers
+  cluster.ts         Static cluster factsheet verification and preparation
   config.ts          TOML config loading and path resolution
   consult.ts         claude_consult routing and invocation service
   constants.ts       Statuses, event types, error codes, defaults
@@ -776,9 +871,11 @@ src/
   tools.ts           MCP tool registrations
 
 tests/
+  cluster.test.ts
+  consult.test.ts
   core.test.ts
   db.test.ts
-  consult.test.ts
+  tools.test.ts
 
 scripts/
   diagnose-claude-live.mjs

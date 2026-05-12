@@ -34,6 +34,15 @@ Existing tools keep their current semantics:
 
 v2 is opt-in. It adds cluster-scoped tools and storage. No existing consult is automatically routed into a cluster in the MVP.
 
+Current implementation status:
+
+- Implemented: Phase 0 schema/storage.
+- Implemented: Phase 1 direct `cluster_prepare` with static local-file verification.
+- Implemented early for observability: read-only `cluster_get` and `cluster_list`.
+- Not implemented yet: LLM verifier, bare probe/profile builder, `cluster_consult`, fork baseline, refresh/invalidation, and distillation from existing sessions.
+
+The current `cluster_prepare` accepts direct factsheet JSON and stores only facts whose evidence passes deterministic local checks. It does not invoke Claude.
+
 ## 3. Core Terms
 
 ### Cluster

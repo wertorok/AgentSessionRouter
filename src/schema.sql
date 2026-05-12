@@ -108,3 +108,68 @@ ON session_events(project_id, created_at);
 
 CREATE INDEX IF NOT EXISTS idx_session_events_type_created
 ON session_events(event_type, created_at);
+
+CREATE TABLE IF NOT EXISTS clusters (
+  id TEXT PRIMARY KEY,
+  project_id TEXT NOT NULL,
+  name TEXT NOT NULL,
+  description TEXT NOT NULL DEFAULT '',
+  tool_profile_default TEXT NOT NULL DEFAULT 'bare',
+  baseline_session_id TEXT,
+  status TEXT NOT NULL DEFAULT 'active',
+  trust_state TEXT NOT NULL DEFAULT 'unprepared',
+  created_at TEXT NOT NULL,
+  last_used TEXT NOT NULL,
+  UNIQUE(project_id, id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_clusters_project_status
+ON clusters(project_id, status);
+
+CREATE TABLE IF NOT EXISTS cluster_factsheets (
+  id TEXT PRIMARY KEY,
+  cluster_id TEXT NOT NULL,
+  version INTEGER NOT NULL,
+  content_json TEXT NOT NULL,
+  source_session_id TEXT,
+  baseline_session_id TEXT,
+  git_rev TEXT,
+  generated_at TEXT NOT NULL,
+  verified_at TEXT,
+  status TEXT NOT NULL DEFAULT 'draft',
+  FOREIGN KEY(cluster_id) REFERENCES clusters(id)
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_cluster_factsheets_version
+ON cluster_factsheets(cluster_id, version);
+
+CREATE TABLE IF NOT EXISTS cluster_file_hashes (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  cluster_id TEXT NOT NULL,
+  factsheet_id TEXT NOT NULL,
+  path TEXT NOT NULL,
+  hash TEXT NOT NULL,
+  file_size INTEGER NOT NULL,
+  last_verified TEXT NOT NULL,
+  FOREIGN KEY(cluster_id) REFERENCES clusters(id),
+  FOREIGN KEY(factsheet_id) REFERENCES cluster_factsheets(id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_cluster_file_hashes_factsheet
+ON cluster_file_hashes(factsheet_id);
+
+CREATE TABLE IF NOT EXISTS cluster_events (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  cluster_id TEXT NOT NULL,
+  project_id TEXT NOT NULL,
+  event_type TEXT NOT NULL,
+  details_json TEXT,
+  duration_ms INTEGER,
+  tokens_in INTEGER,
+  tokens_out INTEGER,
+  cost_usd REAL,
+  created_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_cluster_events_cluster_created
+ON cluster_events(cluster_id, created_at);
