@@ -67,6 +67,7 @@ Research and next-architecture docs:
 
 - `docs/EXPERIMENTS.md`
 - `docs/CLUSTER_CACHE_SPEC.md`
+- `docs/RELEASE_v2.0.md`
 
 The full live matrix found three important issues: duplicate same-topic concurrent sessions, archive/consult races, and incomplete token extraction for current Claude JSON. Those were fixed in `c24986c` and verified by `LIVE_TARGETED_RERUN.md`.
 
