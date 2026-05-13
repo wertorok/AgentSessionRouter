@@ -34,6 +34,9 @@ export interface RouterConfig {
     resumeFailureThreshold: number;
     compatibilityFile: string;
   };
+  eval: {
+    shadowMode: boolean;
+  };
   configDir: string;
 }
 
@@ -56,6 +59,7 @@ export function loadConfig(options: LoadConfigOptions): RouterConfig {
   const lifecycle = objectAt(parsed, "lifecycle");
   const matching = objectAt(parsed, "matching");
   const claude = objectAt(parsed, "claude");
+  const evalConfig = objectAt(parsed, "eval");
 
   return {
     storage: {
@@ -113,6 +117,9 @@ export function loadConfig(options: LoadConfigOptions): RouterConfig {
         configDir,
         stringAt(claude, "compatibility_file", DEFAULT_CONFIG.claude.compatibilityFile)
       )
+    },
+    eval: {
+      shadowMode: booleanAt(evalConfig, "shadow_mode", DEFAULT_CONFIG.eval.shadowMode)
     },
     configDir
   };

@@ -10,6 +10,7 @@ import { diagnoseClaudeFailure, errorPayload, SPEC_ERROR_MESSAGES } from "./erro
 import { pickProfile, type ProfileSelection } from "./profiles.js";
 import { resolveProjectId } from "./project.js";
 import type { RouterRuntime } from "./runtime.js";
+import { scheduleShadowComparison } from "./shadowEval.js";
 import { jsonToolResult } from "./toolResult.js";
 
 const sessionsListInput = z.object({
@@ -116,6 +117,21 @@ const clusterRefreshInput = z.object({
   project_id: z.string().nullable().optional(),
   cluster_id: z.string().min(1),
   mode: z.enum(["verify_only"]).default("verify_only")
+});
+
+const comparisonPreferredInput = z.enum(["cluster", "direct", "tie"]);
+
+const comparisonStatsInput = z.object({
+  project_id: z.string().nullable().optional(),
+  cluster_id: z.string().nullable().optional()
+});
+
+const comparisonListInput = z.object({
+  project_id: z.string().nullable().optional(),
+  cluster_id: z.string().nullable().optional(),
+  preferred: comparisonPreferredInput.nullable().optional(),
+  include_answers: z.boolean().default(false),
+  limit: z.number().int().min(1).max(100).default(20)
 });
 
 export function registerTools(server: McpServer, runtime: RouterRuntime): void {
@@ -422,6 +438,14 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
         toolProfile: input.tool_profile,
         allowStaticFactsheet: input.allow_static_factsheet
       });
+      if (!("error" in result)) {
+        scheduleShadowComparison(runtime, {
+          projectId,
+          clusterId: input.cluster_id,
+          question: input.question,
+          clusterResult: result
+        });
+      }
 
       return jsonToolResult(
         {
@@ -430,6 +454,54 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
         },
         "error" in result
       );
+    }
+  );
+
+  server.registerTool(
+    "comparison_stats",
+    {
+      title: "Comparison stats",
+      description: "Returns shadow comparison win/loss/tie aggregates by cluster.",
+      inputSchema: comparisonStatsInput
+    },
+    async (input) => {
+      const projectId = resolveProjectId(input.project_id, runtime.cwd);
+      return jsonToolResult({
+        project_id: projectId,
+        stats: runtime.db.getConsultComparisonStats(projectId, input.cluster_id)
+      });
+    }
+  );
+
+  server.registerTool(
+    "comparison_list",
+    {
+      title: "List comparisons",
+      description: "Lists recent shadow comparison records for a project.",
+      inputSchema: comparisonListInput
+    },
+    async (input) => {
+      const projectId = resolveProjectId(input.project_id, runtime.cwd);
+      const comparisons = runtime.db
+        .listConsultComparisons({
+          projectId,
+          clusterId: input.cluster_id,
+          preferred: input.preferred ?? null,
+          limit: input.limit ?? 20
+        })
+        .map((comparison) =>
+          input.include_answers
+            ? comparison
+            : {
+                ...comparison,
+                cluster_answer: comparison.cluster_answer ? "[omitted]" : null,
+                direct_answer: comparison.direct_answer ? "[omitted]" : null
+              }
+        );
+      return jsonToolResult({
+        project_id: projectId,
+        comparisons
+      });
     }
   );
 

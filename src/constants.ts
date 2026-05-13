@@ -74,5 +74,8 @@ export const DEFAULT_CONFIG = {
     resumeFailureWindowMinutes: 60,
     resumeFailureThreshold: 5,
     compatibilityFile: "COMPATIBILITY.md"
+  },
+  eval: {
+    shadowMode: false
   }
 } as const;

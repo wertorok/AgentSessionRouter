@@ -106,6 +106,58 @@ describe("database registry", () => {
     expect(fixture.db.getCluster("project", "router-ops")?.trust_state).toBe("partial_static");
     fixture.cleanup();
   });
+
+  it("stores consult comparisons and aggregates judged stats", () => {
+    const fixture = createDbFixture();
+    fixture.db.insertConsultComparison({
+      id: "cmp-1",
+      projectId: "project",
+      clusterId: "router-ops",
+      question: "What happens?",
+      clusterAnswer: "cluster",
+      clusterDurationMs: 10,
+      clusterWasNotInContext: false
+    });
+    fixture.db.updateConsultComparisonDirect({
+      id: "cmp-1",
+      status: "ok",
+      directAnswer: "direct",
+      directDurationMs: 20
+    });
+    fixture.db.updateConsultComparisonJudge({
+      id: "cmp-1",
+      clusterScore: 3,
+      directScore: 2,
+      preferred: "cluster",
+      clusterErrors: [],
+      directErrors: ["missing detail"],
+      judgeReasoning: "cluster is more complete"
+    });
+
+    const comparison = fixture.db.getConsultComparison("cmp-1");
+    const list = fixture.db.listConsultComparisons({ projectId: "project", limit: 10 });
+    const stats = fixture.db.getConsultComparisonStats("project");
+
+    expect(comparison?.shadow_status).toBe("ok");
+    expect(comparison?.preferred).toBe("cluster");
+    expect(comparison?.cluster_score).toBe(3);
+    expect(comparison?.direct_score).toBe(2);
+    expect(comparison?.direct_errors_json).toBe(JSON.stringify(["missing detail"]));
+    expect(list).toHaveLength(1);
+    expect(stats).toEqual([
+      {
+        cluster_id: "router-ops",
+        n: 1,
+        cluster_q: 3,
+        direct_q: 2,
+        gap: -1,
+        cluster_wins: 1,
+        direct_wins: 0,
+        ties: 0
+      }
+    ]);
+    fixture.cleanup();
+  });
 });
 
 class FakeClock implements Clock {

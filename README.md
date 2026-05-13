@@ -12,8 +12,9 @@ Coding agents often waste time and tokens rediscovering the same project before 
 
 - **v1 session router**: routes related questions back into durable, project-scoped Claude sessions and keeps compact registry memory in SQLite.
 - **v2 cluster cache**: stores verified factsheets per task cluster and uses restricted Claude tool profiles, such as `--bare --tools ""`, to skip project rediscovery when the factsheet is enough.
+- **v2.1-lite shadow eval**: optional telemetry that compares real `cluster_consult` answers against an isolated fresh Claude baseline in the background, then scores the pair with a blind structured judge.
 
-The v1 layer is the durable session and decision registry. The v2 layer is the verified cache layer on top. They work independently: you can use normal `claude_consult` sessions, cluster factsheet consults, or both.
+The v1 layer is the durable session and decision registry. The v2 layer is the verified cache layer on top. The v2.1-lite eval layer is observability only. They work independently: you can use normal `claude_consult` sessions, cluster factsheet consults, optional shadow eval, or any combination.
 
 Measured on this repository during the v2 experiments:
 
@@ -55,9 +56,14 @@ Experimental cluster-cache tools:
 - `cluster_refresh`
 - `cluster_list`
 
+Optional shadow-eval tools:
+
+- `comparison_stats`
+- `comparison_list`
+
 Validation performed:
 
-- Unit/integration tests: `50 passed`
+- Unit/integration tests: `56 passed`
 - Live MCP stdio E2E: `LIVE_CONSULT_PASS`
 - Live matrix run: committed as `LIVE_TEST_LOG.md`
 - Post-fix targeted live rerun: `TARGETED_RERUN_PASS`
@@ -68,12 +74,13 @@ Research and next-architecture docs:
 - `docs/EXPERIMENTS.md`
 - `docs/CLUSTER_CACHE_SPEC.md`
 - `docs/RELEASE_v2.0.md`
+- `docs/SHADOW_EVAL_SPEC.md`
 
 The full live matrix found three important issues: duplicate same-topic concurrent sessions, archive/consult races, and incomplete token extraction for current Claude JSON. Those were fixed in `c24986c` and verified by `LIVE_TARGETED_RERUN.md`.
 
 Claude usage-limit responses are classified as `claude_usage_limit` and include an actionable `operator_action`.
 
-The cluster-cache implementation can store `static_verified` factsheets, optionally run an LLM verifier to promote them to `llm_verified`, consult Claude through a verified factsheet without fork, and refresh factsheet freshness with scoped file hash checks. It probes `bare`/`focused` tool profiles and deterministically downgrades `bare` to `focused` when needed. It does not yet implement fork baselines, distillation from existing v1 sessions, or auto-routing. See `docs/CLUSTER_CACHE_SPEC.md` for the remaining v2 phases.
+The cluster-cache implementation can store `static_verified` factsheets, optionally run an LLM verifier to promote them to `llm_verified`, consult Claude through a verified factsheet without fork, and refresh factsheet freshness with scoped file hash checks. It probes `bare`/`focused` tool profiles and deterministically downgrades `bare` to `focused` when needed. Optional shadow eval records real-world quality/cost telemetry without changing the answer returned to the parent agent. The router does not yet implement fork baselines, distillation from existing v1 sessions, or auto-routing. See `docs/CLUSTER_CACHE_SPEC.md` for the remaining v2 phases.
 
 ## Requirements
 
@@ -171,6 +178,30 @@ Before or after code changes, recheck the factsheet without invoking Claude:
 ```
 
 If any cited evidence file changed, `cluster_consult` and `cluster_refresh` return `CLUSTER_FACTSHEET_STALE` and the cluster is marked stale until a new verified factsheet is prepared or the current one verifies cleanly again.
+
+## Optional Shadow Comparison Eval
+
+Shadow eval is a lightweight measurement layer for real parent-agent traffic. It is disabled by default.
+
+When `[eval].shadow_mode = true`, a successful `cluster_consult` still returns the cluster answer to the caller immediately. After that return path, the router schedules a background comparison:
+
+1. Run an isolated fresh Claude baseline for the same question.
+2. Blindly shuffle the cluster answer and direct answer as answer A/B.
+3. Ask a no-tools judge to score both answers with structured JSON.
+4. Store the result in `consult_comparisons`.
+
+This is telemetry, not routing. It does not affect the answer returned to Codex or any other parent agent. Shadow calls also do not append decisions, summaries, tags, or aliases to production router sessions. The baseline is intentionally `direct_fresh` for the MVP so eval state cannot contaminate long-lived production sessions.
+
+Use the comparison tools to inspect accumulated results:
+
+```json
+{
+  "project_id": null,
+  "cluster_id": "config-and-cwd-isolation"
+}
+```
+
+`comparison_stats` returns aggregate quality and preference counts per cluster. `comparison_list` returns recent comparison rows and omits full answers unless `include_answers: true` is set.
 
 ## Consultation Method Selection
 
@@ -270,6 +301,9 @@ extra_args = []
 resume_failure_window_minutes = 60
 resume_failure_threshold = 5
 compatibility_file = "COMPATIBILITY.md"
+
+[eval]
+shadow_mode = false
 ```
 
 Relative paths in `router.config.toml` are resolved relative to the directory containing that config file, not relative to the process cwd.
@@ -291,6 +325,8 @@ extra_args = ["--tools", ""]
 ```
 
 `claude.command_timeout_ms` bounds each Claude CLI command, including startup health probes and consult calls. Set the MCP client's startup timeout above this value plus process startup overhead.
+
+`eval.shadow_mode` enables optional v2.1-lite quality telemetry. When `true`, each successful `cluster_consult` schedules a background comparison against an isolated fresh Claude baseline and stores the judge result in `consult_comparisons`. This does not block or alter the response returned to the parent agent, and it does not write shadow results into production Claude session registry state.
 
 ## Compatibility
 
@@ -645,6 +681,78 @@ Input:
 {
   "project_id": null,
   "include_archived": false
+}
+```
+
+### `comparison_stats`
+
+Returns aggregate shadow-eval telemetry for a project, optionally scoped to one cluster. This tool never invokes Claude.
+
+Input:
+
+```json
+{
+  "project_id": null,
+  "cluster_id": "config-and-cwd-isolation"
+}
+```
+
+Output:
+
+```json
+{
+  "project_id": "AgentSessionRouter",
+  "stats": [
+    {
+      "cluster_id": "config-and-cwd-isolation",
+      "n": 12,
+      "cluster_q": 2.83,
+      "direct_q": 2.67,
+      "gap": -0.16,
+      "cluster_wins": 5,
+      "direct_wins": 3,
+      "ties": 4
+    }
+  ]
+}
+```
+
+### `comparison_list`
+
+Lists recent shadow-eval comparison rows. Full answers are omitted by default so parent agents can inspect quality telemetry without pulling large answer text back into context.
+
+Input:
+
+```json
+{
+  "project_id": null,
+  "cluster_id": "config-and-cwd-isolation",
+  "preferred": "direct",
+  "include_answers": false,
+  "limit": 20
+}
+```
+
+Output:
+
+```json
+{
+  "project_id": "AgentSessionRouter",
+  "comparisons": [
+    {
+      "id": "comparison_...",
+      "cluster_id": "config-and-cwd-isolation",
+      "question": "Which config field controls Claude extra args?",
+      "shadow_method": "direct_fresh",
+      "shadow_status": "ok",
+      "cluster_score": 3,
+      "direct_score": 2,
+      "preferred": "cluster",
+      "cluster_answer": "[omitted]",
+      "direct_answer": "[omitted]",
+      "judge_reasoning": "The cluster answer is exact and the direct answer is correct but less specific."
+    }
+  ]
 }
 ```
 
@@ -1059,6 +1167,7 @@ src/
   schema.sql         SQLite schema artifact
   server.ts          MCP server construction
   sessionUpdate.ts   SESSION_UPDATE_JSON parser and sanitizer
+  shadowEval.ts      Optional shadow comparison telemetry and judge parser
   tools.ts           MCP tool registrations
 
 tests/
@@ -1069,6 +1178,7 @@ tests/
   core.test.ts
   db.test.ts
   profiles.test.ts
+  shadowEval.test.ts
   tools.test.ts
 
 scripts/

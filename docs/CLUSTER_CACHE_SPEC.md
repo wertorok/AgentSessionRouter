@@ -43,6 +43,7 @@ Current implementation status:
 - Implemented: Phase 4 `cluster_consult` without fork, with append-system-prompt factsheet injection and stale hash refusal.
 - Implemented: Phase 6 `cluster_refresh` in `verify_only` mode and stale factsheet state.
 - Implemented early for observability: read-only `cluster_get` and `cluster_list`.
+- Implemented separately: v2.1-lite optional shadow comparison telemetry. See `docs/SHADOW_EVAL_SPEC.md`.
 - Not implemented yet: fork baseline and distillation from existing sessions.
 
 The current `cluster_prepare` accepts direct factsheet JSON and stores only facts whose evidence passes deterministic local checks. By default these factsheets are marked `static_verified`, not `llm_verified`, because static checks prove evidence existence but not full semantic correctness. When `verification_mode` is `llm`, Claude is invoked with a no-tools verifier prompt and only `VERIFIED` facts are promoted to `llm_verified`.

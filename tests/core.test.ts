@@ -59,6 +59,17 @@ describe("core utilities", () => {
     rmSync(dir, { recursive: true, force: true });
   });
 
+  it("loads eval shadow mode config", () => {
+    const dir = makeTempDir("config-eval");
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(path.join(dir, "router.config.toml"), ["[eval]", "shadow_mode = true"].join("\n"));
+
+    const config = loadConfig({ cwd: dir });
+
+    expect(config.eval.shadowMode).toBe(true);
+    rmSync(dir, { recursive: true, force: true });
+  });
+
   it("derives project id from git root basename", () => {
     const dir = makeTempDir("project");
     const nested = path.join(dir, "a", "b");

@@ -257,6 +257,60 @@ describe("cluster MCP tools", () => {
     expect(payload.changed_files).toEqual([]);
     fixture.cleanup();
   });
+
+  it("returns comparison stats and list through MCP tools", async () => {
+    const fixture = createToolFixture();
+    const server = new FakeServer();
+    registerTools(server as unknown as McpServer, fixture.runtime);
+    fixture.runtime.db.insertConsultComparison({
+      id: "cmp-1",
+      projectId: "project",
+      clusterId: "router-ops",
+      question: "What config field exists?",
+      clusterAnswer: "cluster",
+      clusterDurationMs: 10
+    });
+    fixture.runtime.db.updateConsultComparisonDirect({
+      id: "cmp-1",
+      status: "ok",
+      directAnswer: "direct",
+      directDurationMs: 20
+    });
+    fixture.runtime.db.updateConsultComparisonJudge({
+      id: "cmp-1",
+      clusterScore: 3,
+      directScore: 2,
+      preferred: "cluster",
+      clusterErrors: [],
+      directErrors: ["missing detail"],
+      judgeReasoning: "cluster wins"
+    });
+
+    const stats = parseToolJson(await server.call("comparison_stats", { project_id: "project" }));
+    const list = parseToolJson(
+      await server.call("comparison_list", {
+        project_id: "project",
+        include_answers: false
+      })
+    );
+
+    expect(stats.stats).toEqual([
+      {
+        cluster_id: "router-ops",
+        n: 1,
+        cluster_q: 3,
+        direct_q: 2,
+        gap: -1,
+        cluster_wins: 1,
+        direct_wins: 0,
+        ties: 0
+      }
+    ]);
+    expect(list.comparisons).toHaveLength(1);
+    expect(list.comparisons[0].cluster_answer).toBe("[omitted]");
+    expect(list.comparisons[0].direct_answer).toBe("[omitted]");
+    fixture.cleanup();
+  });
 });
 
 class FakeServer {

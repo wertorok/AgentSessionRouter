@@ -156,6 +156,57 @@ export interface ClusterFactsheetInput {
   }>;
 }
 
+export type ShadowStatus = "pending" | "ok" | "failed_auth" | "failed_timeout" | "failed_other";
+export type ComparisonPreference = "cluster" | "direct" | "tie";
+
+export interface ConsultComparisonRecord {
+  id: string;
+  project_id: string;
+  cluster_id: string | null;
+  question: string;
+  cluster_answer: string | null;
+  cluster_duration_ms: number | null;
+  cluster_cost_usd: number | null;
+  cluster_was_not_in_context: number;
+  shadow_method: string;
+  shadow_status: ShadowStatus;
+  shadow_error: string | null;
+  direct_answer: string | null;
+  direct_duration_ms: number | null;
+  direct_cost_usd: number | null;
+  cluster_score: number | null;
+  direct_score: number | null;
+  preferred: ComparisonPreference | null;
+  cluster_errors_json: string | null;
+  direct_errors_json: string | null;
+  judge_reasoning: string | null;
+  judged_at: string | null;
+  created_at: string;
+}
+
+export interface ConsultComparisonInsert {
+  id: string;
+  projectId: string;
+  clusterId?: string | null;
+  question: string;
+  clusterAnswer?: string | null;
+  clusterDurationMs?: number | null;
+  clusterCostUsd?: number | null;
+  clusterWasNotInContext?: boolean;
+  shadowMethod?: string;
+}
+
+export interface ConsultComparisonStats {
+  cluster_id: string | null;
+  n: number;
+  cluster_q: number | null;
+  direct_q: number | null;
+  gap: number | null;
+  cluster_wins: number;
+  direct_wins: number;
+  ties: number;
+}
+
 export class RouterDatabase {
   constructor(
     readonly db: Database.Database,
@@ -772,6 +823,160 @@ export class RouterDatabase {
     this.db
       .prepare("UPDATE clusters SET status = 'active', trust_state = ?, last_used = ? WHERE id = ?")
       .run(trustState, now, factsheet.cluster_id);
+  }
+
+  insertConsultComparison(input: ConsultComparisonInsert): ConsultComparisonRecord {
+    this.db
+      .prepare(
+        `INSERT INTO consult_comparisons (
+          id,
+          project_id,
+          cluster_id,
+          question,
+          cluster_answer,
+          cluster_duration_ms,
+          cluster_cost_usd,
+          cluster_was_not_in_context,
+          shadow_method,
+          shadow_status,
+          created_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?)`
+      )
+      .run(
+        input.id,
+        input.projectId,
+        input.clusterId ?? null,
+        input.question,
+        input.clusterAnswer ?? null,
+        input.clusterDurationMs ?? null,
+        input.clusterCostUsd ?? null,
+        input.clusterWasNotInContext ? 1 : 0,
+        input.shadowMethod ?? "direct_fresh",
+        this.clock.nowIso()
+      );
+    return this.getConsultComparison(input.id)!;
+  }
+
+  updateConsultComparisonDirect(input: {
+    id: string;
+    status: ShadowStatus;
+    directAnswer?: string | null;
+    directDurationMs?: number | null;
+    directCostUsd?: number | null;
+    shadowError?: string | null;
+  }): void {
+    this.db
+      .prepare(
+        `UPDATE consult_comparisons
+         SET shadow_status = ?,
+             shadow_error = ?,
+             direct_answer = ?,
+             direct_duration_ms = ?,
+             direct_cost_usd = ?
+         WHERE id = ?`
+      )
+      .run(
+        input.status,
+        input.shadowError ?? null,
+        input.directAnswer ?? null,
+        input.directDurationMs ?? null,
+        input.directCostUsd ?? null,
+        input.id
+      );
+  }
+
+  updateConsultComparisonJudge(input: {
+    id: string;
+    clusterScore: number;
+    directScore: number;
+    preferred: ComparisonPreference;
+    clusterErrors: string[];
+    directErrors: string[];
+    judgeReasoning: string;
+  }): void {
+    this.db
+      .prepare(
+        `UPDATE consult_comparisons
+         SET cluster_score = ?,
+             direct_score = ?,
+             preferred = ?,
+             cluster_errors_json = ?,
+             direct_errors_json = ?,
+             judge_reasoning = ?,
+             judged_at = ?
+         WHERE id = ?`
+      )
+      .run(
+        input.clusterScore,
+        input.directScore,
+        input.preferred,
+        JSON.stringify(input.clusterErrors),
+        JSON.stringify(input.directErrors),
+        input.judgeReasoning,
+        this.clock.nowIso(),
+        input.id
+      );
+  }
+
+  getConsultComparison(id: string): ConsultComparisonRecord | null {
+    const row = this.db.prepare("SELECT * FROM consult_comparisons WHERE id = ?").get(id) as
+      | ConsultComparisonRecord
+      | undefined;
+    return row ?? null;
+  }
+
+  listConsultComparisons(input: {
+    projectId: string;
+    clusterId?: string | null;
+    preferred?: ComparisonPreference | null;
+    limit: number;
+  }): ConsultComparisonRecord[] {
+    const conditions = ["project_id = ?"];
+    const params: Array<string | number | null> = [input.projectId];
+    if (input.clusterId) {
+      conditions.push("cluster_id = ?");
+      params.push(input.clusterId);
+    }
+    if (input.preferred) {
+      conditions.push("preferred = ?");
+      params.push(input.preferred);
+    }
+    params.push(input.limit);
+    return this.db
+      .prepare(
+        `SELECT *
+         FROM consult_comparisons
+         WHERE ${conditions.join(" AND ")}
+         ORDER BY created_at DESC
+         LIMIT ?`
+      )
+      .all(...params) as ConsultComparisonRecord[];
+  }
+
+  getConsultComparisonStats(projectId: string, clusterId?: string | null): ConsultComparisonStats[] {
+    const conditions = ["project_id = ?", "judged_at IS NOT NULL"];
+    const params: Array<string | number | null> = [projectId];
+    if (clusterId) {
+      conditions.push("cluster_id = ?");
+      params.push(clusterId);
+    }
+    return this.db
+      .prepare(
+        `SELECT
+           cluster_id,
+           COUNT(*) AS n,
+           ROUND(AVG(cluster_score), 2) AS cluster_q,
+           ROUND(AVG(direct_score), 2) AS direct_q,
+           ROUND(AVG(direct_score - cluster_score), 2) AS gap,
+           SUM(CASE WHEN preferred = 'cluster' THEN 1 ELSE 0 END) AS cluster_wins,
+           SUM(CASE WHEN preferred = 'direct' THEN 1 ELSE 0 END) AS direct_wins,
+           SUM(CASE WHEN preferred = 'tie' THEN 1 ELSE 0 END) AS ties
+         FROM consult_comparisons
+         WHERE ${conditions.join(" AND ")}
+         GROUP BY cluster_id
+         ORDER BY n DESC, cluster_id ASC`
+      )
+      .all(...params) as ConsultComparisonStats[];
   }
 
   private selectLifecycleSessions(projectId?: string): SessionRecord[] {

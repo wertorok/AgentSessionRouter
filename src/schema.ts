@@ -174,4 +174,39 @@ CREATE TABLE IF NOT EXISTS cluster_events (
 
 CREATE INDEX IF NOT EXISTS idx_cluster_events_cluster_created
 ON cluster_events(cluster_id, created_at);
+
+CREATE TABLE IF NOT EXISTS consult_comparisons (
+  id TEXT PRIMARY KEY,
+  project_id TEXT NOT NULL,
+  cluster_id TEXT,
+  question TEXT NOT NULL,
+
+  cluster_answer TEXT,
+  cluster_duration_ms INTEGER,
+  cluster_cost_usd REAL,
+  cluster_was_not_in_context INTEGER NOT NULL DEFAULT 0,
+
+  shadow_method TEXT NOT NULL DEFAULT 'direct_fresh',
+  shadow_status TEXT NOT NULL DEFAULT 'pending',
+  shadow_error TEXT,
+  direct_answer TEXT,
+  direct_duration_ms INTEGER,
+  direct_cost_usd REAL,
+
+  cluster_score INTEGER,
+  direct_score INTEGER,
+  preferred TEXT,
+  cluster_errors_json TEXT,
+  direct_errors_json TEXT,
+  judge_reasoning TEXT,
+  judged_at TEXT,
+
+  created_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_consult_comparisons_project_created
+ON consult_comparisons(project_id, created_at);
+
+CREATE INDEX IF NOT EXISTS idx_consult_comparisons_cluster_judged
+ON consult_comparisons(cluster_id, judged_at);
 `;
