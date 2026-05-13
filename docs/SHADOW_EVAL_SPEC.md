@@ -159,6 +159,19 @@ By default full answers are replaced with `"[omitted]"` to keep parent-agent con
 
 This tool never invokes Claude.
 
+### `router_status`
+
+`router_status` includes shadow-eval health in the broader router status snapshot:
+
+- total comparisons
+- judged comparisons
+- pending comparisons
+- `ok` but unjudged comparisons
+- failed shadow baselines by failure class
+- last comparison creation and judge timestamps
+
+This makes a stalled or failing shadow pipeline visible without opening SQLite.
+
 ## 8. Failure Handling
 
 - If cluster consult fails, no comparison is scheduled.

@@ -28,6 +28,7 @@ export class RouterRuntime {
   detectedClaudeVersion: string | undefined;
   testedClaudeVersions: string[] = [];
   degradedReason: string | undefined;
+  readonly startedAt: string;
   private profileAvailability: ProfileAvailability | null = null;
   private maintenanceTimer: NodeJS.Timeout | null = null;
 
@@ -39,7 +40,9 @@ export class RouterRuntime {
     readonly locks: LockProvider,
     readonly clock: Clock,
     readonly logger: Logger
-  ) {}
+  ) {
+    this.startedAt = clock.nowIso();
+  }
 
   async boot(): Promise<void> {
     mkdirSync(this.config.storage.rawLogsDir, { recursive: true });

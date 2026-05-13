@@ -311,6 +311,92 @@ describe("cluster MCP tools", () => {
     expect(list.comparisons[0].direct_answer).toBe("[omitted]");
     fixture.cleanup();
   });
+
+  it("returns aggregate router status with stale cluster and shadow eval warnings", async () => {
+    const fixture = createToolFixture();
+    const server = new FakeServer();
+    registerTools(server as unknown as McpServer, fixture.runtime);
+    fixture.runtime.db.createSession({
+      id: "session-1",
+      projectId: "project",
+      claudeSessionId: "claude-session-1",
+      topic: "Router ops",
+      dormantAfterDays: 30,
+      archiveAfterDays: 90
+    });
+    fixture.runtime.db.logEvent({
+      sessionId: "session-1",
+      projectId: "project",
+      eventType: "parse_failed",
+      error: "bad SESSION_UPDATE_JSON"
+    });
+    fixture.runtime.db.upsertCluster({
+      id: "router-ops",
+      projectId: "project",
+      name: "Router ops",
+      toolProfileDefault: "bare"
+    });
+    const factsheet = fixture.runtime.db.insertClusterFactsheet({
+      id: "factsheet-1",
+      clusterId: "router-ops",
+      status: "static_verified",
+      trustState: "static_verified",
+      contentJson: JSON.stringify({ facts: [] }),
+      fileHashes: []
+    });
+    fixture.runtime.db.markClusterFactsheetStale(factsheet.id);
+    fixture.runtime.db.logClusterEvent({
+      clusterId: "router-ops",
+      projectId: "project",
+      eventType: "cluster_refresh_required"
+    });
+    fixture.runtime.db.insertConsultComparison({
+      id: "cmp-pending",
+      projectId: "project",
+      clusterId: "router-ops",
+      question: "What is stale?",
+      clusterAnswer: "cluster",
+      clusterDurationMs: 1
+    });
+    fixture.runtime.db.insertConsultComparison({
+      id: "cmp-failed",
+      projectId: "project",
+      clusterId: "router-ops",
+      question: "What failed?",
+      clusterAnswer: "cluster",
+      clusterDurationMs: 1
+    });
+    fixture.runtime.db.updateConsultComparisonDirect({
+      id: "cmp-failed",
+      status: "failed_auth",
+      shadowError: "auth failed"
+    });
+    fixture.runtime.config.eval.shadowMode = true;
+
+    const status = parseToolJson(
+      await server.call("router_status", {
+        project_id: "project",
+        recent_hours: 24,
+        warnings_limit: 10
+      })
+    );
+
+    expect(status.mode).toBe("normal");
+    expect(status.v1_sessions.active).toBe(1);
+    expect(status.v2_clusters.stale).toBe(1);
+    expect(status.v2_clusters.stale_clusters[0].id).toBe("router-ops");
+    expect(status.recent_errors.session_events[0]).toMatchObject({ event_type: "parse_failed", count: 1 });
+    expect(status.recent_errors.cluster_events[0]).toMatchObject({ event_type: "cluster_refresh_required", count: 1 });
+    expect(status.shadow_eval).toMatchObject({
+      enabled: true,
+      total: 2,
+      pending: 1,
+      failed_auth: 1
+    });
+    expect(status.warnings.some((warning: string) => warning.includes("router-ops"))).toBe(true);
+    expect(status.warnings.some((warning: string) => warning.includes("Shadow eval"))).toBe(true);
+    fixture.cleanup();
+  });
 });
 
 class FakeServer {

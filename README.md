@@ -47,6 +47,7 @@ Implemented MVP tools:
 - `claude_session_archive`
 - `claude_session_inspect`
 - `claude_router_reset`
+- `router_status`
 
 Experimental cluster-cache tools:
 
@@ -63,11 +64,11 @@ Optional shadow-eval tools:
 
 Validation performed:
 
-- Unit/integration tests: `56 passed`
+- Unit/integration tests: `57 passed`
 - Live MCP stdio E2E: `LIVE_CONSULT_PASS`
 - Live matrix run: committed as `LIVE_TEST_LOG.md`
 - Post-fix targeted live rerun: `TARGETED_RERUN_PASS`
-- Post-install smoke: stub mode passes and covers v1 plus v2 cluster tools
+- Post-install smoke: stub mode passes and covers v1, v2 cluster tools, and `router_status`
 
 Research and next-architecture docs:
 
@@ -354,8 +355,25 @@ If the probe fails, the server starts in degraded mode. In degraded mode:
 - `claude_sessions_list` works
 - `claude_session_inspect` works
 - `claude_session_archive` works
+- `router_status` works
 - `claude_router_reset` can attempt recovery
 - `claude_consult` returns `CLAUDE_INCOMPATIBLE`
+
+## Operational Status
+
+Use `router_status` when a parent agent needs one health snapshot before deciding whether to refresh factsheets, inspect errors, or continue normal work. It does not invoke Claude.
+
+The status report includes:
+
+- normal/degraded mode and Claude version probe details
+- v1 session counts by lifecycle status
+- v2 cluster counts by status, including stale cluster details
+- recent session error event counts
+- recent cluster attention event counts such as `cluster_refresh_required` and `cluster_consult_failed`
+- shadow-eval totals, judged count, pending count, and failed shadow baselines
+- warnings suitable for caller-agent decision rules
+
+Important refresh behavior: `cluster_consult` does not answer from changed evidence. If scoped factsheet files changed, it returns `CLUSTER_FACTSHEET_STALE`, marks the cluster/factsheet stale, and records `cluster_refresh_required`. `router_status` is the aggregate place to notice that this happened without manually querying SQLite.
 
 ## Isolation Diagnostics
 
@@ -532,6 +550,62 @@ Failure:
     "category": "claude_usage_limit",
     "operator_action": "Wait until the Claude usage-limit reset time shown in the error, reduce live consult volume, or switch the Claude CLI to an account with available usage."
   }
+}
+```
+
+### `router_status`
+
+Returns aggregate operational health without invoking Claude.
+
+Input:
+
+```json
+{
+  "project_id": null,
+  "recent_hours": 24,
+  "warnings_limit": 10
+}
+```
+
+Output excerpt:
+
+```json
+{
+  "project_id": "AgentSessionRouter",
+  "mode": "normal",
+  "v1_sessions": {
+    "active": 3,
+    "dormant": 1,
+    "archived": 4,
+    "orphaned": 0,
+    "total": 8
+  },
+  "v2_clusters": {
+    "active": 2,
+    "stale": 1,
+    "invalidated": 0,
+    "archived": 0,
+    "total": 3,
+    "stale_clusters": [
+      {
+        "id": "agentsessionrouter-codebase",
+        "factsheet_version": 2,
+        "factsheet_status": "stale"
+      }
+    ]
+  },
+  "shadow_eval": {
+    "enabled": true,
+    "total": 47,
+    "judged": 43,
+    "pending": 2,
+    "failed_auth": 1,
+    "failed_timeout": 0,
+    "failed_other": 1
+  },
+  "warnings": [
+    "Cluster 'agentsessionrouter-codebase' is stale; latest factsheet factsheet_... version 2 needs refresh or re-prepare."
+  ]
 }
 ```
 

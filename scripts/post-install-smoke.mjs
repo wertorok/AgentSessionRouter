@@ -135,6 +135,17 @@ try {
       clusterList.clusters?.some((cluster) => cluster.id === "post-install-smoke"),
       clusterList
     );
+
+    const routerStatus = await callTool(client, "router_status", {
+      project_id: null,
+      recent_hours: 24,
+      warnings_limit: 10
+    });
+    record(
+      "router_status",
+      routerStatus.mode === "normal" && routerStatus.v1_sessions?.active >= 1 && routerStatus.v2_clusters?.active >= 1,
+      routerStatus
+    );
   });
 
   if (!useLiveClaude) {

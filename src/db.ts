@@ -207,6 +207,41 @@ export interface ConsultComparisonStats {
   ties: number;
 }
 
+export interface StatusCount {
+  status: string;
+  count: number;
+}
+
+export interface EventCount {
+  event_type: string;
+  count: number;
+  latest_created_at: string | null;
+}
+
+export interface StaleClusterView {
+  id: string;
+  name: string;
+  status: ClusterStatus;
+  trust_state: ClusterTrustState;
+  last_used: string;
+  factsheet_id: string | null;
+  factsheet_version: number | null;
+  factsheet_status: ClusterFactsheetStatus | null;
+  verified_at: string | null;
+}
+
+export interface ShadowEvalHealth {
+  total: number;
+  judged: number;
+  pending: number;
+  ok_unjudged: number;
+  failed_auth: number;
+  failed_timeout: number;
+  failed_other: number;
+  last_created_at: string | null;
+  last_judged_at: string | null;
+}
+
 export class RouterDatabase {
   constructor(
     readonly db: Database.Database,
@@ -977,6 +1012,126 @@ export class RouterDatabase {
          ORDER BY n DESC, cluster_id ASC`
       )
       .all(...params) as ConsultComparisonStats[];
+  }
+
+  getSessionStatusCounts(projectId: string): StatusCount[] {
+    return this.db
+      .prepare(
+        `SELECT status, COUNT(*) AS count
+         FROM sessions
+         WHERE project_id = ?
+         GROUP BY status
+         ORDER BY status ASC`
+      )
+      .all(projectId) as StatusCount[];
+  }
+
+  getClusterStatusCounts(projectId: string): StatusCount[] {
+    return this.db
+      .prepare(
+        `SELECT status, COUNT(*) AS count
+         FROM clusters
+         WHERE project_id = ?
+         GROUP BY status
+         ORDER BY status ASC`
+      )
+      .all(projectId) as StatusCount[];
+  }
+
+  getRecentSessionErrorCounts(projectId: string, sinceIso: string): EventCount[] {
+    return this.db
+      .prepare(
+        `SELECT event_type, COUNT(*) AS count, MAX(created_at) AS latest_created_at
+         FROM session_events
+         WHERE project_id = ?
+           AND created_at >= ?
+           AND error IS NOT NULL
+         GROUP BY event_type
+         ORDER BY count DESC, event_type ASC`
+      )
+      .all(projectId, sinceIso) as EventCount[];
+  }
+
+  getRecentClusterAttentionCounts(projectId: string, sinceIso: string): EventCount[] {
+    return this.db
+      .prepare(
+        `SELECT event_type, COUNT(*) AS count, MAX(created_at) AS latest_created_at
+         FROM cluster_events
+         WHERE project_id = ?
+           AND created_at >= ?
+           AND event_type IN (
+             'cluster_consult_failed',
+             'cluster_refresh_required',
+             'factsheet_stale',
+             'factsheet_rejected',
+             'bare_probe_failed',
+             'tool_profile_downgraded'
+           )
+         GROUP BY event_type
+         ORDER BY count DESC, event_type ASC`
+      )
+      .all(projectId, sinceIso) as EventCount[];
+  }
+
+  listStaleClusters(projectId: string, limit: number): StaleClusterView[] {
+    return this.db
+      .prepare(
+        `SELECT
+           c.id,
+           c.name,
+           c.status,
+           c.trust_state,
+           c.last_used,
+           f.id AS factsheet_id,
+           f.version AS factsheet_version,
+           f.status AS factsheet_status,
+           f.verified_at
+         FROM clusters c
+         LEFT JOIN cluster_factsheets f
+           ON f.id = (
+             SELECT id
+             FROM cluster_factsheets
+             WHERE cluster_id = c.id
+             ORDER BY version DESC
+             LIMIT 1
+           )
+         WHERE c.project_id = ?
+           AND c.status = 'stale'
+         ORDER BY c.last_used DESC
+         LIMIT ?`
+      )
+      .all(projectId, limit) as StaleClusterView[];
+  }
+
+  getShadowEvalHealth(projectId: string): ShadowEvalHealth {
+    const row = this.db
+      .prepare(
+        `SELECT
+           COUNT(*) AS total,
+           SUM(CASE WHEN judged_at IS NOT NULL THEN 1 ELSE 0 END) AS judged,
+           SUM(CASE WHEN shadow_status = 'pending' THEN 1 ELSE 0 END) AS pending,
+           SUM(CASE WHEN shadow_status = 'ok' AND judged_at IS NULL THEN 1 ELSE 0 END) AS ok_unjudged,
+           SUM(CASE WHEN shadow_status = 'failed_auth' THEN 1 ELSE 0 END) AS failed_auth,
+           SUM(CASE WHEN shadow_status = 'failed_timeout' THEN 1 ELSE 0 END) AS failed_timeout,
+           SUM(CASE WHEN shadow_status = 'failed_other' THEN 1 ELSE 0 END) AS failed_other,
+           MAX(created_at) AS last_created_at,
+           MAX(judged_at) AS last_judged_at
+         FROM consult_comparisons
+         WHERE project_id = ?`
+      )
+      .get(projectId) as Partial<ShadowEvalHealth> | undefined;
+
+    return {
+      total: row?.total ?? 0,
+      judged: row?.judged ?? 0,
+      pending: row?.pending ?? 0,
+      ok_unjudged: row?.ok_unjudged ?? 0,
+      failed_auth: row?.failed_auth ?? 0,
+      failed_timeout: row?.failed_timeout ?? 0,
+      failed_other: row?.failed_other ?? 0,
+      last_created_at: row?.last_created_at ?? null,
+      last_judged_at: row?.last_judged_at ?? null
+    };
   }
 
   private selectLifecycleSessions(projectId?: string): SessionRecord[] {

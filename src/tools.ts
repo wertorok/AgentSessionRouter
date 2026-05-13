@@ -3,9 +3,10 @@ import { z } from "zod";
 import { consultCluster } from "./clusterConsult.js";
 import { refreshCluster } from "./clusterRefresh.js";
 import { prepareCluster, type FactsheetInput } from "./cluster.js";
-import { ERROR_CODES } from "./constants.js";
+import { isoHoursAgo } from "./clock.js";
+import { ERROR_CODES, SESSION_STATUSES } from "./constants.js";
 import { ConsultService } from "./consult.js";
-import type { ClusterFactsheetRecord } from "./db.js";
+import type { ClusterFactsheetRecord, EventCount, ShadowEvalHealth, StaleClusterView, StatusCount } from "./db.js";
 import { diagnoseClaudeFailure, errorPayload, SPEC_ERROR_MESSAGES } from "./errors.js";
 import { pickProfile, type ProfileSelection } from "./profiles.js";
 import { resolveProjectId } from "./project.js";
@@ -44,6 +45,12 @@ const archiveInput = z.object({
 
 const routerResetInput = z.object({
   reason: z.string()
+});
+
+const routerStatusInput = z.object({
+  project_id: z.string().nullable().optional(),
+  recent_hours: z.number().int().min(1).max(168).default(24),
+  warnings_limit: z.number().int().min(1).max(50).default(10)
 });
 
 const clusterToolProfileInput = z.enum(["bare", "focused", "agent"]);
@@ -289,6 +296,74 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
       return jsonToolResult({
         ok: true,
         mode: "normal"
+      });
+    }
+  );
+
+  server.registerTool(
+    "router_status",
+    {
+      title: "Router status",
+      description: "Returns aggregate router health, stale cluster, recent error, and shadow eval status.",
+      inputSchema: routerStatusInput
+    },
+    async (input) => {
+      const projectId = resolveProjectId(input.project_id, runtime.cwd);
+      runtime.db.applyLifecycle(projectId);
+      const recentHours = input.recent_hours ?? 24;
+      const warningsLimit = input.warnings_limit ?? 10;
+      const sinceIso = isoHoursAgo(runtime.clock, recentHours);
+      const staleClusters = runtime.db.listStaleClusters(projectId, warningsLimit);
+      const sessionErrors = runtime.db.getRecentSessionErrorCounts(projectId, sinceIso);
+      const clusterAttention = runtime.db.getRecentClusterAttentionCounts(projectId, sinceIso);
+      const shadowEval = runtime.db.getShadowEvalHealth(projectId);
+      const sessionCounts = countMap(runtime.db.getSessionStatusCounts(projectId), SESSION_STATUSES);
+      const clusterCounts = countMap(runtime.db.getClusterStatusCounts(projectId), [
+        "active",
+        "stale",
+        "invalidated",
+        "archived"
+      ]);
+      const warnings = buildStatusWarnings({
+        degradedMode: runtime.degradedMode,
+        degradedReason: runtime.degradedReason,
+        staleClusters,
+        sessionErrors,
+        clusterAttention,
+        shadowEval,
+        shadowEnabled: runtime.config.eval.shadowMode,
+        limit: warningsLimit
+      });
+
+      return jsonToolResult({
+        project_id: projectId,
+        checked_at: runtime.clock.nowIso(),
+        mode: runtime.degradedMode ? "degraded" : "normal",
+        degraded_reason: runtime.degradedReason ?? null,
+        uptime_hours: round2((runtime.clock.nowMillis() - new Date(runtime.startedAt).getTime()) / 3_600_000),
+        claude: {
+          detected_version: runtime.detectedClaudeVersion ?? null,
+          tested_versions: runtime.testedClaudeVersions
+        },
+        v1_sessions: {
+          ...sessionCounts,
+          total: sumCounts(sessionCounts)
+        },
+        v2_clusters: {
+          ...clusterCounts,
+          total: sumCounts(clusterCounts),
+          stale_clusters: staleClusters
+        },
+        recent_window_hours: recentHours,
+        recent_errors: {
+          session_events: sessionErrors,
+          cluster_events: clusterAttention
+        },
+        shadow_eval: {
+          enabled: runtime.config.eval.shadowMode,
+          ...shadowEval
+        },
+        warnings
       });
     }
   );
@@ -563,6 +638,65 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
       });
     }
   );
+}
+
+function countMap(rows: StatusCount[], keys: readonly string[]): Record<string, number> {
+  const counts: Record<string, number> = {};
+  for (const key of keys) {
+    counts[key] = 0;
+  }
+  for (const row of rows) {
+    counts[row.status] = row.count;
+  }
+  return counts;
+}
+
+function sumCounts(counts: Record<string, number>): number {
+  return Object.values(counts).reduce((sum, count) => sum + count, 0);
+}
+
+function round2(value: number): number {
+  return Math.round(value * 100) / 100;
+}
+
+function buildStatusWarnings(input: {
+  degradedMode: boolean;
+  degradedReason?: string;
+  staleClusters: StaleClusterView[];
+  sessionErrors: EventCount[];
+  clusterAttention: EventCount[];
+  shadowEval: ShadowEvalHealth;
+  shadowEnabled: boolean;
+  limit: number;
+}): string[] {
+  const warnings: string[] = [];
+  if (input.degradedMode) {
+    warnings.push(`Router is degraded: ${input.degradedReason ?? "unknown reason"}`);
+  }
+  for (const cluster of input.staleClusters) {
+    warnings.push(
+      `Cluster '${cluster.id}' is stale; latest factsheet ${cluster.factsheet_id ?? "unknown"} version ${
+        cluster.factsheet_version ?? "unknown"
+      } needs refresh or re-prepare.`
+    );
+  }
+  for (const event of input.clusterAttention) {
+    warnings.push(`Cluster event '${event.event_type}' occurred ${event.count} time(s) in the recent window.`);
+  }
+  for (const event of input.sessionErrors) {
+    warnings.push(`Session event '${event.event_type}' has ${event.count} error row(s) in the recent window.`);
+  }
+  if (input.shadowEnabled) {
+    const stalled = input.shadowEval.pending + input.shadowEval.ok_unjudged;
+    const failed = input.shadowEval.failed_auth + input.shadowEval.failed_timeout + input.shadowEval.failed_other;
+    if (stalled > 0) {
+      warnings.push(`Shadow eval has ${stalled} unjudged comparison(s).`);
+    }
+    if (failed > 0) {
+      warnings.push(`Shadow eval has ${failed} failed shadow comparison(s).`);
+    }
+  }
+  return warnings.slice(0, input.limit);
 }
 
 function serializeFactsheet(factsheet: ClusterFactsheetRecord): object {
