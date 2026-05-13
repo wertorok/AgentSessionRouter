@@ -222,6 +222,59 @@ describe("cluster MCP tools", () => {
     fixture.cleanup();
   });
 
+  it("auto-refreshes stale cluster factsheets inside cluster_consult", async () => {
+    const claude = new FakeClaude("Cluster answer after refresh.");
+    const fixture = createToolFixture(claude);
+    const server = new FakeServer();
+    registerTools(server as unknown as McpServer, fixture.runtime);
+    mkdirSync(path.join(fixture.dir, "src"), { recursive: true });
+    const configPath = path.join(fixture.dir, "src", "config.ts");
+    writeFileSync(configPath, "export const extraArgs = [];\n");
+
+    await server.call("cluster_prepare", {
+      project_id: "project",
+      cluster_id: "router-ops",
+      tool_profile_default: "bare",
+      factsheet: {
+        facts: [
+          {
+            id: "extra-args",
+            claim: "extraArgs exists.",
+            evidence: [{ path: "src/config.ts", selector: "extraArgs" }]
+          }
+        ]
+      }
+    });
+    writeFileSync(configPath, "export const extraArgs = ['changed'];\n");
+
+    const result = await server.call("cluster_consult", {
+      project_id: "project",
+      cluster_id: "router-ops",
+      question: "What config field exists?",
+      allow_static_factsheet: true
+    });
+    const payload = parseToolJson(result);
+    const latest = fixture.runtime.db.getLatestClusterFactsheet("router-ops");
+    const events = fixture.runtime.db.db
+      .prepare("SELECT event_type FROM cluster_events WHERE cluster_id = ? ORDER BY id")
+      .all("router-ops") as Array<{ event_type: string }>;
+
+    expect(result.isError).toBeFalsy();
+    expect(payload.answer).toBe("Cluster answer after refresh.");
+    expect(payload.auto_refresh).toMatchObject({
+      occurred: true,
+      factsheet_version: 2,
+      retained_facts: 1,
+      original_facts: 1
+    });
+    expect(latest?.version).toBe(2);
+    expect(latest?.status).toBe("static_verified");
+    expect(fixture.runtime.db.getCluster("project", "router-ops")?.status).toBe("active");
+    expect(events.map((event) => event.event_type)).toContain("cluster_refresh_required");
+    expect(events.map((event) => event.event_type)).toContain("auto_refresh_succeeded");
+    fixture.cleanup();
+  });
+
   it("refreshes a cluster factsheet through the MCP tool", async () => {
     const fixture = createToolFixture();
     const server = new FakeServer();

@@ -1064,6 +1064,8 @@ export class RouterDatabase {
              'cluster_refresh_required',
              'factsheet_stale',
              'factsheet_rejected',
+             'auto_refresh_failed',
+             'auto_refresh_rejected',
              'bare_probe_failed',
              'tool_profile_downgraded'
            )

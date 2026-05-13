@@ -37,6 +37,10 @@ export interface RouterConfig {
   eval: {
     shadowMode: boolean;
   };
+  cluster: {
+    autoRefresh: boolean;
+    autoRefreshMinRetainedRatio: number;
+  };
   configDir: string;
 }
 
@@ -60,6 +64,7 @@ export function loadConfig(options: LoadConfigOptions): RouterConfig {
   const matching = objectAt(parsed, "matching");
   const claude = objectAt(parsed, "claude");
   const evalConfig = objectAt(parsed, "eval");
+  const cluster = objectAt(parsed, "cluster");
 
   return {
     storage: {
@@ -120,6 +125,14 @@ export function loadConfig(options: LoadConfigOptions): RouterConfig {
     },
     eval: {
       shadowMode: booleanAt(evalConfig, "shadow_mode", DEFAULT_CONFIG.eval.shadowMode)
+    },
+    cluster: {
+      autoRefresh: booleanAt(cluster, "auto_refresh", DEFAULT_CONFIG.cluster.autoRefresh),
+      autoRefreshMinRetainedRatio: numberAt(
+        cluster,
+        "auto_refresh_min_retained_ratio",
+        DEFAULT_CONFIG.cluster.autoRefreshMinRetainedRatio
+      )
     },
     configDir
   };

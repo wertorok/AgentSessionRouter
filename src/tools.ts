@@ -1,6 +1,8 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
+import { autoRefreshClusterFactsheet, type ClusterAutoRefreshSuccess } from "./clusterAutoRefresh.js";
 import { consultCluster } from "./clusterConsult.js";
+import type { ClusterConsultResult, ClusterConsultSuccess } from "./clusterConsult.js";
 import { refreshCluster } from "./clusterRefresh.js";
 import { prepareCluster, type FactsheetInput } from "./cluster.js";
 import { isoHoursAgo } from "./clock.js";
@@ -505,8 +507,7 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
         );
       }
 
-      const availability = await runtime.getProfileAvailability();
-      const result = await consultCluster(runtime.db, runtime.cwd, runtime.claude, availability, {
+      const result = await consultClusterForCaller(runtime, {
         projectId,
         clusterId: input.cluster_id,
         question: input.question,
@@ -638,6 +639,54 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
       });
     }
   );
+}
+
+async function consultClusterForCaller(
+  runtime: RouterRuntime,
+  input: {
+    projectId: string;
+    clusterId: string;
+    question: string;
+    toolProfile?: "bare" | "focused" | "agent" | null;
+    allowStaticFactsheet?: boolean;
+  }
+): Promise<ClusterConsultResult | (ClusterConsultSuccess & { auto_refresh: ClusterAutoRefreshSuccess })> {
+  const availability = await runtime.getProfileAvailability();
+  const result = await consultCluster(runtime.db, runtime.cwd, runtime.claude, availability, input);
+  if (!("error" in result) || result.error.code !== ERROR_CODES.CLUSTER_FACTSHEET_STALE || !runtime.config.cluster.autoRefresh) {
+    return result;
+  }
+
+  return runtime.locks.withLock(`cluster-auto-refresh:${input.projectId}:${input.clusterId}`, async () => {
+    const afterWaitAvailability = await runtime.getProfileAvailability();
+    const afterWaitResult = await consultCluster(runtime.db, runtime.cwd, runtime.claude, afterWaitAvailability, input);
+    if (!("error" in afterWaitResult)) {
+      return afterWaitResult;
+    }
+    if (afterWaitResult.error.code !== ERROR_CODES.CLUSTER_FACTSHEET_STALE) {
+      return afterWaitResult;
+    }
+
+    const refresh = await autoRefreshClusterFactsheet(runtime.db, runtime.cwd, runtime.claude, {
+      projectId: input.projectId,
+      clusterId: input.clusterId,
+      allowStaticFactsheet: input.allowStaticFactsheet,
+      minRetainedRatio: runtime.config.cluster.autoRefreshMinRetainedRatio
+    });
+    if ("error" in refresh) {
+      return refresh;
+    }
+
+    const refreshedAvailability = await runtime.getProfileAvailability();
+    const refreshedResult = await consultCluster(runtime.db, runtime.cwd, runtime.claude, refreshedAvailability, input);
+    if ("error" in refreshedResult) {
+      return refreshedResult;
+    }
+    return {
+      ...refreshedResult,
+      auto_refresh: refresh
+    };
+  });
 }
 
 function countMap(rows: StatusCount[], keys: readonly string[]): Record<string, number> {

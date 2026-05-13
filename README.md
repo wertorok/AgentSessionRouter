@@ -64,7 +64,7 @@ Optional shadow-eval tools:
 
 Validation performed:
 
-- Unit/integration tests: `57 passed`
+- Unit/integration tests: `59 passed`
 - Live MCP stdio E2E: `LIVE_CONSULT_PASS`
 - Live matrix run: committed as `LIVE_TEST_LOG.md`
 - Post-fix targeted live rerun: `TARGETED_RERUN_PASS`
@@ -305,6 +305,10 @@ compatibility_file = "COMPATIBILITY.md"
 
 [eval]
 shadow_mode = false
+
+[cluster]
+auto_refresh = true
+auto_refresh_min_retained_ratio = 0.5
 ```
 
 Relative paths in `router.config.toml` are resolved relative to the directory containing that config file, not relative to the process cwd.
@@ -328,6 +332,8 @@ extra_args = ["--tools", ""]
 `claude.command_timeout_ms` bounds each Claude CLI command, including startup health probes and consult calls. Set the MCP client's startup timeout above this value plus process startup overhead.
 
 `eval.shadow_mode` enables optional v2.1-lite quality telemetry. When `true`, each successful `cluster_consult` schedules a background comparison against an isolated fresh Claude baseline and stores the judge result in `consult_comparisons`. This does not block or alter the response returned to the parent agent, and it does not write shadow results into production Claude session registry state.
+
+`cluster.auto_refresh` makes caller-facing `cluster_consult` self-heal stale factsheets when possible. If scoped evidence changed, the router re-verifies the existing factsheet against current files, writes a new factsheet version, then consults Claude in the same MCP call. `cluster.auto_refresh_min_retained_ratio` controls how much of the old factsheet must survive verification; below that threshold the router returns `CLUSTER_FACTSHEET_UNRECOVERABLE` with details instead of asking the parent agent to perform multiple retry steps.
 
 ## Compatibility
 
@@ -373,7 +379,7 @@ The status report includes:
 - shadow-eval totals, judged count, pending count, and failed shadow baselines
 - warnings suitable for caller-agent decision rules
 
-Important refresh behavior: `cluster_consult` does not answer from changed evidence. If scoped factsheet files changed, it returns `CLUSTER_FACTSHEET_STALE`, marks the cluster/factsheet stale, and records `cluster_refresh_required`. `router_status` is the aggregate place to notice that this happened without manually querying SQLite.
+Important refresh behavior: caller-facing `cluster_consult` does not answer from changed evidence. If scoped factsheet files changed and `cluster.auto_refresh` is enabled, it attempts an internal refresh and returns the final answer in the same MCP call. If too few facts survive or verification fails, it returns `CLUSTER_FACTSHEET_UNRECOVERABLE`. `router_status` is the aggregate place to notice stale clusters, refresh failures, and shadow-eval drift without manually querying SQLite.
 
 ## Isolation Diagnostics
 
@@ -696,7 +702,9 @@ Behavior:
 - Requires the current factsheet to be `llm_verified` by default.
 - Set `allow_static_factsheet: true` only when you intentionally accept static-only evidence checks.
 - Checks scoped evidence file hashes before invoking Claude.
-- Returns `CLUSTER_FACTSHEET_STALE` if cited files changed.
+- If cited files changed and `cluster.auto_refresh` is enabled, re-verifies the factsheet internally before consulting.
+- Returns `CLUSTER_FACTSHEET_UNRECOVERABLE` if automatic refresh cannot retain enough verified facts.
+- Returns `CLUSTER_FACTSHEET_STALE` only when automatic refresh is disabled or unavailable in the lower-level service path.
 - Selects `bare`, `focused`, or `agent` through the profile selector; `bare` can downgrade to `focused`, but never to `agent`.
 
 Output:
@@ -708,6 +716,13 @@ Output:
   "factsheet_status": "llm_verified",
   "tool_profile": "bare",
   "used_fork": false,
+  "auto_refresh": {
+    "occurred": true,
+    "factsheet_version": 2,
+    "retained_facts": 4,
+    "original_facts": 4,
+    "retained_ratio": 1
+  },
   "answer": "..."
 }
 ```
@@ -1015,6 +1030,9 @@ Cluster-cache actions write to `cluster_events`. Current event types:
 cluster_consult
 cluster_consult_failed
 cluster_created
+auto_refresh_failed
+auto_refresh_rejected
+auto_refresh_succeeded
 cluster_refresh
 cluster_refresh_required
 factsheet_static_verified
@@ -1224,6 +1242,7 @@ The harness uses a Haiku wrapper for cost control on Windows because Node cannot
 src/
   claude.ts          Claude CLI adapter and health probe
   clock.ts           Centralized clock helpers
+  clusterAutoRefresh.ts caller-facing stale factsheet self-healing
   clusterConsult.ts  cluster_consult factsheet invocation service
   clusterRefresh.ts  cluster_refresh scoped factsheet revalidation service
   cluster.ts         Static cluster factsheet verification and preparation

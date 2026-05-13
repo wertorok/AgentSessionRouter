@@ -201,6 +201,9 @@ Suggested event types:
 - `bare_probe_failed`
 - `cluster_consult`
 - `cluster_refresh_required`
+- `auto_refresh_succeeded`
+- `auto_refresh_failed`
+- `auto_refresh_rejected`
 
 ## 6. Factsheet Format
 
@@ -584,7 +587,15 @@ Factsheet freshness is scoped to evidence files.
 
 On every `cluster_consult`, compare current file hashes to `cluster_file_hashes` for the active factsheet.
 
-If any evidence file changed:
+Caller-facing MCP `cluster_consult` now treats stale evidence as a recoverable condition when `[cluster].auto_refresh = true`:
+
+1. Detect stale scoped evidence.
+2. Acquire a per-cluster auto-refresh lock.
+3. Re-verify the latest factsheet against current files after stripping old evidence hashes.
+4. Re-run LLM verification when the previous factsheet was LLM-verified.
+5. Store a new factsheet version and continue the consult in the same MCP call.
+
+If automatic refresh is disabled or the lower-level service is called directly, stale evidence returns:
 
 ```json
 {
@@ -605,7 +616,7 @@ Policy options for later:
 - `auto_verify`: run `verify_only` automatically.
 - `auto_refresh`: run focused refresh automatically.
 
-MVP default: `strict`.
+Current caller-facing default: `auto_refresh`.
 
 ## 12. Routing Policy
 
@@ -651,8 +662,9 @@ Cause:
 
 Behavior:
 
-- Return `CLUSTER_FACTSHEET_STALE`.
-- Suggest `cluster_refresh`.
+- Caller-facing `cluster_consult` auto-refreshes when `[cluster].auto_refresh = true`.
+- If enough facts survive, write `auto_refresh_succeeded` and continue the consult.
+- If too few facts survive, return `CLUSTER_FACTSHEET_UNRECOVERABLE` with retained counts and suggested action.
 - Do not silently consult stale facts.
 
 ### Factsheet Verification Fails

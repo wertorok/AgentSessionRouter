@@ -42,7 +42,9 @@ export const SPEC_ERROR_MESSAGES = {
     "Cluster factsheet failed static verification. Store only facts backed by local evidence.",
   [ERROR_CODES.CLUSTER_FACTSHEET_STALE]: "Cluster factsheet is stale. Run cluster_refresh before consulting.",
   [ERROR_CODES.CLUSTER_FACTSHEET_UNTRUSTED]:
-    "Cluster factsheet is not LLM-verified. Run cluster_prepare with verification_mode=llm or explicitly allow static facts."
+    "Cluster factsheet is not LLM-verified. Run cluster_prepare with verification_mode=llm or explicitly allow static facts.",
+  [ERROR_CODES.CLUSTER_FACTSHEET_UNRECOVERABLE]:
+    "Cluster factsheet is stale and automatic refresh could not retain enough verified facts."
 } as const;
 
 export interface ClaudeFailureDiagnosis {

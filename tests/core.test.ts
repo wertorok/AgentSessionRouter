@@ -70,6 +70,21 @@ describe("core utilities", () => {
     rmSync(dir, { recursive: true, force: true });
   });
 
+  it("loads cluster auto-refresh config", () => {
+    const dir = makeTempDir("config-cluster");
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(
+      path.join(dir, "router.config.toml"),
+      ["[cluster]", "auto_refresh = false", "auto_refresh_min_retained_ratio = 0.75"].join("\n")
+    );
+
+    const config = loadConfig({ cwd: dir });
+
+    expect(config.cluster.autoRefresh).toBe(false);
+    expect(config.cluster.autoRefreshMinRetainedRatio).toBe(0.75);
+    rmSync(dir, { recursive: true, force: true });
+  });
+
   it("derives project id from git root basename", () => {
     const dir = makeTempDir("project");
     const nested = path.join(dir, "a", "b");
