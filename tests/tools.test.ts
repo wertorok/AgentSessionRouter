@@ -9,7 +9,7 @@ import type { Clock } from "../src/clock.js";
 import { loadConfig } from "../src/config.js";
 import { ERROR_CODES } from "../src/constants.js";
 import { RouterDatabase } from "../src/db.js";
-import { MemoryLockProvider } from "../src/locks.js";
+import { MemoryLockProvider, type LockProvider } from "../src/locks.js";
 import type { Logger } from "../src/logger.js";
 import { RouterRuntime } from "../src/runtime.js";
 import { registerTools } from "../src/tools.js";
@@ -55,6 +55,7 @@ describe("cluster MCP tools", () => {
     expect(get.cluster.trust_state).toBe("static_verified");
     expect(get.current_factsheet.status).toBe("static_verified");
     expect(get.current_factsheet.content.facts).toHaveLength(1);
+    expect(get.current_factsheet.content.facts[0].evidence[0].snippet_hash).toMatch(/^sha256:/);
     expect(get.file_hashes).toHaveLength(1);
     expect(list.clusters).toHaveLength(1);
     expect(list.clusters[0].current_factsheet.fact_count).toBe(1);
@@ -222,14 +223,14 @@ describe("cluster MCP tools", () => {
     fixture.cleanup();
   });
 
-  it("auto-refreshes stale cluster factsheets inside cluster_consult", async () => {
-    const claude = new FakeClaude("Cluster answer after refresh.");
+  it("uses the fast path when evidence files are unchanged", async () => {
+    const claude = new FakeClaude("Cluster answer.");
     const fixture = createToolFixture(claude);
     const server = new FakeServer();
     registerTools(server as unknown as McpServer, fixture.runtime);
     mkdirSync(path.join(fixture.dir, "src"), { recursive: true });
     const configPath = path.join(fixture.dir, "src", "config.ts");
-    writeFileSync(configPath, "export const extraArgs = [];\n");
+    writeFileSync(configPath, configWithExtraArgs());
 
     await server.call("cluster_prepare", {
       project_id: "project",
@@ -245,7 +246,35 @@ describe("cluster MCP tools", () => {
         ]
       }
     });
-    writeFileSync(configPath, "export const extraArgs = ['changed'];\n");
+
+    const result = await server.call("cluster_consult", {
+      project_id: "project",
+      cluster_id: "router-ops",
+      question: "What config field exists?",
+      allow_static_factsheet: true
+    });
+    const payload = parseToolJson(result);
+    const events = fixture.runtime.db.db
+      .prepare("SELECT event_type FROM cluster_events WHERE cluster_id = ? ORDER BY id")
+      .all("router-ops") as Array<{ event_type: string }>;
+
+    expect(result.isError).toBeFalsy();
+    expect(payload.answer).toBe("Cluster answer.");
+    expect(events.map((event) => event.event_type)).not.toContain("evidence_revalidated");
+    fixture.cleanup();
+  });
+
+  it("revalidates changed files when selectors and snippets still match", async () => {
+    const claude = new FakeClaude("Cluster answer after revalidation.");
+    const fixture = createToolFixture(claude);
+    const server = new FakeServer();
+    registerTools(server as unknown as McpServer, fixture.runtime);
+    mkdirSync(path.join(fixture.dir, "src"), { recursive: true });
+    const configPath = path.join(fixture.dir, "src", "config.ts");
+    writeFileSync(configPath, configWithExtraArgs());
+
+    await prepareExtraArgsCluster(server);
+    writeFileSync(configPath, configWithExtraArgs({ prefixLine: "const unrelatedChange = 1;" }));
 
     const result = await server.call("cluster_consult", {
       project_id: "project",
@@ -255,23 +284,174 @@ describe("cluster MCP tools", () => {
     });
     const payload = parseToolJson(result);
     const latest = fixture.runtime.db.getLatestClusterFactsheet("router-ops");
-    const events = fixture.runtime.db.db
-      .prepare("SELECT event_type FROM cluster_events WHERE cluster_id = ? ORDER BY id")
-      .all("router-ops") as Array<{ event_type: string }>;
+    const events = clusterEventTypes(fixture.runtime.db, "router-ops");
 
     expect(result.isError).toBeFalsy();
-    expect(payload.answer).toBe("Cluster answer after refresh.");
-    expect(payload.auto_refresh).toMatchObject({
-      occurred: true,
-      factsheet_version: 2,
-      retained_facts: 1,
-      original_facts: 1
-    });
+    expect(payload.answer).toBe("Cluster answer after revalidation.");
+    expect(payload.auto_refresh).toBeUndefined();
     expect(latest?.version).toBe(2);
     expect(latest?.status).toBe("static_verified");
     expect(fixture.runtime.db.getCluster("project", "router-ops")?.status).toBe("active");
-    expect(events.map((event) => event.event_type)).toContain("cluster_refresh_required");
-    expect(events.map((event) => event.event_type)).toContain("auto_refresh_succeeded");
+    expect(events).toContain("cluster_refresh_required");
+    expect(events).toContain("evidence_revalidated");
+    fixture.cleanup();
+  });
+
+  it("revalidates when a selector moves but its snippet stays the same", async () => {
+    const claude = new FakeClaude("Cluster answer after move.");
+    const fixture = createToolFixture(claude);
+    const server = new FakeServer();
+    registerTools(server as unknown as McpServer, fixture.runtime);
+    mkdirSync(path.join(fixture.dir, "src"), { recursive: true });
+    const configPath = path.join(fixture.dir, "src", "config.ts");
+    writeFileSync(configPath, configWithExtraArgs());
+
+    await prepareExtraArgsCluster(server);
+    writeFileSync(configPath, configWithExtraArgs({ leadingLines: ["// inserted line A", "// inserted line B"] }));
+
+    const result = await server.call("cluster_consult", {
+      project_id: "project",
+      cluster_id: "router-ops",
+      question: "What config field exists?",
+      allow_static_factsheet: true
+    });
+    const payload = parseToolJson(result);
+
+    expect(result.isError).toBeFalsy();
+    expect(payload.answer).toBe("Cluster answer after move.");
+    expect(clusterEventTypes(fixture.runtime.db, "router-ops")).toContain("evidence_revalidated");
+    fixture.cleanup();
+  });
+
+  it("does not consult from a factsheet when a selector is deleted", async () => {
+    const fixture = createToolFixture(new FakeClaude("should not be used"));
+    const server = new FakeServer();
+    registerTools(server as unknown as McpServer, fixture.runtime);
+    mkdirSync(path.join(fixture.dir, "src"), { recursive: true });
+    const configPath = path.join(fixture.dir, "src", "config.ts");
+    writeFileSync(configPath, configWithExtraArgs());
+
+    await prepareExtraArgsCluster(server);
+    writeFileSync(configPath, configWithoutExtraArgs());
+
+    const result = await server.call("cluster_consult", {
+      project_id: "project",
+      cluster_id: "router-ops",
+      question: "What config field exists?",
+      allow_static_factsheet: true
+    });
+    const payload = parseToolJson(result);
+
+    expect(result.isError).toBe(true);
+    expect(payload.error.code).toBe(ERROR_CODES.CLUSTER_FACTSHEET_UNRECOVERABLE);
+    expect(JSON.stringify(payload.error.details)).toContain("selector not found");
+    expect(clusterEventTypes(fixture.runtime.db, "router-ops")).toContain("evidence_revalidation_failed");
+    fixture.cleanup();
+  });
+
+  it("rejects partial evidence revalidation even if retained-ratio config is lowered", async () => {
+    const fixture = createToolFixture(new FakeClaude("should not be used"));
+    fixture.runtime.config.cluster.autoRefreshMinRetainedRatio = 0.5;
+    const server = new FakeServer();
+    registerTools(server as unknown as McpServer, fixture.runtime);
+    mkdirSync(path.join(fixture.dir, "src"), { recursive: true });
+    const configPath = path.join(fixture.dir, "src", "config.ts");
+    writeFileSync(configPath, `${configWithExtraArgs()}\nexport const keptSelector = true;\n`);
+
+    await server.call("cluster_prepare", {
+      project_id: "project",
+      cluster_id: "router-ops",
+      tool_profile_default: "bare",
+      factsheet: {
+        facts: [
+          {
+            id: "extra-args",
+            claim: "extraArgs exists.",
+            evidence: [{ path: "src/config.ts", selector: "extraArgs" }]
+          },
+          {
+            id: "kept-selector",
+            claim: "keptSelector exists.",
+            evidence: [{ path: "src/config.ts", selector: "keptSelector" }]
+          }
+        ]
+      }
+    });
+    writeFileSync(configPath, `${configWithoutExtraArgs()}\nexport const keptSelector = true;\n`);
+
+    const result = await server.call("cluster_consult", {
+      project_id: "project",
+      cluster_id: "router-ops",
+      question: "What config fields exist?",
+      allow_static_factsheet: true
+    });
+    const payload = parseToolJson(result);
+
+    expect(result.isError).toBe(true);
+    expect(payload.error.code).toBe(ERROR_CODES.CLUSTER_FACTSHEET_UNRECOVERABLE);
+    expect(payload.error.details.revalidated_facts).toBe(1);
+    expect(payload.error.details.original_facts).toBe(2);
+    fixture.cleanup();
+  });
+
+  it("does not consult from a factsheet when selector snippet content changes", async () => {
+    const fixture = createToolFixture(new FakeClaude("should not be used"));
+    const server = new FakeServer();
+    registerTools(server as unknown as McpServer, fixture.runtime);
+    mkdirSync(path.join(fixture.dir, "src"), { recursive: true });
+    const configPath = path.join(fixture.dir, "src", "config.ts");
+    writeFileSync(configPath, configWithExtraArgs());
+
+    await prepareExtraArgsCluster(server);
+    writeFileSync(configPath, configWithExtraArgs({ nearbyLine: "const nearSelector = 42;" }));
+
+    const result = await server.call("cluster_consult", {
+      project_id: "project",
+      cluster_id: "router-ops",
+      question: "What config field exists?",
+      allow_static_factsheet: true
+    });
+    const payload = parseToolJson(result);
+
+    expect(result.isError).toBe(true);
+    expect(payload.error.code).toBe(ERROR_CODES.CLUSTER_FACTSHEET_UNRECOVERABLE);
+    expect(JSON.stringify(payload.error.details)).toContain("snippet changed");
+    expect(clusterEventTypes(fixture.runtime.db, "router-ops")).toContain("evidence_revalidation_failed");
+    fixture.cleanup();
+  });
+
+  it("serializes concurrent stale consult revalidation per cluster", async () => {
+    const locks = new TrackingLockProvider();
+    const claude = new FakeClaude("Cluster answer after locked revalidation.");
+    const fixture = createToolFixture(claude, locks);
+    const server = new FakeServer();
+    registerTools(server as unknown as McpServer, fixture.runtime);
+    mkdirSync(path.join(fixture.dir, "src"), { recursive: true });
+    const configPath = path.join(fixture.dir, "src", "config.ts");
+    writeFileSync(configPath, configWithExtraArgs());
+
+    await prepareExtraArgsCluster(server);
+    writeFileSync(configPath, configWithExtraArgs({ prefixLine: "const unrelatedChange = 1;" }));
+
+    const [first, second] = await Promise.all([
+      server.call("cluster_consult", {
+        project_id: "project",
+        cluster_id: "router-ops",
+        question: "What config field exists?",
+        allow_static_factsheet: true
+      }),
+      server.call("cluster_consult", {
+        project_id: "project",
+        cluster_id: "router-ops",
+        question: "What config field exists?",
+        allow_static_factsheet: true
+      })
+    ]);
+
+    expect(first.isError).toBeFalsy();
+    expect(second.isError).toBeFalsy();
+    expect(locks.maxActiveFor("cluster-evidence-revalidation:project:router-ops")).toBe(1);
+    expect(clusterEventTypes(fixture.runtime.db, "router-ops").filter((event) => event === "evidence_revalidated")).toHaveLength(1);
     fixture.cleanup();
   });
 
@@ -521,6 +701,30 @@ class FakeClaude implements ClaudeAdapter {
   }
 }
 
+class TrackingLockProvider implements LockProvider {
+  private readonly inner = new MemoryLockProvider();
+  private readonly active = new Map<string, number>();
+  private readonly maxActive = new Map<string, number>();
+
+  async withLock<T>(key: string, fn: () => Promise<T>): Promise<T> {
+    return this.inner.withLock(key, async () => {
+      const active = (this.active.get(key) ?? 0) + 1;
+      this.active.set(key, active);
+      this.maxActive.set(key, Math.max(this.maxActive.get(key) ?? 0, active));
+      await Promise.resolve();
+      try {
+        return await fn();
+      } finally {
+        this.active.set(key, (this.active.get(key) ?? 1) - 1);
+      }
+    });
+  }
+
+  maxActiveFor(key: string): number {
+    return this.maxActive.get(key) ?? 0;
+  }
+}
+
 class FakeClock implements Clock {
   now(): Date {
     return new Date("2026-05-11T12:00:00.000Z");
@@ -550,13 +754,16 @@ function parseToolJson(result: CallToolResult): any {
   return JSON.parse(content.text);
 }
 
-function createToolFixture(claude = new FakeClaude()): { runtime: RouterRuntime; dir: string; cleanup: () => void } {
+function createToolFixture(
+  claude = new FakeClaude(),
+  locks: LockProvider = new MemoryLockProvider()
+): { runtime: RouterRuntime; dir: string; cleanup: () => void } {
   const dir = path.join(os.tmpdir(), `router-tools-${process.pid}-${Math.random().toString(16).slice(2)}`);
   mkdirSync(dir, { recursive: true });
   const clock = new FakeClock();
   const config = loadConfig({ cwd: dir });
   const db = RouterDatabase.open(config.storage.dbPath, clock);
-  const runtime = new RouterRuntime(dir, config, db, claude, new MemoryLockProvider(), clock, new NoopLogger());
+  const runtime = new RouterRuntime(dir, config, db, claude, locks, clock, new NoopLogger());
 
   return {
     runtime,
@@ -566,4 +773,56 @@ function createToolFixture(claude = new FakeClaude()): { runtime: RouterRuntime;
       rmSync(dir, { recursive: true, force: true });
     }
   };
+}
+
+async function prepareExtraArgsCluster(server: FakeServer): Promise<void> {
+  await server.call("cluster_prepare", {
+    project_id: "project",
+    cluster_id: "router-ops",
+    tool_profile_default: "bare",
+    factsheet: {
+      facts: [
+        {
+          id: "extra-args",
+          claim: "extraArgs exists.",
+          evidence: [{ path: "src/config.ts", selector: "extraArgs" }]
+        }
+      ]
+    }
+  });
+}
+
+function clusterEventTypes(db: RouterDatabase, clusterId: string): string[] {
+  const events = db.db
+    .prepare("SELECT event_type FROM cluster_events WHERE cluster_id = ? ORDER BY id")
+    .all(clusterId) as Array<{ event_type: string }>;
+  return events.map((event) => event.event_type);
+}
+
+function configWithExtraArgs(options: { leadingLines?: string[]; prefixLine?: string; nearbyLine?: string } = {}): string {
+  return [
+    ...(options.leadingLines ?? []),
+    options.prefixLine ?? "const stableHeader = 1;",
+    "const stableHeaderTwo = 2;",
+    "const stableHeaderThree = 3;",
+    "const stableHeaderFour = 4;",
+    "const stableHeaderFive = 5;",
+    "const stableHeaderSix = 6;",
+    "const stableHeaderSeven = 7;",
+    "const stableHeaderEight = 8;",
+    "const stableHeaderNine = 9;",
+    "const stableHeaderTen = 10;",
+    "export const extraArgs = [];",
+    options.nearbyLine ?? "const nearSelector = 1;",
+    "const stableFooterOne = 1;",
+    "const stableFooterTwo = 2;",
+    "const stableFooterThree = 3;",
+    "const stableFooterFour = 4;",
+    "const stableFooterFive = 5;",
+    "const stableFooterSix = 6;"
+  ].join("\n");
+}
+
+function configWithoutExtraArgs(): string {
+  return configWithExtraArgs().replace("export const extraArgs = [];", "export const renamedArgs = [];");
 }

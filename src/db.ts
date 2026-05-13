@@ -769,7 +769,7 @@ export class RouterDatabase {
             ? "static_verified"
             : "untrusted");
       this.db
-        .prepare("UPDATE clusters SET trust_state = ?, last_used = ? WHERE id = ?")
+        .prepare("UPDATE clusters SET status = 'active', trust_state = ?, last_used = ? WHERE id = ?")
         .run(trustState, now, input.clusterId);
 
       return this.getClusterFactsheet(input.id)!;
@@ -1064,8 +1064,7 @@ export class RouterDatabase {
              'cluster_refresh_required',
              'factsheet_stale',
              'factsheet_rejected',
-             'auto_refresh_failed',
-             'auto_refresh_rejected',
+             'evidence_revalidation_failed',
              'bare_probe_failed',
              'tool_profile_downgraded'
            )

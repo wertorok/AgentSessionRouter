@@ -1,14 +1,14 @@
-import { createHash, randomUUID } from "node:crypto";
-import { existsSync, readFileSync, statSync } from "node:fs";
-import path from "node:path";
+import { randomUUID } from "node:crypto";
 import type { ClaudeAdapter, ClaudeJsonResponse } from "./claude.js";
 import type { ClusterToolProfile, RouterDatabase } from "./db.js";
+import { buildEvidenceSnippet, normalizeEvidenceHash, readEvidenceFile, type EvidenceFile } from "./evidence.js";
 import { profilePromptOptions, type VerifierToolProfile } from "./profiles.js";
 
 export interface FactsheetEvidence {
   path: string;
   hash?: string;
   selector?: string;
+  snippet_hash?: string;
 }
 
 export interface FactsheetFact {
@@ -39,6 +39,7 @@ export interface VerifiedFactsheet {
       path: string;
       hash: string;
       selector?: string;
+      snippet_hash?: string;
     }>;
   }>;
   pitfalls: Array<{ id: string; text: string }>;
@@ -108,12 +109,7 @@ export interface LlmFactsheetVerification {
   toolProfile: VerifierToolProfile;
 }
 
-interface VerifiedEvidenceFile {
-  path: string;
-  hash: string;
-  fileSize: number;
-  content: string;
-}
+type VerifiedEvidenceFile = EvidenceFile;
 
 export function prepareStaticCluster(
   db: RouterDatabase,
@@ -301,14 +297,19 @@ export function verifyFactsheetStatic(
           rejectionReasons.push(`selector not found in ${file.path}: ${selector}`);
           continue;
         }
-        if (item.hash && item.hash !== file.hash && item.hash !== `sha256:${file.hash}`) {
+        if (item.hash && normalizeEvidenceHash(item.hash) !== `sha256:${file.hash}`) {
           rejectionReasons.push(`hash mismatch for ${file.path}`);
+          continue;
+        }
+        const snippet = selector ? buildEvidenceSnippet(file.content, selector) : null;
+        if (item.snippet_hash && snippet && item.snippet_hash !== snippet.hash) {
+          rejectionReasons.push(`snippet hash mismatch for ${file.path}: ${selector}`);
           continue;
         }
         verifiedEvidence.push({
           path: file.path,
           hash: `sha256:${file.hash}`,
-          ...(selector ? { selector } : {})
+          ...(selector ? { selector, snippet_hash: snippet?.hash } : {})
         });
         fileHashes.set(file.path, {
           path: file.path,
@@ -430,28 +431,7 @@ export function parseLlmVerifierResponse(source: string): LlmVerifierFactResult[
   return results;
 }
 
-function readVerifiedEvidenceFile(cwd: string, inputPath: string): VerifiedEvidenceFile {
-  const relativePath = normalizeEvidencePath(inputPath);
-  const absoluteCwd = path.resolve(cwd);
-  const absolutePath = path.resolve(absoluteCwd, relativePath);
-  if (absolutePath !== absoluteCwd && !absolutePath.startsWith(`${absoluteCwd}${path.sep}`)) {
-    throw new Error(`evidence path escapes project cwd: ${inputPath}`);
-  }
-  if (!existsSync(absolutePath)) {
-    throw new Error(`evidence path does not exist: ${relativePath}`);
-  }
-  const stat = statSync(absolutePath);
-  if (!stat.isFile()) {
-    throw new Error(`evidence path is not a file: ${relativePath}`);
-  }
-  const content = readFileSync(absolutePath, "utf8");
-  return {
-    path: relativePath,
-    hash: createHash("sha256").update(content).digest("hex"),
-    fileSize: stat.size,
-    content
-  };
-}
+const readVerifiedEvidenceFile = readEvidenceFile;
 
 function ensureHasVerifiedFacts(
   db: RouterDatabase,
@@ -512,17 +492,11 @@ function buildLlmVerifierPrompt(cwd: string, factsheet: VerifiedFactsheet): stri
 }
 
 function snippetForEvidence(content: string, selector: string | undefined): string {
-  const maxLength = 1600;
-  if (!selector) {
-    return content.slice(0, maxLength);
+  try {
+    return buildEvidenceSnippet(content, selector).text.slice(0, 1600);
+  } catch {
+    return content.slice(0, 1600);
   }
-  const index = content.indexOf(selector);
-  if (index < 0) {
-    return content.slice(0, maxLength);
-  }
-  const start = Math.max(0, index - 500);
-  const end = Math.min(content.length, index + selector.length + 900);
-  return content.slice(start, end);
 }
 
 function extractJsonObject(source: string): string {
@@ -535,17 +509,6 @@ function extractJsonObject(source: string): string {
     throw new Error("LLM verifier response did not include a JSON object");
   }
   return candidate.slice(start, end + 1);
-}
-
-function normalizeEvidencePath(inputPath: string): string {
-  if (!inputPath || path.isAbsolute(inputPath)) {
-    throw new Error(`evidence path must be relative: ${inputPath}`);
-  }
-  const normalized = path.normalize(inputPath).replaceAll("\\", "/");
-  if (normalized === "." || normalized.startsWith("../") || normalized === "..") {
-    throw new Error(`evidence path escapes project cwd: ${inputPath}`);
-  }
-  return normalized;
 }
 
 function sanitizePitfalls(value: unknown): Array<{ id: string; text: string }> {

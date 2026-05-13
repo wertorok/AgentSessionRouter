@@ -81,7 +81,7 @@ The full live matrix found three important issues: duplicate same-topic concurre
 
 Claude usage-limit responses are classified as `claude_usage_limit` and include an actionable `operator_action`.
 
-The cluster-cache implementation can store `static_verified` factsheets, optionally run an LLM verifier to promote them to `llm_verified`, consult Claude through a verified factsheet without fork, and refresh factsheet freshness with scoped file hash checks. It probes `bare`/`focused` tool profiles and deterministically downgrades `bare` to `focused` when needed. Optional shadow eval records real-world quality/cost telemetry without changing the answer returned to the parent agent. The router does not yet implement fork baselines, distillation from existing v1 sessions, or auto-routing. See `docs/CLUSTER_CACHE_SPEC.md` for the remaining v2 phases.
+The cluster-cache implementation can store `static_verified` factsheets, optionally run an LLM verifier to promote them to `llm_verified`, consult Claude through a verified factsheet without fork, and revalidate changed evidence with selector/snippet checks. It probes `bare`/`focused` tool profiles and deterministically downgrades `bare` to `focused` when needed. Optional shadow eval records real-world quality/cost telemetry without changing the answer returned to the parent agent. The router does not yet implement fork baselines, distillation from existing v1 sessions, or auto-routing. See `docs/CLUSTER_CACHE_SPEC.md` for the remaining v2 phases.
 
 ## Requirements
 
@@ -178,7 +178,7 @@ Before or after code changes, recheck the factsheet without invoking Claude:
 }
 ```
 
-If any cited evidence file changed, `cluster_consult` and `cluster_refresh` return `CLUSTER_FACTSHEET_STALE` and the cluster is marked stale until a new verified factsheet is prepared or the current one verifies cleanly again.
+If any cited evidence file changed, lower-level stale checks mark the cluster stale. Caller-facing `cluster_consult` then tries strict evidence revalidation in the same MCP call: every cited selector must still exist and every stored `snippet_hash` must match. If that proof succeeds, the consult proceeds with updated hashes. If it fails, the router returns `CLUSTER_FACTSHEET_UNRECOVERABLE` instead of answering from stale or partial facts.
 
 ## Optional Shadow Comparison Eval
 
@@ -308,7 +308,7 @@ shadow_mode = false
 
 [cluster]
 auto_refresh = true
-auto_refresh_min_retained_ratio = 0.5
+auto_refresh_min_retained_ratio = 1.0
 ```
 
 Relative paths in `router.config.toml` are resolved relative to the directory containing that config file, not relative to the process cwd.
@@ -333,7 +333,7 @@ extra_args = ["--tools", ""]
 
 `eval.shadow_mode` enables optional v2.1-lite quality telemetry. When `true`, each successful `cluster_consult` schedules a background comparison against an isolated fresh Claude baseline and stores the judge result in `consult_comparisons`. This does not block or alter the response returned to the parent agent, and it does not write shadow results into production Claude session registry state.
 
-`cluster.auto_refresh` makes caller-facing `cluster_consult` self-heal stale factsheets when possible. If scoped evidence changed, the router re-verifies the existing factsheet against current files, writes a new factsheet version, then consults Claude in the same MCP call. `cluster.auto_refresh_min_retained_ratio` controls how much of the old factsheet must survive verification; below that threshold the router returns `CLUSTER_FACTSHEET_UNRECOVERABLE` with details instead of asking the parent agent to perform multiple retry steps.
+`cluster.auto_refresh` makes caller-facing `cluster_consult` self-heal changed evidence when it can prove the cited evidence is still identical. If a scoped file hash changed, the router revalidates each fact by finding its selector in the current file and comparing the stored `snippet_hash` for the evidence window. When every required selector/snippet still matches, it writes a new factsheet version with updated file hashes, logs `evidence_revalidated`, and consults Claude in the same MCP call. If any required selector is missing or its snippet changed, the router returns `CLUSTER_FACTSHEET_UNRECOVERABLE` with rejected fact details instead of consulting from a partial cache. The production default is strict: `cluster.auto_refresh_min_retained_ratio = 1.0`, and rejected facts always fail evidence revalidation.
 
 ## Compatibility
 
@@ -379,7 +379,7 @@ The status report includes:
 - shadow-eval totals, judged count, pending count, and failed shadow baselines
 - warnings suitable for caller-agent decision rules
 
-Important refresh behavior: caller-facing `cluster_consult` does not answer from changed evidence. If scoped factsheet files changed and `cluster.auto_refresh` is enabled, it attempts an internal refresh and returns the final answer in the same MCP call. If too few facts survive or verification fails, it returns `CLUSTER_FACTSHEET_UNRECOVERABLE`. `router_status` is the aggregate place to notice stale clusters, refresh failures, and shadow-eval drift without manually querying SQLite.
+Important refresh behavior: caller-facing `cluster_consult` does not answer from changed evidence unless the evidence is strictly revalidated first. If scoped factsheet files changed and `cluster.auto_refresh` is enabled, it checks every selector and stored `snippet_hash` before consulting. If every cited snippet still matches, it writes updated hashes and returns the final answer in the same MCP call. If any cited snippet is missing or changed, it returns `CLUSTER_FACTSHEET_UNRECOVERABLE`. `router_status` is the aggregate place to notice stale clusters, revalidation failures, and shadow-eval drift without manually querying SQLite.
 
 ## Isolation Diagnostics
 
@@ -702,9 +702,10 @@ Behavior:
 - Requires the current factsheet to be `llm_verified` by default.
 - Set `allow_static_factsheet: true` only when you intentionally accept static-only evidence checks.
 - Checks scoped evidence file hashes before invoking Claude.
-- If cited files changed and `cluster.auto_refresh` is enabled, re-verifies the factsheet internally before consulting.
-- Returns `CLUSTER_FACTSHEET_UNRECOVERABLE` if automatic refresh cannot retain enough verified facts.
-- Returns `CLUSTER_FACTSHEET_STALE` only when automatic refresh is disabled or unavailable in the lower-level service path.
+- If cited files changed and `cluster.auto_refresh` is enabled, revalidates selectors and `snippet_hash` values internally before consulting.
+- If all cited selectors/snippets still match, writes a new factsheet version with updated file hashes and proceeds without changing the caller-facing response shape.
+- Returns `CLUSTER_FACTSHEET_UNRECOVERABLE` if any required selector is missing, any snippet changed, or the configured strict retained-ratio threshold is not met.
+- Returns `CLUSTER_FACTSHEET_STALE` only when automatic evidence revalidation is disabled or unavailable in the lower-level service path.
 - Selects `bare`, `focused`, or `agent` through the profile selector; `bare` can downgrade to `focused`, but never to `agent`.
 
 Output:
@@ -716,13 +717,6 @@ Output:
   "factsheet_status": "llm_verified",
   "tool_profile": "bare",
   "used_fork": false,
-  "auto_refresh": {
-    "occurred": true,
-    "factsheet_version": 2,
-    "retained_facts": 4,
-    "original_facts": 4,
-    "retained_ratio": 1
-  },
   "answer": "..."
 }
 ```
@@ -1030,9 +1024,8 @@ Cluster-cache actions write to `cluster_events`. Current event types:
 cluster_consult
 cluster_consult_failed
 cluster_created
-auto_refresh_failed
-auto_refresh_rejected
-auto_refresh_succeeded
+evidence_revalidated
+evidence_revalidation_failed
 cluster_refresh
 cluster_refresh_required
 factsheet_static_verified
@@ -1242,7 +1235,7 @@ The harness uses a Haiku wrapper for cost control on Windows because Node cannot
 src/
   claude.ts          Claude CLI adapter and health probe
   clock.ts           Centralized clock helpers
-  clusterAutoRefresh.ts caller-facing stale factsheet self-healing
+  clusterEvidenceRevalidation.ts caller-facing strict evidence revalidation
   clusterConsult.ts  cluster_consult factsheet invocation service
   clusterRefresh.ts  cluster_refresh scoped factsheet revalidation service
   cluster.ts         Static cluster factsheet verification and preparation

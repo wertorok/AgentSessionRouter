@@ -201,13 +201,14 @@ Suggested event types:
 - `bare_probe_failed`
 - `cluster_consult`
 - `cluster_refresh_required`
-- `auto_refresh_succeeded`
-- `auto_refresh_failed`
-- `auto_refresh_rejected`
+- `evidence_revalidated`
+- `evidence_revalidation_failed`
 
 ## 6. Factsheet Format
 
 Factsheets are structured JSON, not free prose.
+
+Current implementation stores fact-level evidence metadata inside `cluster_factsheets.content_json`. There is no separate `cluster_facts` table yet; `cluster_file_hashes` remains the file-level index, while `selector` and `snippet_hash` live on each evidence entry.
 
 ```json
 {
@@ -223,12 +224,14 @@ Factsheets are structured JSON, not free prose.
         {
           "path": "src/config.ts",
           "hash": "sha256:...",
-          "selector": "RouterConfig.claude.extraArgs"
+          "selector": "RouterConfig.claude.extraArgs",
+          "snippet_hash": "sha256:..."
         },
         {
           "path": "src/claude.ts",
           "hash": "sha256:...",
-          "selector": "CliClaudeAdapter.runPrompt"
+          "selector": "CliClaudeAdapter.runPrompt",
+          "snippet_hash": "sha256:..."
         }
       ]
     }
@@ -583,19 +586,22 @@ Output:
 
 ## 11. Invalidation
 
-Factsheet freshness is scoped to evidence files.
+Factsheet freshness is scoped to evidence, not to the whole repository.
 
-On every `cluster_consult`, compare current file hashes to `cluster_file_hashes` for the active factsheet.
+On every `cluster_consult`, compare current file hashes to `cluster_file_hashes` for the active factsheet. A file-level mismatch does not by itself prove the fact is invalid; it only triggers strict evidence revalidation.
 
-Caller-facing MCP `cluster_consult` now treats stale evidence as a recoverable condition when `[cluster].auto_refresh = true`:
+Caller-facing MCP `cluster_consult` treats changed evidence as recoverable only when `[cluster].auto_refresh = true` and the router can prove every cited snippet is unchanged:
 
-1. Detect stale scoped evidence.
-2. Acquire a per-cluster auto-refresh lock.
-3. Re-verify the latest factsheet against current files after stripping old evidence hashes.
-4. Re-run LLM verification when the previous factsheet was LLM-verified.
-5. Store a new factsheet version and continue the consult in the same MCP call.
+1. Detect changed scoped evidence by file hash.
+2. Acquire a per-cluster evidence-revalidation lock.
+3. For every fact, find each cited `selector` in the current file.
+4. Recompute the `snippet_hash` for the selector evidence window.
+5. If every required selector is present and every snippet hash matches, store a new factsheet version with updated file hashes and continue the consult in the same MCP call.
+6. If any required selector is missing or any snippet hash changed, return `CLUSTER_FACTSHEET_UNRECOVERABLE` and do not consult from a partial factsheet.
 
-If automatic refresh is disabled or the lower-level service is called directly, stale evidence returns:
+Evidence revalidation is all-or-nothing for facts: any rejected fact fails the revalidation path. The retained-ratio config remains strict by default (`1.0`) and is not a license to answer from partially revalidated programming facts.
+
+If automatic evidence revalidation is disabled or the lower-level service is called directly, stale evidence returns:
 
 ```json
 {
@@ -610,13 +616,12 @@ If automatic refresh is disabled or the lower-level service is called directly, 
 
 Do not invalidate on unrelated repository changes.
 
-Policy options for later:
+Policy options:
 
 - `strict`: return stale error.
-- `auto_verify`: run `verify_only` automatically.
-- `auto_refresh`: run focused refresh automatically.
+- `auto_revalidate`: run selector/snippet evidence revalidation automatically.
 
-Current caller-facing default: `auto_refresh`.
+Current caller-facing default: `auto_revalidate` through `[cluster].auto_refresh = true`.
 
 ## 12. Routing Policy
 
@@ -662,9 +667,9 @@ Cause:
 
 Behavior:
 
-- Caller-facing `cluster_consult` auto-refreshes when `[cluster].auto_refresh = true`.
-- If enough facts survive, write `auto_refresh_succeeded` and continue the consult.
-- If too few facts survive, return `CLUSTER_FACTSHEET_UNRECOVERABLE` with retained counts and suggested action.
+- Caller-facing `cluster_consult` revalidates evidence when `[cluster].auto_refresh = true`.
+- If all required selectors and snippet hashes still match, write `evidence_revalidated` and continue the consult.
+- If any selector is missing or any snippet changed, return `CLUSTER_FACTSHEET_UNRECOVERABLE` with rejected fact details and suggested action.
 - Do not silently consult stale facts.
 
 ### Factsheet Verification Fails
@@ -803,6 +808,7 @@ This phase avoids building auto-distillation before storage and verification are
 - Add stale error path.
 - Implemented: `cluster_consult` refuses changed scoped evidence files, marks the factsheet stale, and records a refresh-required event.
 - Implemented: `cluster_refresh` rechecks the latest factsheet's scoped file hashes/selectors without invoking Claude.
+- Implemented: caller-facing `cluster_consult` performs strict selector/snippet evidence revalidation under a per-cluster lock when changed file hashes are detected.
 
 ### Phase 7: Inspect Tools
 
@@ -820,7 +826,7 @@ This phase avoids building auto-distillation before storage and verification are
 
 - Repeat the measured scenarios from `docs/EXPERIMENTS.md` through MCP tools.
 - Verify no-tools/fork metrics are logged in `cluster_events`.
-- Verify stale factsheets refuse consults.
+- Verify changed factsheet evidence refuses consults unless selector/snippet revalidation proves every cited fact is still valid.
 
 ### Phase 10: Optional Auto-Routing
 
@@ -834,7 +840,7 @@ MVP is acceptable when:
 - A cluster can be created with a `static_verified` factsheet in Phase 1 and an `llm_verified` factsheet after Phase 2.
 - `cluster_consult` with `bare` profile succeeds when bare probe passes.
 - If bare probe fails, `cluster_consult` uses focused profile and records downgrade.
-- `cluster_consult` refuses stale factsheet by default.
+- `cluster_consult` refuses changed factsheet evidence unless strict evidence revalidation succeeds.
 - `cluster_consult` with fork creates a new Claude session id and preserves baseline.
 - No path requires human approval.
 - No path silently escalates from `bare` or `focused` to `agent`.

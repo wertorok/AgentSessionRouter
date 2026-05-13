@@ -44,7 +44,7 @@ export const SPEC_ERROR_MESSAGES = {
   [ERROR_CODES.CLUSTER_FACTSHEET_UNTRUSTED]:
     "Cluster factsheet is not LLM-verified. Run cluster_prepare with verification_mode=llm or explicitly allow static facts.",
   [ERROR_CODES.CLUSTER_FACTSHEET_UNRECOVERABLE]:
-    "Cluster factsheet is stale and automatic refresh could not retain enough verified facts."
+    "Cluster factsheet evidence changed and automatic evidence revalidation could not prove the factsheet is still valid."
 } as const;
 
 export interface ClaudeFailureDiagnosis {

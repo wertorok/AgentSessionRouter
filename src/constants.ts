@@ -81,6 +81,6 @@ export const DEFAULT_CONFIG = {
   },
   cluster: {
     autoRefresh: true,
-    autoRefreshMinRetainedRatio: 0.5
+    autoRefreshMinRetainedRatio: 1.0
   }
 } as const;

@@ -70,7 +70,7 @@ describe("core utilities", () => {
     rmSync(dir, { recursive: true, force: true });
   });
 
-  it("loads cluster auto-refresh config", () => {
+  it("loads cluster evidence revalidation config", () => {
     const dir = makeTempDir("config-cluster");
     mkdirSync(dir, { recursive: true });
     writeFileSync(

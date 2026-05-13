@@ -1,8 +1,8 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { autoRefreshClusterFactsheet, type ClusterAutoRefreshSuccess } from "./clusterAutoRefresh.js";
+import { revalidateClusterEvidence } from "./clusterEvidenceRevalidation.js";
 import { consultCluster } from "./clusterConsult.js";
-import type { ClusterConsultResult, ClusterConsultSuccess } from "./clusterConsult.js";
+import type { ClusterConsultResult } from "./clusterConsult.js";
 import { refreshCluster } from "./clusterRefresh.js";
 import { prepareCluster, type FactsheetInput } from "./cluster.js";
 import { isoHoursAgo } from "./clock.js";
@@ -650,14 +650,14 @@ async function consultClusterForCaller(
     toolProfile?: "bare" | "focused" | "agent" | null;
     allowStaticFactsheet?: boolean;
   }
-): Promise<ClusterConsultResult | (ClusterConsultSuccess & { auto_refresh: ClusterAutoRefreshSuccess })> {
+): Promise<ClusterConsultResult> {
   const availability = await runtime.getProfileAvailability();
   const result = await consultCluster(runtime.db, runtime.cwd, runtime.claude, availability, input);
   if (!("error" in result) || result.error.code !== ERROR_CODES.CLUSTER_FACTSHEET_STALE || !runtime.config.cluster.autoRefresh) {
     return result;
   }
 
-  return runtime.locks.withLock(`cluster-auto-refresh:${input.projectId}:${input.clusterId}`, async () => {
+  return runtime.locks.withLock(`cluster-evidence-revalidation:${input.projectId}:${input.clusterId}`, async () => {
     const afterWaitAvailability = await runtime.getProfileAvailability();
     const afterWaitResult = await consultCluster(runtime.db, runtime.cwd, runtime.claude, afterWaitAvailability, input);
     if (!("error" in afterWaitResult)) {
@@ -667,25 +667,17 @@ async function consultClusterForCaller(
       return afterWaitResult;
     }
 
-    const refresh = await autoRefreshClusterFactsheet(runtime.db, runtime.cwd, runtime.claude, {
+    const revalidation = revalidateClusterEvidence(runtime.db, runtime.cwd, {
       projectId: input.projectId,
       clusterId: input.clusterId,
-      allowStaticFactsheet: input.allowStaticFactsheet,
       minRetainedRatio: runtime.config.cluster.autoRefreshMinRetainedRatio
     });
-    if ("error" in refresh) {
-      return refresh;
+    if ("error" in revalidation) {
+      return revalidation;
     }
 
     const refreshedAvailability = await runtime.getProfileAvailability();
-    const refreshedResult = await consultCluster(runtime.db, runtime.cwd, runtime.claude, refreshedAvailability, input);
-    if ("error" in refreshedResult) {
-      return refreshedResult;
-    }
-    return {
-      ...refreshedResult,
-      auto_refresh: refresh
-    };
+    return consultCluster(runtime.db, runtime.cwd, runtime.claude, refreshedAvailability, input);
   });
 }
 
