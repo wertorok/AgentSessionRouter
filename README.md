@@ -75,13 +75,14 @@ Research and next-architecture docs:
 - `docs/EXPERIMENTS.md`
 - `docs/CLUSTER_CACHE_SPEC.md`
 - `docs/RELEASE_v2.0.md`
+- `docs/RELEASE_v2.2.md`
 - `docs/SHADOW_EVAL_SPEC.md`
 
 The full live matrix found three important issues: duplicate same-topic concurrent sessions, archive/consult races, and incomplete token extraction for current Claude JSON. Those were fixed in `c24986c` and verified by `LIVE_TARGETED_RERUN.md`.
 
 Claude usage-limit responses are classified as `claude_usage_limit` and include an actionable `operator_action`.
 
-The cluster-cache implementation can store `static_verified` factsheets, optionally run an LLM verifier to promote them to `llm_verified`, consult Claude through a verified factsheet without fork, and revalidate changed evidence with selector/snippet checks. It probes `bare`/`focused` tool profiles and deterministically downgrades `bare` to `focused` when needed. Optional shadow eval records real-world quality/cost telemetry without changing the answer returned to the parent agent. The router does not yet implement fork baselines, distillation from existing v1 sessions, or auto-routing. See `docs/CLUSTER_CACHE_SPEC.md` for the remaining v2 phases.
+The cluster-cache implementation can store `static_verified` factsheets, optionally run an LLM verifier to promote them to `llm_verified`, consult Claude through a verified factsheet without fork, and revalidate changed evidence with selector/snippet checks. It probes `bare`/`focused` tool profiles and deterministically downgrades `bare` to `focused` when needed. If the cache path cannot prove its evidence, caller-facing `cluster_consult` falls back internally to normal `claude_consult` and still returns an answer when Claude is available. Optional shadow eval records real-world quality/cost telemetry without changing the answer returned to the parent agent. Fork baselines, distillation from existing v1 sessions, and auto-routing are post-MVP enhancements rather than release blockers.
 
 ## Requirements
 
@@ -265,6 +266,8 @@ startup_timeout_sec = 180
 ```
 
 If you need the router available in several projects, run one MCP server entry per project with a distinct `cwd`. A shared SQLite registry is supported by using absolute `storage.db_path` and `storage.raw_logs_dir`, but routing remains project-scoped by `project_id`.
+
+This is an intentional safety boundary. The server does not accept arbitrary `project_root` or `cwd` values through normal tool inputs; the MCP process cwd is the project trust boundary. This avoids letting a caller redirect the router into neighboring repositories or broad home/root directories during a consult.
 
 ## Configuration
 
@@ -1305,6 +1308,9 @@ If `origin` already exists, use `git remote set-url origin https://github.com/we
 Not implemented in the MVP:
 
 - embeddings-based routing
+- automatic cluster selection / auto-routing
+- fork baselines for cluster consults
+- automatic distillation from existing v1 sessions into cluster factsheets
 - multi-session merge/debate
 - web dashboard
 - distributed locking across multiple server processes

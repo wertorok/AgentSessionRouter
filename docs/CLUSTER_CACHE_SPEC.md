@@ -44,7 +44,7 @@ Current implementation status:
 - Implemented: Phase 6 `cluster_refresh` in `verify_only` mode and stale factsheet state.
 - Implemented early for observability: read-only `cluster_get` and `cluster_list`.
 - Implemented separately: v2.1-lite optional shadow comparison telemetry. See `docs/SHADOW_EVAL_SPEC.md`.
-- Not implemented yet: fork baseline and distillation from existing sessions.
+- Deferred post-MVP: fork baseline, distillation from existing sessions, and automatic cluster routing.
 
 The current `cluster_prepare` accepts direct factsheet JSON and stores only facts whose evidence passes deterministic local checks. By default these factsheets are marked `static_verified`, not `llm_verified`, because static checks prove evidence existence but not full semantic correctness. When `verification_mode` is `llm`, Claude is invoked with a no-tools verifier prompt and only `VERIFIED` facts are promoted to `llm_verified`.
 
@@ -505,21 +505,23 @@ Input:
 Behavior:
 
 1. Resolve project and cluster.
-2. Check factsheet trust against cluster `static_factsheet_policy`.
+2. Return `CLUSTER_PROJECT_MISMATCH` directly if the cluster belongs to another project. This is a security boundary.
+3. Check factsheet trust against cluster `static_factsheet_policy`.
    - `llm_verified` factsheets are trusted.
    - `static_verified` factsheets are trusted only when cluster metadata has `static_factsheet_policy = 'allow'`.
    - This is not a per-call caller decision.
-3. Run runtime verifier.
 4. Select tool profile:
    - explicit input profile if provided,
    - cluster default otherwise,
    - deterministic downgrade from `bare` to `focused` if bare probe failed.
-4. Reject stale factsheets by checking scoped evidence file hashes.
-5. Inject the factsheet with `--append-system-prompt`.
-6. Require answer to cite only factsheet facts or return `NOT IN CONTEXT`.
-7. Log cluster event metrics.
+5. Check scoped evidence file hashes.
+6. If hashes changed and `[cluster].auto_refresh = true`, strict-revalidate every cited selector and `snippet_hash` under a per-cluster lock.
+7. If cache evidence is trusted and current, inject the factsheet with `--append-system-prompt`.
+8. If the cluster is missing, has no usable factsheet, is not trusted enough, or evidence cannot be proven valid, fall back internally to normal `claude_consult`.
+9. Return a caller-visible answer whenever either the cluster path or fallback path can answer.
+10. Log cluster event metrics for cache consults, revalidation, and fallback.
 
-Output follows `claude_consult` shape with cluster metadata:
+Cluster-path output follows `claude_consult` shape with cluster metadata:
 
 ```json
 {
@@ -807,9 +809,9 @@ This phase avoids building auto-distillation before storage and verification are
 - Log metrics.
 - Do not implement `--fork-session` yet.
 
-### Phase 5: Fork From Baseline
+### Phase 5: Fork From Baseline (Deferred)
 
-- Add baseline session creation from a verified factsheet.
+- Optional post-MVP optimization. Add baseline session creation from a verified factsheet only if observed latency or cost makes it worthwhile.
 - Add `cluster_consult` fork path with `--resume <baseline_session_id> --fork-session`.
 - Preserve baseline session; every fork must produce a distinct Claude session id.
 - Measure fresh factsheet versus forked factsheet costs separately.
@@ -829,7 +831,7 @@ This phase avoids building auto-distillation before storage and verification are
 - Add `cluster_get`.
 - Keep these read-only and independent from Claude invocation.
 
-### Phase 8: Distill From Existing Session
+### Phase 8: Distill From Existing Session (Post-MVP)
 
 - Add draft factsheet generation from session registry metadata and raw response paths.
 - Feed draft through static verifier and LLM verifier.
@@ -854,10 +856,11 @@ MVP is acceptable when:
 - `cluster_consult` with `bare` profile succeeds when bare probe passes.
 - If bare probe fails, `cluster_consult` uses focused profile and records downgrade.
 - `cluster_consult` does not return cache-health errors to the caller when normal `claude_consult` can answer instead.
-- `cluster_consult` with fork creates a new Claude session id and preserves baseline.
+- Strict selector/snippet evidence revalidation either proves every cited fact still valid or falls back to normal `claude_consult`.
+- Static factsheet trust policy is cluster metadata, not a per-call caller input.
 - No path requires human approval.
 - No path silently escalates from `bare` or `focused` to `agent`.
-- Metrics show fresh bare and forked bare profiles separately.
+- Metrics and status expose fallback/revalidation health to the operator.
 
 ## 18. Open Questions
 

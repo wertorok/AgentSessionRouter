@@ -456,6 +456,25 @@ describe("cluster MCP tools", () => {
     fixture.cleanup();
   });
 
+  it("falls back to claude_consult when the requested cluster does not exist", async () => {
+    const fixture = createToolFixture(new FakeClaude("cluster path should not be used"));
+    const server = new FakeServer();
+    registerTools(server as unknown as McpServer, fixture.runtime);
+
+    const result = await server.call("cluster_consult", {
+      project_id: "project",
+      cluster_id: "missing-cluster",
+      question: "Answer through the normal router fallback."
+    });
+    const payload = parseToolJson(result);
+
+    expect(result.isError).toBeFalsy();
+    expect(payload.answer).toBe("ok");
+    expect(payload.routing.was_new_session).toBe(true);
+    expect(clusterEventTypes(fixture.runtime.db, "missing-cluster")).toContain("cluster_fallback_to_claude_consult");
+    fixture.cleanup();
+  });
+
   it("falls back even if retained-ratio config is lowered and only one fact fails", async () => {
     const fixture = createToolFixture(new FakeClaude("cluster path should not be used"));
     fixture.runtime.config.cluster.autoRefreshMinRetainedRatio = 0.5;

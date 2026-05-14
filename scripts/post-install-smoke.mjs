@@ -277,6 +277,7 @@ function writeRouterConfig() {
   const compatibilityFile = path.join(repoRoot, "COMPATIBILITY.md").replaceAll("\\", "\\\\");
   const command = (useLiveClaude ? "claude" : fakeClaudePath).replaceAll("\\", "\\\\");
   const commandTimeoutMs = useLiveClaude ? 120000 : 30000;
+  const extraArgs = useLiveClaude ? '["--tools", ""]' : '["--tools", "", "--permission-mode", "default"]';
   writeFileSync(
     path.join(projectDir, "router.config.toml"),
     `[storage]
@@ -287,7 +288,7 @@ raw_logs_dir = ".claude-session-router/raw"
 command = "${command}"
 compatibility_file = "${compatibilityFile}"
 command_timeout_ms = ${commandTimeoutMs}
-extra_args = ["--tools", "", "--permission-mode", "default"]
+extra_args = ${extraArgs}
 `,
     "utf8"
   );
