@@ -82,7 +82,7 @@ export interface EventInsert {
   error?: string | null;
 }
 
-export type ClusterStatus = "active" | "stale" | "invalidated" | "archived";
+export type ClusterStatus = "active" | "stale" | "needs_prepare" | "invalidated" | "archived";
 export type ClusterTrustState =
   | "unprepared"
   | "static_verified"
@@ -843,6 +843,16 @@ export class RouterDatabase {
       .run(now, factsheet.cluster_id);
   }
 
+  markClusterNeedsPrepare(clusterId: string): void {
+    const cluster = this.getClusterById(clusterId);
+    if (!cluster) {
+      return;
+    }
+    this.db
+      .prepare("UPDATE clusters SET status = 'needs_prepare', trust_state = 'untrusted', last_used = ? WHERE id = ?")
+      .run(this.clock.nowIso(), clusterId);
+  }
+
   markClusterFactsheetFresh(factsheetId: string, status: "static_verified" | "llm_verified", trustState: ClusterTrustState): void {
     const factsheet = this.getClusterFactsheet(factsheetId);
     if (!factsheet) {
@@ -1061,6 +1071,8 @@ export class RouterDatabase {
            AND created_at >= ?
            AND event_type IN (
              'cluster_consult_failed',
+             'cluster_fallback_to_claude_consult',
+             'cluster_fallback_failed',
              'cluster_refresh_required',
              'factsheet_stale',
              'factsheet_rejected',
@@ -1097,7 +1109,7 @@ export class RouterDatabase {
              LIMIT 1
            )
          WHERE c.project_id = ?
-           AND c.status = 'stale'
+           AND c.status IN ('stale', 'needs_prepare')
          ORDER BY c.last_used DESC
          LIMIT ?`
       )

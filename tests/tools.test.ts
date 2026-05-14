@@ -323,8 +323,8 @@ describe("cluster MCP tools", () => {
     fixture.cleanup();
   });
 
-  it("does not consult from a factsheet when a selector is deleted", async () => {
-    const fixture = createToolFixture(new FakeClaude("should not be used"));
+  it("falls back to claude_consult when a selector is deleted", async () => {
+    const fixture = createToolFixture(new FakeClaude("cluster path should not be used"));
     const server = new FakeServer();
     registerTools(server as unknown as McpServer, fixture.runtime);
     mkdirSync(path.join(fixture.dir, "src"), { recursive: true });
@@ -342,15 +342,65 @@ describe("cluster MCP tools", () => {
     });
     const payload = parseToolJson(result);
 
-    expect(result.isError).toBe(true);
-    expect(payload.error.code).toBe(ERROR_CODES.CLUSTER_FACTSHEET_UNRECOVERABLE);
-    expect(JSON.stringify(payload.error.details)).toContain("selector not found");
+    expect(result.isError).toBeFalsy();
+    expect(payload.answer).toBe("ok");
+    expect(payload.routing.was_new_session).toBe(true);
+    expect(fixture.runtime.db.getCluster("project", "router-ops")?.status).toBe("needs_prepare");
     expect(clusterEventTypes(fixture.runtime.db, "router-ops")).toContain("evidence_revalidation_failed");
+    expect(clusterEventTypes(fixture.runtime.db, "router-ops")).toContain("cluster_fallback_to_claude_consult");
     fixture.cleanup();
   });
 
-  it("rejects partial evidence revalidation even if retained-ratio config is lowered", async () => {
-    const fixture = createToolFixture(new FakeClaude("should not be used"));
+  it("falls back to claude_consult when evidence revalidation is disabled", async () => {
+    const fixture = createToolFixture(new FakeClaude("cluster path should not be used"));
+    fixture.runtime.config.cluster.autoRefresh = false;
+    const server = new FakeServer();
+    registerTools(server as unknown as McpServer, fixture.runtime);
+    mkdirSync(path.join(fixture.dir, "src"), { recursive: true });
+    const configPath = path.join(fixture.dir, "src", "config.ts");
+    writeFileSync(configPath, configWithExtraArgs());
+
+    await prepareExtraArgsCluster(server);
+    writeFileSync(configPath, configWithExtraArgs({ prefixLine: "const unrelatedChange = 1;" }));
+
+    const result = await server.call("cluster_consult", {
+      project_id: "project",
+      cluster_id: "router-ops",
+      question: "What config field exists?",
+      allow_static_factsheet: true
+    });
+    const payload = parseToolJson(result);
+
+    expect(result.isError).toBeFalsy();
+    expect(payload.answer).toBe("ok");
+    expect(clusterEventTypes(fixture.runtime.db, "router-ops")).toContain("cluster_fallback_to_claude_consult");
+    fixture.cleanup();
+  });
+
+  it("falls back to claude_consult when the factsheet is not trusted enough for cluster mode", async () => {
+    const fixture = createToolFixture(new FakeClaude("cluster path should not be used"));
+    const server = new FakeServer();
+    registerTools(server as unknown as McpServer, fixture.runtime);
+    mkdirSync(path.join(fixture.dir, "src"), { recursive: true });
+    writeFileSync(path.join(fixture.dir, "src", "config.ts"), configWithExtraArgs());
+
+    await prepareExtraArgsCluster(server);
+
+    const result = await server.call("cluster_consult", {
+      project_id: "project",
+      cluster_id: "router-ops",
+      question: "What config field exists?"
+    });
+    const payload = parseToolJson(result);
+
+    expect(result.isError).toBeFalsy();
+    expect(payload.answer).toBe("ok");
+    expect(clusterEventTypes(fixture.runtime.db, "router-ops")).toContain("cluster_fallback_to_claude_consult");
+    fixture.cleanup();
+  });
+
+  it("falls back even if retained-ratio config is lowered and only one fact fails", async () => {
+    const fixture = createToolFixture(new FakeClaude("cluster path should not be used"));
     fixture.runtime.config.cluster.autoRefreshMinRetainedRatio = 0.5;
     const server = new FakeServer();
     registerTools(server as unknown as McpServer, fixture.runtime);
@@ -387,15 +437,15 @@ describe("cluster MCP tools", () => {
     });
     const payload = parseToolJson(result);
 
-    expect(result.isError).toBe(true);
-    expect(payload.error.code).toBe(ERROR_CODES.CLUSTER_FACTSHEET_UNRECOVERABLE);
-    expect(payload.error.details.revalidated_facts).toBe(1);
-    expect(payload.error.details.original_facts).toBe(2);
+    expect(result.isError).toBeFalsy();
+    expect(payload.answer).toBe("ok");
+    expect(fixture.runtime.db.getCluster("project", "router-ops")?.status).toBe("needs_prepare");
+    expect(clusterEventTypes(fixture.runtime.db, "router-ops")).toContain("cluster_fallback_to_claude_consult");
     fixture.cleanup();
   });
 
-  it("does not consult from a factsheet when selector snippet content changes", async () => {
-    const fixture = createToolFixture(new FakeClaude("should not be used"));
+  it("falls back to claude_consult when selector snippet content changes", async () => {
+    const fixture = createToolFixture(new FakeClaude("cluster path should not be used"));
     const server = new FakeServer();
     registerTools(server as unknown as McpServer, fixture.runtime);
     mkdirSync(path.join(fixture.dir, "src"), { recursive: true });
@@ -413,10 +463,36 @@ describe("cluster MCP tools", () => {
     });
     const payload = parseToolJson(result);
 
-    expect(result.isError).toBe(true);
-    expect(payload.error.code).toBe(ERROR_CODES.CLUSTER_FACTSHEET_UNRECOVERABLE);
-    expect(JSON.stringify(payload.error.details)).toContain("snippet changed");
+    expect(result.isError).toBeFalsy();
+    expect(payload.answer).toBe("ok");
+    expect(fixture.runtime.db.getCluster("project", "router-ops")?.status).toBe("needs_prepare");
     expect(clusterEventTypes(fixture.runtime.db, "router-ops")).toContain("evidence_revalidation_failed");
+    expect(clusterEventTypes(fixture.runtime.db, "router-ops")).toContain("cluster_fallback_to_claude_consult");
+    fixture.cleanup();
+  });
+
+  it("returns an infrastructure error only when fallback claude_consult also fails", async () => {
+    const fixture = createToolFixture(new FakeClaude("cluster path should not be used", { failRunPrompt: true }));
+    const server = new FakeServer();
+    registerTools(server as unknown as McpServer, fixture.runtime);
+    mkdirSync(path.join(fixture.dir, "src"), { recursive: true });
+    const configPath = path.join(fixture.dir, "src", "config.ts");
+    writeFileSync(configPath, configWithExtraArgs());
+
+    await prepareExtraArgsCluster(server);
+    writeFileSync(configPath, configWithoutExtraArgs());
+
+    const result = await server.call("cluster_consult", {
+      project_id: "project",
+      cluster_id: "router-ops",
+      question: "What config field exists?",
+      allow_static_factsheet: true
+    });
+    const payload = parseToolJson(result);
+
+    expect(result.isError).toBe(true);
+    expect(payload.error.code).toBe(ERROR_CODES.CLAUDE_INVOCATION_FAILED);
+    expect(clusterEventTypes(fixture.runtime.db, "router-ops")).toContain("cluster_fallback_failed");
     fixture.cleanup();
   });
 
@@ -657,7 +733,7 @@ class FakeClaude implements ClaudeAdapter {
 
   constructor(
     public verifierResult: unknown = { facts: [] },
-    private readonly options: { failBareProbe?: boolean } = {}
+    private readonly options: { failBareProbe?: boolean; failRunPrompt?: boolean } = {}
   ) {}
 
   async getVersion(): Promise<string> {
@@ -665,6 +741,9 @@ class FakeClaude implements ClaudeAdapter {
   }
 
   async runPrompt(_prompt: string, resumeSessionId?: string): Promise<ClaudeJsonResponse> {
+    if (this.options.failRunPrompt) {
+      throw new Error("claude unavailable");
+    }
     return {
       sessionId: resumeSessionId ?? "new-session",
       result: "ok",

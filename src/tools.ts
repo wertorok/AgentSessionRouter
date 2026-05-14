@@ -7,7 +7,7 @@ import { refreshCluster } from "./clusterRefresh.js";
 import { prepareCluster, type FactsheetInput } from "./cluster.js";
 import { isoHoursAgo } from "./clock.js";
 import { ERROR_CODES, SESSION_STATUSES } from "./constants.js";
-import { ConsultService } from "./consult.js";
+import { ConsultService, type ConsultResult } from "./consult.js";
 import type { ClusterFactsheetRecord, EventCount, ShadowEvalHealth, StaleClusterView, StatusCount } from "./db.js";
 import { diagnoseClaudeFailure, errorPayload, SPEC_ERROR_MESSAGES } from "./errors.js";
 import { pickProfile, type ProfileSelection } from "./profiles.js";
@@ -323,6 +323,7 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
       const clusterCounts = countMap(runtime.db.getClusterStatusCounts(projectId), [
         "active",
         "stale",
+        "needs_prepare",
         "invalidated",
         "archived"
       ]);
@@ -507,14 +508,14 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
         );
       }
 
-      const result = await consultClusterForCaller(runtime, {
+      const result = await consultClusterForCaller(runtime, consultService, {
         projectId,
         clusterId: input.cluster_id,
         question: input.question,
         toolProfile: input.tool_profile,
         allowStaticFactsheet: input.allow_static_factsheet
       });
-      if (!("error" in result)) {
+      if (!("error" in result) && isClusterConsultSuccess(result)) {
         scheduleShadowComparison(runtime, {
           projectId,
           clusterId: input.cluster_id,
@@ -643,6 +644,7 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
 
 async function consultClusterForCaller(
   runtime: RouterRuntime,
+  consultService: ConsultService,
   input: {
     projectId: string;
     clusterId: string;
@@ -650,11 +652,17 @@ async function consultClusterForCaller(
     toolProfile?: "bare" | "focused" | "agent" | null;
     allowStaticFactsheet?: boolean;
   }
-): Promise<ClusterConsultResult> {
+): Promise<ClusterConsultResult | ConsultResult> {
   const availability = await runtime.getProfileAvailability();
   const result = await consultCluster(runtime.db, runtime.cwd, runtime.claude, availability, input);
-  if (!("error" in result) || result.error.code !== ERROR_CODES.CLUSTER_FACTSHEET_STALE || !runtime.config.cluster.autoRefresh) {
+  if (!("error" in result)) {
     return result;
+  }
+  if (shouldReturnClusterErrorToCaller(result)) {
+    return result;
+  }
+  if (result.error.code !== ERROR_CODES.CLUSTER_FACTSHEET_STALE || !runtime.config.cluster.autoRefresh) {
+    return fallbackToClaudeConsult(runtime, consultService, input, result);
   }
 
   return runtime.locks.withLock(`cluster-evidence-revalidation:${input.projectId}:${input.clusterId}`, async () => {
@@ -663,8 +671,11 @@ async function consultClusterForCaller(
     if (!("error" in afterWaitResult)) {
       return afterWaitResult;
     }
-    if (afterWaitResult.error.code !== ERROR_CODES.CLUSTER_FACTSHEET_STALE) {
+    if (shouldReturnClusterErrorToCaller(afterWaitResult)) {
       return afterWaitResult;
+    }
+    if (afterWaitResult.error.code !== ERROR_CODES.CLUSTER_FACTSHEET_STALE) {
+      return fallbackToClaudeConsult(runtime, consultService, input, afterWaitResult);
     }
 
     const revalidation = revalidateClusterEvidence(runtime.db, runtime.cwd, {
@@ -673,12 +684,60 @@ async function consultClusterForCaller(
       minRetainedRatio: runtime.config.cluster.autoRefreshMinRetainedRatio
     });
     if ("error" in revalidation) {
-      return revalidation;
+      return fallbackToClaudeConsult(runtime, consultService, input, revalidation);
     }
 
     const refreshedAvailability = await runtime.getProfileAvailability();
     return consultCluster(runtime.db, runtime.cwd, runtime.claude, refreshedAvailability, input);
   });
+}
+
+async function fallbackToClaudeConsult(
+  runtime: RouterRuntime,
+  consultService: ConsultService,
+  input: {
+    projectId: string;
+    clusterId: string;
+    question: string;
+  },
+  revalidationError: Exclude<ClusterConsultResult, { answer: string }>
+): Promise<ConsultResult> {
+  runtime.db.markClusterNeedsPrepare(input.clusterId);
+  const startedAt = runtime.clock.nowMillis();
+  const result = await consultService.consult({
+    projectId: input.projectId,
+    topicHint: `cluster fallback ${input.clusterId}`,
+    trigger: "cluster_consult_fallback",
+    task: "Answer the caller's question after cluster evidence revalidation failed.",
+    relevantCode: [
+      `Cluster '${input.clusterId}' factsheet evidence failed strict revalidation.`,
+      "Use normal project understanding/discovery as needed. Do not rely on the stale cluster factsheet."
+    ].join("\n"),
+    question: input.question
+  });
+
+  runtime.db.logClusterEvent({
+    clusterId: input.clusterId,
+    projectId: input.projectId,
+    eventType: "error" in result ? "cluster_fallback_failed" : "cluster_fallback_to_claude_consult",
+    details: {
+      reason: revalidationError.error.message,
+      revalidation_error: revalidationError.error,
+      fallback_session_id: "error" in result ? null : result.session_id,
+      fallback_claude_session_id: "error" in result ? null : result.claude_session_id
+    },
+    durationMs: runtime.clock.nowMillis() - startedAt
+  });
+
+  return result;
+}
+
+function shouldReturnClusterErrorToCaller(result: Extract<ClusterConsultResult, { error: unknown }>): boolean {
+  return result.error.code === ERROR_CODES.CLUSTER_PROJECT_MISMATCH;
+}
+
+function isClusterConsultSuccess(result: ClusterConsultResult | ConsultResult): result is Exclude<ClusterConsultResult, { error: unknown }> {
+  return !("error" in result) && "cluster_id" in result && "metrics" in result;
 }
 
 function countMap(rows: StatusCount[], keys: readonly string[]): Record<string, number> {

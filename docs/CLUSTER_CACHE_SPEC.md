@@ -40,7 +40,7 @@ Current implementation status:
 - Implemented: Phase 1 direct `cluster_prepare` with static local-file verification.
 - Implemented: Phase 2 LLM verifier loop as an explicit `verification_mode: "llm"` path.
 - Implemented: Phase 3 profile args, `bare`/`focused` probes, and deterministic `bare -> focused` downgrade.
-- Implemented: Phase 4 `cluster_consult` without fork, with append-system-prompt factsheet injection and stale hash refusal.
+- Implemented: Phase 4 `cluster_consult` without fork, with append-system-prompt factsheet injection, strict stale evidence revalidation, and fallback to `claude_consult` when cache evidence cannot be proven valid.
 - Implemented: Phase 6 `cluster_refresh` in `verify_only` mode and stale factsheet state.
 - Implemented early for observability: read-only `cluster_get` and `cluster_list`.
 - Implemented separately: v2.1-lite optional shadow comparison telemetry. See `docs/SHADOW_EVAL_SPEC.md`.
@@ -84,7 +84,8 @@ The invocation policy used for a cluster consult:
 ## 4. Non-Goals
 
 - No human review loop in runtime.
-- No automatic fallback to full `agent` mode for a user question.
+- No automatic escalation of the factsheet-backed path to full `agent` mode.
+- Caller-facing `cluster_consult` falls back to normal `claude_consult` when cache evidence cannot be proven valid, because the router must return an answer when another available path can answer.
 - No opaque fork session as the only knowledge store.
 - No whole-repository invalidation when only scoped evidence files matter.
 - No automatic cluster selection in MVP.
@@ -200,6 +201,8 @@ Suggested event types:
 - `tool_profile_downgraded`
 - `bare_probe_failed`
 - `cluster_consult`
+- `cluster_fallback_failed`
+- `cluster_fallback_to_claude_consult`
 - `cluster_refresh_required`
 - `evidence_revalidated`
 - `evidence_revalidation_failed`
@@ -597,11 +600,12 @@ Caller-facing MCP `cluster_consult` treats changed evidence as recoverable only 
 3. For every fact, find each cited `selector` in the current file.
 4. Recompute the `snippet_hash` for the selector evidence window.
 5. If every required selector is present and every snippet hash matches, store a new factsheet version with updated file hashes and continue the consult in the same MCP call.
-6. If any required selector is missing or any snippet hash changed, return `CLUSTER_FACTSHEET_UNRECOVERABLE` and do not consult from a partial factsheet.
+6. If any required selector is missing or any snippet hash changed, log `evidence_revalidation_failed`, mark the cluster `needs_prepare`, and do not consult from a partial factsheet.
+7. The caller-facing MCP tool then falls back internally to normal `claude_consult` with the same question and returns that answer. The caller should not spend tokens deciding how to recover from cache health.
 
 Evidence revalidation is all-or-nothing for facts: any rejected fact fails the revalidation path. The retained-ratio config remains strict by default (`1.0`) and is not a license to answer from partially revalidated programming facts.
 
-If automatic evidence revalidation is disabled or the lower-level service is called directly, stale evidence returns:
+If the lower-level service is called directly, stale evidence returns:
 
 ```json
 {
@@ -620,8 +624,9 @@ Policy options:
 
 - `strict`: return stale error.
 - `auto_revalidate`: run selector/snippet evidence revalidation automatically.
+- `fallback`: use normal `claude_consult` when the cache path cannot safely answer.
 
-Current caller-facing default: `auto_revalidate` through `[cluster].auto_refresh = true`.
+Current caller-facing default: `auto_revalidate` through `[cluster].auto_refresh = true`, then `fallback` if revalidation cannot prove the cache valid. If `[cluster].auto_refresh = false`, caller-facing `cluster_consult` skips revalidation and goes straight to `fallback`.
 
 ## 12. Routing Policy
 
@@ -669,8 +674,9 @@ Behavior:
 
 - Caller-facing `cluster_consult` revalidates evidence when `[cluster].auto_refresh = true`.
 - If all required selectors and snippet hashes still match, write `evidence_revalidated` and continue the consult.
-- If any selector is missing or any snippet changed, return `CLUSTER_FACTSHEET_UNRECOVERABLE` with rejected fact details and suggested action.
+- If any selector is missing or any snippet changed, mark the cluster `needs_prepare`, write `evidence_revalidation_failed`, fall back internally to `claude_consult`, and return the fallback answer.
 - Do not silently consult stale facts.
+- Return a caller-visible error only if fallback cannot answer either, for example when Claude invocation fails.
 
 ### Factsheet Verification Fails
 
@@ -701,7 +707,7 @@ Behavior:
 
 - If factsheet is fresh, fallback to fresh factsheet consult in same selected profile.
 - Log `baseline_fork_failed`.
-- Do not fallback to `agent`.
+- Do not fallback the factsheet/fork path to `agent`; use normal `claude_consult` as the caller-facing recovery path when cache evidence is invalid.
 
 ### Answer Needs Missing Facts
 
@@ -806,9 +812,10 @@ This phase avoids building auto-distillation before storage and verification are
 
 - Add `cluster_refresh` with `verify_only`.
 - Add stale error path.
-- Implemented: `cluster_consult` refuses changed scoped evidence files, marks the factsheet stale, and records a refresh-required event.
+- Implemented: `cluster_consult` detects changed scoped evidence files, marks the factsheet stale, and records a refresh-required event.
 - Implemented: `cluster_refresh` rechecks the latest factsheet's scoped file hashes/selectors without invoking Claude.
 - Implemented: caller-facing `cluster_consult` performs strict selector/snippet evidence revalidation under a per-cluster lock when changed file hashes are detected.
+- Implemented: caller-facing `cluster_consult` falls back to normal `claude_consult` when strict revalidation fails, while marking the cluster `needs_prepare`.
 
 ### Phase 7: Inspect Tools
 
@@ -826,7 +833,7 @@ This phase avoids building auto-distillation before storage and verification are
 
 - Repeat the measured scenarios from `docs/EXPERIMENTS.md` through MCP tools.
 - Verify no-tools/fork metrics are logged in `cluster_events`.
-- Verify changed factsheet evidence refuses consults unless selector/snippet revalidation proves every cited fact is still valid.
+- Verify changed factsheet evidence never consults from stale facts; it either proves every cited fact still valid or falls back to normal `claude_consult`.
 
 ### Phase 10: Optional Auto-Routing
 
@@ -840,7 +847,7 @@ MVP is acceptable when:
 - A cluster can be created with a `static_verified` factsheet in Phase 1 and an `llm_verified` factsheet after Phase 2.
 - `cluster_consult` with `bare` profile succeeds when bare probe passes.
 - If bare probe fails, `cluster_consult` uses focused profile and records downgrade.
-- `cluster_consult` refuses changed factsheet evidence unless strict evidence revalidation succeeds.
+- `cluster_consult` does not return cache-health errors to the caller when normal `claude_consult` can answer instead.
 - `cluster_consult` with fork creates a new Claude session id and preserves baseline.
 - No path requires human approval.
 - No path silently escalates from `bare` or `focused` to `agent`.

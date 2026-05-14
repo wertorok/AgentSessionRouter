@@ -178,7 +178,7 @@ Before or after code changes, recheck the factsheet without invoking Claude:
 }
 ```
 
-If any cited evidence file changed, lower-level stale checks mark the cluster stale. Caller-facing `cluster_consult` then tries strict evidence revalidation in the same MCP call: every cited selector must still exist and every stored `snippet_hash` must match. If that proof succeeds, the consult proceeds with updated hashes. If it fails, the router returns `CLUSTER_FACTSHEET_UNRECOVERABLE` instead of answering from stale or partial facts.
+If any cited evidence file changed, lower-level stale checks mark the cluster stale. Caller-facing `cluster_consult` then tries strict evidence revalidation in the same MCP call: every cited selector must still exist and every stored `snippet_hash` must match. If that proof succeeds, the consult proceeds with updated hashes. If it fails, the router marks the cluster `needs_prepare`, falls back to normal `claude_consult`, and still returns an answer to the parent agent unless Claude itself is unavailable.
 
 ## Optional Shadow Comparison Eval
 
@@ -333,7 +333,7 @@ extra_args = ["--tools", ""]
 
 `eval.shadow_mode` enables optional v2.1-lite quality telemetry. When `true`, each successful `cluster_consult` schedules a background comparison against an isolated fresh Claude baseline and stores the judge result in `consult_comparisons`. This does not block or alter the response returned to the parent agent, and it does not write shadow results into production Claude session registry state.
 
-`cluster.auto_refresh` makes caller-facing `cluster_consult` self-heal changed evidence when it can prove the cited evidence is still identical. If a scoped file hash changed, the router revalidates each fact by finding its selector in the current file and comparing the stored `snippet_hash` for the evidence window. When every required selector/snippet still matches, it writes a new factsheet version with updated file hashes, logs `evidence_revalidated`, and consults Claude in the same MCP call. If any required selector is missing or its snippet changed, the router returns `CLUSTER_FACTSHEET_UNRECOVERABLE` with rejected fact details instead of consulting from a partial cache. The production default is strict: `cluster.auto_refresh_min_retained_ratio = 1.0`, and rejected facts always fail evidence revalidation.
+`cluster.auto_refresh` makes caller-facing `cluster_consult` self-heal changed evidence when it can prove the cited evidence is still identical. If a scoped file hash changed, the router revalidates each fact by finding its selector in the current file and comparing the stored `snippet_hash` for the evidence window. When every required selector/snippet still matches, it writes a new factsheet version with updated file hashes, logs `evidence_revalidated`, and consults Claude in the same MCP call. If any required selector is missing or its snippet changed, the router logs `evidence_revalidation_failed`, marks the cluster `needs_prepare`, falls back to normal `claude_consult`, logs `cluster_fallback_to_claude_consult`, and still returns an answer to the parent agent. The production default is strict: `cluster.auto_refresh_min_retained_ratio = 1.0`, and rejected facts always fail evidence revalidation.
 
 ## Compatibility
 
@@ -373,13 +373,13 @@ The status report includes:
 
 - normal/degraded mode and Claude version probe details
 - v1 session counts by lifecycle status
-- v2 cluster counts by status, including stale cluster details
+- v2 cluster counts by status, including stale and `needs_prepare` cluster details
 - recent session error event counts
-- recent cluster attention event counts such as `cluster_refresh_required` and `cluster_consult_failed`
+- recent cluster attention event counts such as `cluster_refresh_required`, `cluster_fallback_to_claude_consult`, and `cluster_consult_failed`
 - shadow-eval totals, judged count, pending count, and failed shadow baselines
 - warnings suitable for caller-agent decision rules
 
-Important refresh behavior: caller-facing `cluster_consult` does not answer from changed evidence unless the evidence is strictly revalidated first. If scoped factsheet files changed and `cluster.auto_refresh` is enabled, it checks every selector and stored `snippet_hash` before consulting. If every cited snippet still matches, it writes updated hashes and returns the final answer in the same MCP call. If any cited snippet is missing or changed, it returns `CLUSTER_FACTSHEET_UNRECOVERABLE`. `router_status` is the aggregate place to notice stale clusters, revalidation failures, and shadow-eval drift without manually querying SQLite.
+Important refresh behavior: caller-facing `cluster_consult` does not answer from changed evidence unless the evidence is strictly revalidated first. If scoped factsheet files changed and `cluster.auto_refresh` is enabled, it checks every selector and stored `snippet_hash` before factsheet-backed consulting. If every cited snippet still matches, it writes updated hashes and returns the final answer in the same MCP call. If any cited snippet is missing or changed, it falls back internally to normal `claude_consult` and returns that answer. `router_status` is the aggregate place to notice clusters needing prepare, revalidation failures, fallback counts, and shadow-eval drift without manually querying SQLite.
 
 ## Isolation Diagnostics
 
@@ -704,8 +704,9 @@ Behavior:
 - Checks scoped evidence file hashes before invoking Claude.
 - If cited files changed and `cluster.auto_refresh` is enabled, revalidates selectors and `snippet_hash` values internally before consulting.
 - If all cited selectors/snippets still match, writes a new factsheet version with updated file hashes and proceeds without changing the caller-facing response shape.
-- Returns `CLUSTER_FACTSHEET_UNRECOVERABLE` if any required selector is missing, any snippet changed, or the configured strict retained-ratio threshold is not met.
-- Returns `CLUSTER_FACTSHEET_STALE` only when automatic evidence revalidation is disabled or unavailable in the lower-level service path.
+- If any required selector is missing, any snippet changed, or the configured strict retained-ratio threshold is not met, falls back internally to normal `claude_consult` and returns that answer.
+- Low-level stale/cache-health errors are internal to caller-facing `cluster_consult`; the MCP tool falls back to `claude_consult` when the cache path cannot safely answer.
+- Returns an error to the caller only when input/project validation fails or Claude itself cannot answer through either path.
 - Selects `bare`, `focused`, or `agent` through the profile selector; `bare` can downgrade to `focused`, but never to `agent`.
 
 Output:
@@ -1024,6 +1025,8 @@ Cluster-cache actions write to `cluster_events`. Current event types:
 cluster_consult
 cluster_consult_failed
 cluster_created
+cluster_fallback_failed
+cluster_fallback_to_claude_consult
 evidence_revalidated
 evidence_revalidation_failed
 cluster_refresh
