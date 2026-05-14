@@ -31,7 +31,9 @@
     "start": "node dist/src/index.js",
     "test": "vitest run tests --exclude dist/**",
     "smoke:postinstall": "node scripts/post-install-smoke.mjs",
-    "smoke:postinstall:live": "node scripts/post-install-smoke.mjs --live"
+    "smoke:postinstall:live": "node scripts/post-install-smoke.mjs --live",
+    "mcp:workload": "node scripts/mcp-workload-matrix.mjs",
+    "mcp:workload:live": "node scripts/mcp-workload-matrix.mjs --live"
   },
   "dependencies": {
     "@iarna/toml": "2.2.5",

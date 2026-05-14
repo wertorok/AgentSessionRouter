@@ -1,0 +1,1228 @@
+{
+  "mode": "live",
+  "started_at": "2026-05-14T23:51:36.347Z",
+  "project_dir": "/tmp/asr-mcp-matrix-live-D2Q35y/project",
+  "output_dir": "/root/projects/AgentSessionRouter/experiments/mcp-workload-2026-05-15-live-rerun",
+  "checks": [
+    {
+      "name": "tool_discovery_all_modes",
+      "pass": true,
+      "duration_ms": null,
+      "details": {
+        "tool_count": 14,
+        "tools": [
+          "claude_sessions_list",
+          "claude_session_inspect",
+          "claude_consult",
+          "claude_session_archive",
+          "claude_router_reset",
+          "router_status",
+          "router_monitor",
+          "cluster_prepare",
+          "cluster_get",
+          "cluster_consult",
+          "comparison_stats",
+          "comparison_list",
+          "cluster_refresh",
+          "cluster_list"
+        ]
+      }
+    },
+    {
+      "name": "router_status_baseline",
+      "pass": true,
+      "duration_ms": 4,
+      "details": {
+        "project_id": "project",
+        "checked_at": "2026-05-14T23:51:38.078Z",
+        "mode": "normal",
+        "degraded_reason": null,
+        "uptime_hours": 0,
+        "claude": {
+          "detected_version": "2.1.92 (Claude Code)",
+          "tested_versions": []
+        },
+        "v1_sessions": {
+          "active": 0,
+          "dormant": 0,
+          "archived": 0,
+          "orphaned": 0,
+          "total": 0
+        },
+        "v2_clusters": {
+          "active": 0,
+          "stale": 0,
+          "needs_prepare": 0,
+          "invalidated": 0,
+          "archived": 0,
+          "total": 0,
+          "fallback_count_last_24h": 0,
+          "stale_clusters": []
+        },
+        "recent_window_hours": 24,
+        "recent_errors": {
+          "session_events": [],
+          "cluster_events": []
+        },
+        "shadow_eval": {
+          "enabled": true,
+          "total": 0,
+          "judged": 0,
+          "pending": 0,
+          "ok_unjudged": 0,
+          "failed_auth": 0,
+          "failed_timeout": 0,
+          "failed_other": 0,
+          "last_created_at": null,
+          "last_judged_at": null
+        },
+        "warnings": []
+      }
+    },
+    {
+      "name": "router_monitor_baseline",
+      "pass": true,
+      "duration_ms": 2,
+      "details": {
+        "project_id": "project",
+        "checked_at": "2026-05-14T23:51:38.082Z",
+        "recent_window_hours": 24,
+        "health": {
+          "mode": "normal",
+          "degraded_reason": null,
+          "claude": {
+            "detected_version": "2.1.92 (Claude Code)",
+            "tested_versions": []
+          },
+          "v1_sessions": {
+            "active": 0,
+            "dormant": 0,
+            "archived": 0,
+            "orphaned": 0,
+            "total": 0
+          },
+          "v2_clusters": {
+            "active": 0,
+            "stale": 0,
+            "needs_prepare": 0,
+            "invalidated": 0,
+            "archived": 0,
+            "total": 0,
+            "fallback_count_last_24h": 0
+          },
+          "shadow_eval": {
+            "enabled": true,
+            "total": 0,
+            "judged": 0,
+            "pending": 0,
+            "ok_unjudged": 0,
+            "failed_auth": 0,
+            "failed_timeout": 0,
+            "failed_other": 0,
+            "last_created_at": null,
+            "last_judged_at": null
+          }
+        },
+        "cache_health": {
+          "stale_or_needs_prepare": [],
+          "attention_by_event": [],
+          "attention_by_cluster": []
+        },
+        "quality": {
+          "cluster_stats": [],
+          "direct_win_samples": [],
+          "not_in_context_samples": []
+        },
+        "recommendations": [],
+        "next_directions": [
+          "Collect more shadow comparisons before deciding on auto-routing or factsheet expansion."
+        ]
+      }
+    },
+    {
+      "name": "v1_claude_consult_new_session",
+      "pass": true,
+      "duration_ms": 3213,
+      "details": {
+        "session_id": "session_60c3b5d2-02a9-437a-999e-6de8064e12b8",
+        "claude_session_id": "5b325fbd-05c5-4793-80a6-f785ed42628c",
+        "was_new_session": true,
+        "was_orphan_recovery": false,
+        "diagnostics": null,
+        "raw_log_count": 1
+      }
+    },
+    {
+      "name": "v1_claude_consult_explicit_resume_or_orphan_recovery",
+      "pass": true,
+      "duration_ms": 2217,
+      "details": {
+        "session_id": "session_60c3b5d2-02a9-437a-999e-6de8064e12b8",
+        "claude_session_id": "5b325fbd-05c5-4793-80a6-f785ed42628c",
+        "was_new_session": false,
+        "was_orphan_recovery": false,
+        "diagnostics": null
+      }
+    },
+    {
+      "name": "v1_session_inspect",
+      "pass": true,
+      "duration_ms": 1,
+      "details": {
+        "session": {
+          "id": "session_60c3b5d2-02a9-437a-999e-6de8064e12b8",
+          "claude_session_id": "5b325fbd-05c5-4793-80a6-f785ed42628c",
+          "topic": "mcp workload v1",
+          "status": "active",
+          "last_used": "2026-05-14T23:51:43.506Z",
+          "summary": "",
+          "decisions": [],
+          "open_questions": [],
+          "files_discussed": [],
+          "tags": [],
+          "aliases": [],
+          "project_id": "project",
+          "created_at": "2026-05-14T23:51:41.288Z"
+        },
+        "recent_events": [
+          {
+            "event_type": "consult",
+            "created_at": "2026-05-14T23:51:43.510Z",
+            "match_score": 1,
+            "match_reason": "Direct session_id provided and project/Claude session health checks passed.",
+            "tokens_in": 7046,
+            "tokens_out": 156,
+            "duration_ms": 2206,
+            "error": null
+          },
+          {
+            "event_type": "parse_failed",
+            "created_at": "2026-05-14T23:51:43.508Z",
+            "match_score": null,
+            "match_reason": null,
+            "tokens_in": null,
+            "tokens_out": null,
+            "duration_ms": null,
+            "error": "SESSION_UPDATE_JSON block missing"
+          },
+          {
+            "event_type": "new_session",
+            "created_at": "2026-05-14T23:51:41.292Z",
+            "match_score": 0,
+            "match_reason": "No eligible active or dormant sessions in project.",
+            "tokens_in": 6108,
+            "tokens_out": 137,
+            "duration_ms": 3203,
+            "error": null
+          },
+          {
+            "event_type": "parse_failed",
+            "created_at": "2026-05-14T23:51:41.291Z",
+            "match_score": null,
+            "match_reason": null,
+            "tokens_in": null,
+            "tokens_out": null,
+            "duration_ms": null,
+            "error": "SESSION_UPDATE_JSON block missing"
+          }
+        ],
+        "recent_events_note": "truncated; default returns up to 10 events, hard max 50"
+      }
+    },
+    {
+      "name": "v2_cluster_consult_fast_path_with_shadow",
+      "pass": true,
+      "duration_ms": 12893,
+      "details": {
+        "cluster_id": "monitor-static",
+        "factsheet_version": 1,
+        "factsheet_status": "static_verified",
+        "tool_profile": "bare",
+        "used_fork": false,
+        "claude_session_id": "b04acbe1-cab9-4611-a1ff-646645713751",
+        "metrics": {
+          "duration_ms": 4337,
+          "tokens_in": 0,
+          "tokens_out": 162
+        }
+      }
+    },
+    {
+      "name": "shadow_comparison_judged_after_cluster_consult",
+      "pass": true,
+      "duration_ms": 16044,
+      "details": {
+        "stats": {
+          "project_id": "project",
+          "stats": [
+            {
+              "cluster_id": "monitor-static",
+              "n": 1,
+              "cluster_q": 1,
+              "direct_q": 0,
+              "gap": -1,
+              "cluster_wins": 1,
+              "direct_wins": 0,
+              "ties": 0
+            }
+          ]
+        },
+        "list": {
+          "project_id": "project",
+          "comparisons": [
+            {
+              "id": "comparison_e6d5ae30-05a9-464f-99e5-86117dcdba28",
+              "project_id": "project",
+              "cluster_id": "monitor-static",
+              "question": "What is router_monitor for?",
+              "cluster_answer": "[omitted]",
+              "cluster_duration_ms": 4337,
+              "cluster_cost_usd": null,
+              "cluster_was_not_in_context": 0,
+              "shadow_method": "direct_fresh",
+              "shadow_status": "ok",
+              "shadow_error": null,
+              "direct_answer": "[omitted]",
+              "direct_duration_ms": 4848,
+              "direct_cost_usd": null,
+              "cluster_score": 1,
+              "direct_score": 0,
+              "preferred": "cluster",
+              "cluster_errors_json": "[\"Claimed router_monitor is documented in a 'factsheet' — not confirmed — and while the src/tools.ts registration is plausible, neither claim was verified\"]",
+              "direct_errors_json": "[\"Answer A states an intent to explore but never actually provides any findings or answer to the question\"]",
+              "judge_reasoning": "Answer A made no attempt to actually answer the question — it only declared an intention to explore without delivering any findings or information. Answer B at least provided a concrete, specific claim (operator-facing information monitor, registered in src/tools.ts) that could be evaluated, even though I could not verify it from the project directly. A partial answer with an unverified specific claim is more useful than no answer at all.",
+              "judged_at": "2026-05-14T23:52:11.712Z",
+              "created_at": "2026-05-14T23:51:55.913Z"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "cluster_refresh_verify_only",
+      "pass": true,
+      "duration_ms": 6,
+      "details": {
+        "project_id": "project",
+        "cluster_id": "monitor-static",
+        "factsheet_id": "factsheet_e9258487-7d75-48d0-9ad0-b618497157de",
+        "factsheet_version": 1,
+        "mode": "verify_only",
+        "fresh": true,
+        "factsheet_status": "static_verified",
+        "trust_state": "static_verified",
+        "changed_files": [],
+        "verified_facts": 2,
+        "rejected_facts": 0,
+        "refreshed_at": "2026-05-14T23:52:12.460Z"
+      }
+    },
+    {
+      "name": "evidence_revalidation_success_selector_moved",
+      "pass": true,
+      "duration_ms": 2714,
+      "details": {
+        "consult": {
+          "cluster_id": "monitor-static",
+          "factsheet_version": 2,
+          "factsheet_status": "static_verified",
+          "tool_profile": "bare",
+          "used_fork": false,
+          "claude_session_id": "576f815b-1b81-46b6-90e9-4bce697906fd",
+          "metrics": {
+            "duration_ms": 2700,
+            "tokens_in": 714,
+            "tokens_out": 222
+          }
+        },
+        "events": [
+          {
+            "event_type": "cluster_created",
+            "details_json": null,
+            "created_at": "2026-05-14T23:51:43.516Z"
+          },
+          {
+            "event_type": "factsheet_static_verified",
+            "details_json": "{\"factsheet_id\":\"factsheet_e9258487-7d75-48d0-9ad0-b618497157de\",\"version\":1,\"file_hashes\":2}",
+            "created_at": "2026-05-14T23:51:43.520Z"
+          },
+          {
+            "event_type": "cluster_consult",
+            "details_json": "{\"factsheet_id\":\"factsheet_e9258487-7d75-48d0-9ad0-b618497157de\",\"factsheet_version\":1,\"factsheet_status\":\"static_verified\",\"tool_profile\":\"bare\",\"requested_profile\":\"bare\",\"downgraded\":false,\"used_fork\":false}",
+            "created_at": "2026-05-14T23:51:55.910Z"
+          },
+          {
+            "event_type": "cluster_refresh",
+            "details_json": "{\"mode\":\"verify_only\",\"factsheet_id\":\"factsheet_e9258487-7d75-48d0-9ad0-b618497157de\",\"factsheet_version\":1,\"changed_files\":[]}",
+            "created_at": "2026-05-14T23:52:12.464Z"
+          },
+          {
+            "event_type": "cluster_refresh_required",
+            "details_json": "{\"factsheet_id\":\"factsheet_e9258487-7d75-48d0-9ad0-b618497157de\",\"factsheet_version\":1,\"changed_files\":[\"src/tools.ts\"]}",
+            "created_at": "2026-05-14T23:52:12.467Z"
+          },
+          {
+            "event_type": "factsheet_static_verified",
+            "details_json": "{\"factsheet_id\":\"factsheet_5c28cb32-11ee-40bc-a3a3-3dcf5283f4dc\",\"version\":2,\"file_hashes\":2}",
+            "created_at": "2026-05-14T23:52:12.470Z"
+          },
+          {
+            "event_type": "evidence_revalidated",
+            "details_json": "{\"previous_factsheet_id\":\"factsheet_e9258487-7d75-48d0-9ad0-b618497157de\",\"previous_factsheet_version\":1,\"factsheet_id\":\"factsheet_5c28cb32-11ee-40bc-a3a3-3dcf5283f4dc\",\"factsheet_version\":2,\"factsheet_status\":\"static_verified\",\"original_facts\":2,\"revalidated_facts\":2,\"retained_ratio\":1}",
+            "created_at": "2026-05-14T23:52:12.471Z"
+          },
+          {
+            "event_type": "cluster_consult",
+            "details_json": "{\"factsheet_id\":\"factsheet_5c28cb32-11ee-40bc-a3a3-3dcf5283f4dc\",\"factsheet_version\":2,\"factsheet_status\":\"static_verified\",\"tool_profile\":\"bare\",\"requested_profile\":\"bare\",\"downgraded\":false,\"used_fork\":false}",
+            "created_at": "2026-05-14T23:52:15.173Z"
+          }
+        ]
+      }
+    },
+    {
+      "name": "evidence_revalidation_failure_falls_back",
+      "pass": true,
+      "duration_ms": 5909,
+      "details": {
+        "fallback": {
+          "session_id": "session_1be08d5a-1588-42f2-b37e-0ff12a854618",
+          "claude_session_id": "ef7c1718-dbe7-47ee-99de-fab462d81b8a",
+          "was_new_session": true,
+          "was_orphan_recovery": false,
+          "diagnostics": null
+        },
+        "cluster": {
+          "id": "monitor-decay",
+          "status": "needs_prepare",
+          "trust_state": "untrusted",
+          "static_factsheet_policy": "allow"
+        },
+        "events": [
+          {
+            "event_type": "cluster_created",
+            "details_json": null,
+            "created_at": "2026-05-14T23:52:15.184Z"
+          },
+          {
+            "event_type": "factsheet_static_verified",
+            "details_json": "{\"factsheet_id\":\"factsheet_b0674d2b-fc8d-4200-80f8-e2c28e2b8de3\",\"version\":1,\"file_hashes\":2}",
+            "created_at": "2026-05-14T23:52:15.187Z"
+          },
+          {
+            "event_type": "cluster_refresh_required",
+            "details_json": "{\"factsheet_id\":\"factsheet_b0674d2b-fc8d-4200-80f8-e2c28e2b8de3\",\"factsheet_version\":1,\"changed_files\":[\"src/tools.ts\"]}",
+            "created_at": "2026-05-14T23:52:15.191Z"
+          },
+          {
+            "event_type": "evidence_revalidation_failed",
+            "details_json": "{\"factsheet_id\":\"factsheet_b0674d2b-fc8d-4200-80f8-e2c28e2b8de3\",\"factsheet_version\":1,\"original_facts\":2,\"revalidated_facts\":1,\"retained_ratio\":0.5,\"min_retained_ratio\":1,\"rejected_facts\":[{\"id\":\"router-monitor-source\",\"claim\":\"router_monitor is registered as an MCP tool in src/tools.ts.\",\"reason\":\"selector not found: router_monitor\"}]}",
+            "created_at": "2026-05-14T23:52:15.193Z"
+          },
+          {
+            "event_type": "cluster_fallback_to_claude_consult",
+            "details_json": "{\"reason\":\"Cluster factsheet evidence changed and automatic evidence revalidation could not prove the factsheet is still valid.\",\"revalidation_error\":{\"code\":\"CLUSTER_FACTSHEET_UNRECOVERABLE\",\"message\":\"Cluster factsheet evidence changed and automatic evidence revalidation could not prove the factsheet is still valid.\",\"cluster_id\":\"monitor-decay\",\"details\":{\"reason\":\"evidence revalidation failed; not all required evidence still matches current files\",\"factsheet_id\":\"factsheet_b0674d2b-fc8d-4200-80f8-e2c28e2b8de3\",\"factsheet_version\":1,\"original_facts\":2,\"revalidated_facts\":1,\"retained_ratio\":0.5,\"min_retained_ratio\":1,\"rejected_facts\":[{\"id\":\"router-monitor-source\",\"claim\":\"router_monitor is registered as an MCP tool in src/tools.ts.\",\"reason\":\"selector not found: router_monitor\"}],\"suggested_action\":\"Recreate the cluster with cluster_prepare or use claude_consult for fresh exploration.\"}},\"fallback_session_id\":\"session_1be08d5a-1588-42f2-b37e-0ff12a854618\",\"fallback_claude_session_id\":\"ef7c1718-dbe7-47ee-99de-fab462d81b8a\"}",
+            "created_at": "2026-05-14T23:52:21.095Z"
+          }
+        ]
+      }
+    },
+    {
+      "name": "evidence_revalidation_failure_snippet_changed_falls_back",
+      "pass": true,
+      "duration_ms": 2867,
+      "details": {
+        "fallback": {
+          "session_id": "session_89bb57b6-8424-4d00-9158-277504c1bc8b",
+          "claude_session_id": "9eaf5e2c-8080-4a0a-8e05-a3ea105066ba",
+          "was_new_session": true,
+          "was_orphan_recovery": false,
+          "diagnostics": null
+        },
+        "cluster": {
+          "id": "monitor-snippet-decay",
+          "status": "needs_prepare",
+          "trust_state": "untrusted",
+          "static_factsheet_policy": "allow"
+        },
+        "events": [
+          {
+            "event_type": "cluster_created",
+            "details_json": null,
+            "created_at": "2026-05-14T23:52:21.099Z"
+          },
+          {
+            "event_type": "factsheet_static_verified",
+            "details_json": "{\"factsheet_id\":\"factsheet_e492806d-d46a-4f05-886a-516644825e08\",\"version\":1,\"file_hashes\":2}",
+            "created_at": "2026-05-14T23:52:21.102Z"
+          },
+          {
+            "event_type": "cluster_refresh_required",
+            "details_json": "{\"factsheet_id\":\"factsheet_e492806d-d46a-4f05-886a-516644825e08\",\"factsheet_version\":1,\"changed_files\":[\"src/tools.ts\"]}",
+            "created_at": "2026-05-14T23:52:21.112Z"
+          },
+          {
+            "event_type": "evidence_revalidation_failed",
+            "details_json": "{\"factsheet_id\":\"factsheet_e492806d-d46a-4f05-886a-516644825e08\",\"factsheet_version\":1,\"original_facts\":2,\"revalidated_facts\":1,\"retained_ratio\":0.5,\"min_retained_ratio\":1,\"rejected_facts\":[{\"id\":\"router-monitor-source\",\"claim\":\"router_monitor is registered as an MCP tool in src/tools.ts.\",\"reason\":\"snippet changed for src/tools.ts: router_monitor\"}]}",
+            "created_at": "2026-05-14T23:52:21.114Z"
+          },
+          {
+            "event_type": "cluster_fallback_to_claude_consult",
+            "details_json": "{\"reason\":\"Cluster factsheet evidence changed and automatic evidence revalidation could not prove the factsheet is still valid.\",\"revalidation_error\":{\"code\":\"CLUSTER_FACTSHEET_UNRECOVERABLE\",\"message\":\"Cluster factsheet evidence changed and automatic evidence revalidation could not prove the factsheet is still valid.\",\"cluster_id\":\"monitor-snippet-decay\",\"details\":{\"reason\":\"evidence revalidation failed; not all required evidence still matches current files\",\"factsheet_id\":\"factsheet_e492806d-d46a-4f05-886a-516644825e08\",\"factsheet_version\":1,\"original_facts\":2,\"revalidated_facts\":1,\"retained_ratio\":0.5,\"min_retained_ratio\":1,\"rejected_facts\":[{\"id\":\"router-monitor-source\",\"claim\":\"router_monitor is registered as an MCP tool in src/tools.ts.\",\"reason\":\"snippet changed for src/tools.ts: router_monitor\"}],\"suggested_action\":\"Recreate the cluster with cluster_prepare or use claude_consult for fresh exploration.\"}},\"fallback_session_id\":\"session_89bb57b6-8424-4d00-9158-277504c1bc8b\",\"fallback_claude_session_id\":\"9eaf5e2c-8080-4a0a-8e05-a3ea105066ba\"}",
+            "created_at": "2026-05-14T23:52:23.971Z"
+          }
+        ]
+      }
+    },
+    {
+      "name": "static_policy_deny_falls_back",
+      "pass": true,
+      "duration_ms": 6030,
+      "details": {
+        "fallback": {
+          "session_id": "session_0c2e10a5-06a5-45ec-aa7a-e01d06cda56e",
+          "claude_session_id": "7f1a3765-3acc-4926-8254-abd50cb17538",
+          "was_new_session": true,
+          "was_orphan_recovery": false,
+          "diagnostics": null
+        },
+        "cluster": {
+          "id": "monitor-static-deny",
+          "status": "needs_prepare",
+          "trust_state": "untrusted",
+          "static_factsheet_policy": "deny"
+        },
+        "events": [
+          {
+            "event_type": "cluster_created",
+            "details_json": null,
+            "created_at": "2026-05-14T23:52:23.975Z"
+          },
+          {
+            "event_type": "factsheet_static_verified",
+            "details_json": "{\"factsheet_id\":\"factsheet_b46eb4a3-4bdf-46f0-8d43-efc6782c851b\",\"version\":1,\"file_hashes\":2}",
+            "created_at": "2026-05-14T23:52:23.978Z"
+          },
+          {
+            "event_type": "cluster_fallback_to_claude_consult",
+            "details_json": "{\"reason\":\"Cluster factsheet is not LLM-verified. Run cluster_prepare with verification_mode=llm or explicitly allow static facts.\",\"revalidation_error\":{\"code\":\"CLUSTER_FACTSHEET_UNTRUSTED\",\"message\":\"Cluster factsheet is not LLM-verified. Run cluster_prepare with verification_mode=llm or explicitly allow static facts.\",\"cluster_id\":\"monitor-static-deny\",\"reason\":\"Current factsheet status is static_verified; cluster static_factsheet_policy is deny.\"},\"fallback_session_id\":\"session_0c2e10a5-06a5-45ec-aa7a-e01d06cda56e\",\"fallback_claude_session_id\":\"7f1a3765-3acc-4926-8254-abd50cb17538\"}",
+            "created_at": "2026-05-14T23:52:30.006Z"
+          }
+        ]
+      }
+    },
+    {
+      "name": "missing_cluster_falls_back",
+      "pass": true,
+      "duration_ms": 2250,
+      "details": {
+        "fallback": {
+          "session_id": "session_f819dec3-f43f-4240-b674-985f2b849b60",
+          "claude_session_id": "1e65f63b-ea2e-4160-9116-e08e04a88a77",
+          "was_new_session": true,
+          "was_orphan_recovery": false,
+          "diagnostics": null
+        },
+        "events": [
+          {
+            "event_type": "cluster_fallback_to_claude_consult",
+            "details_json": "{\"reason\":\"No cluster found for the provided cluster_id.\",\"revalidation_error\":{\"code\":\"CLUSTER_NOT_FOUND\",\"message\":\"No cluster found for the provided cluster_id.\",\"cluster_id\":\"missing-workload-cluster\"},\"fallback_session_id\":\"session_f819dec3-f43f-4240-b674-985f2b849b60\",\"fallback_claude_session_id\":\"1e65f63b-ea2e-4160-9116-e08e04a88a77\"}",
+            "created_at": "2026-05-14T23:52:32.256Z"
+          }
+        ]
+      }
+    },
+    {
+      "name": "cluster_prepare_llm_verifier_promotes_or_rejects_semantically",
+      "pass": true,
+      "duration_ms": 3295,
+      "details": {
+        "project_id": "project",
+        "profile_selection": {
+          "requested": "bare",
+          "selected": "bare",
+          "downgraded": false
+        },
+        "cluster_id": "monitor-llm",
+        "factsheet_id": "factsheet_e722a58b-59f3-41b8-96c3-deb2166d179b",
+        "factsheet_version": 1,
+        "verification_stage": "llm",
+        "trust_state": "partial_llm",
+        "verified_facts": 1,
+        "rejected_facts": 1,
+        "rejected_fact_details": [
+          {
+            "id": "router-monitor-source",
+            "claim": "router_monitor is registered as an MCP tool in src/tools.ts.",
+            "reason": "llm_verifier:UNVERIFIED Evidence shows router_monitor is exported as a boolean constant but does not demonstrate it is registered as an MCP tool. No MCP tool registration context is provided."
+          }
+        ],
+        "factsheet": {
+          "schema_version": 1,
+          "cluster_id": "monitor-llm",
+          "summary": "Monitor workload facts.",
+          "facts": [
+            {
+              "id": "router-monitor-readme",
+              "claim": "router_monitor is documented as an operator-facing information monitor.",
+              "confidence": "llm_verified",
+              "evidence": [
+                {
+                  "path": "README.md",
+                  "hash": "sha256:5348278d40791e5332fb979efeb0d29cfe67309ffcd6a995bcb2b7962c4a8b21",
+                  "selector": "router_monitor",
+                  "snippet_hash": "sha256:5348278d40791e5332fb979efeb0d29cfe67309ffcd6a995bcb2b7962c4a8b21"
+                }
+              ]
+            }
+          ],
+          "pitfalls": [],
+          "forbidden_inferences": [
+            "Do not infer unmentioned tools."
+          ],
+          "omitted_facts": 1
+        },
+        "verifier_metrics": {
+          "tool_profile": "bare",
+          "duration_ms": 3285,
+          "tokens_in": 535,
+          "tokens_out": 356
+        }
+      }
+    },
+    {
+      "name": "v2_llm_trusted_cluster_consult_with_deny_policy",
+      "pass": true,
+      "duration_ms": 16130,
+      "details": {
+        "consult": {
+          "cluster_id": "monitor-llm",
+          "factsheet_version": 1,
+          "factsheet_status": "llm_verified",
+          "tool_profile": "bare",
+          "used_fork": false,
+          "claude_session_id": "e3905685-c56b-4295-840e-e0f2f7ad3223",
+          "metrics": {
+            "duration_ms": 2089,
+            "tokens_in": 552,
+            "tokens_out": 99
+          }
+        },
+        "shadow": {
+          "stats": {
+            "project_id": "project",
+            "stats": [
+              {
+                "cluster_id": "monitor-llm",
+                "n": 1,
+                "cluster_q": 0,
+                "direct_q": 0,
+                "gap": 0,
+                "cluster_wins": 0,
+                "direct_wins": 0,
+                "ties": 1
+              }
+            ]
+          },
+          "list": {
+            "project_id": "project",
+            "comparisons": [
+              {
+                "id": "comparison_1283dec3-169f-45f8-80ba-81a31715a010",
+                "project_id": "project",
+                "cluster_id": "monitor-llm",
+                "question": "What is router_monitor documented as?",
+                "cluster_answer": "[omitted]",
+                "cluster_duration_ms": 2089,
+                "cluster_cost_usd": null,
+                "cluster_was_not_in_context": 0,
+                "shadow_method": "direct_fresh",
+                "shadow_status": "ok",
+                "shadow_error": null,
+                "direct_answer": "[omitted]",
+                "direct_duration_ms": 2290,
+                "direct_cost_usd": null,
+                "cluster_score": 0,
+                "direct_score": 0,
+                "preferred": "tie",
+                "cluster_errors_json": "[\"Answer B makes a specific claim ('operator-facing information monitor') but provides no source, citation, or evidence to verify this documentation claim\",\"Without access to the project context, the claim is unverifiable and amounts to unsupported assertion\"]",
+                "direct_errors_json": "[\"Answer A is not an actual answer to the question — it merely states an intention to explore without providing any documentation finding or conclusion\"]",
+                "judge_reasoning": "Neither answer can be properly evaluated. Answer A fails to actually answer the question, as it is only an exploration intention with no content. Answer B provides a specific claim but without project access to verify the documentation, I cannot confirm if this description is accurate or hallucinated. Both scores reflect the absence of verifiable evidence rather than demonstrated factual errors.",
+                "judged_at": "2026-05-14T23:52:50.476Z",
+                "created_at": "2026-05-14T23:52:37.646Z"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "comparison_list_drilldown",
+      "pass": true,
+      "duration_ms": 1,
+      "details": {
+        "project_id": "project",
+        "comparisons": [
+          {
+            "id": "comparison_1283dec3-169f-45f8-80ba-81a31715a010",
+            "project_id": "project",
+            "cluster_id": "monitor-llm",
+            "question": "What is router_monitor documented as?",
+            "cluster_answer": "[omitted]",
+            "cluster_duration_ms": 2089,
+            "cluster_cost_usd": null,
+            "cluster_was_not_in_context": 0,
+            "shadow_method": "direct_fresh",
+            "shadow_status": "ok",
+            "shadow_error": null,
+            "direct_answer": "[omitted]",
+            "direct_duration_ms": 2290,
+            "direct_cost_usd": null,
+            "cluster_score": 0,
+            "direct_score": 0,
+            "preferred": "tie",
+            "cluster_errors_json": "[\"Answer B makes a specific claim ('operator-facing information monitor') but provides no source, citation, or evidence to verify this documentation claim\",\"Without access to the project context, the claim is unverifiable and amounts to unsupported assertion\"]",
+            "direct_errors_json": "[\"Answer A is not an actual answer to the question — it merely states an intention to explore without providing any documentation finding or conclusion\"]",
+            "judge_reasoning": "Neither answer can be properly evaluated. Answer A fails to actually answer the question, as it is only an exploration intention with no content. Answer B provides a specific claim but without project access to verify the documentation, I cannot confirm if this description is accurate or hallucinated. Both scores reflect the absence of verifiable evidence rather than demonstrated factual errors.",
+            "judged_at": "2026-05-14T23:52:50.476Z",
+            "created_at": "2026-05-14T23:52:37.646Z"
+          },
+          {
+            "id": "comparison_7ea354fa-ffed-42cc-ae61-4dcfd8a16486",
+            "project_id": "project",
+            "cluster_id": "monitor-static",
+            "question": "What is router_monitor for after a file moved?",
+            "cluster_answer": "[omitted]",
+            "cluster_duration_ms": 2700,
+            "cluster_cost_usd": null,
+            "cluster_was_not_in_context": 1,
+            "shadow_method": "direct_fresh",
+            "shadow_status": "ok",
+            "shadow_error": null,
+            "direct_answer": "[omitted]",
+            "direct_duration_ms": 3976,
+            "direct_cost_usd": null,
+            "cluster_score": 1,
+            "direct_score": 1,
+            "preferred": "tie",
+            "cluster_errors_json": "[\"Explicitly refused to answer rather than attempt investigation\"]",
+            "direct_errors_json": "[\"Tool results not shown - cannot verify if findings were actually obtained or if answer was hallucinated\"]",
+            "judge_reasoning": "Both answers are equally incomplete. Answer A attempted investigation but did not provide the actual answer to what router_monitor does after a file moves. Answer B correctly identified lack of context but made no attempt to search. Neither answer addresses the core question about router_monitor's behavior post-file-move.",
+            "judged_at": "2026-05-14T23:52:24.888Z",
+            "created_at": "2026-05-14T23:52:15.176Z"
+          },
+          {
+            "id": "comparison_e6d5ae30-05a9-464f-99e5-86117dcdba28",
+            "project_id": "project",
+            "cluster_id": "monitor-static",
+            "question": "What is router_monitor for?",
+            "cluster_answer": "[omitted]",
+            "cluster_duration_ms": 4337,
+            "cluster_cost_usd": null,
+            "cluster_was_not_in_context": 0,
+            "shadow_method": "direct_fresh",
+            "shadow_status": "ok",
+            "shadow_error": null,
+            "direct_answer": "[omitted]",
+            "direct_duration_ms": 4848,
+            "direct_cost_usd": null,
+            "cluster_score": 1,
+            "direct_score": 0,
+            "preferred": "cluster",
+            "cluster_errors_json": "[\"Claimed router_monitor is documented in a 'factsheet' — not confirmed — and while the src/tools.ts registration is plausible, neither claim was verified\"]",
+            "direct_errors_json": "[\"Answer A states an intent to explore but never actually provides any findings or answer to the question\"]",
+            "judge_reasoning": "Answer A made no attempt to actually answer the question — it only declared an intention to explore without delivering any findings or information. Answer B at least provided a concrete, specific claim (operator-facing information monitor, registered in src/tools.ts) that could be evaluated, even though I could not verify it from the project directly. A partial answer with an unverified specific claim is more useful than no answer at all.",
+            "judged_at": "2026-05-14T23:52:11.712Z",
+            "created_at": "2026-05-14T23:51:55.913Z"
+          }
+        ]
+      }
+    },
+    {
+      "name": "router_monitor_after_workload",
+      "pass": true,
+      "duration_ms": 1,
+      "details": {
+        "project_id": "project",
+        "checked_at": "2026-05-14T23:52:51.686Z",
+        "recent_window_hours": 24,
+        "health": {
+          "mode": "normal",
+          "degraded_reason": null,
+          "claude": {
+            "detected_version": "2.1.92 (Claude Code)",
+            "tested_versions": []
+          },
+          "v1_sessions": {
+            "active": 5,
+            "dormant": 0,
+            "archived": 0,
+            "orphaned": 0,
+            "total": 5
+          },
+          "v2_clusters": {
+            "active": 2,
+            "stale": 0,
+            "needs_prepare": 3,
+            "invalidated": 0,
+            "archived": 0,
+            "total": 5,
+            "fallback_count_last_24h": 4
+          },
+          "shadow_eval": {
+            "enabled": true,
+            "total": 3,
+            "judged": 3,
+            "pending": 0,
+            "ok_unjudged": 0,
+            "failed_auth": 0,
+            "failed_timeout": 0,
+            "failed_other": 0,
+            "last_created_at": "2026-05-14T23:52:37.646Z",
+            "last_judged_at": "2026-05-14T23:52:50.476Z"
+          }
+        },
+        "cache_health": {
+          "stale_or_needs_prepare": [
+            {
+              "id": "monitor-static-deny",
+              "name": "monitor-static-deny",
+              "status": "needs_prepare",
+              "trust_state": "untrusted",
+              "last_used": "2026-05-14T23:52:23.980Z",
+              "factsheet_id": "factsheet_b46eb4a3-4bdf-46f0-8d43-efc6782c851b",
+              "factsheet_version": 1,
+              "factsheet_status": "static_verified",
+              "verified_at": "2026-05-14T23:52:23.976Z"
+            },
+            {
+              "id": "monitor-snippet-decay",
+              "name": "monitor-snippet-decay",
+              "status": "needs_prepare",
+              "trust_state": "untrusted",
+              "last_used": "2026-05-14T23:52:21.116Z",
+              "factsheet_id": "factsheet_e492806d-d46a-4f05-886a-516644825e08",
+              "factsheet_version": 1,
+              "factsheet_status": "stale",
+              "verified_at": "2026-05-14T23:52:21.100Z"
+            },
+            {
+              "id": "monitor-decay",
+              "name": "monitor-decay",
+              "status": "needs_prepare",
+              "trust_state": "untrusted",
+              "last_used": "2026-05-14T23:52:15.194Z",
+              "factsheet_id": "factsheet_b0674d2b-fc8d-4200-80f8-e2c28e2b8de3",
+              "factsheet_version": 1,
+              "factsheet_status": "stale",
+              "verified_at": "2026-05-14T23:52:15.185Z"
+            }
+          ],
+          "attention_by_event": [
+            {
+              "event_type": "cluster_fallback_to_claude_consult",
+              "count": 4,
+              "latest_created_at": "2026-05-14T23:52:32.256Z"
+            },
+            {
+              "event_type": "cluster_refresh_required",
+              "count": 3,
+              "latest_created_at": "2026-05-14T23:52:21.112Z"
+            },
+            {
+              "event_type": "evidence_revalidation_failed",
+              "count": 2,
+              "latest_created_at": "2026-05-14T23:52:21.114Z"
+            }
+          ],
+          "attention_by_cluster": [
+            {
+              "cluster_id": "missing-workload-cluster",
+              "event_type": "cluster_fallback_to_claude_consult",
+              "count": 1,
+              "latest_created_at": "2026-05-14T23:52:32.256Z"
+            },
+            {
+              "cluster_id": "monitor-decay",
+              "event_type": "cluster_fallback_to_claude_consult",
+              "count": 1,
+              "latest_created_at": "2026-05-14T23:52:21.095Z"
+            },
+            {
+              "cluster_id": "monitor-decay",
+              "event_type": "cluster_refresh_required",
+              "count": 1,
+              "latest_created_at": "2026-05-14T23:52:15.191Z"
+            },
+            {
+              "cluster_id": "monitor-decay",
+              "event_type": "evidence_revalidation_failed",
+              "count": 1,
+              "latest_created_at": "2026-05-14T23:52:15.193Z"
+            },
+            {
+              "cluster_id": "monitor-snippet-decay",
+              "event_type": "cluster_fallback_to_claude_consult",
+              "count": 1,
+              "latest_created_at": "2026-05-14T23:52:23.971Z"
+            },
+            {
+              "cluster_id": "monitor-snippet-decay",
+              "event_type": "cluster_refresh_required",
+              "count": 1,
+              "latest_created_at": "2026-05-14T23:52:21.112Z"
+            },
+            {
+              "cluster_id": "monitor-snippet-decay",
+              "event_type": "evidence_revalidation_failed",
+              "count": 1,
+              "latest_created_at": "2026-05-14T23:52:21.114Z"
+            },
+            {
+              "cluster_id": "monitor-static",
+              "event_type": "cluster_refresh_required",
+              "count": 1,
+              "latest_created_at": "2026-05-14T23:52:12.467Z"
+            },
+            {
+              "cluster_id": "monitor-static-deny",
+              "event_type": "cluster_fallback_to_claude_consult",
+              "count": 1,
+              "latest_created_at": "2026-05-14T23:52:30.006Z"
+            }
+          ]
+        },
+        "quality": {
+          "cluster_stats": [
+            {
+              "cluster_id": "monitor-static",
+              "total": 2,
+              "judged": 2,
+              "not_in_context": 1,
+              "failed_shadow": 0,
+              "n": 2,
+              "cluster_q": 1,
+              "direct_q": 0.5,
+              "gap": -0.5,
+              "cluster_wins": 1,
+              "direct_wins": 0,
+              "ties": 1
+            },
+            {
+              "cluster_id": "monitor-llm",
+              "total": 1,
+              "judged": 1,
+              "not_in_context": 0,
+              "failed_shadow": 0,
+              "n": 1,
+              "cluster_q": 0,
+              "direct_q": 0,
+              "gap": 0,
+              "cluster_wins": 0,
+              "direct_wins": 0,
+              "ties": 1
+            }
+          ],
+          "direct_win_samples": [],
+          "not_in_context_samples": [
+            {
+              "id": "comparison_7ea354fa-ffed-42cc-ae61-4dcfd8a16486",
+              "cluster_id": "monitor-static",
+              "question": "What is router_monitor for after a file moved?",
+              "preferred": "tie",
+              "created_at": "2026-05-14T23:52:15.176Z"
+            }
+          ]
+        },
+        "recommendations": [
+          {
+            "priority": "high",
+            "area": "cache",
+            "cluster_id": "monitor-static-deny",
+            "action": "Run cluster_prepare or expand/rebuild this factsheet.",
+            "reason": "Cluster is needs_prepare; factsheet factsheet_b46eb4a3-4bdf-46f0-8d43-efc6782c851b cannot be trusted as current cache."
+          },
+          {
+            "priority": "high",
+            "area": "cache",
+            "cluster_id": "monitor-snippet-decay",
+            "action": "Run cluster_prepare or expand/rebuild this factsheet.",
+            "reason": "Cluster is needs_prepare; factsheet factsheet_e492806d-d46a-4f05-886a-516644825e08 cannot be trusted as current cache."
+          },
+          {
+            "priority": "high",
+            "area": "cache",
+            "cluster_id": "monitor-decay",
+            "action": "Run cluster_prepare or expand/rebuild this factsheet.",
+            "reason": "Cluster is needs_prepare; factsheet factsheet_b0674d2b-fc8d-4200-80f8-e2c28e2b8de3 cannot be trusted as current cache."
+          },
+          {
+            "priority": "medium",
+            "area": "cache",
+            "cluster_id": "missing-workload-cluster",
+            "action": "Re-prepare or broaden this cluster if fallback is recurring.",
+            "reason": "Router fell back to claude_consult 1 time(s), meaning cache could not serve those calls."
+          },
+          {
+            "priority": "medium",
+            "area": "cache",
+            "cluster_id": "monitor-decay",
+            "action": "Re-prepare or broaden this cluster if fallback is recurring.",
+            "reason": "Router fell back to claude_consult 1 time(s), meaning cache could not serve those calls."
+          },
+          {
+            "priority": "medium",
+            "area": "cache",
+            "cluster_id": "monitor-decay",
+            "action": "Refresh factsheet evidence; selectors or snippets changed.",
+            "reason": "Strict evidence revalidation failed 1 time(s)."
+          },
+          {
+            "priority": "medium",
+            "area": "cache",
+            "cluster_id": "monitor-snippet-decay",
+            "action": "Re-prepare or broaden this cluster if fallback is recurring.",
+            "reason": "Router fell back to claude_consult 1 time(s), meaning cache could not serve those calls."
+          },
+          {
+            "priority": "medium",
+            "area": "cache",
+            "cluster_id": "monitor-snippet-decay",
+            "action": "Refresh factsheet evidence; selectors or snippets changed.",
+            "reason": "Strict evidence revalidation failed 1 time(s)."
+          },
+          {
+            "priority": "medium",
+            "area": "cache",
+            "cluster_id": "monitor-static-deny",
+            "action": "Re-prepare or broaden this cluster if fallback is recurring.",
+            "reason": "Router fell back to claude_consult 1 time(s), meaning cache could not serve those calls."
+          },
+          {
+            "priority": "medium",
+            "area": "coverage",
+            "cluster_id": "monitor-static",
+            "action": "Inspect NOT IN CONTEXT samples and decide whether to expand factsheet or route those questions to claude_consult.",
+            "reason": "Cluster produced 1 NOT IN CONTEXT answer(s)."
+          },
+          {
+            "priority": "medium",
+            "area": "sessions",
+            "action": "Inspect recent session_events and raw responses.",
+            "reason": "Session event 'parse_failed' has 6 error row(s)."
+          }
+        ],
+        "next_directions": [
+          "Prioritize factsheet expansion or distillation for clusters where direct wins or NOT IN CONTEXT appears.",
+          "Re-prepare decayed clusters before using their data to judge routing quality."
+        ]
+      }
+    }
+  ],
+  "db_snapshot": {
+    "session_events": [
+      {
+        "event_type": "parse_failed",
+        "count": 6
+      },
+      {
+        "event_type": "new_session",
+        "count": 5
+      },
+      {
+        "event_type": "consult",
+        "count": 1
+      },
+      {
+        "event_type": "health_probe_passed",
+        "count": 1
+      },
+      {
+        "event_type": "unknown_claude_version",
+        "count": 1
+      }
+    ],
+    "cluster_events": [
+      {
+        "cluster_id": "missing-workload-cluster",
+        "event_type": "cluster_fallback_to_claude_consult",
+        "count": 1
+      },
+      {
+        "cluster_id": "monitor-decay",
+        "event_type": "cluster_created",
+        "count": 1
+      },
+      {
+        "cluster_id": "monitor-decay",
+        "event_type": "cluster_fallback_to_claude_consult",
+        "count": 1
+      },
+      {
+        "cluster_id": "monitor-decay",
+        "event_type": "cluster_refresh_required",
+        "count": 1
+      },
+      {
+        "cluster_id": "monitor-decay",
+        "event_type": "evidence_revalidation_failed",
+        "count": 1
+      },
+      {
+        "cluster_id": "monitor-decay",
+        "event_type": "factsheet_static_verified",
+        "count": 1
+      },
+      {
+        "cluster_id": "monitor-llm",
+        "event_type": "cluster_consult",
+        "count": 1
+      },
+      {
+        "cluster_id": "monitor-llm",
+        "event_type": "cluster_created",
+        "count": 1
+      },
+      {
+        "cluster_id": "monitor-llm",
+        "event_type": "factsheet_partially_llm_verified",
+        "count": 1
+      },
+      {
+        "cluster_id": "monitor-llm",
+        "event_type": "llm_verifier",
+        "count": 1
+      },
+      {
+        "cluster_id": "monitor-snippet-decay",
+        "event_type": "cluster_created",
+        "count": 1
+      },
+      {
+        "cluster_id": "monitor-snippet-decay",
+        "event_type": "cluster_fallback_to_claude_consult",
+        "count": 1
+      },
+      {
+        "cluster_id": "monitor-snippet-decay",
+        "event_type": "cluster_refresh_required",
+        "count": 1
+      },
+      {
+        "cluster_id": "monitor-snippet-decay",
+        "event_type": "evidence_revalidation_failed",
+        "count": 1
+      },
+      {
+        "cluster_id": "monitor-snippet-decay",
+        "event_type": "factsheet_static_verified",
+        "count": 1
+      },
+      {
+        "cluster_id": "monitor-static",
+        "event_type": "cluster_consult",
+        "count": 2
+      },
+      {
+        "cluster_id": "monitor-static",
+        "event_type": "cluster_created",
+        "count": 1
+      },
+      {
+        "cluster_id": "monitor-static",
+        "event_type": "cluster_refresh",
+        "count": 1
+      },
+      {
+        "cluster_id": "monitor-static",
+        "event_type": "cluster_refresh_required",
+        "count": 1
+      },
+      {
+        "cluster_id": "monitor-static",
+        "event_type": "evidence_revalidated",
+        "count": 1
+      },
+      {
+        "cluster_id": "monitor-static",
+        "event_type": "factsheet_static_verified",
+        "count": 2
+      },
+      {
+        "cluster_id": "monitor-static-deny",
+        "event_type": "cluster_created",
+        "count": 1
+      },
+      {
+        "cluster_id": "monitor-static-deny",
+        "event_type": "cluster_fallback_to_claude_consult",
+        "count": 1
+      },
+      {
+        "cluster_id": "monitor-static-deny",
+        "event_type": "factsheet_static_verified",
+        "count": 1
+      }
+    ],
+    "comparisons": [
+      {
+        "cluster_id": "monitor-llm",
+        "shadow_status": "ok",
+        "preferred": "tie",
+        "cluster_score": 0,
+        "direct_score": 0,
+        "created_at": "2026-05-14T23:52:37.646Z"
+      },
+      {
+        "cluster_id": "monitor-static",
+        "shadow_status": "ok",
+        "preferred": "tie",
+        "cluster_score": 1,
+        "direct_score": 1,
+        "created_at": "2026-05-14T23:52:15.176Z"
+      },
+      {
+        "cluster_id": "monitor-static",
+        "shadow_status": "ok",
+        "preferred": "cluster",
+        "cluster_score": 1,
+        "direct_score": 0,
+        "created_at": "2026-05-14T23:51:55.913Z"
+      }
+    ],
+    "clusters": [
+      {
+        "id": "monitor-decay",
+        "status": "needs_prepare",
+        "trust_state": "untrusted",
+        "static_factsheet_policy": "allow"
+      },
+      {
+        "id": "monitor-llm",
+        "status": "active",
+        "trust_state": "partial_llm",
+        "static_factsheet_policy": "deny"
+      },
+      {
+        "id": "monitor-snippet-decay",
+        "status": "needs_prepare",
+        "trust_state": "untrusted",
+        "static_factsheet_policy": "allow"
+      },
+      {
+        "id": "monitor-static",
+        "status": "active",
+        "trust_state": "static_verified",
+        "static_factsheet_policy": "allow"
+      },
+      {
+        "id": "monitor-static-deny",
+        "status": "needs_prepare",
+        "trust_state": "untrusted",
+        "static_factsheet_policy": "deny"
+      }
+    ]
+  },
+  "fake_calls": [],
+  "server_stderr": "{\"ts\":\"2026-05-14T23:51:38.056Z\",\"level\":\"warn\",\"message\":\"unknown_claude_version\",\"detected_version\":\"2.1.92 (Claude Code)\",\"tested_versions\":[]}\n",
+  "finished_at": "2026-05-14T23:52:51.697Z"
+}

@@ -2,7 +2,7 @@ node_modules/
 dist/
 coverage/
 .claude-session-router/
+router.config.toml
 *.sqlite
 *.sqlite-shm
 *.sqlite-wal
-
