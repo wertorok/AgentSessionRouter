@@ -406,13 +406,14 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
           }
         }
 
+        const existingCluster = runtime.db.getClusterById(input.cluster_id);
         const result = await prepareCluster(runtime.db, runtime.cwd, runtime.claude, {
           projectId,
           clusterId: input.cluster_id,
           name: input.name ?? undefined,
           description: input.description ?? undefined,
           toolProfileDefault: input.tool_profile_default,
-          staticFactsheetPolicy: input.static_factsheet_policy ?? runtime.config.cluster.staticFactsheetPolicy,
+          staticFactsheetPolicy: input.static_factsheet_policy ?? (existingCluster ? undefined : runtime.config.cluster.staticFactsheetPolicy),
           factsheet: input.factsheet as FactsheetInput,
           sourceSessionId: input.source_session_id,
           gitRev: input.git_rev,

@@ -62,6 +62,54 @@ describe("cluster MCP tools", () => {
     fixture.cleanup();
   });
 
+  it("preserves existing static factsheet policy when re-preparing without an explicit policy", async () => {
+    const fixture = createToolFixture();
+    const server = new FakeServer();
+    registerTools(server as unknown as McpServer, fixture.runtime);
+    mkdirSync(path.join(fixture.dir, "src"), { recursive: true });
+    writeFileSync(path.join(fixture.dir, "src", "config.ts"), "export const extraArgs = [];\n");
+
+    await server.call("cluster_prepare", {
+      project_id: "project",
+      cluster_id: "router-ops",
+      tool_profile_default: "bare",
+      static_factsheet_policy: "allow",
+      factsheet: {
+        facts: [
+          {
+            id: "extra-args",
+            claim: "extraArgs exists.",
+            evidence: [{ path: "src/config.ts", selector: "extraArgs" }]
+          }
+        ]
+      }
+    });
+    await server.call("cluster_prepare", {
+      project_id: "project",
+      cluster_id: "router-ops",
+      tool_profile_default: "bare",
+      factsheet: {
+        facts: [
+          {
+            id: "extra-args",
+            claim: "extraArgs exists after re-prepare.",
+            evidence: [{ path: "src/config.ts", selector: "extraArgs" }]
+          }
+        ]
+      }
+    });
+
+    const get = parseToolJson(
+      await server.call("cluster_get", {
+        project_id: "project",
+        cluster_id: "router-ops"
+      })
+    );
+
+    expect(get.cluster.static_factsheet_policy).toBe("allow");
+    fixture.cleanup();
+  });
+
   it("returns project mismatch for cluster ownership conflicts", async () => {
     const fixture = createToolFixture();
     const server = new FakeServer();
