@@ -8,7 +8,15 @@ import { prepareCluster, type FactsheetInput } from "./cluster.js";
 import { isoHoursAgo } from "./clock.js";
 import { ERROR_CODES, SESSION_STATUSES } from "./constants.js";
 import { ConsultService, type ConsultResult } from "./consult.js";
-import type { ClusterFactsheetRecord, EventCount, ShadowEvalHealth, StaleClusterView, StatusCount } from "./db.js";
+import type {
+  ClusterEventCount,
+  ClusterFactsheetRecord,
+  ConsultComparisonMonitorStats,
+  EventCount,
+  ShadowEvalHealth,
+  StaleClusterView,
+  StatusCount
+} from "./db.js";
 import { diagnoseClaudeFailure, errorPayload, SPEC_ERROR_MESSAGES } from "./errors.js";
 import { pickProfile, type ProfileSelection } from "./profiles.js";
 import { resolveProjectId } from "./project.js";
@@ -53,6 +61,12 @@ const routerStatusInput = z.object({
   project_id: z.string().nullable().optional(),
   recent_hours: z.number().int().min(1).max(168).default(24),
   warnings_limit: z.number().int().min(1).max(50).default(10)
+});
+
+const routerMonitorInput = z.object({
+  project_id: z.string().nullable().optional(),
+  recent_hours: z.number().int().min(1).max(168).default(24),
+  sample_limit: z.number().int().min(1).max(50).default(10)
 });
 
 const clusterToolProfileInput = z.enum(["bare", "focused", "agent"]);
@@ -370,6 +384,114 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
           ...shadowEval
         },
         warnings
+      });
+    }
+  );
+
+  server.registerTool(
+    "router_monitor",
+    {
+      title: "Router monitor",
+      description:
+        "Returns an operator-facing information monitor: quality stats, cache health, shadow eval health, recommendations, and next directions.",
+      inputSchema: routerMonitorInput
+    },
+    async (input) => {
+      const projectId = resolveProjectId(input.project_id, runtime.cwd);
+      runtime.db.applyLifecycle(projectId);
+      const recentHours = input.recent_hours ?? 24;
+      const sinceIso = isoHoursAgo(runtime.clock, recentHours);
+      const staleClusters = runtime.db.listStaleClusters(projectId, input.sample_limit ?? 10);
+      const sessionErrors = runtime.db.getRecentSessionErrorCounts(projectId, sinceIso);
+      const clusterAttention = runtime.db.getRecentClusterAttentionCounts(projectId, sinceIso);
+      const clusterAttentionByCluster = runtime.db.getRecentClusterAttentionCountsByCluster(projectId, sinceIso);
+      const shadowEval = runtime.db.getShadowEvalHealth(projectId);
+      const comparisonStats = runtime.db.getConsultComparisonMonitorStats(projectId, sinceIso);
+      const directWins = runtime.db
+        .listConsultComparisons({
+          projectId,
+          preferred: "direct",
+          limit: input.sample_limit ?? 10
+        })
+        .filter((comparison) => comparison.created_at >= sinceIso)
+        .map((comparison) => ({
+          id: comparison.id,
+          cluster_id: comparison.cluster_id,
+          question: comparison.question,
+          cluster_score: comparison.cluster_score,
+          direct_score: comparison.direct_score,
+          judge_reasoning: comparison.judge_reasoning,
+          created_at: comparison.created_at
+        }));
+      const notInContextSamples = runtime.db
+        .listConsultComparisons({
+          projectId,
+          limit: input.sample_limit ?? 10
+        })
+        .filter((comparison) => comparison.created_at >= sinceIso && comparison.cluster_was_not_in_context === 1)
+        .map((comparison) => ({
+          id: comparison.id,
+          cluster_id: comparison.cluster_id,
+          question: comparison.question,
+          preferred: comparison.preferred,
+          created_at: comparison.created_at
+        }));
+      const sessionCounts = countMap(runtime.db.getSessionStatusCounts(projectId), SESSION_STATUSES);
+      const clusterCounts = countMap(runtime.db.getClusterStatusCounts(projectId), [
+        "active",
+        "stale",
+        "needs_prepare",
+        "invalidated",
+        "archived"
+      ]);
+      const recommendations = buildMonitorRecommendations({
+        degradedMode: runtime.degradedMode,
+        degradedReason: runtime.degradedReason,
+        shadowEnabled: runtime.config.eval.shadowMode,
+        shadowEval,
+        staleClusters,
+        sessionErrors,
+        clusterAttentionByCluster,
+        comparisonStats
+      });
+
+      return jsonToolResult({
+        project_id: projectId,
+        checked_at: runtime.clock.nowIso(),
+        recent_window_hours: recentHours,
+        health: {
+          mode: runtime.degradedMode ? "degraded" : "normal",
+          degraded_reason: runtime.degradedReason ?? null,
+          claude: {
+            detected_version: runtime.detectedClaudeVersion ?? null,
+            tested_versions: runtime.testedClaudeVersions
+          },
+          v1_sessions: {
+            ...sessionCounts,
+            total: sumCounts(sessionCounts)
+          },
+          v2_clusters: {
+            ...clusterCounts,
+            total: sumCounts(clusterCounts),
+            fallback_count_last_24h: runtime.db.getClusterFallbackCount(projectId, isoHoursAgo(runtime.clock, 24))
+          },
+          shadow_eval: {
+            enabled: runtime.config.eval.shadowMode,
+            ...shadowEval
+          }
+        },
+        cache_health: {
+          stale_or_needs_prepare: staleClusters,
+          attention_by_event: clusterAttention,
+          attention_by_cluster: clusterAttentionByCluster
+        },
+        quality: {
+          cluster_stats: comparisonStats,
+          direct_win_samples: directWins,
+          not_in_context_samples: notInContextSamples
+        },
+        recommendations,
+        next_directions: buildMonitorNextDirections(comparisonStats, clusterAttentionByCluster, staleClusters, shadowEval)
       });
     }
   );
@@ -800,6 +922,177 @@ function buildStatusWarnings(input: {
     }
   }
   return warnings.slice(0, input.limit);
+}
+
+function buildMonitorRecommendations(input: {
+  degradedMode: boolean;
+  degradedReason?: string;
+  shadowEnabled: boolean;
+  shadowEval: ShadowEvalHealth;
+  staleClusters: StaleClusterView[];
+  sessionErrors: EventCount[];
+  clusterAttentionByCluster: ClusterEventCount[];
+  comparisonStats: ConsultComparisonMonitorStats[];
+}): Array<{ priority: "high" | "medium" | "low"; area: string; cluster_id?: string | null; action: string; reason: string }> {
+  const recommendations: Array<{
+    priority: "high" | "medium" | "low";
+    area: string;
+    cluster_id?: string | null;
+    action: string;
+    reason: string;
+  }> = [];
+
+  if (input.degradedMode) {
+    recommendations.push({
+      priority: "high",
+      area: "infrastructure",
+      action: "Fix Claude CLI compatibility/auth and run claude_router_reset.",
+      reason: input.degradedReason ?? "Router is in degraded mode."
+    });
+  }
+
+  if (!input.shadowEnabled) {
+    recommendations.push({
+      priority: "medium",
+      area: "monitoring",
+      action: "Enable [eval].shadow_mode when you want real quality telemetry.",
+      reason: "Shadow eval is disabled, so comparison quality data will not accumulate."
+    });
+  }
+
+  const stalledShadow = input.shadowEval.pending + input.shadowEval.ok_unjudged;
+  const failedShadow = input.shadowEval.failed_auth + input.shadowEval.failed_timeout + input.shadowEval.failed_other;
+  if (stalledShadow > 0) {
+    recommendations.push({
+      priority: "medium",
+      area: "monitoring",
+      action: "Inspect comparison_list and shadow logs; judge or direct baseline may be stalled.",
+      reason: `Shadow eval has ${stalledShadow} unjudged comparison(s).`
+    });
+  }
+  if (failedShadow > 0) {
+    recommendations.push({
+      priority: "high",
+      area: "monitoring",
+      action: "Fix shadow direct baseline failures before trusting comparison coverage.",
+      reason: `Shadow eval has ${failedShadow} failed comparison(s).`
+    });
+  }
+
+  for (const cluster of input.staleClusters) {
+    recommendations.push({
+      priority: "high",
+      area: "cache",
+      cluster_id: cluster.id,
+      action: "Run cluster_prepare or expand/rebuild this factsheet.",
+      reason: `Cluster is ${cluster.status}; factsheet ${cluster.factsheet_id ?? "unknown"} cannot be trusted as current cache.`
+    });
+  }
+
+  for (const event of input.clusterAttentionByCluster) {
+    if (event.event_type === "cluster_fallback_failed") {
+      recommendations.push({
+        priority: "high",
+        area: "fallback",
+        cluster_id: event.cluster_id,
+        action: "Investigate Claude availability and fallback path immediately.",
+        reason: `Fallback failed ${event.count} time(s) in the recent window.`
+      });
+    } else if (event.event_type === "cluster_fallback_to_claude_consult") {
+      recommendations.push({
+        priority: "medium",
+        area: "cache",
+        cluster_id: event.cluster_id,
+        action: "Re-prepare or broaden this cluster if fallback is recurring.",
+        reason: `Router fell back to claude_consult ${event.count} time(s), meaning cache could not serve those calls.`
+      });
+    } else if (event.event_type === "evidence_revalidation_failed") {
+      recommendations.push({
+        priority: "medium",
+        area: "cache",
+        cluster_id: event.cluster_id,
+        action: "Refresh factsheet evidence; selectors or snippets changed.",
+        reason: `Strict evidence revalidation failed ${event.count} time(s).`
+      });
+    } else if (event.event_type === "tool_profile_downgraded" || event.event_type === "bare_probe_failed") {
+      recommendations.push({
+        priority: "low",
+        area: "profiles",
+        cluster_id: event.cluster_id,
+        action: "Check bare-profile auth/support if latency or cost regresses.",
+        reason: `${event.event_type} occurred ${event.count} time(s).`
+      });
+    }
+  }
+
+  for (const stats of input.comparisonStats) {
+    if ((stats.direct_wins ?? 0) > 0 && (stats.gap ?? 0) >= 0.5) {
+      recommendations.push({
+        priority: "high",
+        area: "quality",
+        cluster_id: stats.cluster_id,
+        action: "Inspect direct_win_samples, then expand or rebuild the cluster factsheet.",
+        reason: `Direct baseline is beating cluster by ${stats.gap} points on average.`
+      });
+    } else if ((stats.not_in_context ?? 0) > 0) {
+      recommendations.push({
+        priority: "medium",
+        area: "coverage",
+        cluster_id: stats.cluster_id,
+        action: "Inspect NOT IN CONTEXT samples and decide whether to expand factsheet or route those questions to claude_consult.",
+        reason: `Cluster produced ${stats.not_in_context} NOT IN CONTEXT answer(s).`
+      });
+    }
+  }
+
+  for (const event of input.sessionErrors) {
+    recommendations.push({
+      priority: "medium",
+      area: "sessions",
+      action: "Inspect recent session_events and raw responses.",
+      reason: `Session event '${event.event_type}' has ${event.count} error row(s).`
+    });
+  }
+
+  return recommendations.slice(0, 25);
+}
+
+function buildMonitorNextDirections(
+  comparisonStats: ConsultComparisonMonitorStats[],
+  clusterAttentionByCluster: ClusterEventCount[],
+  staleClusters: StaleClusterView[],
+  shadowEval: ShadowEvalHealth
+): string[] {
+  const directions: string[] = [];
+  const hasQualityData = comparisonStats.some((stats) => stats.judged > 0);
+  const strongClusters = comparisonStats.filter((stats) => (stats.judged ?? 0) >= 3 && (stats.gap ?? 1) <= 0);
+  const weakClusters = comparisonStats.filter((stats) => (stats.direct_wins ?? 0) > 0 || (stats.not_in_context ?? 0) > 0);
+  const fallbackClusters = new Set(
+    clusterAttentionByCluster
+      .filter((event) => event.event_type === "cluster_fallback_to_claude_consult" || event.event_type === "evidence_revalidation_failed")
+      .map((event) => event.cluster_id)
+  );
+
+  if (!hasQualityData) {
+    directions.push("Collect more shadow comparisons before deciding on auto-routing or factsheet expansion.");
+  }
+  if (weakClusters.length > 0) {
+    directions.push("Prioritize factsheet expansion or distillation for clusters where direct wins or NOT IN CONTEXT appears.");
+  }
+  if (strongClusters.length > 0 && fallbackClusters.size === 0 && staleClusters.length === 0) {
+    directions.push("Clusters with stable quality and no fallback are candidates for future automatic cluster routing.");
+  }
+  if (fallbackClusters.size > 0 || staleClusters.length > 0) {
+    directions.push("Re-prepare decayed clusters before using their data to judge routing quality.");
+  }
+  if (shadowEval.failed_auth + shadowEval.failed_timeout + shadowEval.failed_other > 0 || shadowEval.pending + shadowEval.ok_unjudged > 0) {
+    directions.push("Stabilize the shadow pipeline before trusting long-term trend reports.");
+  }
+  if (comparisonStats.some((stats) => (stats.judged ?? 0) >= 10 && (stats.gap ?? 1) <= 0 && (stats.not_in_context ?? 0) === 0)) {
+    directions.push("Fork baselines are still low priority unless monitor data shows latency/cost, not quality, is the bottleneck.");
+  }
+
+  return directions;
 }
 
 function serializeFactsheet(factsheet: ClusterFactsheetRecord): object {

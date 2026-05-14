@@ -209,6 +209,13 @@ export interface ConsultComparisonStats {
   ties: number;
 }
 
+export interface ConsultComparisonMonitorStats extends ConsultComparisonStats {
+  total: number;
+  judged: number;
+  not_in_context: number;
+  failed_shadow: number;
+}
+
 export interface StatusCount {
   status: string;
   count: number;
@@ -218,6 +225,10 @@ export interface EventCount {
   event_type: string;
   count: number;
   latest_created_at: string | null;
+}
+
+export interface ClusterEventCount extends EventCount {
+  cluster_id: string;
 }
 
 export interface StaleClusterView {
@@ -1038,6 +1049,31 @@ export class RouterDatabase {
       .all(...params) as ConsultComparisonStats[];
   }
 
+  getConsultComparisonMonitorStats(projectId: string, sinceIso: string): ConsultComparisonMonitorStats[] {
+    return this.db
+      .prepare(
+        `SELECT
+           cluster_id,
+           COUNT(*) AS total,
+           SUM(CASE WHEN judged_at IS NOT NULL THEN 1 ELSE 0 END) AS judged,
+           SUM(CASE WHEN cluster_was_not_in_context = 1 THEN 1 ELSE 0 END) AS not_in_context,
+           SUM(CASE WHEN shadow_status IN ('failed_auth', 'failed_timeout', 'failed_other') THEN 1 ELSE 0 END) AS failed_shadow,
+           SUM(CASE WHEN judged_at IS NOT NULL THEN 1 ELSE 0 END) AS n,
+           ROUND(AVG(CASE WHEN judged_at IS NOT NULL THEN cluster_score END), 2) AS cluster_q,
+           ROUND(AVG(CASE WHEN judged_at IS NOT NULL THEN direct_score END), 2) AS direct_q,
+           ROUND(AVG(CASE WHEN judged_at IS NOT NULL THEN direct_score - cluster_score END), 2) AS gap,
+           SUM(CASE WHEN preferred = 'cluster' THEN 1 ELSE 0 END) AS cluster_wins,
+           SUM(CASE WHEN preferred = 'direct' THEN 1 ELSE 0 END) AS direct_wins,
+           SUM(CASE WHEN preferred = 'tie' THEN 1 ELSE 0 END) AS ties
+         FROM consult_comparisons
+         WHERE project_id = ?
+           AND created_at >= ?
+         GROUP BY cluster_id
+         ORDER BY total DESC, cluster_id ASC`
+      )
+      .all(projectId, sinceIso) as ConsultComparisonMonitorStats[];
+  }
+
   getSessionStatusCounts(projectId: string): StatusCount[] {
     return this.db
       .prepare(
@@ -1098,6 +1134,30 @@ export class RouterDatabase {
          ORDER BY count DESC, event_type ASC`
       )
       .all(projectId, sinceIso) as EventCount[];
+  }
+
+  getRecentClusterAttentionCountsByCluster(projectId: string, sinceIso: string): ClusterEventCount[] {
+    return this.db
+      .prepare(
+        `SELECT cluster_id, event_type, COUNT(*) AS count, MAX(created_at) AS latest_created_at
+         FROM cluster_events
+         WHERE project_id = ?
+           AND created_at >= ?
+           AND event_type IN (
+             'cluster_consult_failed',
+             'cluster_fallback_to_claude_consult',
+             'cluster_fallback_failed',
+             'cluster_refresh_required',
+             'factsheet_stale',
+             'factsheet_rejected',
+             'evidence_revalidation_failed',
+             'bare_probe_failed',
+             'tool_profile_downgraded'
+           )
+         GROUP BY cluster_id, event_type
+         ORDER BY count DESC, cluster_id ASC, event_type ASC`
+      )
+      .all(projectId, sinceIso) as ClusterEventCount[];
   }
 
   getClusterFallbackCount(projectId: string, sinceIso: string): number {

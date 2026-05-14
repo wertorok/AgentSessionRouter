@@ -48,6 +48,7 @@ Implemented MVP tools:
 - `claude_session_inspect`
 - `claude_router_reset`
 - `router_status`
+- `router_monitor`
 
 Experimental cluster-cache tools:
 
@@ -64,11 +65,11 @@ Optional shadow-eval tools:
 
 Validation performed:
 
-- Unit/integration tests: `59 passed`
+- Unit/integration tests: `71 passed`
 - Live MCP stdio E2E: `LIVE_CONSULT_PASS`
 - Live matrix run: committed as `LIVE_TEST_LOG.md`
 - Post-fix targeted live rerun: `TARGETED_RERUN_PASS`
-- Post-install smoke: stub mode passes and covers v1, v2 cluster tools, and `router_status`
+- Post-install smoke: stub mode passes and covers v1, v2 cluster tools, `router_status`, and `router_monitor`
 
 Research and next-architecture docs:
 
@@ -204,6 +205,8 @@ Use the comparison tools to inspect accumulated results:
 ```
 
 `comparison_stats` returns aggregate quality and preference counts per cluster. `comparison_list` returns recent comparison rows and omits full answers unless `include_answers: true` is set.
+
+`router_monitor` is the operator-facing information monitor built on top of shadow eval, router status, and cluster events. It returns one diagnosis payload with health, cache decay, comparison quality, direct-win samples, recommendations, and next directions. Use it when a parent agent needs to decide what is working, what is failing, what to change, and why.
 
 ## Consultation Method Selection
 
@@ -618,6 +621,30 @@ Output excerpt:
   ]
 }
 ```
+
+### `router_monitor`
+
+Returns the information monitor for agent/operator decisions. It does not invoke Claude.
+
+Input:
+
+```json
+{
+  "project_id": null,
+  "recent_hours": 24,
+  "sample_limit": 10
+}
+```
+
+Output sections:
+
+- `health`: normal/degraded mode, Claude version, v1/v2 counts, shadow-eval pipeline health.
+- `cache_health`: stale/needs-prepare clusters and recent revalidation/fallback attention events.
+- `quality`: recent shadow comparison stats, direct-win samples, and `NOT IN CONTEXT` samples.
+- `recommendations`: prioritized actions with area, cluster id, action, and reason.
+- `next_directions`: higher-level signals such as factsheet expansion, shadow stabilization, or future auto-routing candidates.
+
+Use `router_status` for a compact health check. Use `router_monitor` when deciding what to fix next.
 
 ### `cluster_prepare`
 

@@ -20,6 +20,7 @@ Included in v2.1-lite:
 - One blind structured judge call.
 - One storage table: `consult_comparisons`.
 - Read-only MCP tools for stats and recent rows.
+- Operator monitor built from shadow comparisons, router status, and cluster events.
 
 Explicitly out of scope:
 
@@ -172,6 +173,21 @@ This tool never invokes Claude.
 
 This makes a stalled or failing shadow pipeline visible without opening SQLite.
 
+### `router_monitor`
+
+`router_monitor` is the intended information monitor for parent agents and operators. It does not invoke Claude. It combines:
+
+- router health and Claude compatibility state
+- v1/v2 session and cluster counts
+- stale/needs-prepare cluster data
+- recent cluster attention events such as fallback and revalidation failures
+- shadow comparison quality stats
+- direct-win and `NOT IN CONTEXT` samples
+- prioritized recommendations
+- next-direction hints
+
+This is the layer that turns telemetry into action: whether to re-prepare a factsheet, expand coverage, fix shadow eval, avoid a weak cluster, or consider future auto-routing.
+
 ## 8. Failure Handling
 
 - If cluster consult fails, no comparison is scheduled.
@@ -196,4 +212,5 @@ shadow_mode = false
 - Shadow direct baseline failure is visible in `shadow_status` and does not affect the caller path.
 - Judge calls use no-tools mode and blind A/B order.
 - `comparison_stats` and `comparison_list` expose stored telemetry without invoking Claude.
+- `router_monitor` exposes combined quality/health recommendations without invoking Claude.
 - Unit tests cover DB storage, parser behavior, shadow success/failure, config loading, and MCP tool registration.

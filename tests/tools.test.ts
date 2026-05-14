@@ -789,6 +789,90 @@ describe("cluster MCP tools", () => {
     expect(status.warnings.some((warning: string) => warning.includes("Shadow eval"))).toBe(true);
     fixture.cleanup();
   });
+
+  it("returns an operator monitor with quality, cache health, and next-action recommendations", async () => {
+    const fixture = createToolFixture();
+    const server = new FakeServer();
+    registerTools(server as unknown as McpServer, fixture.runtime);
+    fixture.runtime.db.upsertCluster({
+      id: "weak-cluster",
+      projectId: "project",
+      name: "Weak cluster",
+      toolProfileDefault: "bare"
+    });
+    const factsheet = fixture.runtime.db.insertClusterFactsheet({
+      id: "factsheet-weak",
+      clusterId: "weak-cluster",
+      status: "static_verified",
+      trustState: "static_verified",
+      contentJson: JSON.stringify({ facts: [] }),
+      fileHashes: []
+    });
+    fixture.runtime.db.markClusterFactsheetStale(factsheet.id);
+    fixture.runtime.db.logClusterEvent({
+      clusterId: "weak-cluster",
+      projectId: "project",
+      eventType: "cluster_fallback_to_claude_consult"
+    });
+    fixture.runtime.db.insertConsultComparison({
+      id: "cmp-direct-win",
+      projectId: "project",
+      clusterId: "weak-cluster",
+      question: "Why is the cluster weak?",
+      clusterAnswer: "NOT IN CONTEXT",
+      clusterDurationMs: 5,
+      clusterWasNotInContext: true
+    });
+    fixture.runtime.db.updateConsultComparisonDirect({
+      id: "cmp-direct-win",
+      status: "ok",
+      directAnswer: "Because it lacks reasoning facts.",
+      directDurationMs: 10
+    });
+    fixture.runtime.db.updateConsultComparisonJudge({
+      id: "cmp-direct-win",
+      clusterScore: 1,
+      directScore: 3,
+      preferred: "direct",
+      clusterErrors: [],
+      directErrors: [],
+      judgeReasoning: "direct answer had the missing rationale"
+    });
+    fixture.runtime.config.eval.shadowMode = true;
+
+    const monitor = parseToolJson(
+      await server.call("router_monitor", {
+        project_id: "project",
+        recent_hours: 24,
+        sample_limit: 5
+      })
+    );
+
+    expect(monitor.health.v2_clusters.fallback_count_last_24h).toBe(1);
+    expect(monitor.cache_health.stale_or_needs_prepare[0].id).toBe("weak-cluster");
+    expect(monitor.quality.cluster_stats[0]).toMatchObject({
+      cluster_id: "weak-cluster",
+      total: 1,
+      judged: 1,
+      not_in_context: 1,
+      cluster_q: 1,
+      direct_q: 3,
+      gap: 2,
+      direct_wins: 1
+    });
+    expect(monitor.quality.direct_win_samples[0]).toMatchObject({
+      cluster_id: "weak-cluster",
+      question: "Why is the cluster weak?"
+    });
+    expect(monitor.recommendations).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ area: "cache", cluster_id: "weak-cluster" }),
+        expect.objectContaining({ area: "quality", cluster_id: "weak-cluster" })
+      ])
+    );
+    expect(monitor.next_directions.some((direction: string) => direction.includes("factsheet expansion"))).toBe(true);
+    fixture.cleanup();
+  });
 });
 
 class FakeServer {

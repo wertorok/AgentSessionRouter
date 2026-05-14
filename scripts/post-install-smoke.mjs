@@ -146,6 +146,17 @@ try {
       routerStatus.mode === "normal" && routerStatus.v1_sessions?.active >= 1 && routerStatus.v2_clusters?.active >= 1,
       routerStatus
     );
+
+    const routerMonitor = await callTool(client, "router_monitor", {
+      project_id: null,
+      recent_hours: 24,
+      sample_limit: 10
+    });
+    record(
+      "router_monitor",
+      routerMonitor.health?.mode === "normal" && Array.isArray(routerMonitor.recommendations),
+      routerMonitor
+    );
   });
 
   if (!useLiveClaude) {
