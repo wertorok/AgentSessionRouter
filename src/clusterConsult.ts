@@ -12,7 +12,6 @@ export interface ClusterConsultInput {
   clusterId: string;
   question: string;
   toolProfile?: ClaudeToolProfile | null;
-  allowStaticFactsheet?: boolean;
 }
 
 export interface ClusterConsultSuccess {
@@ -53,10 +52,10 @@ export async function consultCluster(
     return loaded;
   }
 
-  if (loaded.factsheet.status !== "llm_verified" && !input.allowStaticFactsheet) {
+  if (loaded.factsheet.status !== "llm_verified" && loaded.cluster.static_factsheet_policy !== "allow") {
     return errorPayload(ERROR_CODES.CLUSTER_FACTSHEET_UNTRUSTED, SPEC_ERROR_MESSAGES[ERROR_CODES.CLUSTER_FACTSHEET_UNTRUSTED], {
       cluster_id: input.clusterId,
-      reason: `Current factsheet status is ${loaded.factsheet.status}; run cluster_prepare with verification_mode=llm or pass allow_static_factsheet=true.`
+      reason: `Current factsheet status is ${loaded.factsheet.status}; cluster static_factsheet_policy is ${loaded.cluster.static_factsheet_policy}.`
     });
   }
 

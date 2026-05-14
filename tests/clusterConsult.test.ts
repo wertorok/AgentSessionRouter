@@ -65,6 +65,7 @@ describe("cluster_consult service", () => {
       projectId: "project",
       clusterId: "router-ops",
       toolProfileDefault: "bare",
+      staticFactsheetPolicy: "allow",
       factsheet: {
         facts: [
           {
@@ -81,8 +82,7 @@ describe("cluster_consult service", () => {
     const result = await consultCluster(fixture.db, fixture.dir, claude, availability(), {
       projectId: "project",
       clusterId: "router-ops",
-      question: "What config field exists?",
-      allowStaticFactsheet: true
+      question: "What config field exists?"
     });
 
     expect("error" in result).toBe(true);
@@ -98,7 +98,7 @@ describe("cluster_consult service", () => {
     fixture.cleanup();
   });
 
-  it("requires explicit opt-in for static factsheets", async () => {
+  it("denies static factsheets by default cluster policy", async () => {
     const fixture = createClusterConsultFixture();
     mkdirSync(path.join(fixture.dir, "src"), { recursive: true });
     writeFileSync(path.join(fixture.dir, "src", "config.ts"), "export const extraArgs = [];\n");

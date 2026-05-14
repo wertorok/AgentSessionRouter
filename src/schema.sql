@@ -115,6 +115,7 @@ CREATE TABLE IF NOT EXISTS clusters (
   name TEXT NOT NULL,
   description TEXT NOT NULL DEFAULT '',
   tool_profile_default TEXT NOT NULL DEFAULT 'bare',
+  static_factsheet_policy TEXT NOT NULL DEFAULT 'deny',
   baseline_session_id TEXT,
   status TEXT NOT NULL DEFAULT 'active',
   trust_state TEXT NOT NULL DEFAULT 'unprepared',

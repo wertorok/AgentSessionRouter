@@ -74,6 +74,7 @@ try {
       cluster_id: "post-install-smoke",
       name: "Post-install smoke",
       tool_profile_default: "bare",
+      static_factsheet_policy: "allow",
       factsheet: {
         summary: "Post-install smoke factsheet.",
         facts: [
@@ -117,8 +118,7 @@ try {
     const clusterConsult = await callTool(client, "cluster_consult", {
       project_id: null,
       cluster_id: "post-install-smoke",
-      question: "Which smoke fixture field is present?",
-      allow_static_factsheet: true
+      question: "Which smoke fixture field is present?"
     });
     record(
       "cluster_consult",

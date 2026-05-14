@@ -40,6 +40,7 @@ export interface RouterConfig {
   cluster: {
     autoRefresh: boolean;
     autoRefreshMinRetainedRatio: number;
+    staticFactsheetPolicy: "allow" | "deny";
   };
   configDir: string;
 }
@@ -132,6 +133,11 @@ export function loadConfig(options: LoadConfigOptions): RouterConfig {
         cluster,
         "auto_refresh_min_retained_ratio",
         DEFAULT_CONFIG.cluster.autoRefreshMinRetainedRatio
+      ),
+      staticFactsheetPolicy: staticFactsheetPolicyAt(
+        cluster,
+        "static_factsheet_policy",
+        DEFAULT_CONFIG.cluster.staticFactsheetPolicy
       )
     },
     configDir
@@ -176,6 +182,11 @@ function numberAt(source: TomlObject, key: string, fallback: number): number {
 function booleanAt(source: TomlObject, key: string, fallback: boolean): boolean {
   const value = source[key];
   return typeof value === "boolean" ? value : fallback;
+}
+
+function staticFactsheetPolicyAt(source: TomlObject, key: string, fallback: "allow" | "deny"): "allow" | "deny" {
+  const value = source[key];
+  return value === "allow" || value === "deny" ? value : fallback;
 }
 
 function isObject(value: unknown): value is TomlObject {

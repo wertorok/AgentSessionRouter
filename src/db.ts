@@ -91,6 +91,7 @@ export type ClusterTrustState =
   | "partial_llm"
   | "untrusted";
 export type ClusterToolProfile = "bare" | "focused" | "agent";
+export type ClusterStaticFactsheetPolicy = "allow" | "deny";
 export type ClusterFactsheetStatus = "draft" | "static_verified" | "llm_verified" | "rejected" | "stale";
 
 export interface ClusterRecord {
@@ -99,6 +100,7 @@ export interface ClusterRecord {
   name: string;
   description: string;
   tool_profile_default: ClusterToolProfile;
+  static_factsheet_policy: ClusterStaticFactsheetPolicy;
   baseline_session_id: string | null;
   status: ClusterStatus;
   trust_state: ClusterTrustState;
@@ -259,6 +261,7 @@ export class RouterDatabase {
 
   initialize(): void {
     this.db.exec(SCHEMA_SQL);
+    this.ensureColumn("clusters", "static_factsheet_policy", "TEXT NOT NULL DEFAULT 'deny'");
     this.db
       .prepare("INSERT OR IGNORE INTO schema_migrations (version, applied_at) VALUES (?, ?)")
       .run(1, this.clock.nowIso());
@@ -633,6 +636,7 @@ export class RouterDatabase {
     name: string;
     description?: string;
     toolProfileDefault: ClusterToolProfile;
+    staticFactsheetPolicy?: ClusterStaticFactsheetPolicy;
   }): ClusterRecord {
     const existing = this.getClusterById(input.id);
     if (existing && existing.project_id !== input.projectId) {
@@ -649,12 +653,13 @@ export class RouterDatabase {
             name,
             description,
             tool_profile_default,
+            static_factsheet_policy,
             baseline_session_id,
             status,
             trust_state,
             created_at,
             last_used
-          ) VALUES (?, ?, ?, ?, ?, NULL, 'active', 'unprepared', ?, ?)`
+          ) VALUES (?, ?, ?, ?, ?, ?, NULL, 'active', 'unprepared', ?, ?)`
         )
         .run(
           input.id,
@@ -662,6 +667,7 @@ export class RouterDatabase {
           input.name,
           input.description ?? "",
           input.toolProfileDefault,
+          input.staticFactsheetPolicy ?? "deny",
           now,
           now
         );
@@ -677,11 +683,19 @@ export class RouterDatabase {
            SET name = ?,
                description = ?,
                tool_profile_default = ?,
+               static_factsheet_policy = ?,
                status = 'active',
                last_used = ?
            WHERE id = ?`
         )
-        .run(input.name, input.description ?? existing.description, input.toolProfileDefault, now, input.id);
+        .run(
+          input.name,
+          input.description ?? existing.description,
+          input.toolProfileDefault,
+          input.staticFactsheetPolicy ?? existing.static_factsheet_policy,
+          now,
+          input.id
+        );
     }
 
     return this.getCluster(input.projectId, input.id)!;
@@ -1086,6 +1100,19 @@ export class RouterDatabase {
       .all(projectId, sinceIso) as EventCount[];
   }
 
+  getClusterFallbackCount(projectId: string, sinceIso: string): number {
+    const row = this.db
+      .prepare(
+        `SELECT COUNT(*) AS count
+         FROM cluster_events
+         WHERE project_id = ?
+           AND created_at >= ?
+           AND event_type = 'cluster_fallback_to_claude_consult'`
+      )
+      .get(projectId, sinceIso) as { count: number } | undefined;
+    return row?.count ?? 0;
+  }
+
   listStaleClusters(projectId: string, limit: number): StaleClusterView[] {
     return this.db
       .prepare(
@@ -1157,6 +1184,14 @@ export class RouterDatabase {
     return this.db
       .prepare("SELECT * FROM sessions WHERE status IN ('active', 'dormant')")
       .all() as SessionRecord[];
+  }
+
+  private ensureColumn(table: string, column: string, definition: string): void {
+    const columns = this.db.prepare(`PRAGMA table_info(${table})`).all() as Array<{ name: string }>;
+    if (columns.some((row) => row.name === column)) {
+      return;
+    }
+    this.db.prepare(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`).run();
   }
 
   private toSessionListItem(row: SessionRecord): SessionListItem {

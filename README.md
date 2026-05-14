@@ -592,6 +592,7 @@ Output excerpt:
     "invalidated": 0,
     "archived": 0,
     "total": 3,
+    "fallback_count_last_24h": 2,
     "stale_clusters": [
       {
         "id": "agentsessionrouter-codebase",
@@ -627,6 +628,7 @@ Input:
   "cluster_id": "config-and-cwd-isolation",
   "name": "Config and cwd isolation",
   "tool_profile_default": "bare",
+  "static_factsheet_policy": "deny",
   "verification_mode": "static",
   "llm_verifier_profile": "focused",
   "factsheet": {
@@ -692,15 +694,14 @@ Input:
   "project_id": null,
   "cluster_id": "config-and-cwd-isolation",
   "question": "Which config field controls Claude extra args?",
-  "tool_profile": null,
-  "allow_static_factsheet": false
+  "tool_profile": null
 }
 ```
 
 Behavior:
 
-- Requires the current factsheet to be `llm_verified` by default.
-- Set `allow_static_factsheet: true` only when you intentionally accept static-only evidence checks.
+- Requires the current factsheet to be `llm_verified` unless the cluster was prepared with `static_factsheet_policy: "allow"`.
+- The static/LLM trust decision is cluster metadata, not a per-call caller decision.
 - Checks scoped evidence file hashes before invoking Claude.
 - If cited files changed and `cluster.auto_refresh` is enabled, revalidates selectors and `snippet_hash` values internally before consulting.
 - If all cited selectors/snippets still match, writes a new factsheet version with updated file hashes and proceeds without changing the caller-facing response shape.

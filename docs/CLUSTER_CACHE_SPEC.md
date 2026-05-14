@@ -102,6 +102,7 @@ CREATE TABLE clusters (
   name TEXT NOT NULL,
   description TEXT NOT NULL DEFAULT '',
   tool_profile_default TEXT NOT NULL DEFAULT 'bare',
+  static_factsheet_policy TEXT NOT NULL DEFAULT 'deny',
   baseline_session_id TEXT,
   status TEXT NOT NULL DEFAULT 'active',
   trust_state TEXT NOT NULL DEFAULT 'unprepared',
@@ -473,6 +474,7 @@ Output:
     "status": "active",
     "trust_state": "llm_verified",
     "tool_profile_default": "bare",
+    "static_factsheet_policy": "deny",
     "baseline_session_id": "..."
   },
   "factsheet": {
@@ -496,16 +498,19 @@ Input:
   "project_id": null,
   "cluster_id": "config-and-cwd-isolation",
   "question": "Which cwd isolation issues remain?",
-  "tool_profile": null,
-  "allow_static_factsheet": false
+  "tool_profile": null
 }
 ```
 
 Behavior:
 
 1. Resolve project and cluster.
-2. Run runtime verifier.
-3. Select tool profile:
+2. Check factsheet trust against cluster `static_factsheet_policy`.
+   - `llm_verified` factsheets are trusted.
+   - `static_verified` factsheets are trusted only when cluster metadata has `static_factsheet_policy = 'allow'`.
+   - This is not a per-call caller decision.
+3. Run runtime verifier.
+4. Select tool profile:
    - explicit input profile if provided,
    - cluster default otherwise,
    - deterministic downgrade from `bare` to `focused` if bare probe failed.
@@ -580,6 +585,7 @@ Output:
       "status": "active",
       "trust_state": "llm_verified",
       "tool_profile_default": "bare",
+      "static_factsheet_policy": "deny",
       "factsheet_version": 1,
       "baseline_session_id": "..."
     }

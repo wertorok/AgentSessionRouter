@@ -56,6 +56,7 @@ const routerStatusInput = z.object({
 });
 
 const clusterToolProfileInput = z.enum(["bare", "focused", "agent"]);
+const staticFactsheetPolicyInput = z.enum(["allow", "deny"]);
 
 const factsheetEvidenceInput = z.object({
   path: z.string(),
@@ -96,6 +97,7 @@ const clusterPrepareInput = z.object({
   name: z.string().nullable().optional(),
   description: z.string().nullable().optional(),
   tool_profile_default: clusterToolProfileInput.default("bare"),
+  static_factsheet_policy: staticFactsheetPolicyInput.optional(),
   verification_mode: z.enum(["static", "llm"]).default("static"),
   llm_verifier_profile: z.enum(["focused", "bare"]).default("focused"),
   source_session_id: z.string().nullable().optional(),
@@ -118,8 +120,7 @@ const clusterConsultInput = z.object({
   project_id: z.string().nullable().optional(),
   cluster_id: z.string().min(1),
   question: z.string().min(1),
-  tool_profile: clusterToolProfileInput.nullable().optional(),
-  allow_static_factsheet: z.boolean().default(false)
+  tool_profile: clusterToolProfileInput.nullable().optional()
 });
 
 const clusterRefreshInput = z.object({
@@ -315,6 +316,7 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
       const recentHours = input.recent_hours ?? 24;
       const warningsLimit = input.warnings_limit ?? 10;
       const sinceIso = isoHoursAgo(runtime.clock, recentHours);
+      const fallbackCountLast24h = runtime.db.getClusterFallbackCount(projectId, isoHoursAgo(runtime.clock, 24));
       const staleClusters = runtime.db.listStaleClusters(projectId, warningsLimit);
       const sessionErrors = runtime.db.getRecentSessionErrorCounts(projectId, sinceIso);
       const clusterAttention = runtime.db.getRecentClusterAttentionCounts(projectId, sinceIso);
@@ -355,6 +357,7 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
         v2_clusters: {
           ...clusterCounts,
           total: sumCounts(clusterCounts),
+          fallback_count_last_24h: fallbackCountLast24h,
           stale_clusters: staleClusters
         },
         recent_window_hours: recentHours,
@@ -409,6 +412,7 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
           name: input.name ?? undefined,
           description: input.description ?? undefined,
           toolProfileDefault: input.tool_profile_default,
+          staticFactsheetPolicy: input.static_factsheet_policy ?? runtime.config.cluster.staticFactsheetPolicy,
           factsheet: input.factsheet as FactsheetInput,
           sourceSessionId: input.source_session_id,
           gitRev: input.git_rev,
@@ -512,8 +516,7 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
         projectId,
         clusterId: input.cluster_id,
         question: input.question,
-        toolProfile: input.tool_profile,
-        allowStaticFactsheet: input.allow_static_factsheet
+        toolProfile: input.tool_profile
       });
       if (!("error" in result) && isClusterConsultSuccess(result)) {
         scheduleShadowComparison(runtime, {
@@ -650,7 +653,6 @@ async function consultClusterForCaller(
     clusterId: string;
     question: string;
     toolProfile?: "bare" | "focused" | "agent" | null;
-    allowStaticFactsheet?: boolean;
   }
 ): Promise<ClusterConsultResult | ConsultResult> {
   const availability = await runtime.getProfileAvailability();

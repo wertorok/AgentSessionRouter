@@ -236,6 +236,7 @@ describe("cluster MCP tools", () => {
       project_id: "project",
       cluster_id: "router-ops",
       tool_profile_default: "bare",
+      static_factsheet_policy: "allow",
       factsheet: {
         facts: [
           {
@@ -250,8 +251,7 @@ describe("cluster MCP tools", () => {
     const result = await server.call("cluster_consult", {
       project_id: "project",
       cluster_id: "router-ops",
-      question: "What config field exists?",
-      allow_static_factsheet: true
+      question: "What config field exists?"
     });
     const payload = parseToolJson(result);
     const events = fixture.runtime.db.db
@@ -279,8 +279,7 @@ describe("cluster MCP tools", () => {
     const result = await server.call("cluster_consult", {
       project_id: "project",
       cluster_id: "router-ops",
-      question: "What config field exists?",
-      allow_static_factsheet: true
+      question: "What config field exists?"
     });
     const payload = parseToolJson(result);
     const latest = fixture.runtime.db.getLatestClusterFactsheet("router-ops");
@@ -312,8 +311,7 @@ describe("cluster MCP tools", () => {
     const result = await server.call("cluster_consult", {
       project_id: "project",
       cluster_id: "router-ops",
-      question: "What config field exists?",
-      allow_static_factsheet: true
+      question: "What config field exists?"
     });
     const payload = parseToolJson(result);
 
@@ -337,8 +335,7 @@ describe("cluster MCP tools", () => {
     const result = await server.call("cluster_consult", {
       project_id: "project",
       cluster_id: "router-ops",
-      question: "What config field exists?",
-      allow_static_factsheet: true
+      question: "What config field exists?"
     });
     const payload = parseToolJson(result);
 
@@ -366,8 +363,7 @@ describe("cluster MCP tools", () => {
     const result = await server.call("cluster_consult", {
       project_id: "project",
       cluster_id: "router-ops",
-      question: "What config field exists?",
-      allow_static_factsheet: true
+      question: "What config field exists?"
     });
     const payload = parseToolJson(result);
 
@@ -384,7 +380,20 @@ describe("cluster MCP tools", () => {
     mkdirSync(path.join(fixture.dir, "src"), { recursive: true });
     writeFileSync(path.join(fixture.dir, "src", "config.ts"), configWithExtraArgs());
 
-    await prepareExtraArgsCluster(server);
+    await server.call("cluster_prepare", {
+      project_id: "project",
+      cluster_id: "router-ops",
+      tool_profile_default: "bare",
+      factsheet: {
+        facts: [
+          {
+            id: "extra-args",
+            claim: "extraArgs exists.",
+            evidence: [{ path: "src/config.ts", selector: "extraArgs" }]
+          }
+        ]
+      }
+    });
 
     const result = await server.call("cluster_consult", {
       project_id: "project",
@@ -412,6 +421,7 @@ describe("cluster MCP tools", () => {
       project_id: "project",
       cluster_id: "router-ops",
       tool_profile_default: "bare",
+      static_factsheet_policy: "allow",
       factsheet: {
         facts: [
           {
@@ -432,8 +442,7 @@ describe("cluster MCP tools", () => {
     const result = await server.call("cluster_consult", {
       project_id: "project",
       cluster_id: "router-ops",
-      question: "What config fields exist?",
-      allow_static_factsheet: true
+      question: "What config fields exist?"
     });
     const payload = parseToolJson(result);
 
@@ -458,8 +467,7 @@ describe("cluster MCP tools", () => {
     const result = await server.call("cluster_consult", {
       project_id: "project",
       cluster_id: "router-ops",
-      question: "What config field exists?",
-      allow_static_factsheet: true
+      question: "What config field exists?"
     });
     const payload = parseToolJson(result);
 
@@ -485,8 +493,7 @@ describe("cluster MCP tools", () => {
     const result = await server.call("cluster_consult", {
       project_id: "project",
       cluster_id: "router-ops",
-      question: "What config field exists?",
-      allow_static_factsheet: true
+      question: "What config field exists?"
     });
     const payload = parseToolJson(result);
 
@@ -513,14 +520,12 @@ describe("cluster MCP tools", () => {
       server.call("cluster_consult", {
         project_id: "project",
         cluster_id: "router-ops",
-        question: "What config field exists?",
-        allow_static_factsheet: true
+        question: "What config field exists?"
       }),
       server.call("cluster_consult", {
         project_id: "project",
         cluster_id: "router-ops",
-        question: "What config field exists?",
-        allow_static_factsheet: true
+        question: "What config field exists?"
       })
     ]);
 
@@ -659,6 +664,11 @@ describe("cluster MCP tools", () => {
       projectId: "project",
       eventType: "cluster_refresh_required"
     });
+    fixture.runtime.db.logClusterEvent({
+      clusterId: "router-ops",
+      projectId: "project",
+      eventType: "cluster_fallback_to_claude_consult"
+    });
     fixture.runtime.db.insertConsultComparison({
       id: "cmp-pending",
       projectId: "project",
@@ -693,9 +703,15 @@ describe("cluster MCP tools", () => {
     expect(status.mode).toBe("normal");
     expect(status.v1_sessions.active).toBe(1);
     expect(status.v2_clusters.stale).toBe(1);
+    expect(status.v2_clusters.fallback_count_last_24h).toBe(1);
     expect(status.v2_clusters.stale_clusters[0].id).toBe("router-ops");
     expect(status.recent_errors.session_events[0]).toMatchObject({ event_type: "parse_failed", count: 1 });
-    expect(status.recent_errors.cluster_events[0]).toMatchObject({ event_type: "cluster_refresh_required", count: 1 });
+    expect(status.recent_errors.cluster_events).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ event_type: "cluster_refresh_required", count: 1 }),
+        expect.objectContaining({ event_type: "cluster_fallback_to_claude_consult", count: 1 })
+      ])
+    );
     expect(status.shadow_eval).toMatchObject({
       enabled: true,
       total: 2,
@@ -859,6 +875,7 @@ async function prepareExtraArgsCluster(server: FakeServer): Promise<void> {
     project_id: "project",
     cluster_id: "router-ops",
     tool_profile_default: "bare",
+    static_factsheet_policy: "allow",
     factsheet: {
       facts: [
         {

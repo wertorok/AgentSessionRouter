@@ -81,6 +81,7 @@ export const DEFAULT_CONFIG = {
   },
   cluster: {
     autoRefresh: true,
-    autoRefreshMinRetainedRatio: 1.0
+    autoRefreshMinRetainedRatio: 1.0,
+    staticFactsheetPolicy: "deny"
   }
 } as const;

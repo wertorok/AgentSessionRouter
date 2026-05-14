@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import type { ClaudeAdapter, ClaudeJsonResponse } from "./claude.js";
-import type { ClusterToolProfile, RouterDatabase } from "./db.js";
+import type { ClusterStaticFactsheetPolicy, ClusterToolProfile, RouterDatabase } from "./db.js";
 import { buildEvidenceSnippet, normalizeEvidenceHash, readEvidenceFile, type EvidenceFile } from "./evidence.js";
 import { profilePromptOptions, type VerifierToolProfile } from "./profiles.js";
 
@@ -69,6 +69,7 @@ export interface PrepareClusterInput {
   name?: string;
   description?: string;
   toolProfileDefault: ClusterToolProfile;
+  staticFactsheetPolicy?: ClusterStaticFactsheetPolicy;
   factsheet: FactsheetInput;
   sourceSessionId?: string | null;
   gitRev?: string | null;
@@ -121,7 +122,8 @@ export function prepareStaticCluster(
     projectId: input.projectId,
     name: input.name ?? input.clusterId,
     description: input.description,
-    toolProfileDefault: input.toolProfileDefault
+    toolProfileDefault: input.toolProfileDefault,
+    staticFactsheetPolicy: input.staticFactsheetPolicy
   });
   const verification = verifyFactsheetStatic(cwd, input.clusterId, input.factsheet);
   ensureHasVerifiedFacts(db, input.projectId, input.clusterId, verification);
@@ -162,7 +164,8 @@ export async function prepareCluster(
     projectId: input.projectId,
     name: input.name ?? input.clusterId,
     description: input.description,
-    toolProfileDefault: input.toolProfileDefault
+    toolProfileDefault: input.toolProfileDefault,
+    staticFactsheetPolicy: input.staticFactsheetPolicy
   });
 
   const verification = verifyFactsheetStatic(cwd, input.clusterId, input.factsheet);
