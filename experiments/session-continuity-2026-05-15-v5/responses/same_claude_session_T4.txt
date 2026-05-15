@@ -1,0 +1,9 @@
+**Benchmark Codewords Summary (Turn 4):**
+
+- **ALPHA-17:** Router must answer the caller when Claude is available. Monitor telemetry is operator-facing instrumentation only — it does not gate or trigger caller recovery.
+
+- **BETA-29:** Factsheet evidence must be revalidated before use. If revalidation cannot prove facts are current, the router falls back internally; it never asks the caller to perform recovery.
+
+**Combined doctrine:** The router prioritizes the caller's experience (ALPHA-17), handles its own internal state gaps silently (BETA-29), and keeps monitor signals on the operator side of the plane.
+
+---

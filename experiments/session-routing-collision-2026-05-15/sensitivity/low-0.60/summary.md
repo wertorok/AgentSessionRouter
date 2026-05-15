@@ -2,7 +2,7 @@
 
 Project id: AgentSessionRouter
 Active candidates: 8
-Thresholds: use=0.7, low_confidence=0.55, disambiguation_gap=0.1
+Thresholds: use=0.7, low_confidence=0.6, disambiguation_gap=0.1
 
 ## Executive Result
 
@@ -11,9 +11,9 @@ Thresholds: use=0.7, low_confidence=0.55, disambiguation_gap=0.1
 - Probe exact-topic collisions: 0
 - High collision risk probes: 0
 - router_consult high-confidence fuzzy reuses: 0
-- router_consult disambiguated low-confidence reuses: 3
+- router_consult disambiguated low-confidence reuses: 2
 - ambiguous low-confidence probes forced to new session: 2
-- conservative no-reuse probes: 8
+- conservative no-reuse probes: 9
 
 Interpretation: exact-topic reuse is proven by the continuity benchmark, but it is the easy case. This report separates exact-topic reuse from fuzzy matching. With the current active sessions and thresholds, router_consult now handles three internal outcomes: reuse high-confidence matches, reuse low-confidence matches only when the gap is clear, or force a new durable session when low-confidence candidates are close.
 
@@ -41,7 +41,7 @@ Interpretation: exact-topic reuse is proven by the continuity benchmark, but it 
 | shadow-route-overlap | conservative_no_reuse | 0.44 | 0.08 |  |
 | cluster-fallback-generic | conservative_no_reuse | 0.22 | 0.02 |  |
 | roadmap-monitor-overlap | conservative_no_reuse | 0.23 | 0.08 |  |
-| near-current-1 | router_disambiguated_reuse | 0.57 | 0.34 | router consult shadow eval sample |
+| near-current-1 | conservative_no_reuse | 0.57 | 0.34 |  |
 | near-current-2 | router_disambiguated_reuse | 0.6 | 0.36 | router consult cache maintenance sample |
 | near-current-3 | conservative_no_reuse | 0.46 | 0.21 |  |
 | near-current-4 | low_confidence_ambiguous | 0.61 | 0.04 | cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-full |

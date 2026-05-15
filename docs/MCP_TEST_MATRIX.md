@@ -97,6 +97,8 @@ Use `router_monitor` first. It combines the important telemetry:
 - `cache_health`: stale clusters, revalidation failures, fallbacks
 - `metadata_health`: `SESSION_UPDATE_JSON` parse failures and affected sessions
 - `route_health`: `router_consult` selected-path counts and route-decision samples
+- `route_health.forced_new_due_to_ambiguity_count_last_24h`: ambiguous low-confidence calls where the router created a new durable session instead of guessing
+- `route_health.score_histogram_by_selected_path` and `score_histogram_by_cluster`: match-score drift signals for routing decisions
 - `quality`: shadow comparison stats and samples
 - `quality.auto_routing_candidates`: read-only candidates for future routing suggestions; this is telemetry, not enabled auto-routing
 - `recommendations`: concrete actions

@@ -1,0 +1,5 @@
+**Codeword ALPHA-17: Router Answer Priority on Claude Availability**
+
+- **ALPHA-17**: When Claude is available, the router must answer the caller directly. Monitor telemetry serves operator visibility only—it is not a recovery path for callers.
+
+**Rationale**: Caller experience requires a definitive answer when a session-capable agent is present. Monitor telemetry (heartbeat, health signals) informs the operator dashboard but does not substitute for router-level answer delivery to the caller.

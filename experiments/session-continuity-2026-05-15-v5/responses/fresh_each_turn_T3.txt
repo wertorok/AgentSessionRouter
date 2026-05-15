@@ -1,0 +1,13 @@
+## Benchmark Decision: BETA-29
+
+**Codeword:** BETA-29
+
+**Operational Meaning:** Factsheet evidence must be revalidated before use. If revalidation cannot prove current facts, the router falls back internally instead of asking the caller to recover.
+
+**Integration with existing decisions:**
+
+This decision complements the fresh_each_turn semantics from prior turns. Where earlier decisions established that each turn starts clean, BETA-29 adds a structural constraint on how evidence flows within that turn: any factsheet-derived evidence must pass a revalidation gate before the router acts on it. If the gate fails, the router self-recovers via internal fallback rather than surfacing the failure to the caller.
+
+**Practical effect:** Callers receive consistent answers even when underlying factsheets are stale or contested. The router bears the recovery cost, not the caller.
+
+---

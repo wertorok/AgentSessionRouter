@@ -1,0 +1,11 @@
+**Why cluster_consult vs. direct_fresh is insufficient:**
+
+Comparing cluster_consult only against direct_fresh tests two answer paths, but neither path exercises the critical behaviors established by ALPHA-17 and BETA-29:
+
+- **ALPHA-17** separates operator monitoring from caller recovery. A cluster_consult vs. direct_fresh comparison tests only the caller-answer path—it does not test whether monitor telemetry would ever be misrouted as a caller recovery mechanism. There is no benchmark for the operator-side fallback.
+
+- **BETA-29** requires that factsheet evidence be revalidated before use, with internal fallback when revalidation fails. Neither cluster_consult nor direct_fresh is designed to fail revalidation. Both assume the factsheet is provably current. A comparison of them does not test the router's behavior when evidence is stale or unprovable—exactly the scenario BETA-29 governs.
+
+**What extra benchmark is needed:**
+
+A **stale-factsheet benchmark**: one path where factsheet evidence is present but cannot be revalidated (proving the router falls back internally per BETA-29), and a control path where revalidation succeeds. This tests the fallback decision logic that cluster_consult vs. direct_fresh silently skips.

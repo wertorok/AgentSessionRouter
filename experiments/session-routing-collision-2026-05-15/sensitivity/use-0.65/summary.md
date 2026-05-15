@@ -2,7 +2,7 @@
 
 Project id: AgentSessionRouter
 Active candidates: 8
-Thresholds: use=0.7, low_confidence=0.55, disambiguation_gap=0.1
+Thresholds: use=0.65, low_confidence=0.55, disambiguation_gap=0.1
 
 ## Executive Result
 

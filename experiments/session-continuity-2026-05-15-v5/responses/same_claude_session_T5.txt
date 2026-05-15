@@ -1,0 +1,11 @@
+**Why cluster_consult vs. direct_fresh is an incomplete benchmark:**
+
+Comparing only `cluster_consult` against `direct_fresh` tests a single axis — routing topology (cluster vs. direct). It does not test the two operational rules this benchmark has established:
+
+- **ALPHA-17** requires the router to answer based on Claude's availability, with monitor telemetry kept operator-side. A binary comparison reveals nothing about whether availability signals are being interpreted correctly or whether monitor data is leaking into caller-facing paths.
+
+- **BETA-29** requires factsheet evidence to be revalidated before use, with internal fallback rather than caller recovery. Neither `cluster_consult` nor `direct_fresh` is instrumented to show whether revalidation is happening — a stale fact could pass through either path undetected.
+
+**What is missing:** A third benchmark axis — call it `factsheet_revalidate` — that explicitly measures whether the router checks and revalidates cached facts before acting on them, and whether it falls back silently or exposes the gap to the caller. Without this, you cannot confirm that BETA-29 is being honored; you can only observe routing outcomes, not the integrity of the facts feeding those outcomes.
+
+---

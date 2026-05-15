@@ -3,7 +3,7 @@
   "db_path": "/root/projects/AgentSessionRouter/.claude-session-router/sessions.sqlite",
   "thresholds": {
     "threshold_use": 0.7,
-    "threshold_low_confidence": 0.55,
+    "threshold_low_confidence": 0.5,
     "disambiguation_gap": 0.1
   },
   "active_candidate_count": 8,
@@ -818,22 +818,22 @@
       "task": "Continue the work from v2.1 shadow eval architecture.",
       "relevantCode": "src/schema.ts\nsrc/db.ts\nsrc/clusterConsult.ts",
       "question": "Should this route back to the session for v2.1 shadow eval architecture?",
-      "best_session_id": null,
-      "best_topic": null,
+      "best_session_id": "session_11d18ee8-3799-443f-8f5f-ecd866db9e57",
+      "best_topic": "v2.1 shadow eval architecture",
       "best_score": 0.54,
-      "best_low_confidence": false,
+      "best_low_confidence": true,
       "best_reason": "Matched topic=0.8, files=1, tags=0.1, aliases=0.11, recency=0.14.",
       "exact_topic_matches": [],
-      "router_consult_would_reuse": false,
-      "claude_consult_would_reuse": false,
+      "router_consult_would_reuse": true,
+      "claude_consult_would_reuse": true,
       "ambiguity_gap": 0.17,
-      "risk": "conservative_no_reuse",
+      "risk": "router_disambiguated_reuse",
       "top_candidates": [
         {
           "session_id": "session_11d18ee8-3799-443f-8f5f-ecd866db9e57",
           "topic": "v2.1 shadow eval architecture",
           "score": 0.54,
-          "would_be_low_confidence": false,
+          "would_be_low_confidence": true,
           "would_be_high_confidence": false,
           "reason": "Matched topic=0.8, files=1, tags=0.1, aliases=0.11, recency=0.14."
         },
@@ -878,22 +878,22 @@
       "task": "Continue the work from project roadmap after v2.3.1.",
       "relevantCode": "src/clusterConsult.ts\nsrc/tools.ts\nsrc/clusterEvidenceRevalidation.ts",
       "question": "Should this route back to the session for project roadmap after v2.3.1?",
-      "best_session_id": null,
-      "best_topic": null,
+      "best_session_id": "session_e65145e0-1911-4a87-ad7d-8477254bdbb2",
+      "best_topic": "project roadmap after v2.3.1",
       "best_score": 0.54,
-      "best_low_confidence": false,
+      "best_low_confidence": true,
       "best_reason": "Matched topic=0.83, files=1, tags=0, aliases=0.28, recency=0.",
       "exact_topic_matches": [],
-      "router_consult_would_reuse": false,
-      "claude_consult_would_reuse": false,
+      "router_consult_would_reuse": true,
+      "claude_consult_would_reuse": true,
       "ambiguity_gap": 0.22,
-      "risk": "conservative_no_reuse",
+      "risk": "router_disambiguated_reuse",
       "top_candidates": [
         {
           "session_id": "session_e65145e0-1911-4a87-ad7d-8477254bdbb2",
           "topic": "project roadmap after v2.3.1",
           "score": 0.54,
-          "would_be_low_confidence": false,
+          "would_be_low_confidence": true,
           "would_be_high_confidence": false,
           "reason": "Matched topic=0.83, files=1, tags=0, aliases=0.28, recency=0."
         },
@@ -932,5 +932,5 @@
       ]
     }
   ],
-  "summary": "# Session Routing Collision Analysis\n\nProject id: AgentSessionRouter\nActive candidates: 8\nThresholds: use=0.7, low_confidence=0.55, disambiguation_gap=0.1\n\n## Executive Result\n\n- Exact normalized topic collisions: 0\n- Probe exact-topic reuses: 0\n- Probe exact-topic collisions: 0\n- High collision risk probes: 0\n- router_consult high-confidence fuzzy reuses: 0\n- router_consult disambiguated low-confidence reuses: 3\n- ambiguous low-confidence probes forced to new session: 2\n- conservative no-reuse probes: 8\n\nInterpretation: exact-topic reuse is proven by the continuity benchmark, but it is the easy case. This report separates exact-topic reuse from fuzzy matching. With the current active sessions and thresholds, router_consult now handles three internal outcomes: reuse high-confidence matches, reuse low-confidence matches only when the gap is clear, or force a new durable session when low-confidence candidates are close.\n\n## Closest Active Topic Pairs\n\n| Topic Jaccard | Left | Right |\n| ---: | --- | --- |\n| 0.73 | cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-full | cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3 |\n| 0.43 | router consult shadow eval sample | router consult cache maintenance sample |\n| 0.43 | router consult shadow eval sample | router consult route telemetry sample |\n| 0.43 | router consult cache maintenance sample | router consult route telemetry sample |\n| 0.25 | router consult shadow eval sample | v2.1 shadow eval architecture |\n| 0.22 | v2.1 shadow eval architecture | project roadmap after v2.3.1 |\n| 0.15 | cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-full | cluster fallback claude-code-live-workload |\n| 0.14 | cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3 | cluster fallback claude-code-live-workload |\n| 0 | router consult shadow eval sample | cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-full |\n| 0 | router consult shadow eval sample | cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3 |\n\n## Probe Results\n\n| Probe | Risk | Best fuzzy score | Gap to second | Exact or best topic |\n| --- | --- | ---: | ---: | --- |\n| route-cache-overlap | conservative_no_reuse | 0.41 | 0.11 |  |\n| cache-shadow-overlap | conservative_no_reuse | 0.42 | 0.12 |  |\n| shadow-route-overlap | conservative_no_reuse | 0.44 | 0.08 |  |\n| cluster-fallback-generic | conservative_no_reuse | 0.22 | 0.02 |  |\n| roadmap-monitor-overlap | conservative_no_reuse | 0.23 | 0.08 |  |\n| near-current-1 | router_disambiguated_reuse | 0.57 | 0.34 | router consult shadow eval sample |\n| near-current-2 | router_disambiguated_reuse | 0.6 | 0.36 | router consult cache maintenance sample |\n| near-current-3 | conservative_no_reuse | 0.46 | 0.21 |  |\n| near-current-4 | low_confidence_ambiguous | 0.61 | 0.04 | cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-full |\n| near-current-5 | low_confidence_ambiguous | 0.6 | 0.02 | cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3 |\n| near-current-6 | router_disambiguated_reuse | 0.61 | 0.33 | cluster fallback claude-code-live-workload |\n| near-current-7 | conservative_no_reuse | 0.54 | 0.17 |  |\n| near-current-8 | conservative_no_reuse | 0.54 | 0.22 |  |\n\n## Operational Conclusion\n\n- The previous `router_exact_topic` continuity score should be read as exact-topic reuse, not fuzzy semantic routing.\n- Current top-level fuzzy matching is safe: ambiguous low-confidence cases are no longer delegated to lower-level auto reuse.\n- Ambiguous low-confidence cases should still be inspected because they show where aliases/tags/file evidence or session cleanup would improve reuse.\n- To improve non-exact reuse later, collect route-health samples first and then add ambiguity-aware matching rather than lowering thresholds blindly.\n"
+  "summary": "# Session Routing Collision Analysis\n\nProject id: AgentSessionRouter\nActive candidates: 8\nThresholds: use=0.7, low_confidence=0.5, disambiguation_gap=0.1\n\n## Executive Result\n\n- Exact normalized topic collisions: 0\n- Probe exact-topic reuses: 0\n- Probe exact-topic collisions: 0\n- High collision risk probes: 0\n- router_consult high-confidence fuzzy reuses: 0\n- router_consult disambiguated low-confidence reuses: 5\n- ambiguous low-confidence probes forced to new session: 2\n- conservative no-reuse probes: 6\n\nInterpretation: exact-topic reuse is proven by the continuity benchmark, but it is the easy case. This report separates exact-topic reuse from fuzzy matching. With the current active sessions and thresholds, router_consult now handles three internal outcomes: reuse high-confidence matches, reuse low-confidence matches only when the gap is clear, or force a new durable session when low-confidence candidates are close.\n\n## Closest Active Topic Pairs\n\n| Topic Jaccard | Left | Right |\n| ---: | --- | --- |\n| 0.73 | cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-full | cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3 |\n| 0.43 | router consult shadow eval sample | router consult cache maintenance sample |\n| 0.43 | router consult shadow eval sample | router consult route telemetry sample |\n| 0.43 | router consult cache maintenance sample | router consult route telemetry sample |\n| 0.25 | router consult shadow eval sample | v2.1 shadow eval architecture |\n| 0.22 | v2.1 shadow eval architecture | project roadmap after v2.3.1 |\n| 0.15 | cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-full | cluster fallback claude-code-live-workload |\n| 0.14 | cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3 | cluster fallback claude-code-live-workload |\n| 0 | router consult shadow eval sample | cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-full |\n| 0 | router consult shadow eval sample | cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3 |\n\n## Probe Results\n\n| Probe | Risk | Best fuzzy score | Gap to second | Exact or best topic |\n| --- | --- | ---: | ---: | --- |\n| route-cache-overlap | conservative_no_reuse | 0.41 | 0.11 |  |\n| cache-shadow-overlap | conservative_no_reuse | 0.42 | 0.12 |  |\n| shadow-route-overlap | conservative_no_reuse | 0.44 | 0.08 |  |\n| cluster-fallback-generic | conservative_no_reuse | 0.22 | 0.02 |  |\n| roadmap-monitor-overlap | conservative_no_reuse | 0.23 | 0.08 |  |\n| near-current-1 | router_disambiguated_reuse | 0.57 | 0.34 | router consult shadow eval sample |\n| near-current-2 | router_disambiguated_reuse | 0.6 | 0.36 | router consult cache maintenance sample |\n| near-current-3 | conservative_no_reuse | 0.46 | 0.21 |  |\n| near-current-4 | low_confidence_ambiguous | 0.61 | 0.04 | cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-full |\n| near-current-5 | low_confidence_ambiguous | 0.6 | 0.02 | cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3 |\n| near-current-6 | router_disambiguated_reuse | 0.61 | 0.33 | cluster fallback claude-code-live-workload |\n| near-current-7 | router_disambiguated_reuse | 0.54 | 0.17 | v2.1 shadow eval architecture |\n| near-current-8 | router_disambiguated_reuse | 0.54 | 0.22 | project roadmap after v2.3.1 |\n\n## Operational Conclusion\n\n- The previous `router_exact_topic` continuity score should be read as exact-topic reuse, not fuzzy semantic routing.\n- Current top-level fuzzy matching is safe: ambiguous low-confidence cases are no longer delegated to lower-level auto reuse.\n- Ambiguous low-confidence cases should still be inspected because they show where aliases/tags/file evidence or session cleanup would improve reuse.\n- To improve non-exact reuse later, collect route-health samples first and then add ambiguity-aware matching rather than lowering thresholds blindly.\n"
 }

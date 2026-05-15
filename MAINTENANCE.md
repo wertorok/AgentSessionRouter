@@ -170,6 +170,20 @@ The same run also verified `SESSION_UPDATE_JSON` metadata on this path: 8
 inspected sessions stored 19 decisions, and `router_monitor.metadata_health`
 reported no parse failures for the continuity project.
 
+The 2026-05-15-v5 rerun after router disambiguation kept the durable-memory
+result intact:
+
+| Method | Memory-probe score | Memory+synthesis score | Sessions used |
+| --- | ---: | ---: | ---: |
+| `fresh_each_turn` | 0.50 | 0.67 | 5 |
+| `same_claude_session` | 3.00 | 2.67 | 1 |
+| `router_exact_topic` | 3.00 | 2.67 | 1 |
+| `router_explicit_session` | 3.00 | 2.67 | 1 |
+
+The synthesis score was 2.67 because the final synthesis answer omitted one
+benchmark label, not because routing changed sessions. The actual memory probes
+remained 3.00 for durable/session-routed paths.
+
 Operational rule:
 
 - Use shadow eval for cluster factsheet quality.
@@ -202,6 +216,28 @@ Read the output this way:
 Do not lower fuzzy thresholds just to increase reuse. First inspect collision
 gaps and route-health samples; then add aliases/tags/file evidence or split
 near-duplicate sessions.
+
+Current threshold provenance:
+
+- `threshold_use = 0.70` and `threshold_low_confidence = 0.55` are the original
+  v1 matching thresholds. They were not newly tuned for v2.3.2.
+- `disambiguation_gap = 0.10` was added after the 2026-05-15 collision report:
+  clear low-confidence cases had gaps around `0.33-0.37`, while ambiguous
+  fallback-session pairs had gaps around `0.02-0.04`.
+- Sensitivity artifacts live under
+  `experiments/session-routing-collision-2026-05-15/sensitivity/`. On the
+  current active session set, `threshold_use ±0.05` and
+  `disambiguation_gap ±0.05` did not change classification counts. Lowering
+  `threshold_low_confidence` to `0.50` increased disambiguated reuse; raising it
+  to `0.60` kept the ambiguous cases forced-new.
+
+Determinism rule:
+
+- With unchanged registry state, exact/high-confidence/disambiguated routes are
+  deterministic because matching is a pure score sort over the current DB rows.
+- A forced-new ambiguity route intentionally changes future state: the first call
+  creates a new durable session; a repeated same-topic call can then exact-match
+  that new session. This is expected, not variance.
 
 ## Monitor Signal Filtering Invariants
 

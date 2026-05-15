@@ -1,0 +1,7 @@
+**Recall from turn 1:**
+
+- **Codeword ALPHA-17:** "the router must answer the caller when Claude is available; monitor telemetry is for the operator, not for caller recovery"
+
+**Rule (caller vs. operator separation):** When Claude is available and a valid route exists, the router answers the caller. Monitor telemetry (health signals, diagnostics) belongs to the operator plane — it informs observability and auditing, not caller recovery decisions.
+
+---

@@ -1,0 +1,11 @@
+**Why cluster_consult vs. direct_fresh alone is insufficient:**
+
+- **ALPHA-17** separates monitor telemetry (operator-side) from caller-facing answers. cluster_consult likely derives from cluster/monitor data — which is explicitly *not* the source the router uses to answer the caller. Comparing cluster_consult against direct_fresh compares two paths that both may use monitor-adjacent signals, never exercising the direct caller-answer path.
+
+- **BETA-29** requires revalidation of factsheet evidence before use and internal fallback on stale facts. direct_fresh assumes factsheet freshness by definition — it does not test the revalidation and internal fallback behavior that BETA-29 mandates. cluster_consult likewise does not exercise the stale-path fallback.
+
+**The gap**: Neither comparison exercises the behavior that ALPHA-17 and BETA-29 jointly require — a path where the router answers the caller on Claude availability (ignoring monitor telemetry) *and* self-fallbackes internally when revalidation fails.
+
+**Extra benchmark needed**: A `direct_answer_with_revalidation` path — router answers the caller directly based on Claude availability, factsheet evidence is revalidated, and on stale facts the router self-fallbackes without caller prompting. This is the path neither cluster_consult nor direct_fresh captures.
+
+---

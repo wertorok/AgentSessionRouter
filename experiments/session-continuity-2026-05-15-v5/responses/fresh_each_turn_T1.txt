@@ -1,0 +1,9 @@
+## ALPHA-17 Benchmark Decision
+
+- **Codeword ALPHA-17**: Router must answer the caller when Claude is available; monitor telemetry is for the operator, not for caller recovery.
+
+## Session Continuity Benchmark Context
+
+When `fresh_each_turn` is active, the router must ensure caller-facing continuity is maintained by the router itself — Claude's availability and the router's response obligation are the primary signals. Monitor telemetry (latency, token counts, queue depth) informs operator dashboards and automated alerting but does not feed back into caller recovery. The router answers the caller, not the monitor.
+
+**Decision rule**: If Claude reports available (or a session slot is allocatable), the router responds to the caller with the appropriate handle — monitor data is orthogonal to this contract.

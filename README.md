@@ -713,7 +713,7 @@ Output sections:
 - `cache_health`: stale/needs-prepare clusters and recent revalidation/fallback attention events.
 - `latency`: slow consult aggregates plus concrete slow-session samples with topic, question, token counts, duration, and raw response path.
 - `metadata_health`: `SESSION_UPDATE_JSON` parse failures, affected sessions, threshold archives, and raw response paths.
-- `route_health`: recent `router_consult` selected-path counts and concrete route-decision samples.
+- `route_health`: recent `router_consult` selected-path counts, ambiguity-forced new-session count, match-score histograms, and concrete route-decision samples.
 - `quality`: recent shadow comparison stats, direct-win samples, `NOT IN CONTEXT` samples, and read-only auto-routing candidates.
 - `recommendations`: prioritized actions with area, cluster id, action, and reason.
 - `next_directions`: higher-level signals such as factsheet expansion, shadow stabilization, or future auto-routing candidates.

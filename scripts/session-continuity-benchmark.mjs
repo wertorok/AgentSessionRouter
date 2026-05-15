@@ -248,7 +248,7 @@ function buildSummary() {
   const methodRows = byMethod
     .map(
       (item) =>
-        `| ${item.method} | ${item.calls} | ${item.failed} | ${item.unique_sessions} | ${item.avg_score_all} | ${item.avg_score_memory} | ${item.tool_markup} | ${item.missing_memory_admits} | ${item.total_duration_ms} |`
+        `| ${item.method} | ${item.calls} | ${item.failed} | ${item.unique_sessions} | ${item.avg_score_all} | ${item.avg_score_memory_probes} | ${item.avg_score_non_seed} | ${item.tool_markup} | ${item.missing_memory_admits} | ${item.total_duration_ms} |`
     )
     .join("\n");
   const callRows = report.calls
@@ -275,8 +275,8 @@ function buildSummary() {
     "",
     "## Method Summary",
     "",
-    "| Method | Calls | Failed | Unique sessions | Avg score all | Avg score memory probes | Tool markup | Missing-memory admissions | Total duration ms |",
-    "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+    "| Method | Calls | Failed | Unique sessions | Avg score all | Avg score memory probes | Avg score memory+synthesis | Tool markup | Missing-memory admissions | Total duration ms |",
+    "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
     methodRows || "No calls.",
     "",
     "## Route Counts",
@@ -320,14 +320,16 @@ function buildSummary() {
 function summarizeByMethod() {
   return methods.map((method) => {
     const calls = report.calls.filter((call) => call.method === method);
-    const memoryCalls = calls.filter((call) => call.turn_kind === "memory_probe" || call.turn_kind === "synthesis");
+    const memoryProbeCalls = calls.filter((call) => call.turn_kind === "memory_probe");
+    const nonSeedCalls = calls.filter((call) => call.turn_kind === "memory_probe" || call.turn_kind === "synthesis");
     return {
       method,
       calls: calls.length,
       failed: calls.filter((call) => !call.ok).length,
       unique_sessions: new Set(calls.map((call) => call.session_id).filter(Boolean)).size,
       avg_score_all: average(calls.map((call) => call.score)),
-      avg_score_memory: average(memoryCalls.map((call) => call.score)),
+      avg_score_memory_probes: average(memoryProbeCalls.map((call) => call.score)),
+      avg_score_non_seed: average(nonSeedCalls.map((call) => call.score)),
       tool_markup: calls.filter((call) => call.diagnostics.has_tool_markup).length,
       missing_memory_admits: calls.filter((call) => call.diagnostics.admits_missing_memory).length,
       total_duration_ms: calls.reduce((sum, call) => sum + (call.duration_ms ?? 0), 0)
@@ -348,10 +350,10 @@ function summarizeInspections() {
 function buildFindings(byMethod) {
   const byName = Object.fromEntries(byMethod.map((item) => [item.method, item]));
   const findings = [];
-  const fresh = Number(byName.fresh_each_turn?.avg_score_memory ?? 0);
-  const same = Number(byName.same_claude_session?.avg_score_memory ?? 0);
-  const exact = Number(byName.router_exact_topic?.avg_score_memory ?? 0);
-  const explicit = Number(byName.router_explicit_session?.avg_score_memory ?? 0);
+  const fresh = Number(byName.fresh_each_turn?.avg_score_memory_probes ?? 0);
+  const same = Number(byName.same_claude_session?.avg_score_memory_probes ?? 0);
+  const exact = Number(byName.router_exact_topic?.avg_score_memory_probes ?? 0);
+  const explicit = Number(byName.router_explicit_session?.avg_score_memory_probes ?? 0);
 
   if (same > fresh) {
     findings.push(`Durable v1 session context beat fresh-each-turn on memory probes (${same} vs ${fresh}).`);

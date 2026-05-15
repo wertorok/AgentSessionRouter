@@ -1,0 +1,6 @@
+**ALPHA-17 benchmark decision established:**
+
+- **ALPHA-17**: The router must answer the caller directly when Claude is available — monitor telemetry serves the operator's observability only, never caller recovery or fallback logic.
+- **Rationale**: Caller-facing availability is a first-class router concern; monitor data is side-channel information for ops, not a mechanism for routing decisions.
+
+---

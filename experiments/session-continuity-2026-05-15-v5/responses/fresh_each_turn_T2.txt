@@ -1,0 +1,12 @@
+I don't have session memory from turn 1 of this benchmark — this conversation doesn't retain prior turns' context. I can see "bzinu6" in the trigger topic (likely the codeword from turn 1), but I cannot verify what caller/operator rule was established without access to that prior session or its artifacts.
+
+**What's needed to answer fully:**
+- The turn 1 decision about `fresh_each_turn` semantics (likely documented in `experiments/session-continuity-2026-05-15-v5/` if the benchmark writes outputs)
+
+**Practical answer with available context:**
+- Codeword is likely `bzinu6` (visible in trigger)
+- The rule likely concerns whether `fresh_each_turn=true` resets routing state each turn vs. preserving continuity
+
+If turn 1 established that `fresh_each_turn` requires explicit session ID tagging to prevent collisions, or that it preserves routing confidence across turns, that's the rule to apply here. Without turn 1's output, I can only hypothesize.
+
+---

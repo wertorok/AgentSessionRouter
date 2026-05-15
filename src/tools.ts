@@ -14,6 +14,7 @@ import type {
   ConsultComparisonMonitorStats,
   EventCount,
   RouteDecisionCount,
+  RouteDecisionScoreRow,
   ShadowEvalHealth,
   SessionMetadataAffectedSession,
   SlowSessionEventCount,
@@ -535,7 +536,12 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
       );
       const metadataSamples = runtime.db.listRecentSessionMetadataEventSamples(projectId, sinceIso, sampleLimit);
       const routeDecisionCounts = runtime.db.getRecentRouteDecisionCounts(projectId, sinceIso);
+      const routeDecisionScores = runtime.db.listRecentRouteDecisionScores(projectId, sinceIso);
       const routeDecisionSamples = runtime.db.listRecentRouteDecisionSamples(projectId, sinceIso, sampleLimit);
+      const forcedNewDueToAmbiguityCount = runtime.db.getForcedNewDueToAmbiguityCount(
+        projectId,
+        isoHoursAgo(runtime.clock, 24)
+      );
       const clusterAttention = runtime.db.getRecentClusterAttentionCounts(projectId, sinceIso);
       const clusterAttentionByCluster = runtime.db.getRecentClusterAttentionCountsByCluster(projectId, sinceIso);
       const shadowEval = runtime.db.getShadowEvalHealth(projectId);
@@ -658,6 +664,9 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
         },
         route_health: {
           decision_counts: routeDecisionCounts,
+          forced_new_due_to_ambiguity_count_last_24h: forcedNewDueToAmbiguityCount,
+          score_histogram_by_selected_path: buildRouteScoreHistogramBySelectedPath(routeDecisionScores),
+          score_histogram_by_cluster: buildRouteScoreHistogramByCluster(routeDecisionScores),
           samples: routeDecisionSamples
         },
         quality: {
@@ -1420,6 +1429,77 @@ function countMap(rows: StatusCount[], keys: readonly string[]): Record<string, 
 
 function sumCounts(counts: Record<string, number>): number {
   return Object.values(counts).reduce((sum, count) => sum + count, 0);
+}
+
+function buildRouteScoreHistogramBySelectedPath(rows: RouteDecisionScoreRow[]): Array<{
+  selected_path: string;
+  buckets: Array<{ bucket: string; count: number }>;
+}> {
+  const groups = new Map<string, Map<string, number>>();
+  for (const row of rows) {
+    const selectedPath = row.selected_path ?? "unknown";
+    const buckets = groups.get(selectedPath) ?? new Map<string, number>();
+    const bucket = routeScoreBucket(row.match_score);
+    buckets.set(bucket, (buckets.get(bucket) ?? 0) + 1);
+    groups.set(selectedPath, buckets);
+  }
+  return [...groups.entries()]
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([selected_path, buckets]) => ({
+      selected_path,
+      buckets: serializeBucketMap(buckets)
+    }));
+}
+
+function buildRouteScoreHistogramByCluster(rows: RouteDecisionScoreRow[]): Array<{
+  cluster_id: string;
+  buckets: Array<{ bucket: string; count: number }>;
+}> {
+  const groups = new Map<string, Map<string, number>>();
+  for (const row of rows) {
+    const clusterId = extractRouteClusterId(row.match_reason);
+    if (!clusterId) {
+      continue;
+    }
+    const buckets = groups.get(clusterId) ?? new Map<string, number>();
+    const bucket = routeScoreBucket(row.match_score);
+    buckets.set(bucket, (buckets.get(bucket) ?? 0) + 1);
+    groups.set(clusterId, buckets);
+  }
+  return [...groups.entries()]
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([cluster_id, buckets]) => ({
+      cluster_id,
+      buckets: serializeBucketMap(buckets)
+    }));
+}
+
+function routeScoreBucket(score: number | null): string {
+  if (score === null || score === undefined || !Number.isFinite(score)) {
+    return "unknown";
+  }
+  if (score >= 1) {
+    return "1.00";
+  }
+  if (score >= 0.7) {
+    return "0.70-0.99";
+  }
+  if (score >= 0.55) {
+    return "0.55-0.69";
+  }
+  return "0.00-0.54";
+}
+
+function serializeBucketMap(bucketMap: Map<string, number>): Array<{ bucket: string; count: number }> {
+  const order = ["1.00", "0.70-0.99", "0.55-0.69", "0.00-0.54", "unknown"];
+  return [...bucketMap.entries()]
+    .sort(([left], [right]) => order.indexOf(left) - order.indexOf(right))
+    .map(([bucket, count]) => ({ bucket, count }));
+}
+
+function extractRouteClusterId(matchReason: string | null): string | null {
+  const match = matchReason?.match(/(?:^|; )cluster_id=([^;]+)/);
+  return match?.[1] ?? null;
 }
 
 function round2(value: number): number {

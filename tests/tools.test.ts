@@ -330,6 +330,21 @@ describe("cluster MCP tools", () => {
     });
     expect(result.session_id).toBe("cache-session");
     expect(result.routing.was_new_session).toBe(false);
+    const second = parseToolJson(
+      await server.call("router_consult", {
+        project_id: "project",
+        topic_hint: "router consult cache maintenance",
+        relevant_code: "scripts/router-route-sample.mjs",
+        question: "Should this still continue the cache maintenance session?"
+      })
+    );
+
+    expect(second.route_decision).toMatchObject({
+      selected_path: "claude_consult_disambiguated_session",
+      session_id: "cache-session",
+      match_score: 0.59
+    });
+    expect(second.routing.was_new_session).toBe(false);
     fixture.cleanup();
   });
 
@@ -380,6 +395,21 @@ describe("cluster MCP tools", () => {
     expect(result.routing.was_new_session).toBe(true);
     expect(result.session_id).not.toBe("fallback-full");
     expect(result.session_id).not.toBe("fallback-targeted");
+    const second = parseToolJson(
+      await server.call("router_consult", {
+        project_id: "project",
+        topic_hint: "cluster fallback agentsessionrouter codebase reprepared 2026 05 15",
+        relevant_code: "src/prompt.ts",
+        question: "Should this continue the newly created ambiguity session?"
+      })
+    );
+
+    expect(second.route_decision).toMatchObject({
+      selected_path: "claude_consult_existing_session",
+      session_id: result.session_id,
+      match_score: 1
+    });
+    expect(second.routing.was_new_session).toBe(false);
     fixture.cleanup();
   });
 
@@ -1346,6 +1376,59 @@ describe("cluster MCP tools", () => {
       truncated: true
     });
     expect(monitor.route_health.samples).toHaveLength(30);
+    fixture.cleanup();
+  });
+
+  it("surfaces route ambiguity counts and score histograms in router_monitor", async () => {
+    const fixture = createToolFixture();
+    const server = new FakeServer();
+    registerTools(server as unknown as McpServer, fixture.runtime);
+
+    fixture.runtime.db.logEvent({
+      projectId: "project",
+      eventType: "router_route_decision",
+      question: "Ambiguous route",
+      answerSummary: "claude_consult_new_session",
+      matchScore: 0.6,
+      matchReason:
+        "Ambiguous low-confidence session candidates; router starts a new durable session instead of guessing. candidate_gap=0.02; force_new_session=true"
+    });
+    fixture.runtime.db.logEvent({
+      projectId: "project",
+      eventType: "router_route_decision",
+      question: "Explicit cluster route",
+      answerSummary: "cluster_consult_explicit",
+      matchScore: 1,
+      matchReason: "Explicit cluster_id provided by caller.; cluster_id=router-ops"
+    });
+
+    const monitor = parseToolJson(
+      await server.call("router_monitor", {
+        project_id: "project",
+        recent_hours: 24,
+        sample_limit: 10
+      })
+    );
+
+    expect(monitor.route_health.forced_new_due_to_ambiguity_count_last_24h).toBe(1);
+    expect(monitor.route_health.score_histogram_by_selected_path).toEqual(
+      expect.arrayContaining([
+        {
+          selected_path: "claude_consult_new_session",
+          buckets: [{ bucket: "0.55-0.69", count: 1 }]
+        },
+        {
+          selected_path: "cluster_consult_explicit",
+          buckets: [{ bucket: "1.00", count: 1 }]
+        }
+      ])
+    );
+    expect(monitor.route_health.score_histogram_by_cluster).toEqual([
+      {
+        cluster_id: "router-ops",
+        buckets: [{ bucket: "1.00", count: 1 }]
+      }
+    ]);
     fixture.cleanup();
   });
 

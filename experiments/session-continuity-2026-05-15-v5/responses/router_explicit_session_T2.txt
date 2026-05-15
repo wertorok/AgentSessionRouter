@@ -1,0 +1,6 @@
+**From session memory — turn 1 established:**
+
+- **Codeword**: **ALPHA-17**
+- **Caller/Operator rule**: The router must answer the caller directly when Claude is available. Monitor telemetry is operator-side-channel only — it exists for observability, never for caller recovery or fallback routing decisions.
+
+---

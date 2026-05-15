@@ -1,0 +1,14 @@
+I don't have access to session memory from prior benchmark turns in this consultation context. I can see the invocation mentions `fresh_each_turn T4 pvvn0n`, but without session memory access, I cannot summarize the specific codewords and their meanings from earlier turns 1-3.
+
+What I can observe from the project state:
+- This is the AgentSessionRouter-continuity-2026-05-15-v5 project
+- This is turn 4 of a session continuity benchmark
+- The `fresh_each_turn` mode suggests each turn starts fresh without preserving prior context
+- The experiment directory exists at `experiments/session-continuity-2026-05-15-v5/`
+
+**What's missing to answer fully:**
+- Prior turns' session memory files (likely in `.omc/state/sessions/` or similar)
+- Benchmark codeword definitions from turns 1-3
+- The specific routing decisions and their evolution across turns
+
+If you can point me to the session memory location or paste the prior turn summaries, I can provide the synthesis you're looking for.

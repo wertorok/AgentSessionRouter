@@ -1,0 +1,9 @@
+**Session Continuity Benchmark – Established Decision**
+
+- **Codeword ALPHA-17:** `ALPHA-17` = "the router must answer the caller when Claude is available; monitor telemetry is for the operator, not for caller recovery"
+
+**Rationale:** In session continuity scenarios, the router's primary obligation is to deliver a responsive experience to the caller. When Claude is available and can handle the request, routing should proceed without delay. Telemetry from the monitor subsystem is instrumentation for the operator to observe system health, diagnose routing paths, or audit behavior—it is not a recovery mechanism for callers and should not gate or delay caller answers when a valid route exists.
+
+**Implication for this benchmark:** The router consult response should surface the answer path directly (via `router_consult` or equivalent) rather than treating monitor health signals as preconditions for answering. Monitor data may be attached as metadata for observability, but caller recovery logic remains separate from monitor telemetry.
+
+---

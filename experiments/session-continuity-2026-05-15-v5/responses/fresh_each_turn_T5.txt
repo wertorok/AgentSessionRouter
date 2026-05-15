@@ -1,0 +1,19 @@
+## Why `cluster_consult` vs `direct_fresh` Is Insufficient
+
+Based on the session context (continuity benchmark, turn 5, `fresh_each_turn` codeword), the two prior decisions likely established:
+
+1. **`direct_fresh`** as the baseline (no session memory between turns)
+2. **`cluster_consult`** as the continuity-preserving variant
+
+The gap: **this comparison tests only two extremes** — full amnesia versus full recall. It tells you "continuity helps" but not *which continuity mechanism* or *at what cost*.
+
+Specifically, `cluster_consult` bundles together the consult-with-prior-decisions pattern and the monitor semantics. Without a third reference point, you cannot determine:
+- Whether the benefit comes from the cluster/consult architecture or from monitor hygiene
+- Whether `direct_fresh` + monitor semantics outperforms `cluster_consult` (i.e., is the cluster the overhead?)
+- Whether partial continuity (e.g., preserving only the last N decisions) suffices
+
+**The extra benchmark needed:** `monitor_hygiene` — a variant that runs `direct_fresh` but injects monitor semantics (supervisor confirmation, answer hygiene, route disambiguation) without the cluster/consult decision memory. This isolates monitor effect from consult effect.
+
+This is essential for the project because the router's value proposition hinges on knowing whether users benefit from *remembered decisions* (cluster) or *supervised guidance* (monitor) — and those require separate measurement to attribute correctly.
+
+---

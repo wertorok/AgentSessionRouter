@@ -284,6 +284,12 @@ export interface RouteDecisionSample {
   created_at: string;
 }
 
+export interface RouteDecisionScoreRow {
+  selected_path: string | null;
+  match_score: number | null;
+  match_reason: string | null;
+}
+
 export interface ClusterEventCount extends EventCount {
   cluster_id: string;
 }
@@ -1402,6 +1408,36 @@ export class RouterDatabase {
          ORDER BY count DESC, selected_path ASC`
       )
       .all(projectId, sinceIso) as RouteDecisionCount[];
+  }
+
+  getForcedNewDueToAmbiguityCount(projectId: string, sinceIso: string): number {
+    const row = this.db
+      .prepare(
+        `SELECT COUNT(*) AS count
+         FROM session_events
+         WHERE project_id = ?
+           AND created_at >= ?
+           AND event_type = 'router_route_decision'
+           AND answer_summary = 'claude_consult_new_session'
+           AND match_reason LIKE '%Ambiguous low-confidence session candidates%'`
+      )
+      .get(projectId, sinceIso) as { count: number } | undefined;
+    return row?.count ?? 0;
+  }
+
+  listRecentRouteDecisionScores(projectId: string, sinceIso: string): RouteDecisionScoreRow[] {
+    return this.db
+      .prepare(
+        `SELECT answer_summary AS selected_path,
+                match_score,
+                match_reason
+         FROM session_events
+         WHERE project_id = ?
+           AND created_at >= ?
+           AND event_type = 'router_route_decision'
+         ORDER BY id DESC`
+      )
+      .all(projectId, sinceIso) as RouteDecisionScoreRow[];
   }
 
   listRecentRouteDecisionSamples(projectId: string, sinceIso: string, limit: number): RouteDecisionSample[] {
