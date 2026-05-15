@@ -391,7 +391,10 @@ try {
     await scenario("router_monitor_after_workload", async () => {
       const monitor = await callTool(client, "router_monitor", { project_id: null, recent_hours: 24, sample_limit: 20 });
       return {
-        pass: monitor.health?.v2_clusters?.total >= 1 && Array.isArray(monitor.next_directions),
+        pass:
+          monitor.health?.v2_clusters?.total >= 1 &&
+          Array.isArray(monitor.next_directions) &&
+          (mode !== "stub" || monitor.metadata_health?.event_counts?.some((event) => event.event_type === "parse_failed")),
         details: monitor
       };
     });

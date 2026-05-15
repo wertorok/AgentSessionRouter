@@ -1117,6 +1117,77 @@ describe("cluster MCP tools", () => {
     fixture.cleanup();
   });
 
+  it("surfaces SESSION_UPDATE_JSON metadata health in the operator monitor", async () => {
+    const fixture = createToolFixture();
+    const server = new FakeServer();
+    registerTools(server as unknown as McpServer, fixture.runtime);
+    fixture.runtime.db.createSession({
+      id: "metadata-session",
+      projectId: "project",
+      claudeSessionId: "claude-metadata-session",
+      topic: "Metadata updates",
+      dormantAfterDays: 30,
+      archiveAfterDays: 90
+    });
+    fixture.runtime.db.logEvent({
+      sessionId: "metadata-session",
+      projectId: "project",
+      eventType: "parse_failed",
+      question: "Return metadata",
+      rawResponsePath: "/tmp/raw-metadata.txt",
+      error: "SESSION_UPDATE_JSON block missing"
+    });
+    fixture.runtime.db.logEvent({
+      sessionId: "metadata-session",
+      projectId: "project",
+      eventType: "parse_failed_threshold_exceeded",
+      error: "parse_failure_threshold"
+    });
+
+    const monitor = parseToolJson(
+      await server.call("router_monitor", {
+        project_id: "project",
+        recent_hours: 24,
+        sample_limit: 10
+      })
+    );
+
+    expect(monitor.metadata_health.event_counts).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ event_type: "parse_failed", count: 1 }),
+        expect.objectContaining({ event_type: "parse_failed_threshold_exceeded", count: 1 })
+      ])
+    );
+    expect(monitor.metadata_health.affected_sessions[0]).toMatchObject({
+      session_id: "metadata-session",
+      topic: "Metadata updates",
+      parse_failed_count: 1,
+      threshold_exceeded_count: 1,
+      latest_error: "parse_failure_threshold",
+      latest_raw_response_path: "/tmp/raw-metadata.txt"
+    });
+    expect(monitor.metadata_health.samples).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          session_id: "metadata-session",
+          event_type: "parse_failed",
+          raw_response_path: "/tmp/raw-metadata.txt",
+          error: "SESSION_UPDATE_JSON block missing"
+        })
+      ])
+    );
+    expect(monitor.recommendations).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          area: "metadata",
+          priority: "high",
+          action: expect.stringContaining("archived SESSION_UPDATE_JSON")
+        })
+      ])
+    );
+    fixture.cleanup();
+  });
+
   it("archives clusters and removes them from active monitor signals", async () => {
     const fixture = createToolFixture();
     const server = new FakeServer();

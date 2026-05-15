@@ -7,6 +7,7 @@ This matrix is the production exercise plan for AgentSessionRouter as an MCP ser
 ```bash
 npm run mcp:workload
 npm run mcp:workload:live
+npm run monitor:snapshot
 ```
 
 The default workload uses a deterministic fake Claude CLI so failure paths can be exercised without waiting on live model behavior. The live workload uses the real `claude` CLI and should be run only when local auth/rate limits are healthy.
@@ -58,6 +59,7 @@ If a one-off Claude Code integration diagnostic is needed, pass MCP config expli
 | Session metadata | clean `SESSION_UPDATE_JSON` through `claude_consult` | summary/decisions visible through `claude_session_inspect` |
 | Session metadata resilience | malformed `SESSION_UPDATE_JSON` repeated to threshold | `parse_failed`, `parse_failed_threshold_exceeded`, archived session |
 | Archived bootstrap | next same-topic consult after threshold archive | new active session bootstrapped from archived registry context |
+| Metadata monitor | `router_monitor.metadata_health` | affected sessions, threshold events, raw response paths |
 | Cluster prepare static | `cluster_prepare` static allow | `factsheet_static_verified` |
 | Cluster fast path | `cluster_consult` with fresh evidence | `cluster_consult`, shadow comparison scheduled |
 | Shadow telemetry | `comparison_stats` / `comparison_list` | at least one judged comparison, wins/ties/gaps |
@@ -78,6 +80,7 @@ Use `router_monitor` first. It combines the important telemetry:
 
 - `health`: router and Claude state
 - `cache_health`: stale clusters, revalidation failures, fallbacks
+- `metadata_health`: `SESSION_UPDATE_JSON` parse failures and affected sessions
 - `quality`: shadow comparison stats and samples
 - `quality.auto_routing_candidates`: read-only candidates for future routing suggestions; this is telemetry, not enabled auto-routing
 - `recommendations`: concrete actions
@@ -101,3 +104,5 @@ If shadow pending/failed grows, fix shadow eval before trusting trend data.
 If clusters score well and have no fallback/revalidation failures, they become candidates for future auto-routing.
 
 If slow session samples show very high `tokens_in`, treat it as direct-discovery/context bloat first. Prefer an existing session or a covered cluster before repeating a broad `new_session` consult.
+
+Run `npm run monitor:snapshot` daily or before/after larger router changes to keep a comparable JSON trail of `router_status` and `router_monitor`.

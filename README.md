@@ -68,12 +68,13 @@ Optional shadow-eval tools:
 
 Validation performed:
 
-- Unit/integration tests: `82 passed`
+- Unit/integration tests: `83 passed`
 - Live MCP stdio E2E: `LIVE_CONSULT_PASS`
 - Live matrix run: committed as `LIVE_TEST_LOG.md`
 - Post-fix targeted live rerun: `TARGETED_RERUN_PASS`
 - Post-install smoke: stub mode passes and covers v1, v2 cluster tools, `router_status`, and `router_monitor`
 - MCP workload matrix: stub mode passes 21/21 checks, including clean `SESSION_UPDATE_JSON`, parse-failure threshold archival, archived-bootstrap replacement, evidence revalidation, fallback, and shadow telemetry
+- Router monitor snapshots: `npm run monitor:snapshot` writes `router_status` + `router_monitor` payloads under `experiments/router-monitor-snapshots/`
 
 Research and next-architecture docs:
 
@@ -645,11 +646,19 @@ Output sections:
 - `health`: normal/degraded mode, Claude version, v1/v2 counts, shadow-eval pipeline health.
 - `cache_health`: stale/needs-prepare clusters and recent revalidation/fallback attention events.
 - `latency`: slow consult aggregates plus concrete slow-session samples with topic, question, token counts, duration, and raw response path.
+- `metadata_health`: `SESSION_UPDATE_JSON` parse failures, affected sessions, threshold archives, and raw response paths.
 - `quality`: recent shadow comparison stats, direct-win samples, `NOT IN CONTEXT` samples, and read-only auto-routing candidates.
 - `recommendations`: prioritized actions with area, cluster id, action, and reason.
 - `next_directions`: higher-level signals such as factsheet expansion, shadow stabilization, or future auto-routing candidates.
 
 Use `router_status` for a compact health check. Use `router_monitor` when deciding what to fix next.
+
+To save a point-in-time monitor snapshot for trend comparison:
+
+```bash
+npm run build
+npm run monitor:snapshot -- --recent-hours 24 --sample-limit 20
+```
 
 ### `cluster_prepare`
 

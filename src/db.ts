@@ -244,6 +244,29 @@ export interface SlowSessionEventSample {
   created_at: string;
 }
 
+export interface SessionMetadataEventSample {
+  event_id: number;
+  session_id: string | null;
+  topic: string | null;
+  session_status: SessionStatus | null;
+  event_type: EventType;
+  question: string | null;
+  raw_response_path: string | null;
+  error: string | null;
+  created_at: string;
+}
+
+export interface SessionMetadataAffectedSession {
+  session_id: string | null;
+  topic: string | null;
+  session_status: SessionStatus | null;
+  parse_failed_count: number;
+  threshold_exceeded_count: number;
+  latest_created_at: string | null;
+  latest_error: string | null;
+  latest_raw_response_path: string | null;
+}
+
 export interface ClusterEventCount extends EventCount {
   cluster_id: string;
 }
@@ -1256,6 +1279,96 @@ export class RouterDatabase {
          LIMIT ?`
       )
       .all(projectId, sinceIso, thresholdMs, limit) as SlowSessionEventSample[];
+  }
+
+  getRecentSessionMetadataEventCounts(projectId: string, sinceIso: string): EventCount[] {
+    return this.db
+      .prepare(
+        `SELECT event_type, COUNT(*) AS count, MAX(created_at) AS latest_created_at
+         FROM session_events
+         WHERE project_id = ?
+           AND created_at >= ?
+           AND event_type IN ('parse_failed', 'parse_failed_threshold_exceeded')
+         GROUP BY event_type
+         ORDER BY count DESC, event_type ASC`
+      )
+      .all(projectId, sinceIso) as EventCount[];
+  }
+
+  listRecentSessionMetadataAffectedSessions(
+    projectId: string,
+    sinceIso: string,
+    limit: number
+  ): SessionMetadataAffectedSession[] {
+    return this.db
+      .prepare(
+        `SELECT
+           e.session_id,
+           s.topic,
+           s.status AS session_status,
+           SUM(CASE WHEN e.event_type = 'parse_failed' THEN 1 ELSE 0 END) AS parse_failed_count,
+           SUM(CASE WHEN e.event_type = 'parse_failed_threshold_exceeded' THEN 1 ELSE 0 END) AS threshold_exceeded_count,
+           MAX(e.created_at) AS latest_created_at,
+           (
+             SELECT e2.error
+             FROM session_events e2
+             WHERE e2.session_id = e.session_id
+               AND e2.project_id = e.project_id
+               AND e2.event_type IN ('parse_failed', 'parse_failed_threshold_exceeded')
+               AND e2.created_at >= ?
+             ORDER BY e2.id DESC
+             LIMIT 1
+           ) AS latest_error,
+           (
+             SELECT e3.raw_response_path
+             FROM session_events e3
+             WHERE e3.session_id = e.session_id
+               AND e3.project_id = e.project_id
+               AND e3.event_type = 'parse_failed'
+               AND e3.raw_response_path IS NOT NULL
+               AND e3.created_at >= ?
+             ORDER BY e3.id DESC
+             LIMIT 1
+           ) AS latest_raw_response_path
+         FROM session_events e
+         LEFT JOIN sessions s
+           ON s.id = e.session_id
+         WHERE e.project_id = ?
+           AND e.created_at >= ?
+           AND e.event_type IN ('parse_failed', 'parse_failed_threshold_exceeded')
+         GROUP BY e.session_id
+         ORDER BY threshold_exceeded_count DESC, parse_failed_count DESC, latest_created_at DESC
+         LIMIT ?`
+      )
+      .all(sinceIso, sinceIso, projectId, sinceIso, limit) as SessionMetadataAffectedSession[];
+  }
+
+  listRecentSessionMetadataEventSamples(
+    projectId: string,
+    sinceIso: string,
+    limit: number
+  ): SessionMetadataEventSample[] {
+    return this.db
+      .prepare(
+        `SELECT e.id AS event_id,
+                e.session_id,
+                s.topic,
+                s.status AS session_status,
+                e.event_type,
+                e.question,
+                e.raw_response_path,
+                e.error,
+                e.created_at
+         FROM session_events e
+         LEFT JOIN sessions s
+           ON s.id = e.session_id
+         WHERE e.project_id = ?
+           AND e.created_at >= ?
+           AND e.event_type IN ('parse_failed', 'parse_failed_threshold_exceeded')
+         ORDER BY e.id DESC
+         LIMIT ?`
+      )
+      .all(projectId, sinceIso, limit) as SessionMetadataEventSample[];
   }
 
   getRecentClusterAttentionCounts(projectId: string, sinceIso: string): EventCount[] {

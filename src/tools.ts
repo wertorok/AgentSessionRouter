@@ -14,6 +14,7 @@ import type {
   ConsultComparisonMonitorStats,
   EventCount,
   ShadowEvalHealth,
+  SessionMetadataAffectedSession,
   SlowSessionEventCount,
   SlowSessionEventSample,
   StaleClusterView,
@@ -445,6 +446,13 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
         slowSessionThresholdMs(runtime.config.claude.commandTimeoutMs),
         input.sample_limit ?? 10
       );
+      const metadataEventCounts = runtime.db.getRecentSessionMetadataEventCounts(projectId, sinceIso);
+      const metadataAffectedSessions = runtime.db.listRecentSessionMetadataAffectedSessions(
+        projectId,
+        sinceIso,
+        input.sample_limit ?? 10
+      );
+      const metadataSamples = runtime.db.listRecentSessionMetadataEventSamples(projectId, sinceIso, input.sample_limit ?? 10);
       const clusterAttention = runtime.db.getRecentClusterAttentionCounts(projectId, sinceIso);
       const clusterAttentionByCluster = runtime.db.getRecentClusterAttentionCountsByCluster(projectId, sinceIso);
       const shadowEval = runtime.db.getShadowEvalHealth(projectId);
@@ -510,6 +518,8 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
         shadowEval,
         staleClusters,
         sessionErrors,
+        metadataEventCounts,
+        metadataAffectedSessions,
         slowSessionEvents,
         slowSessionSamples,
         clusterAttentionByCluster,
@@ -551,6 +561,11 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
           slow_session_threshold_ms: slowSessionThresholdMs(runtime.config.claude.commandTimeoutMs),
           slow_session_events: slowSessionEvents,
           slow_session_samples: slowSessionSamples
+        },
+        metadata_health: {
+          event_counts: metadataEventCounts,
+          affected_sessions: metadataAffectedSessions,
+          samples: metadataSamples
         },
         quality: {
           cluster_stats: comparisonStats,
@@ -1181,6 +1196,8 @@ function buildMonitorRecommendations(input: {
   shadowEval: ShadowEvalHealth;
   staleClusters: StaleClusterView[];
   sessionErrors: EventCount[];
+  metadataEventCounts: EventCount[];
+  metadataAffectedSessions: SessionMetadataAffectedSession[];
   slowSessionEvents: SlowSessionEventCount[];
   slowSessionSamples: SlowSessionEventSample[];
   clusterAttentionByCluster: ClusterEventCount[];
@@ -1312,6 +1329,42 @@ function buildMonitorRecommendations(input: {
       area: "sessions",
       action: "Inspect recent session_events and raw responses.",
       reason: `Session event '${event.event_type}' has ${event.count} error row(s).`
+    });
+  }
+
+  const metadataThresholdCount =
+    input.metadataEventCounts.find((event) => event.event_type === "parse_failed_threshold_exceeded")?.count ?? 0;
+  const metadataParseFailedCount =
+    input.metadataEventCounts.find((event) => event.event_type === "parse_failed")?.count ?? 0;
+
+  if (metadataThresholdCount > 0) {
+    recommendations.push({
+      priority: "high",
+      area: "metadata",
+      action: "Inspect archived SESSION_UPDATE_JSON sessions and confirm replacements bootstrap from archived registry context.",
+      reason: `${metadataThresholdCount} session(s) crossed parse-failure threshold in the recent window.`
+    });
+  } else if (metadataParseFailedCount > 0) {
+    recommendations.push({
+      priority: "medium",
+      area: "metadata",
+      action: "Inspect metadata_health.samples raw responses and tighten SESSION_UPDATE_JSON prompting if failures repeat.",
+      reason: `${metadataParseFailedCount} SESSION_UPDATE_JSON parse failure(s) occurred in the recent window.`
+    });
+  }
+
+  for (const session of input.metadataAffectedSessions) {
+    if (session.threshold_exceeded_count <= 0) {
+      continue;
+    }
+    recommendations.push({
+      priority: "high",
+      area: "metadata",
+      action: "Review this archived session's raw response path and verify the replacement session kept registry context.",
+      reason:
+        `Session ${session.session_id ?? "unknown"} (${session.topic ?? "unknown topic"}) had ` +
+        `${session.parse_failed_count} parse failure(s), ${session.threshold_exceeded_count} threshold event(s), ` +
+        `status=${session.session_status ?? "unknown"}, latest raw=${session.latest_raw_response_path ?? "n/a"}.`
     });
   }
 

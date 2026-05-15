@@ -32,6 +32,7 @@
     "test": "vitest run tests --exclude dist/**",
     "smoke:postinstall": "node scripts/post-install-smoke.mjs",
     "smoke:postinstall:live": "node scripts/post-install-smoke.mjs --live",
+    "monitor:snapshot": "node scripts/router-monitor-snapshot.mjs",
     "mcp:workload": "node scripts/mcp-workload-matrix.mjs",
     "mcp:workload:live": "node scripts/mcp-workload-matrix.mjs --live"
   },
