@@ -34,6 +34,7 @@
     "smoke:postinstall:live": "node scripts/post-install-smoke.mjs --live",
     "router:sanity": "node scripts/router-consult-sanity.mjs",
     "router:sample": "node scripts/router-route-sample.mjs",
+    "route:calibration": "node scripts/route-calibration-report.mjs",
     "session:continuity": "node scripts/session-continuity-benchmark.mjs",
     "session:collision": "node scripts/session-routing-collision.mjs",
     "monitor:snapshot": "node scripts/router-monitor-snapshot.mjs",

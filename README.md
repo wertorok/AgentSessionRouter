@@ -233,6 +233,19 @@ Use `router_consult` as the recommended parent-agent entry point when the caller
 
 Automatic cluster selection is intentionally disabled in the current conservative router. Stable clusters appear as monitor signals, not as automatic routing targets.
 
+Route matching scores are deterministic metadata heuristics, not calibrated
+probabilities. Before changing thresholds or score weights, run:
+
+```bash
+npm run build
+npm run route:calibration -- --project-id AgentSessionRouter --recent-hours 168
+```
+
+This writes `experiments/route-calibration-<date>/summary.md` and
+`calibration-report.json`. The report does not invoke Claude or change routing;
+it produces a labeling queue of low-gap, ambiguous, near-duplicate, slow, or
+metadata-risk route decisions that should be inspected before tuning.
+
 Use the benchmark-backed decision tree below when choosing an explicit lower-level consult path.
 
 Use `cluster_consult` when:

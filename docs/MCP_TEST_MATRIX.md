@@ -8,6 +8,7 @@ This matrix is the production exercise plan for AgentSessionRouter as an MCP ser
 npm run mcp:workload
 npm run mcp:workload:live
 npm run monitor:snapshot
+npm run route:calibration
 npm run session:continuity
 npm run session:collision
 ```
@@ -23,6 +24,11 @@ Claude. It inspects the router DB and asks whether similar active session topics
 would be exact-topic reused, high-confidence fuzzy reused, low-confidence
 disambiguated by the router, forced into a new session as ambiguous, or
 conservatively routed to a new path.
+
+`route:calibration` is an offline report over real `router_route_decision`
+events. It does not invoke Claude and does not change routing. It produces a
+calibration queue of low-gap, ambiguous, near-duplicate, slow, or metadata-risk
+route decisions that should be labeled before changing match-score weights.
 
 Artifacts are written under:
 
@@ -88,6 +94,7 @@ If a one-off Claude Code integration diagnostic is needed, pass MCP config expli
 | Monitor diagnosis | final `router_monitor` | cache/quality recommendations |
 | Session continuity | `npm run session:continuity` | fresh-each-turn loses memory, same-session/router reuse preserves memory |
 | Session collision risk | `npm run session:collision` | similar topics are classified as exact reuse, fuzzy reuse, router-disambiguated reuse, ambiguous new-session fallback, or conservative no-reuse |
+| Route calibration | `npm run route:calibration` | real route decisions summarized into a labeling queue before threshold/weight tuning |
 
 ## What To Watch
 
@@ -137,5 +144,9 @@ topics.
 Do not treat match scores as calibrated relevance probabilities. They are
 deterministic weighted metadata scores. Use them as routing telemetry, then
 validate suspicious cases through route samples and real follow-up behavior.
+
+If threshold or weight tuning is under discussion, run
+`npm run route:calibration` first. Do not tune on intuition. Label the generated
+calibration queue, then compare candidate thresholds against those labels.
 
 Run `npm run monitor:snapshot` daily or before/after larger router changes to keep a comparable JSON trail of `router_status` and `router_monitor`.

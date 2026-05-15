@@ -251,6 +251,40 @@ Current scoring provenance:
   correct, then compare alternative weights. Do not tune weights on synthetic
   examples only.
 
+## Route Calibration Report
+
+Use `npm run route:calibration` to turn accumulated `router_route_decision`
+telemetry into an offline calibration queue. The report does not invoke Claude
+and does not change routing behavior.
+
+Default command:
+
+```bash
+npm run build
+npm run route:calibration -- --project-id AgentSessionRouter --recent-hours 168
+```
+
+Artifacts are written under `experiments/route-calibration-<date>/`:
+
+- `summary.md`: selected-path counts, suspicious signal counts, and the
+  calibration queue
+- `calibration-report.json`: full route decisions with parsed `match_reason`,
+  candidate gaps, inferred outcome events, follow-up signals, and near-topic
+  sessions
+
+Use this report before changing thresholds or score weights. Inspect and label
+queued decisions as:
+
+- `correct_reuse`
+- `wrong_reuse`
+- `correct_new_session`
+- `unnecessary_new_session`
+
+Only after labels exist should weights or thresholds be changed. The report is
+designed to catch cases like low candidate gaps, ambiguity-forced new sessions,
+near-duplicate topics, slow/high-token outcomes after a route, and metadata
+parse failures after a route.
+
 Determinism rule:
 
 - With unchanged registry state, exact/high-confidence/disambiguated routes are
