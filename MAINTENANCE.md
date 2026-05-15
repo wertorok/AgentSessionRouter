@@ -42,7 +42,9 @@ inspect next.
 
 Verified on 2026-05-15:
 
-- tag `v2.6` is pushed to GitHub and points at the current production commit
+- tag `v2.6` is pushed to GitHub and points at release commit `412c20f`
+  (`feat(router): add metadata-rich routing hints`); later documentation
+  commits may sit after the tag on `master`
 - tests: `97 passed`
 - build: passing
 - git diff: clean before this documentation snapshot
