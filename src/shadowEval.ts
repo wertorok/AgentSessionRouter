@@ -113,13 +113,7 @@ export async function completeShadowComparison(runtime: RouterRuntime, compariso
   const answerA = clusterIsA ? readyComparison.cluster_answer : readyComparison.direct_answer;
   const answerB = clusterIsA ? readyComparison.direct_answer : readyComparison.cluster_answer;
   const judgePrompt = buildJudgePrompt(readyComparison.question, answerA, answerB);
-  const judgeResponse = runtime.claude.runPromptWithOptions
-    ? await runtime.claude.runPromptWithOptions(judgePrompt, {
-        extraArgs: ["--tools", ""],
-        includeConfiguredExtraArgs: false
-      })
-    : await runtime.claude.runPrompt(judgePrompt);
-  const judge = parseJudgeResponse(judgeResponse.result);
+  const judge = await runJudgeWithRetry(runtime, readyComparison.id, judgePrompt);
   const preferred = decodePreference(judge.preferred, clusterIsA);
 
   runtime.db.updateConsultComparisonJudge({
@@ -131,6 +125,29 @@ export async function completeShadowComparison(runtime: RouterRuntime, compariso
     directErrors: clusterIsA ? judge.answerBErrors : judge.answerAErrors,
     judgeReasoning: judge.reasoning
   });
+}
+
+async function runJudgeWithRetry(runtime: RouterRuntime, comparisonId: string, judgePrompt: string): Promise<JudgeResult> {
+  let lastError: unknown;
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    const judgeResponse = runtime.claude.runPromptWithOptions
+      ? await runtime.claude.runPromptWithOptions(judgePrompt, {
+          extraArgs: ["--tools", ""],
+          includeConfiguredExtraArgs: false
+        })
+      : await runtime.claude.runPrompt(judgePrompt);
+    try {
+      return parseJudgeResponse(judgeResponse.result);
+    } catch (error: unknown) {
+      lastError = error;
+      runtime.logger.warn("shadow_judge_parse_failed", {
+        comparison_id: comparisonId,
+        attempt,
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  }
+  throw lastError instanceof Error ? lastError : new Error(String(lastError));
 }
 
 function buildDirectFreshPrompt(cwd: string, question: string): string {

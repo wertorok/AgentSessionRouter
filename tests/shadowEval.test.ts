@@ -53,6 +53,45 @@ describe("shadow comparison eval", () => {
     fixture.cleanup();
   });
 
+  it("retries judge responses that are not parseable JSON", async () => {
+    const claude = new FakeClaude({ invalidJudgeResponses: 1 });
+    const fixture = createShadowFixture(claude);
+
+    const comparison = await runShadowComparison(fixture.runtime, {
+      projectId: "project",
+      clusterId: "router-ops",
+      question: "Which answer is better?",
+      clusterResult: clusterResult("Cluster answer.", 7)
+    });
+
+    expect(comparison.judged_at).toBe("2026-05-13T00:00:00.000Z");
+    expect(claude.judgeAttempts).toBe(2);
+    fixture.cleanup();
+  });
+
+  it("keeps unjudged comparison visible when judge retries never return JSON", async () => {
+    const claude = new FakeClaude({ invalidJudgeResponses: 3 });
+    const fixture = createShadowFixture(claude);
+
+    await expect(
+      runShadowComparison(fixture.runtime, {
+        projectId: "project",
+        clusterId: "router-ops",
+        question: "Which answer is better?",
+        clusterResult: clusterResult("Cluster answer.", 7)
+      })
+    ).rejects.toThrow("Judge response did not include a JSON object");
+
+    expect(claude.judgeAttempts).toBe(3);
+    const unjudged = fixture.runtime.db.listUnjudgedConsultComparisons({
+      projectId: "project",
+      limit: 10
+    });
+    expect(unjudged).toHaveLength(1);
+    expect(unjudged[0].shadow_status).toBe("ok");
+    fixture.cleanup();
+  });
+
   it("parses fenced judge JSON", () => {
     expect(
       parseJudgeResponse(`\`\`\`json
@@ -76,8 +115,9 @@ describe("shadow comparison eval", () => {
 
 class FakeClaude implements ClaudeAdapter {
   judgeOptions: ClaudePromptOptions | undefined;
+  judgeAttempts = 0;
 
-  constructor(private readonly options: { failDirect?: boolean } = {}) {}
+  constructor(private readonly options: { failDirect?: boolean; invalidJudgeResponses?: number } = {}) {}
 
   async getVersion(): Promise<string> {
     return "VERSION_A";
@@ -98,6 +138,15 @@ class FakeClaude implements ClaudeAdapter {
 
   async runPromptWithOptions(_prompt: string, options: ClaudePromptOptions): Promise<ClaudeJsonResponse> {
     this.judgeOptions = options;
+    this.judgeAttempts += 1;
+    if (this.judgeAttempts <= (this.options.invalidJudgeResponses ?? 0)) {
+      return {
+        sessionId: "judge-session",
+        result: "not json",
+        tokensIn: 20,
+        tokensOut: 10
+      };
+    }
     return {
       sessionId: "judge-session",
       result: JSON.stringify({
