@@ -6,7 +6,7 @@ As of 2026-05-15, the production MCP baseline is:
 
 - code pushed on `master` through commit `3ba27be`
 - public MCP tools: 17
-- tests: `80 passed`
+- tests: `81 passed`
 - build: passing
 - shadow eval: `90/90` judged, `0` pending, `0` failed
 - active benchmark clusters: 3

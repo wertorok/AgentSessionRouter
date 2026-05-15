@@ -471,6 +471,7 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
           (comparison) =>
             comparison.created_at >= sinceIso &&
             comparison.cluster_was_not_in_context === 1 &&
+            (comparison.judged_at === null || (comparison.cluster_score ?? 0) <= 1) &&
             (!comparison.cluster_id || activeClusterIds.has(comparison.cluster_id))
         )
         .map((comparison) => ({

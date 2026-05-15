@@ -1135,7 +1135,14 @@ export class RouterDatabase {
            cluster_id,
            COUNT(*) AS total,
            SUM(CASE WHEN judged_at IS NOT NULL THEN 1 ELSE 0 END) AS judged,
-           SUM(CASE WHEN cluster_was_not_in_context = 1 THEN 1 ELSE 0 END) AS not_in_context,
+           SUM(
+             CASE
+               WHEN cluster_was_not_in_context = 1
+                AND (judged_at IS NULL OR cluster_score <= 1)
+               THEN 1
+               ELSE 0
+             END
+           ) AS not_in_context,
            SUM(CASE WHEN shadow_status IN ('failed_auth', 'failed_timeout', 'failed_other') THEN 1 ELSE 0 END) AS failed_shadow,
            SUM(CASE WHEN judged_at IS NOT NULL THEN 1 ELSE 0 END) AS n,
            ROUND(AVG(CASE WHEN judged_at IS NOT NULL THEN cluster_score END), 2) AS cluster_q,

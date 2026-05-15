@@ -958,6 +958,62 @@ describe("cluster MCP tools", () => {
     fixture.cleanup();
   });
 
+  it("does not flag high-scoring NOT IN CONTEXT caveats as coverage failures", async () => {
+    const fixture = createToolFixture();
+    const server = new FakeServer();
+    registerTools(server as unknown as McpServer, fixture.runtime);
+    fixture.runtime.db.upsertCluster({
+      id: "covered-cluster",
+      projectId: "project",
+      name: "Covered cluster",
+      toolProfileDefault: "bare"
+    });
+    fixture.runtime.db.insertConsultComparison({
+      id: "cmp-caveat",
+      projectId: "project",
+      clusterId: "covered-cluster",
+      question: "Explain covered behavior and caveat.",
+      clusterAnswer: "The covered behavior is correct. NOT IN CONTEXT: one optional operational detail.",
+      clusterDurationMs: 5,
+      clusterWasNotInContext: true
+    });
+    fixture.runtime.db.updateConsultComparisonDirect({
+      id: "cmp-caveat",
+      status: "ok",
+      directAnswer: "No useful answer.",
+      directDurationMs: 10
+    });
+    fixture.runtime.db.updateConsultComparisonJudge({
+      id: "cmp-caveat",
+      clusterScore: 3,
+      directScore: 0,
+      preferred: "cluster",
+      clusterErrors: [],
+      directErrors: ["no answer"],
+      judgeReasoning: "cluster answered and included a correct caveat"
+    });
+
+    const monitor = parseToolJson(
+      await server.call("router_monitor", {
+        project_id: "project",
+        recent_hours: 24,
+        sample_limit: 10
+      })
+    );
+
+    expect(monitor.quality.cluster_stats[0]).toMatchObject({
+      cluster_id: "covered-cluster",
+      not_in_context: 0,
+      cluster_q: 3,
+      direct_q: 0
+    });
+    expect(monitor.quality.not_in_context_samples).toHaveLength(0);
+    expect(
+      monitor.recommendations.some((recommendation: { area: string }) => recommendation.area === "coverage")
+    ).toBe(false);
+    fixture.cleanup();
+  });
+
   it("archives clusters and removes them from active monitor signals", async () => {
     const fixture = createToolFixture();
     const server = new FakeServer();
