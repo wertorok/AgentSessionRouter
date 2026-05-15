@@ -29,6 +29,150 @@ describe("claude_consult service", () => {
     fixture.cleanup();
   });
 
+  it("applies the full SESSION_UPDATE_JSON metadata payload to a new session", async () => {
+    const fixture = createRuntimeFixture();
+    fixture.claude.result = `Use passport and document the route.
+
+SESSION_UPDATE_JSON:
+{
+  "summary": "Use passport strategy for OAuth routes.",
+  "decisions": ["Use passport strategy", "Use passport strategy", "Keep refresh handling separate"],
+  "open_questions": ["Confirm provider list", "Confirm callback domain"],
+  "files_discussed": ["src/auth/routes.ts", "src/auth/session.ts"],
+  "tags": ["Auth", "OAuth"],
+  "aliases": ["Social Login", "Passport Auth"]
+}`;
+    const service = new ConsultService(fixture.runtime, fixture.runtime.locks);
+
+    const result = await service.consult(baseInput());
+
+    expect("error" in result).toBe(false);
+    if ("error" in result) {
+      throw new Error("unexpected error");
+    }
+    expect(result.answer).toBe("Use passport and document the route.");
+    expect(result.session_update).toEqual({
+      summary: "Use passport strategy for OAuth routes.",
+      decisions: ["Use passport strategy", "Keep refresh handling separate"],
+      open_questions: ["Confirm provider list", "Confirm callback domain"],
+      files_discussed: ["src/auth/routes.ts", "src/auth/session.ts"],
+      tags: ["auth", "oauth"],
+      aliases: ["social login", "passport auth"]
+    });
+    expect(fixture.runtime.db.inspectSession(result.session_id, 10)?.session).toMatchObject({
+      summary: "Use passport strategy for OAuth routes.",
+      decisions: ["Use passport strategy", "Keep refresh handling separate"],
+      open_questions: ["Confirm provider list", "Confirm callback domain"],
+      files_discussed: ["src/auth/routes.ts", "src/auth/session.ts"],
+      tags: ["auth", "oauth"],
+      aliases: ["social login", "passport auth"]
+    });
+    fixture.cleanup();
+  });
+
+  it("updates resumed SESSION_UPDATE_JSON metadata with append-only registry semantics", async () => {
+    const fixture = createRuntimeFixture();
+    fixture.runtime.db.createSession({
+      id: "existing",
+      projectId: "project",
+      claudeSessionId: "existing-claude",
+      topic: "auth system refactor",
+      dormantAfterDays: 30,
+      archiveAfterDays: 90
+    });
+    fixture.runtime.db.applySessionUpdate("existing", {
+      summary: "Initial auth summary",
+      decisions: ["Use JWT"],
+      open_questions: ["Old question"],
+      files_discussed: ["src/auth/routes.ts"],
+      tags: ["auth"],
+      aliases: ["login flow"]
+    });
+    fixture.claude.existingSessions.add("existing-claude");
+    fixture.claude.result = `Update the auth route.
+
+SESSION_UPDATE_JSON:
+{
+  "summary": "Updated auth summary",
+  "decisions": ["Use JWT", "Use passport strategy"],
+  "open_questions": ["Confirm provider list"],
+  "files_discussed": ["src/auth/routes.ts", "src/auth/passport.ts"],
+  "tags": ["auth", "oauth"],
+  "aliases": ["login flow", "passport auth"]
+}`;
+    const service = new ConsultService(fixture.runtime, fixture.runtime.locks);
+
+    const result = await service.consult({ ...baseInput(), sessionId: "existing" });
+
+    expect("error" in result).toBe(false);
+    if ("error" in result) {
+      throw new Error("unexpected error");
+    }
+    expect(result.session_id).toBe("existing");
+    expect(result.session_update?.summary).toBe("Updated auth summary");
+    expect(fixture.runtime.db.inspectSession("existing", 10)?.session).toMatchObject({
+      summary: "Updated auth summary",
+      decisions: ["Use JWT", "Use passport strategy"],
+      open_questions: ["Confirm provider list"],
+      files_discussed: ["src/auth/routes.ts", "src/auth/passport.ts"],
+      tags: ["auth", "oauth"],
+      aliases: ["login flow", "passport auth"]
+    });
+    fixture.cleanup();
+  });
+
+  it("does not corrupt existing metadata when SESSION_UPDATE_JSON is malformed", async () => {
+    const fixture = createRuntimeFixture();
+    fixture.runtime.db.createSession({
+      id: "existing",
+      projectId: "project",
+      claudeSessionId: "existing-claude",
+      topic: "auth system refactor",
+      dormantAfterDays: 30,
+      archiveAfterDays: 90
+    });
+    fixture.runtime.db.applySessionUpdate("existing", {
+      summary: "Stable summary",
+      decisions: ["Keep existing decision"],
+      open_questions: ["Keep existing question"],
+      files_discussed: ["src/auth/stable.ts"],
+      tags: ["stable"],
+      aliases: ["stable auth"]
+    });
+    fixture.claude.existingSessions.add("existing-claude");
+    fixture.claude.result = `Answer with a broken update.
+
+SESSION_UPDATE_JSON:
+{
+  "summary": "Broken replacement",
+  "decisions": ["Should not persist"]
+`;
+    const service = new ConsultService(fixture.runtime, fixture.runtime.locks);
+
+    const result = await service.consult({ ...baseInput(), sessionId: "existing" });
+
+    expect("error" in result).toBe(false);
+    if ("error" in result) {
+      throw new Error("unexpected error");
+    }
+    expect(result.warning?.code).toBe(ERROR_CODES.SESSION_UPDATE_PARSE_FAILED);
+    expect(result.session_update).toBeUndefined();
+    expect(fixture.runtime.db.inspectSession("existing", 10)?.session).toMatchObject({
+      summary: "Stable summary",
+      decisions: ["Keep existing decision"],
+      open_questions: ["Keep existing question"],
+      files_discussed: ["src/auth/stable.ts"],
+      tags: ["stable"],
+      aliases: ["stable auth"]
+    });
+    const parseFailed = fixture.runtime.db.db
+      .prepare("SELECT raw_response_path, error FROM session_events WHERE event_type = 'parse_failed'")
+      .get() as { raw_response_path: string | null; error: string } | undefined;
+    expect(parseFailed?.error).toContain("Expected");
+    expect(parseFailed?.raw_response_path).toBeTruthy();
+    fixture.cleanup();
+  });
+
   it("auto-routes null session_id to a matching active session", async () => {
     const fixture = createRuntimeFixture();
     fixture.runtime.db.createSession({
