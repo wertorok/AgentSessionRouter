@@ -643,6 +643,7 @@ Output sections:
 
 - `health`: normal/degraded mode, Claude version, v1/v2 counts, shadow-eval pipeline health.
 - `cache_health`: stale/needs-prepare clusters and recent revalidation/fallback attention events.
+- `latency`: slow consult aggregates plus concrete slow-session samples with topic, question, token counts, duration, and raw response path.
 - `quality`: recent shadow comparison stats, direct-win samples, and `NOT IN CONTEXT` samples.
 - `recommendations`: prioritized actions with area, cluster id, action, and reason.
 - `next_directions`: higher-level signals such as factsheet expansion, shadow stabilization, or future auto-routing candidates.

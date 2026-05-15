@@ -436,6 +436,12 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
         sinceIso,
         slowSessionThresholdMs(runtime.config.claude.commandTimeoutMs)
       );
+      const slowSessionSamples = runtime.db.listRecentSlowSessionEventSamples(
+        projectId,
+        sinceIso,
+        slowSessionThresholdMs(runtime.config.claude.commandTimeoutMs),
+        input.sample_limit ?? 10
+      );
       const clusterAttention = runtime.db.getRecentClusterAttentionCounts(projectId, sinceIso);
       const clusterAttentionByCluster = runtime.db.getRecentClusterAttentionCountsByCluster(projectId, sinceIso);
       const shadowEval = runtime.db.getShadowEvalHealth(projectId);
@@ -533,7 +539,8 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
         },
         latency: {
           slow_session_threshold_ms: slowSessionThresholdMs(runtime.config.claude.commandTimeoutMs),
-          slow_session_events: slowSessionEvents
+          slow_session_events: slowSessionEvents,
+          slow_session_samples: slowSessionSamples
         },
         quality: {
           cluster_stats: comparisonStats,

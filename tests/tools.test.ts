@@ -788,6 +788,10 @@ describe("cluster MCP tools", () => {
       sessionId: "session-1",
       projectId: "project",
       eventType: "consult",
+      question: "Why was this slow?",
+      rawResponsePath: "/tmp/raw-slow.txt",
+      tokensIn: 12_345,
+      tokensOut: 678,
       durationMs: 150_000
     });
     fixture.runtime.db.upsertCluster({
@@ -878,6 +882,24 @@ describe("cluster MCP tools", () => {
     const fixture = createToolFixture();
     const server = new FakeServer();
     registerTools(server as unknown as McpServer, fixture.runtime);
+    fixture.runtime.db.createSession({
+      id: "session-1",
+      projectId: "project",
+      claudeSessionId: "claude-session-1",
+      topic: "Router ops",
+      dormantAfterDays: 30,
+      archiveAfterDays: 90
+    });
+    fixture.runtime.db.logEvent({
+      sessionId: "session-1",
+      projectId: "project",
+      eventType: "consult",
+      question: "Why was this slow?",
+      rawResponsePath: "/tmp/raw-slow.txt",
+      tokensIn: 12_345,
+      tokensOut: 678,
+      durationMs: 150_000
+    });
     fixture.runtime.db.upsertCluster({
       id: "weak-cluster",
       projectId: "project",
@@ -934,6 +956,16 @@ describe("cluster MCP tools", () => {
 
     expect(monitor.health.v2_clusters.fallback_count_last_24h).toBe(1);
     expect(monitor.cache_health.stale_or_needs_prepare[0].id).toBe("weak-cluster");
+    expect(monitor.latency.slow_session_samples[0]).toMatchObject({
+      session_id: "session-1",
+      topic: "Router ops",
+      event_type: "consult",
+      question: "Why was this slow?",
+      raw_response_path: "/tmp/raw-slow.txt",
+      tokens_in: 12_345,
+      tokens_out: 678,
+      duration_ms: 150_000
+    });
     expect(monitor.quality.cluster_stats[0]).toMatchObject({
       cluster_id: "weak-cluster",
       total: 1,

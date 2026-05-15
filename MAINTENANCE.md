@@ -31,7 +31,9 @@ Current follow-up priorities:
    recovery behavior.
 3. Inspect slow direct `new_session` events when they recur; prefer
    `cluster_consult` for covered questions when direct discovery approaches the
-   caller timeout boundary.
+   caller timeout boundary. Use `router_monitor.latency.slow_session_samples`
+   for the exact session id, topic, question, token counts, duration, and raw
+   response path.
 
 ## Cluster Factsheet Re-Prepare
 
