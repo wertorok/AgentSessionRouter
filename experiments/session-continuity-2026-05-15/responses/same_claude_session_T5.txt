@@ -1,0 +1,13 @@
+## Why `cluster_consult` vs. `direct_fresh` Alone Is Insufficient
+
+Comparing only `cluster_consult` against `direct_fresh` tests the *happy path* — it measures latency/accuracy when everything works. It does NOT test the continuity mechanisms that ALPHA-17 and BETA-29 require.
+
+**The gap**: `direct_fresh` bypasses all continuity logic. It has no factsheet, no revalidation, no internal fallback — it's just caller → direct answer. `cluster_consult` under ALPHA-17 and BETA-29 must actively decide *whether* to answer, *whether* facts are current, and *how* to fall back — none of which `direct_fresh` exercises.
+
+**What this misses**:
+
+1. **ALPHA-17 boundary**: When does `cluster_consult` correctly refuse to answer (router-side hangup) vs. when does it incorrectly let a stale session through? `direct_fresh` never refuses — so the comparison cannot validate the answer/hangup boundary.
+
+2. **BETA-29 revalidation**: Does `cluster_consult` with stale factsheet data correctly trigger internal fallback? `direct_fresh` has no factsheet to go stale — so revalidation behavior is entirely unmeasured.
+
+**Extra benchmark needed**: `cluster_consult` vs. `cluster_fallback` — a path that exercises BETA-29 revalidation failure and the internal fallback mechanism. This is the scenario where continuity logic actually matters: not in the fresh/happy path, but when facts cannot be confirmed current and the router must self-handle without caller involvement.

@@ -1,0 +1,21 @@
+I don't have access to prior benchmark turns or session memory from this conversation. This appears to be turn 4 of a session continuity benchmark, but I only have this single invocation context—no prior turns to draw from.
+
+What I can see from the environment:
+
+- **experiments/session-continuity-2026-05-15/** — untracked experiment directory (likely contains prior turn data)
+- **scripts/session-continuity-benchmark.mjs** — the benchmark script itself
+- **package.json** — modified (relevant to the router project)
+
+**What's missing for a complete answer:**
+
+- The actual benchmark codewords and their definitions from turns 1-3
+- Session continuity decisions made in earlier turns
+- Any `SESSION_UPDATE_JSON` blocks from prior turns that would encode accumulated decisions
+
+**What I can tell you about the project context:**
+
+- This is an AgentSessionRouter implementation with router consult and monitor semantics
+- The `fresh_each_turn` codeword in your topic suggests a routing mode where sessions are not preserved across turns
+- The `dlfltd` suffix appears to be an experiment variant or timestamp marker
+
+To answer fully, you would need to provide the prior turn outputs or point me to where that session state is stored. Alternatively, if this benchmark is meant to be self-contained, the `experiments/session-continuity-2026-05-15/` directory should contain prior results.

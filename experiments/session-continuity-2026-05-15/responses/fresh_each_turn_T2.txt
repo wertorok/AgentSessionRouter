@@ -1,0 +1,12 @@
+I don't have direct recall of turn 1's established codeword and caller/operator rule from this session — the conversation context starts fresh for me. However, from the project context (experiments/session-continuity-2026-05-15/, scripts/session-continuity-benchmark.mjs) and the router's existing patterns, here's what is likely in play or what you should confirm:
+
+**Likely established pattern (inferring from router conventions):**
+- **Codeword**: `fresh_each_turn` — visible in your task trigger and the experiment directory name, suggesting each benchmark turn should operate independently without carryover state
+- **Caller/operator rule**: When router_consult is invoked, the caller must explicitly signal session intent via metadata; if `fresh_each_turn` is set, the monitor should not hydrate from prior session state
+
+**What is definitively missing for turn 2:**
+- The specific semantic meaning of "T2" in your benchmark nomenclature — is it turn 2, tier 2, or something else?
+- Whether the codeword was meant to suppress session inheritance entirely or just mark the session boundary
+- The operator rule for what happens when continuity is violated (fallback to warm start? hard reset? consult escalation?)
+
+You are in a better position to confirm what was actually established in turn 1 since the session continuity benchmark infrastructure (scripts/session-continuity-benchmark.mjs) likely has the turn history or you recall it directly.

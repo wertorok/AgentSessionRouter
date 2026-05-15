@@ -1,0 +1,25 @@
+## Benchmark Gap Analysis
+
+**Why cluster_consult vs direct_fresh is insufficient:**
+
+You're isolating two variables at once: (1) whether continuity is enabled, and (2) whether clustering is enabled. When you compare cluster_consult against direct_fresh, you get a compound delta. If performance is better, you cannot decompose whether the gain came from continuity, clustering, or their interaction.
+
+The two remembered benchmark decisions are likely:
+- **direct_fresh** — baseline: fresh sessions, no routing intelligence
+- **direct_consult** — continuity-only: same session reused across turns, no cluster routing
+
+The missing comparison is **direct_consult vs direct_fresh**. This isolates the pure continuity effect. Once you have that number, the delta between cluster_consult and direct_consult reveals the clustering premium in isolation.
+
+**The extra benchmark needed:**
+
+Run `direct_consult` as the third leg. This gives you a three-way matrix:
+
+| Comparison | What it measures |
+|------------|-----------------|
+| direct_fresh → direct_consult | continuity value alone |
+| direct_consult → cluster_consult | clustering value alone |
+| direct_fresh → cluster_consult | total combined effect |
+
+Without direct_consult, you cannot answer "is clustering worth the added latency/complexity over just keeping sessions warm?" You also cannot detect negative interaction — scenarios where continuity helps direct but hurts clustered routing (or vice versa).
+
+**Practical next step:** Add `direct_consult` to the benchmark harness and plot all three runs on the same continuity-latency chart.

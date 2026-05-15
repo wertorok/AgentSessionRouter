@@ -59,6 +59,11 @@ The parent agent does not wait for the shadow baseline or judge. Shadow failure 
 - Judge calls run with `--tools ""` and do not inherit configured Claude extra args.
 - Comparison rows can be deleted or ignored without changing router behavior.
 
+Shadow eval is not a durable-session continuity benchmark. It answers whether a
+cluster factsheet answer beats an isolated fresh baseline. Use
+`npm run session:continuity` when the question is whether repeated calls in one
+session preserve prior decisions better than fresh-each-turn calls.
+
 The Claude CLI may still create its own raw conversation file for the shadow call. That file is not registered as a durable AgentSessionRouter production session.
 
 ## 5. Data Model

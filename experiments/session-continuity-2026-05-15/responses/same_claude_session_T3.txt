@@ -1,0 +1,9 @@
+## Recall from Prior Turns
+
+**ALPHA-17** (from turn 1): Router MUST answer the caller when Claude is available; monitor telemetry is operator-only — it does NOT serve as caller-side recovery.
+
+## New Benchmark Decision Added
+
+**BETA-29**: Factsheet evidence must be revalidated before use. If revalidation cannot prove the facts are current, the router falls back **internally** — it does NOT ask the caller to recover or re-provide information.
+
+**Operational meaning**: The router owns the continuity fallback. When factsheet data cannot be confirmed current, the router self-handles the gap (e.g., using cached/stale data conservatively, or routing to a safe state) rather than pushing recovery responsibility to the caller. The caller experience is seamless; the operator sees the fallback in telemetry.

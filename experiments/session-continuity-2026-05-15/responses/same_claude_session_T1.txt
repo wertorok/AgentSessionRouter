@@ -1,0 +1,15 @@
+## Benchmark Decision Established
+
+- **ALPHA-17**: The router MUST answer the caller when Claude is available — monitor telemetry serves the operator's observability, not caller-side recovery logic.
+
+## Practical Interpretation
+
+When this router fielded session continuity benchmarks, the core split is:
+- **Answer obligation**: If Claude can handle the turn, the router answers. Caller gets routed, session proceeds.
+- **Monitor role**: Telemetry is for human operators watching system health. It is NOT a fallback path for callers to recover a dropped session.
+
+This means: session continuity recovery lives in the routing/answer path, not in monitor health checks.
+
+---
+
+**What's missing for full context**: The specific `router_consult` call paths and how `SESSION_UPDATE_JSON` metadata flows through them in the current codebase — but for establishing the benchmark rule, the above is sufficient.

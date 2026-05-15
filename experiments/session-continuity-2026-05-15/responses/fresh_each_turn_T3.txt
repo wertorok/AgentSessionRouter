@@ -1,0 +1,9 @@
+**Codeword BETA-29**
+
+**Text:** `BETA-29`
+
+**Operational meaning:** Factsheet evidence must be revalidated before use in the router. If revalidation cannot prove the facts are current, the router performs an internal fallback rather than surfacing the gap to the caller. The caller receives a clean answer; recovery logic is handled transparently inside the router without exposing the revalidation failure.
+
+**Relationship to prior decisions:** BETA-29 layers on top of any existing continuity/freshness decisions already established in this benchmark session. It does not override them — it extends the router's failure semantics to also cover stale factsheet evidence, ensuring the router self-recovers internally in that edge case.
+
+---

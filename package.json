@@ -34,6 +34,7 @@
     "smoke:postinstall:live": "node scripts/post-install-smoke.mjs --live",
     "router:sanity": "node scripts/router-consult-sanity.mjs",
     "router:sample": "node scripts/router-route-sample.mjs",
+    "session:continuity": "node scripts/session-continuity-benchmark.mjs",
     "monitor:snapshot": "node scripts/router-monitor-snapshot.mjs",
     "mcp:workload": "node scripts/mcp-workload-matrix.mjs",
     "mcp:workload:live": "node scripts/mcp-workload-matrix.mjs --live"

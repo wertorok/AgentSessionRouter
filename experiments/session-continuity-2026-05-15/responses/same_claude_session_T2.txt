@@ -1,0 +1,9 @@
+## Recall from Prior Benchmark Turn
+
+From session memory (turn 1):
+
+- **Codeword ALPHA-17**: The router MUST answer the caller when Claude is available; monitor telemetry is operator-only — it does NOT serve as a caller-side recovery mechanism.
+
+**Caller/operator rule**: Caller gets routed to a live answer when Claude is available. Operator gets monitor telemetry for observability. These are separate concerns — monitor health signals are not a fallback path for session recovery.
+
+**What's missing for full context**: The specific decision boundary — whether/when the router should hang up vs. answer when it *cannot* reach Claude. That remains the open question from turn 1.

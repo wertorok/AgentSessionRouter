@@ -1,0 +1,15 @@
+## Why `cluster_consult` vs `direct_fresh` Is Insufficient
+
+The two-codeword contract makes this clear:
+
+- **ALPHA-17** says the router is the answer path — not monitor telemetry. But `direct_fresh` as a baseline implies "fresh without continuity," which does not test whether the router can actually re-establish and answer from session state. `cluster_consult` answers, but the comparison doesn't validate that the answer path is working correctly.
+
+- **BETA-29** says factsheet gaps trigger silent internal fallback. But comparing `cluster_consult` vs `direct_fresh` has no factsheet staleness dimension. Neither path explicitly exercises revalidation-and-fallback under uncertainty.
+
+**What's missing**: a `factsheet_revalidation` scenario — where the consult carries factsheet evidence that may be stale or unprovable, and the router must silently fall back rather than present unvalidated facts to the caller. This is the continuity failure mode the benchmark must measure.
+
+The comparison `cluster_consult` vs `direct_fresh` tests availability and freshness, but not the router's ability to handle uncertain factsheet state without caller involvement — which is core to BETA-29.
+
+**Extra benchmark needed**: `factsheet_uncertain` path — consult with aged/stale factsheet data requiring silent revalidation fallback.
+
+---

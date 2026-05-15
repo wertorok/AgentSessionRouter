@@ -1,0 +1,16 @@
+**New benchmark decision — BETA-29:**
+
+- **BETA-29**: Factsheet evidence must be revalidated before use; if revalidation cannot prove current facts, the router falls back internally instead of asking the caller to recover.
+
+**Operational meaning:**
+
+When the router needs to use a cached or previously established factsheet to answer a continuity request, it first revalidates that evidence against current state. If revalidation fails or cannot confirm the facts are still true, the router performs an internal fallback — it does not throw the recovery burden back to the caller. The caller experience remains uninterrupted; the router self-corrects quietly.
+
+**Combined benchmark state (ALPHA-17 + BETA-29):**
+
+| Codeword | Rule |
+|---|---|
+| ALPHA-17 | Router answers caller when Claude is available; monitor telemetry is operator-only |
+| BETA-29 | Factsheet evidence revalidated before use; router internal fallback rather than caller recovery |
+
+**

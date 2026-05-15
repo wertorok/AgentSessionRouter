@@ -1,0 +1,6 @@
+**Benchmark Decision Established:**
+
+- **ALPHA-17**: Codeword for the rule that the router must answer the caller when Claude is available.
+- **ALPHA-17 Rule**: Monitor telemetry is operator-facing only; it does not serve caller recovery. The router's obligation is to answer the caller directly when Claude can service the request, not to wait for or rely on monitor data to drive recovery.
+
+---

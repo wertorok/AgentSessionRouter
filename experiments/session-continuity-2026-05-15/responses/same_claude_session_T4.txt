@@ -1,0 +1,7 @@
+## Benchmark Codewords — Session Memory Recall
+
+**ALPHA-17**: Router MUST answer the caller when Claude is available. Monitor telemetry is operator-only — it does NOT serve as caller-side recovery. Caller gets a live answer; operator gets observability.
+
+**BETA-29**: Factsheet evidence must be revalidated before use. If revalidation cannot prove facts are current, the router falls back internally — it never asks the caller to recover or re-provide information. The router owns the continuity gap, not the caller.
+
+**What's missing for full context**: The specific internal fallback mechanism (conservative cache, safe state, or escalation path) when BETA-29 revalidation fails — this remains an open question.

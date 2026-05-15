@@ -1,0 +1,8 @@
+## Recall from Turn 1
+
+- **Codeword**: ALPHA-17
+- **Caller/Operator Rule**: The router must answer the caller when Claude is available; monitor telemetry is for the operator, not for caller recovery.
+
+This means the router's answer path is the continuity mechanism, not the monitor feed.
+
+---

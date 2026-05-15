@@ -8,9 +8,14 @@ This matrix is the production exercise plan for AgentSessionRouter as an MCP ser
 npm run mcp:workload
 npm run mcp:workload:live
 npm run monitor:snapshot
+npm run session:continuity
 ```
 
 The default workload uses a deterministic fake Claude CLI so failure paths can be exercised without waiting on live model behavior. The live workload uses the real `claude` CLI and should be run only when local auth/rate limits are healthy.
+
+`session:continuity` is a live continuity benchmark. It is not a cluster
+quality benchmark. It measures whether repeated questions in one durable session
+remember prior benchmark decisions better than fresh-each-turn calls.
 
 Artifacts are written under:
 
@@ -74,6 +79,7 @@ If a one-off Claude Code integration diagnostic is needed, pass MCP config expli
 | Missing cluster | unknown `cluster_id` | fallback to `claude_consult`, caller still gets answer |
 | LLM verifier | `verification_mode=llm` | `factsheet_llm_verified`, `llm_verifier` |
 | Monitor diagnosis | final `router_monitor` | cache/quality recommendations |
+| Session continuity | `npm run session:continuity` | fresh-each-turn loses memory, same-session/router reuse preserves memory |
 
 ## What To Watch
 
@@ -108,5 +114,9 @@ If clusters score well and have no fallback/revalidation failures, they become c
 If slow session samples show very high `tokens_in`, treat it as direct-discovery/context bloat first. Prefer an existing session or a covered cluster before repeating a broad `new_session` consult.
 
 If `route_health` shows repeated `claude_consult_auto` decisions, inspect the samples. Either pass an explicit `cluster_id`/`session_id`, improve the topic hint, or collect enough evidence before implementing code-level automatic cluster selection.
+
+If session-memory quality is under discussion, run `npm run session:continuity`
+instead of relying on shadow eval. Shadow eval intentionally compares clusters
+against isolated `direct_fresh`; it does not measure multi-turn session memory.
 
 Run `npm run monitor:snapshot` daily or before/after larger router changes to keep a comparable JSON trail of `router_status` and `router_monitor`.

@@ -1,0 +1,11 @@
+## Benchmark Decisions ALPHA-17 and BETA-29
+
+**ALPHA-17** (from turn 1):
+- The router must answer the caller when Claude is available; monitor telemetry is for the operator, not for caller recovery.
+
+**BETA-29** (new this turn):
+- Factsheet evidence must be revalidated before use; if revalidation cannot prove current facts, the router falls back internally instead of asking the caller to recover.
+
+**Operational meaning**: The router performs silent internal fallback rather than surfacing stale or unverifiable factsheet data to the caller. Caller recovery via re-asking is not the expected path — the router handles uncertainty internally.
+
+---

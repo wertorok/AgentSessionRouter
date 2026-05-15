@@ -60,6 +60,10 @@ Current follow-up priorities:
 6. Older superseded codebase clusters are archived. Prefer the fresh
    `agentsessionrouter-codebase` factsheet version 4 for route sanity and
    future benchmark work.
+7. Use `npm run session:continuity` when evaluating the original v1 premise:
+   repeated questions in one durable session. Do not infer session-memory
+   quality from cluster shadow eval, because shadow uses a fresh direct
+   baseline by design.
 
 `router_monitor.quality.auto_routing_candidates` is a read-only research signal.
 It means a cluster is stable enough to study for future routing suggestions; it
@@ -129,6 +133,38 @@ safe effective limit and reports `output_limits.truncated`. As of 2026-05-15,
 `sample_limit=80` is accepted by the snapshot script, becomes
 `effective_sample_limit=30` inside `router_monitor`, and uses
 `warnings_limit=50` for `router_status`.
+
+## Session Continuity Benchmark
+
+Use `npm run session:continuity` to measure whether the router preserves context
+across multiple questions in one durable session. This is separate from shadow
+eval:
+
+- shadow eval compares `cluster_consult` with isolated `direct_fresh`
+  background calls
+- session continuity compares fresh-each-turn calls with repeated calls through
+  the same Claude/router session
+
+The 2026-05-15 continuity run used 20 real MCP/Claude calls under isolated
+project id `AgentSessionRouter-continuity-2026-05-15`:
+
+| Method | Memory-probe score | Sessions used | Interpretation |
+| --- | ---: | ---: | --- |
+| `fresh_each_turn` | 0.67 | 5 | cold calls do not preserve prior benchmark decisions |
+| `same_claude_session` | 3.00 | 1 | direct durable v1 session preserves continuity |
+| `router_exact_topic` | 3.00 | 1 | `router_consult` exact-topic reuse preserves continuity |
+| `router_explicit_session` | 2.67 | 1 | continuity mostly preserved; one synthesis answer chose a fallback benchmark instead of naming same-session benchmark |
+
+The same run also verified `SESSION_UPDATE_JSON` metadata on this path: 8
+inspected sessions stored 19 decisions, and `router_monitor.metadata_health`
+reported no parse failures for the continuity project.
+
+Operational rule:
+
+- Use shadow eval for cluster factsheet quality.
+- Use session continuity benchmark for durable session memory.
+- Do not compare `cluster_consult` only against `direct_fresh` when the question
+  being asked is whether the router preserves multi-turn context.
 
 ## Monitor Signal Filtering Invariants
 

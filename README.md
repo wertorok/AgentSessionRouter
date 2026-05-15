@@ -80,6 +80,10 @@ Validation performed:
 - Route sample follow-up: 118/118 shadow comparisons judged, 0 pending, active
   `agentsessionrouter-codebase` factsheet v4 is `llm_verified` with 50
   verified facts and 0 rejected facts
+- Session continuity benchmark: `npm run session:continuity` measures the
+  original v1 value separately from cluster shadow eval. The 2026-05-15 run
+  showed fresh-each-turn memory score `0.67`, durable `claude_consult` session
+  score `3.00`, and `router_consult` exact-topic reuse score `3.00`.
 
 Research and next-architecture docs:
 
@@ -204,6 +208,11 @@ When `[eval].shadow_mode = true`, a successful `cluster_consult` still returns t
 4. Store the result in `consult_comparisons`.
 
 This is telemetry, not routing. It does not affect the answer returned to Codex or any other parent agent. Shadow calls also do not append decisions, summaries, tags, or aliases to production router sessions. The baseline is intentionally `direct_fresh` for the MVP so eval state cannot contaminate long-lived production sessions.
+
+Do not use shadow eval alone to judge durable session continuity. Shadow eval
+answers the question "is this verified cluster answer better than a fresh direct
+baseline?" It does not answer "does a durable session remember prior turns?" Use
+`npm run session:continuity` for that second question.
 
 Use the comparison tools to inspect accumulated results:
 

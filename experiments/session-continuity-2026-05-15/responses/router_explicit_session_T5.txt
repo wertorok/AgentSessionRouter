@@ -1,0 +1,16 @@
+**Why `cluster_consult` vs. `direct_fresh` alone is insufficient for this project:**
+
+`direct_fresh` establishes a baseline: fresh data, direct path, known correct answer. `cluster_consult` adds a routing layer. Comparing only these two hides the failure modes that ALPHA-17 and BETA-29 actually care about.
+
+**The gap — broken down by codeword:**
+
+**ALPHA-17** says the router must *answer* the caller when Claude is available. A `direct_fresh` baseline doesn't test whether `cluster_consult` correctly identifies that it *has* a valid answer to give versus when it should route elsewhere. The missing benchmark is: **availability-aware correctness** — does `cluster_consult` answer when it should and defer when it shouldn't? `direct_fresh` doesn't probe this boundary.
+
+**BETA-29** says factsheet evidence must be revalidated before use, and the router must fall back internally rather than ask the caller to recover. A `direct_fresh` comparison measures result quality when everything is fresh, but it doesn't test what happens when factsheet evidence is stale or revalidation fails. The missing benchmark is: **stale factsheet + failed revalidation** — does `cluster_consult` internally fall back, or does it use stale evidence and potentially misanswer the caller?
+
+**What the extra benchmark needs to measure:**
+- Path: `cluster_consult` with a stale factsheet and failed revalidation
+- Expected behavior under BETA-29: internal fallback, no caller recovery request, caller gets a valid answer via the fallback path
+- Also: whether ALPHA-17 availability gates are checked before the fallback is triggered
+
+**

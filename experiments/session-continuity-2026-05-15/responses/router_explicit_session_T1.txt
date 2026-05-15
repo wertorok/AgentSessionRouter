@@ -1,0 +1,14 @@
+**Codeword ALPHA-17 — established for this benchmark:**
+
+- **ALPHA-17**: The router must answer the caller when Claude is available; monitor telemetry is for the operator, not for caller recovery.
+
+**What this means for session continuity:**
+
+When Claude is available and a session continuity request arrives, the router responds directly to the caller. Monitor telemetry (metrics, traces, observability signals) belongs to the operator dashboard — it informs human oversight and debugging, but the router does not use it to recover the caller session. The caller's continuity path depends on router availability judgment, not on pulling monitor state to stitch together a broken session.
+
+**What is missing to go deeper:**
+- The current `router_consult` implementation and its availability-checking logic (not provided in this turn)
+- The session-state store and how it interacts with `SESSION_UPDATE_JSON` metadata
+- The explicit session routing rules (`router_explicit_session`) and how ALPHA-17 maps to those decisions
+
+**
