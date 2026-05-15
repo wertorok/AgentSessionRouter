@@ -1,32 +1,37 @@
 # MCP Workload Matrix (stub)
 
-Started: 2026-05-14T23:51:30.747Z
-Finished: 2026-05-14T23:51:32.692Z
-Project dir: /tmp/asr-mcp-matrix-stub-5vVxJj/project
+Started: 2026-05-15T22:18:56.432Z
+Finished: 2026-05-15T22:18:58.658Z
+Project dir: /tmp/asr-mcp-matrix-stub-HXemJa/project
 
-Passed: 18
+Passed: 23
 Failed: 0
 
 ## Checks
 
 - PASS tool_discovery_all_modes (n/ams)
-- PASS router_status_baseline (5ms)
-- PASS router_monitor_baseline (2ms)
+- PASS router_status_baseline (6ms)
+- PASS router_monitor_baseline (3ms)
 - PASS v1_claude_consult_new_session (45ms)
-- PASS v1_claude_consult_explicit_resume_or_orphan_recovery (65ms)
+- PASS v1_claude_consult_explicit_resume_or_orphan_recovery (48ms)
 - PASS v1_session_inspect (3ms)
-- PASS v2_cluster_consult_fast_path_with_shadow (656ms)
-- PASS shadow_comparison_judged_after_cluster_consult (4ms)
-- PASS cluster_refresh_verify_only (12ms)
-- PASS evidence_revalidation_success_selector_moved (52ms)
-- PASS evidence_revalidation_failure_falls_back (71ms)
-- PASS evidence_revalidation_failure_snippet_changed_falls_back (61ms)
-- PASS static_policy_deny_falls_back (65ms)
-- PASS missing_cluster_falls_back (48ms)
-- PASS cluster_prepare_llm_verifier_promotes_or_rejects_semantically (52ms)
-- PASS v2_llm_trusted_cluster_consult_with_deny_policy (252ms)
-- PASS comparison_list_drilldown (2ms)
-- PASS router_monitor_after_workload (2ms)
+- PASS router_dry_run_observe_only (5ms)
+- PASS session_update_success_metadata_path (43ms)
+- PASS session_update_parse_failure_threshold_archives (398ms)
+- PASS session_update_archived_bootstrap_replacement (50ms)
+- PASS router_consult_explicit_cluster_route (125ms)
+- PASS v2_cluster_consult_fast_path_with_shadow (570ms)
+- PASS shadow_comparison_judged_after_cluster_consult (3ms)
+- PASS cluster_refresh_verify_only (8ms)
+- PASS evidence_revalidation_success_selector_moved (49ms)
+- PASS evidence_revalidation_failure_falls_back (64ms)
+- PASS evidence_revalidation_failure_snippet_changed_falls_back (52ms)
+- PASS static_policy_deny_falls_back (53ms)
+- PASS missing_cluster_falls_back (49ms)
+- PASS cluster_prepare_llm_verifier_promotes_or_rejects_semantically (60ms)
+- PASS v2_llm_trusted_cluster_consult_with_deny_policy (260ms)
+- PASS comparison_list_drilldown (1ms)
+- PASS router_monitor_after_workload (4ms)
 
 ## DB Snapshot
 
@@ -34,15 +39,31 @@ Failed: 0
 {
   "session_events": [
     {
+      "event_type": "consult",
+      "count": 10
+    },
+    {
+      "event_type": "parse_failed",
+      "count": 10
+    },
+    {
       "event_type": "new_session",
-      "count": 6
+      "count": 8
+    },
+    {
+      "event_type": "archive",
+      "count": 1
     },
     {
       "event_type": "health_probe_passed",
       "count": 1
     },
     {
-      "event_type": "orphan_recovery",
+      "event_type": "parse_failed_threshold_exceeded",
+      "count": 1
+    },
+    {
+      "event_type": "router_route_decision",
       "count": 1
     },
     {
@@ -129,7 +150,7 @@ Failed: 0
     {
       "cluster_id": "monitor-static",
       "event_type": "cluster_consult",
-      "count": 2
+      "count": 3
     },
     {
       "cluster_id": "monitor-static",
@@ -179,7 +200,7 @@ Failed: 0
       "preferred": "tie",
       "cluster_score": 3,
       "direct_score": 3,
-      "created_at": "2026-05-14T23:51:32.459Z"
+      "created_at": "2026-05-15T22:18:58.428Z"
     },
     {
       "cluster_id": "monitor-static",
@@ -187,7 +208,7 @@ Failed: 0
       "preferred": "tie",
       "cluster_score": 3,
       "direct_score": 3,
-      "created_at": "2026-05-14T23:51:32.082Z"
+      "created_at": "2026-05-15T22:18:58.062Z"
     },
     {
       "cluster_id": "monitor-static",
@@ -195,7 +216,15 @@ Failed: 0
       "preferred": "tie",
       "cluster_score": 3,
       "direct_score": 3,
-      "created_at": "2026-05-14T23:51:31.513Z"
+      "created_at": "2026-05-15T22:18:57.504Z"
+    },
+    {
+      "cluster_id": "monitor-static",
+      "shadow_status": "ok",
+      "preferred": "tie",
+      "cluster_score": 3,
+      "direct_score": 3,
+      "created_at": "2026-05-15T22:18:57.436Z"
     }
   ],
   "clusters": [

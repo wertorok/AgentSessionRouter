@@ -46,6 +46,7 @@ Implemented MVP tools:
 - `claude_sessions_list`
 - `claude_consult`
 - `router_consult`
+- `router_dry_run`
 - `claude_session_archive`
 - `claude_session_inspect`
 - `claude_router_reset`
@@ -68,14 +69,22 @@ Optional shadow-eval tools:
 - `comparison_process_pending`
 - `comparison_rejudge`
 
+Tool surface tiers:
+
+- `[ANSWER DEFAULT]`: `router_consult`. Normal parent-agent entry point.
+- `[ANSWER EXPERT]`: `claude_consult`, `cluster_consult`. Explicit lower-level answer paths when the caller intentionally chooses durable-session or cluster-cache behavior.
+- `[OBSERVE]`: `router_dry_run`, `router_status`, `router_monitor`, `claude_sessions_list`, `claude_session_inspect`, `cluster_get`, `cluster_list`, `comparison_stats`, `comparison_list`. Read/debug/monitor paths; they do not answer the task.
+- `[MAINTAIN]`: `cluster_prepare`, `cluster_refresh`, `cluster_archive`, `claude_session_archive`, `claude_router_reset`. State maintenance paths for agents.
+- `[EVAL DEBUG]`: `comparison_process_pending`, `comparison_rejudge`. Shadow-eval maintenance; these may invoke Claude and are not answer paths.
+
 Validation performed:
 
-- Unit/integration tests: `97 passed`
+- Unit/integration tests: `98 passed`
 - Live MCP stdio E2E: `LIVE_CONSULT_PASS`
 - Live matrix run: committed as `LIVE_TEST_LOG.md`
 - Post-fix targeted live rerun: `TARGETED_RERUN_PASS`
 - Post-install smoke: stub mode passes and covers v1, v2 cluster tools, `router_status`, and `router_monitor`
-- MCP workload matrix: stub mode passes 22/22 checks, including clean `SESSION_UPDATE_JSON`, parse-failure threshold archival, archived-bootstrap replacement, conservative `router_consult`, evidence revalidation, fallback, and shadow telemetry
+- MCP workload matrix: stub mode passes 23/23 checks, including clean `SESSION_UPDATE_JSON`, parse-failure threshold archival, archived-bootstrap replacement, observe-only `router_dry_run`, conservative `router_consult`, evidence revalidation, fallback, and shadow telemetry
 - Router monitor snapshots: `npm run monitor:snapshot` writes `router_status` + `router_monitor` payloads under `experiments/router-monitor-snapshots/`
 - Route sample follow-up: 118/118 shadow comparisons judged, 0 pending, active
   `agentsessionrouter-codebase` factsheet v4 is `llm_verified` with 50
@@ -597,6 +606,35 @@ Output excerpt:
   "answer": "..."
 }
 ```
+
+### `router_dry_run`
+
+Observe-only routing preview. It uses the same conservative decision logic as
+`router_consult`, but does not invoke Claude, create sessions, apply lifecycle
+changes, or write `router_route_decision` events.
+
+Use it when an agent needs to inspect where the router would send a question
+before spending tokens on the answer path.
+
+Input is the same as `router_consult`, plus optional `candidate_limit`:
+
+```json
+{
+  "project_id": null,
+  "cluster_id": null,
+  "session_id": null,
+  "topic_hint": "project roadmap",
+  "related_files": ["MAINTENANCE.md", "src/tools.ts"],
+  "tags": ["routing", "monitor"],
+  "task_type": "planning",
+  "question": "What should we fix next after the v2.6 routing work?",
+  "candidate_limit": 5
+}
+```
+
+Output includes `route_decision`, `top_session_candidates`,
+`invokes_claude=false`, `writes_route_event=false`, and
+`lifecycle_applied=false`. For the real answer, call `router_consult`.
 
 ### `claude_session_inspect`
 

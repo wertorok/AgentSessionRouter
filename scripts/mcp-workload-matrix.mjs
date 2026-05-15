@@ -105,6 +105,37 @@ try {
       };
     });
 
+    await scenario("router_dry_run_observe_only", async () => {
+      const beforeRouteEvents = sessionEventTypeCount("router_route_decision");
+      const dryRun = await callTool(client, "router_dry_run", {
+        project_id: null,
+        topic_hint: "mcp workload v1",
+        related_files: ["README.md", "src/tools.ts"],
+        tags: ["mcp-workload"],
+        task_type: "planning",
+        question: "Where would the router send a follow-up about the MCP workload v1 session?",
+        candidate_limit: 3
+      });
+      const afterRouteEvents = sessionEventTypeCount("router_route_decision");
+      return {
+        pass: Boolean(
+          dryRun.dry_run === true &&
+            dryRun.invokes_claude === false &&
+            dryRun.writes_route_event === false &&
+            dryRun.lifecycle_applied === false &&
+            dryRun.route_decision?.selected_path === "claude_consult_existing_session" &&
+            Array.isArray(dryRun.top_session_candidates) &&
+            afterRouteEvents === beforeRouteEvents
+        ),
+        details: {
+          route_decision: dryRun.route_decision,
+          top_session_candidates: dryRun.top_session_candidates,
+          before_route_events: beforeRouteEvents,
+          after_route_events: afterRouteEvents
+        }
+      };
+    });
+
     if (mode === "stub") {
       let flakySessionId = null;
       const sessionUpdateSuccessTopic = "session update success workload";
@@ -632,6 +663,7 @@ function hasTools(toolNames) {
     "claude_session_inspect",
     "claude_consult",
     "router_consult",
+    "router_dry_run",
     "claude_session_archive",
     "claude_router_reset",
     "router_status",
@@ -760,6 +792,19 @@ function sessionEvents(sessionId) {
          ORDER BY id`
       )
       .all(sessionId);
+  } finally {
+    db.close();
+  }
+}
+
+function sessionEventTypeCount(eventType) {
+  if (!existsSync(dbPath)) {
+    return 0;
+  }
+  const db = new Database(dbPath, { readonly: true });
+  try {
+    const row = db.prepare("SELECT COUNT(*) AS count FROM session_events WHERE event_type = ?").get(eventType);
+    return row?.count ?? 0;
   } finally {
     db.close();
   }

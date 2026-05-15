@@ -71,6 +71,10 @@ const routerConsultInput = z.object({
   tool_profile: z.enum(["bare", "focused", "agent"]).nullable().optional()
 });
 
+const routerDryRunInput = routerConsultInput.extend({
+  candidate_limit: z.number().int().min(1).max(10).default(5)
+});
+
 const archiveInput = z.object({
   project_id: z.string().nullable().optional(),
   session_id: z.string(),
@@ -212,7 +216,8 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
     "claude_sessions_list",
     {
       title: "List Claude sessions",
-      description: "Returns known Claude sessions for a project.",
+      description:
+        "[OBSERVE] Returns known Claude sessions for a project without invoking Claude. Use for routing/debug visibility, not as the normal answer path.",
       inputSchema: sessionsListInput
     },
     async (input) => {
@@ -236,7 +241,8 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
     "claude_session_inspect",
     {
       title: "Inspect Claude session",
-      description: "Returns the full registry view of a session without invoking Claude.",
+      description:
+        "[OBSERVE] Returns the full registry view of a session without invoking Claude. Use to inspect memory, metadata, and recent events.",
       inputSchema: sessionInspectInput
     },
     async (input) => {
@@ -269,7 +275,7 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
     {
       title: "Consult Claude",
       description:
-        "Calls Claude in an auto-routed or selected persistent session. For better routing, provide topic_hint, related_files, tags, and task_type when the parent agent knows them. Missing metadata is allowed; the router records low metadata quality and still returns an answer.",
+        "[ANSWER EXPERT] Calls Claude in an auto-routed or selected persistent session. Prefer router_consult as the default answer entry point. Use claude_consult directly when the caller intentionally wants v1 durable-session reasoning. For better routing, provide topic_hint, related_files, tags, and task_type when the parent agent knows them. Missing metadata is allowed; the router records low metadata quality and still returns an answer.",
       inputSchema: consultInput
     },
     async (input) => {
@@ -296,7 +302,7 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
     {
       title: "Conservative router consult",
       description:
-        "Recommended parent-agent entry point. Chooses explicit cluster_consult, explicit/exact/high-confidence session reuse, router-disambiguated low-confidence reuse, or a new durable session, and records the route decision. Strongly recommended routing hints: topic_hint (3-10 word domain phrase), related_files (paths currently relevant to the question), tags (stable domain tags), and task_type. These hints improve matching but are not required; missing hints become route_health metadata telemetry, not caller-facing errors.",
+        "[ANSWER DEFAULT] Main answer entry point for parent agents. Chooses explicit cluster_consult, explicit/exact/high-confidence session reuse, router-disambiguated low-confidence reuse, or a new durable session, and records the route decision. Strongly recommended routing hints: topic_hint (3-10 word domain phrase), related_files (paths currently relevant to the question), tags (stable domain tags), and task_type. These hints improve matching but are not required; missing hints become route_health metadata telemetry, not caller-facing errors.",
       inputSchema: routerConsultInput
     },
     async (input) => {
@@ -359,10 +365,46 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
   );
 
   server.registerTool(
+    "router_dry_run",
+    {
+      title: "Dry-run router decision",
+      description:
+        "[OBSERVE] Previews the router_consult decision without invoking Claude, creating sessions, applying lifecycle changes, or writing route events. Use to debug routing and calibration before a real answer call.",
+      inputSchema: routerDryRunInput
+    },
+    async (input) => {
+      const projectId = resolveProjectId(input.project_id, runtime.cwd);
+      const normalizedInput = normalizeRouterConsultInput(input);
+      const decision = resolveRouterConsultDecision(runtime, projectId, normalizedInput);
+      const topSessionCandidates = buildRouterDryRunCandidates(
+        runtime,
+        projectId,
+        normalizedInput,
+        input.candidate_limit ?? 5
+      );
+
+      return jsonToolResult({
+        project_id: projectId,
+        checked_at: runtime.clock.nowIso(),
+        dry_run: true,
+        invokes_claude: false,
+        writes_route_event: false,
+        lifecycle_applied: false,
+        route_decision: decision,
+        top_session_candidates: topSessionCandidates,
+        notes: [
+          "This is an observe-only preview. Use router_consult to execute the selected answer path.",
+          "Lifecycle transitions are intentionally not applied during dry-run, so stale active/dormant status may differ from a real router_consult after lifecycle cleanup."
+        ]
+      });
+    }
+  );
+
+  server.registerTool(
     "claude_session_archive",
     {
       title: "Archive Claude session",
-      description: "Archives a session manually.",
+      description: "[MAINTAIN] Archives a durable Claude session. Maintenance/debug path, not a normal answer path.",
       inputSchema: archiveInput
     },
     async (input) => {
@@ -409,7 +451,8 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
     "claude_router_reset",
     {
       title: "Reset Claude router",
-      description: "Exits degraded mode only after a successful health probe.",
+      description:
+        "[MAINTAIN] Exits degraded mode only after a successful Claude health probe. Maintenance/debug path, not a normal answer path.",
       inputSchema: routerResetInput
     },
     async (input) => {
@@ -439,7 +482,8 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
     "router_status",
     {
       title: "Router status",
-      description: "Returns aggregate router health, stale cluster, recent error, and shadow eval status.",
+      description:
+        "[OBSERVE] Returns aggregate router health, stale cluster, recent error, and shadow eval status without invoking Claude.",
       inputSchema: routerStatusInput
     },
     async (input) => {
@@ -518,7 +562,7 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
     {
       title: "Router monitor",
       description:
-        "Returns an operator-facing information monitor: quality stats, cache health, shadow eval health, recommendations, and next directions.",
+        "[OBSERVE] Information monitor for agents: quality stats, cache health, shadow eval health, recommendations, and next directions without invoking Claude.",
       inputSchema: routerMonitorInput
     },
     async (input) => {
@@ -700,7 +744,7 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
     {
       title: "Prepare cluster factsheet",
       description:
-        "Stores a static_verified factsheet, or runs no-tools LLM verification when verification_mode is llm.",
+        "[MAINTAIN] Stores a static_verified factsheet, or runs no-tools LLM verification when verification_mode is llm. Maintenance path for creating/updating cache evidence.",
       inputSchema: clusterPrepareInput
     },
     async (input) => {
@@ -777,7 +821,8 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
     "cluster_get",
     {
       title: "Get cluster",
-      description: "Returns cluster metadata and the current static_verified or llm_verified factsheet without invoking Claude.",
+      description:
+        "[OBSERVE] Returns cluster metadata and the current static_verified or llm_verified factsheet without invoking Claude.",
       inputSchema: clusterGetInput
     },
     async (input) => {
@@ -816,7 +861,8 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
     "cluster_consult",
     {
       title: "Consult cluster",
-      description: "Consults Claude with a verified cluster factsheet inline. Fork support is not implemented in this phase.",
+      description:
+        "[ANSWER EXPERT] Consults Claude with a verified cluster factsheet inline. Prefer router_consult unless the caller intentionally wants this exact cluster path. Revalidates/falls back internally so caller still receives an answer when Claude is available.",
       inputSchema: clusterConsultInput
     },
     async (input) => {
@@ -863,7 +909,8 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
     "comparison_stats",
     {
       title: "Comparison stats",
-      description: "Returns shadow comparison win/loss/tie aggregates by cluster.",
+      description:
+        "[OBSERVE] Returns shadow comparison win/loss/tie aggregates by cluster without invoking Claude.",
       inputSchema: comparisonStatsInput
     },
     async (input) => {
@@ -879,7 +926,8 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
     "comparison_list",
     {
       title: "List comparisons",
-      description: "Lists recent shadow comparison records for a project.",
+      description:
+        "[OBSERVE] Lists recent shadow comparison records for a project. Include answers only when debugging quality cases.",
       inputSchema: comparisonListInput
     },
     async (input) => {
@@ -912,7 +960,7 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
     {
       title: "Process pending comparisons",
       description:
-        "Runs direct baseline and/or judge for pending or ok-unjudged shadow comparison rows. Operator tool; may invoke Claude.",
+        "[EVAL DEBUG] Runs direct baseline and/or judge for pending or ok-unjudged shadow comparison rows. May invoke Claude. Evaluation maintenance path, not a normal answer path.",
       inputSchema: comparisonProcessPendingInput
     },
     async (input) => {
@@ -978,7 +1026,7 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
     {
       title: "Rejudge comparisons",
       description:
-        "Re-runs the judge for already judged shadow comparison rows using current judge policy and current cluster factsheet ground truth.",
+        "[EVAL DEBUG] Re-runs the judge for already judged shadow comparison rows using current judge policy and current cluster factsheet ground truth. May invoke Claude; not a normal answer path.",
       inputSchema: comparisonRejudgeInput
     },
     async (input) => {
@@ -1053,7 +1101,8 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
     "cluster_refresh",
     {
       title: "Refresh cluster",
-      description: "Revalidates the latest cluster factsheet by checking scoped evidence file hashes and selectors.",
+      description:
+        "[MAINTAIN] Manually revalidates the latest cluster factsheet by checking scoped evidence file hashes and selectors. Normal cluster_consult/router_consult calls already revalidate/fallback internally.",
       inputSchema: clusterRefreshInput
     },
     async (input) => {
@@ -1078,7 +1127,7 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
     "cluster_list",
     {
       title: "List clusters",
-      description: "Lists cluster cache entries for a project without invoking Claude.",
+      description: "[OBSERVE] Lists cluster cache entries for a project without invoking Claude.",
       inputSchema: clusterListInput
     },
     async (input) => {
@@ -1112,7 +1161,8 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
     "cluster_archive",
     {
       title: "Archive cluster",
-      description: "Archives a cluster cache entry so router_monitor stops treating it as active.",
+      description:
+        "[MAINTAIN] Archives a cluster cache entry so router_monitor stops treating it as active. Maintenance/debug path, not a normal answer path.",
       inputSchema: clusterArchiveInput
     },
     async (input) => {
@@ -1323,6 +1373,48 @@ function resolveRouterConsultDecision(
     metadata_quality: input.metadata_quality,
     auto_cluster_routing: "disabled_read_only"
   };
+}
+
+function buildRouterDryRunCandidates(
+  runtime: RouterRuntime,
+  projectId: string,
+  input: RouterConsultNormalizedInput,
+  limit: number
+): Array<{
+  rank: number;
+  session_id: string;
+  topic: string;
+  status: string;
+  score: number;
+  reason: string;
+  exact_topic_match: boolean;
+  files_discussed_count: number;
+  tags_count: number;
+}> {
+  const sessions = runtime.db.listMatchCandidates(projectId, false);
+  const matchInput = {
+    topicHint: input.topic_hint,
+    task: input.task,
+    relevantCode: input.relevant_code,
+    question: input.question,
+    relatedFiles: input.related_files,
+    tags: input.tags,
+    taskType: input.task_type
+  };
+  const topicKey = normalizeTopicKey(input.topic_hint);
+  return rankSessionMatches(sessions, matchInput)
+    .slice(0, limit)
+    .map((ranked, index) => ({
+      rank: index + 1,
+      session_id: ranked.session.id,
+      topic: ranked.session.topic,
+      status: ranked.session.status,
+      score: round2(ranked.score),
+      reason: ranked.reason,
+      exact_topic_match: normalizeTopicKey(ranked.session.topic) === topicKey,
+      files_discussed_count: ranked.session.files_discussed.length,
+      tags_count: ranked.session.tags.length
+    }));
 }
 
 function logRouterRouteDecision(

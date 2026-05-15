@@ -2,12 +2,14 @@
 
 ## Current Operator Baseline
 
-As of 2026-05-15, the production MCP baseline is:
+As of 2026-05-16, the production MCP baseline is:
 
 - code pushed on `master`; use `git log -1 --oneline` for the latest commit
-- public MCP tools: 18
-- tests: `97 passed`
+- public MCP tools: 19
+- tests: `98 passed`
 - build: passing
+- MCP workload matrix: `23/23` stub checks, including observe-only
+  `router_dry_run`
 - shadow eval: `118/118` judged, `0` pending, `0` failed
 - active benchmark clusters: 1 (`agentsessionrouter-codebase`)
 - archived superseded benchmark clusters: 10
@@ -37,6 +39,22 @@ As of 2026-05-15, the production MCP baseline is:
 Use `router_monitor` as the first diagnostic entry point. Treat its output as
 the information monitor for what works, what fails, why it failed, and what to
 inspect next.
+
+## v2.7 Observe-Only Routing Snapshot
+
+Verified on 2026-05-16:
+
+- public MCP surface has 19 tools
+- every tool description starts with a tier label:
+  `[ANSWER DEFAULT]`, `[ANSWER EXPERT]`, `[OBSERVE]`, `[MAINTAIN]`, or
+  `[EVAL DEBUG]`
+- `router_dry_run` previews the same conservative route decision used by
+  `router_consult`
+- `router_dry_run` must not invoke Claude, create sessions, apply lifecycle
+  changes, or write `router_route_decision`
+- tests: `98 passed`
+- build: passing
+- workload matrix: `23/23` stub checks
 
 ## v2.6 Metadata-Rich Routing Snapshot
 
@@ -124,6 +142,11 @@ does not mean automatic routing is enabled.
 ## Consultation Routing Invariant
 
 The normal parent-agent entry point is `router_consult`.
+
+Use `router_dry_run` only as an observe/debug preview. It should answer the
+question "where would the router send this request?" without invoking Claude,
+creating sessions, applying lifecycle changes, or writing route events. The
+real answer path remains `router_consult`.
 
 Operational rule:
 

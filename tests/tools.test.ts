@@ -254,6 +254,61 @@ describe("cluster MCP tools", () => {
     fixture.cleanup();
   });
 
+  it("previews router_consult routing without invoking Claude or writing route events", async () => {
+    const fixture = createToolFixture();
+    const server = new FakeServer();
+    registerTools(server as unknown as McpServer, fixture.runtime);
+    fixture.runtime.db.createSession({
+      id: "existing-session",
+      projectId: "project",
+      claudeSessionId: "claude-existing-session",
+      topic: "project roadmap",
+      dormantAfterDays: 30,
+      archiveAfterDays: 90
+    });
+
+    const result = parseToolJson(
+      await server.call("router_dry_run", {
+        project_id: "project",
+        topic_hint: "project roadmap",
+        related_files: ["README.md"],
+        tags: ["roadmap"],
+        task_type: "planning",
+        question: "What should the AgentSessionRouter project do next after the current release?",
+        candidate_limit: 3
+      })
+    );
+    const monitor = parseToolJson(
+      await server.call("router_monitor", {
+        project_id: "project",
+        recent_hours: 24,
+        sample_limit: 10
+      })
+    );
+    const inspection = fixture.runtime.db.inspectSession("existing-session", 10);
+
+    expect(result).toMatchObject({
+      project_id: "project",
+      dry_run: true,
+      invokes_claude: false,
+      writes_route_event: false,
+      lifecycle_applied: false,
+      route_decision: {
+        selected_path: "claude_consult_existing_session",
+        session_id: "existing-session",
+        match_score: 1
+      }
+    });
+    expect(result.top_session_candidates[0]).toMatchObject({
+      rank: 1,
+      session_id: "existing-session",
+      exact_topic_match: true
+    });
+    expect(monitor.route_health.decision_counts).toEqual([]);
+    expect(inspection?.recentEvents).toEqual([]);
+    fixture.cleanup();
+  });
+
   it("surfaces router_consult route decisions in router_monitor", async () => {
     const fixture = createToolFixture();
     const server = new FakeServer();
