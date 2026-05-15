@@ -22,7 +22,7 @@ import { diagnoseClaudeFailure, errorPayload, SPEC_ERROR_MESSAGES } from "./erro
 import { pickProfile, type ProfileSelection } from "./profiles.js";
 import { resolveProjectId } from "./project.js";
 import type { RouterRuntime } from "./runtime.js";
-import { scheduleShadowComparison } from "./shadowEval.js";
+import { completeShadowComparison, scheduleShadowComparison } from "./shadowEval.js";
 import { jsonToolResult } from "./toolResult.js";
 
 const sessionsListInput = z.object({
@@ -157,6 +157,12 @@ const comparisonListInput = z.object({
   preferred: comparisonPreferredInput.nullable().optional(),
   include_answers: z.boolean().default(false),
   limit: z.number().int().min(1).max(100).default(20)
+});
+
+const comparisonProcessPendingInput = z.object({
+  project_id: z.string().nullable().optional(),
+  cluster_id: z.string().nullable().optional(),
+  limit: z.number().int().min(1).max(20).default(5)
 });
 
 export function registerTools(server: McpServer, runtime: RouterRuntime): void {
@@ -722,6 +728,72 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
       return jsonToolResult({
         project_id: projectId,
         comparisons
+      });
+    }
+  );
+
+  server.registerTool(
+    "comparison_process_pending",
+    {
+      title: "Process pending comparisons",
+      description:
+        "Runs direct baseline and/or judge for pending or ok-unjudged shadow comparison rows. Operator tool; may invoke Claude.",
+      inputSchema: comparisonProcessPendingInput
+    },
+    async (input) => {
+      const projectId = resolveProjectId(input.project_id, runtime.cwd);
+      if (runtime.degradedMode) {
+        const diagnosis = diagnoseClaudeFailure(runtime.degradedReason);
+        return jsonToolResult(
+          errorPayload(ERROR_CODES.CLAUDE_INCOMPATIBLE, SPEC_ERROR_MESSAGES[ERROR_CODES.CLAUDE_INCOMPATIBLE], {
+            reason: diagnosis.reason,
+            category: diagnosis.category,
+            operator_action: diagnosis.operator_action
+          }),
+          true
+        );
+      }
+
+      const rows = runtime.db.listUnjudgedConsultComparisons({
+        projectId,
+        clusterId: input.cluster_id,
+        limit: input.limit ?? 5
+      });
+      const processed: Array<{
+        id: string;
+        cluster_id: string | null;
+        before_status: string;
+        after_status?: string | null;
+        judged_at?: string | null;
+        error?: string;
+      }> = [];
+
+      for (const row of rows) {
+        try {
+          await completeShadowComparison(runtime, row.id);
+          const updated = runtime.db.getConsultComparison(row.id);
+          processed.push({
+            id: row.id,
+            cluster_id: row.cluster_id,
+            before_status: row.shadow_status,
+            after_status: updated?.shadow_status ?? null,
+            judged_at: updated?.judged_at ?? null
+          });
+        } catch (error: unknown) {
+          processed.push({
+            id: row.id,
+            cluster_id: row.cluster_id,
+            before_status: row.shadow_status,
+            error: error instanceof Error ? error.message : String(error)
+          });
+        }
+      }
+
+      return jsonToolResult({
+        project_id: projectId,
+        requested_limit: input.limit ?? 5,
+        processed_count: processed.length,
+        processed
       });
     }
   );

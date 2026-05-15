@@ -1027,6 +1027,29 @@ export class RouterDatabase {
       .all(...params) as ConsultComparisonRecord[];
   }
 
+  listUnjudgedConsultComparisons(input: {
+    projectId: string;
+    clusterId?: string | null;
+    limit: number;
+  }): ConsultComparisonRecord[] {
+    const conditions = ["project_id = ?", "judged_at IS NULL", "shadow_status IN ('pending', 'ok')"];
+    const params: Array<string | number | null> = [input.projectId];
+    if (input.clusterId) {
+      conditions.push("cluster_id = ?");
+      params.push(input.clusterId);
+    }
+    params.push(input.limit);
+    return this.db
+      .prepare(
+        `SELECT *
+         FROM consult_comparisons
+         WHERE ${conditions.join(" AND ")}
+         ORDER BY created_at ASC
+         LIMIT ?`
+      )
+      .all(...params) as ConsultComparisonRecord[];
+  }
+
   getConsultComparisonStats(projectId: string, clusterId?: string | null): ConsultComparisonStats[] {
     const conditions = ["project_id = ?", "judged_at IS NOT NULL"];
     const params: Array<string | number | null> = [projectId];

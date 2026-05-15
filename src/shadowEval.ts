@@ -70,35 +70,41 @@ function insertComparison(
   });
 }
 
-async function completeShadowComparison(runtime: RouterRuntime, comparisonId: string): Promise<void> {
-  const comparison = runtime.db.getConsultComparison(comparisonId);
+export async function completeShadowComparison(runtime: RouterRuntime, comparisonId: string): Promise<void> {
+  let comparison = runtime.db.getConsultComparison(comparisonId);
   if (!comparison) {
     return;
   }
-
-  let directResponse: ClaudeJsonResponse;
-  const directStarted = runtime.clock.nowMillis();
-  try {
-    directResponse = await runtime.claude.runPrompt(buildDirectFreshPrompt(runtime.cwd, comparison.question));
-  } catch (error: unknown) {
-    runtime.db.updateConsultComparisonDirect({
-      id: comparison.id,
-      status: classifyShadowFailure(error),
-      shadowError: error instanceof Error ? error.message : String(error),
-      directDurationMs: runtime.clock.nowMillis() - directStarted
-    });
+  if (comparison.judged_at) {
     return;
   }
 
-  runtime.db.updateConsultComparisonDirect({
-    id: comparison.id,
-    status: "ok",
-    directAnswer: directResponse.result,
-    directDurationMs: runtime.clock.nowMillis() - directStarted,
-    directCostUsd: directResponse.totalCostUsd ?? null
-  });
+  if (comparison.shadow_status !== "ok" || !comparison.direct_answer) {
+    let directResponse: ClaudeJsonResponse;
+    const directStarted = runtime.clock.nowMillis();
+    try {
+      directResponse = await runtime.claude.runPrompt(buildDirectFreshPrompt(runtime.cwd, comparison.question));
+    } catch (error: unknown) {
+      runtime.db.updateConsultComparisonDirect({
+        id: comparison.id,
+        status: classifyShadowFailure(error),
+        shadowError: error instanceof Error ? error.message : String(error),
+        directDurationMs: runtime.clock.nowMillis() - directStarted
+      });
+      return;
+    }
 
-  const readyComparison = runtime.db.getConsultComparison(comparison.id);
+    runtime.db.updateConsultComparisonDirect({
+      id: comparison.id,
+      status: "ok",
+      directAnswer: directResponse.result,
+      directDurationMs: runtime.clock.nowMillis() - directStarted,
+      directCostUsd: directResponse.totalCostUsd ?? null
+    });
+    comparison = runtime.db.getConsultComparison(comparison.id);
+  }
+
+  const readyComparison = comparison;
   if (!readyComparison?.cluster_answer || !readyComparison.direct_answer) {
     return;
   }
