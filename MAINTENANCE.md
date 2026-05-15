@@ -38,6 +38,51 @@ Use `router_monitor` as the first diagnostic entry point. Treat its output as
 the information monitor for what works, what fails, why it failed, and what to
 inspect next.
 
+## v2.6 Metadata-Rich Routing Snapshot
+
+Verified on 2026-05-15:
+
+- tag `v2.6` is pushed to GitHub and points at the current production commit
+- tests: `97 passed`
+- build: passing
+- git diff: clean before this documentation snapshot
+
+Capabilities:
+
+- [x] Session router with persistent memory, validated by continuity benchmark
+  (`3.00` durable/session-routed memory score vs `0.67` fresh-each-turn
+  baseline in the original continuity run)
+- [x] Cluster cache with verified factsheets (`3.00` on factual lookup in the
+  covered codebase cluster, about `23%` of direct-resume cost in the benchmark)
+- [x] Routing disambiguation with conservative safety: exact/high-confidence
+  reuse, low-confidence reuse only with clear gap, otherwise new durable
+  session instead of guessing
+- [x] Self-monitoring with recommendations through `router_monitor`
+- [x] Metadata-aware scoring with observability through optional
+  `topic_hint`, `related_files`, `tags`, and `task_type`
+- [x] Calibration tooling with post-feature filtering:
+  `npm run route:calibration -- --metadata-only`
+
+Known properties:
+
+- [x] Caller should not receive router-internal cache/revalidation errors when
+  the router can answer through a fallback path
+- [x] Honest refusal (`NOT IN CONTEXT`) is preserved as an audit signal and is
+  not treated as a coverage failure when the judged answer quality is high
+- [x] Operator can observe metadata-quality trends through
+  `router_monitor.route_health.metadata_quality`
+- [x] Router can advise about its own state through `router_monitor`
+  recommendations and next directions
+
+Open questions requiring real usage:
+
+- [open] Optimal scoring weights across larger and more diverse session
+  distributions
+- [open] Effectiveness of generic-tag filtering in real caller behavior
+- [open] Long-term scoring drift as sessions, aliases, files, and tags
+  accumulate
+- [open] Production frequency of cluster `needs_prepare` and fallback events
+
 Current follow-up priorities:
 
 1. Keep targeted `SESSION_UPDATE_JSON` coverage separate from answer-quality
