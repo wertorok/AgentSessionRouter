@@ -4,7 +4,7 @@
 
 As of 2026-05-15, the production MCP baseline is:
 
-- code pushed on `master` through commit `2a15bc0`
+- code pushed on `master`; use `git log -1 --oneline` for the latest commit
 - public MCP tools: 17
 - tests: `81 passed`
 - build: passing
@@ -35,6 +35,24 @@ Current follow-up priorities:
    response path.
 3. Use monitor data for the next real decision. Do not add fork/distill work
    until monitor shows latency/cost or coverage as the actual bottleneck.
+
+## Monitor Signal Filtering Invariants
+
+`NOT IN CONTEXT` is an audit signal, not automatically a coverage failure.
+
+Operational rule:
+
+- `NOT IN CONTEXT` with a high judge score (`cluster_score >= 2`) means a
+  useful answer included an honest caveat. Do not count it as a coverage
+  problem, do not surface it as a coverage recommendation, and do not use it as
+  a factsheet-expansion trigger.
+- `NOT IN CONTEXT` with no judge result yet, or with low score
+  (`cluster_score <= 1`), is a real coverage signal. Surface it in
+  `router_monitor.quality.not_in_context_samples` and use it to decide whether
+  to expand the factsheet, split the cluster, or route that question type to
+  `claude_consult`.
+- This distinction must stay in `router_monitor` and DB monitor aggregation.
+  Do not regress to raw substring counting of `NOT IN CONTEXT`.
 
 ## Cluster Factsheet Re-Prepare
 
