@@ -231,6 +231,26 @@ Current threshold provenance:
   `threshold_low_confidence` to `0.50` increased disambiguated reuse; raising it
   to `0.60` kept the ambiguous cases forced-new.
 
+Current scoring provenance:
+
+- The weighted score is a deterministic heuristic, not an LLM judgment:
+  `0.30 * topic_similarity + 0.25 * files_overlap + 0.20 * tags_overlap +
+  0.15 * aliases_overlap + 0.10 * recency_score`.
+- These weights are engineering defaults from v1. They are transparent and
+  testable, but they are not calibrated against a labeled production-routing
+  dataset yet.
+- Treat current routing as safe-conservative, not optimal. The router is
+  designed to avoid wrong-session reuse and may create extra sessions until
+  enough real route data exists for calibration.
+- Do not claim that a high fuzzy score is objectively correct. It means the
+  metadata heuristic found overlap. Correctness must be checked through
+  `route_health`, follow-up behavior, collision reports, and eventually a
+  labeled routing calibration set.
+- Calibration should wait for real usage: collect route decisions, inspect cases
+  with `candidate_gap < 0.15`, label whether the chosen session was actually
+  correct, then compare alternative weights. Do not tune weights on synthetic
+  examples only.
+
 Determinism rule:
 
 - With unchanged registry state, exact/high-confidence/disambiguated routes are

@@ -134,4 +134,8 @@ Do not infer fuzzy-routing quality from `router_exact_topic`; exact topic reuse
 is the easy case and does not prove the router can disambiguate overlapping
 topics.
 
+Do not treat match scores as calibrated relevance probabilities. They are
+deterministic weighted metadata scores. Use them as routing telemetry, then
+validate suspicious cases through route samples and real follow-up behavior.
+
 Run `npm run monitor:snapshot` daily or before/after larger router changes to keep a comparable JSON trail of `router_status` and `router_monitor`.

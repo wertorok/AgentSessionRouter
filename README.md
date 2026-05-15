@@ -1008,6 +1008,12 @@ score >= 0.70                         -> reuse session
 score < 0.55                          -> create new session
 ```
 
+The score is a deterministic metadata heuristic, not an AI judgment. The
+weights are transparent engineering defaults from v1 and are not yet calibrated
+against a labeled production-routing dataset. Treat them as safe-conservative
+routing signals: useful for avoiding obvious wrong-session reuse, not proof that
+the top fuzzy match is semantically optimal.
+
 Additional hardening:
 
 - Exact normalized topic matches are reused before weighted scoring.
