@@ -64,7 +64,7 @@ function insertComparison(
     question: input.question,
     clusterAnswer: input.clusterResult.answer,
     clusterDurationMs: input.clusterResult.metrics.duration_ms,
-    clusterCostUsd: null,
+    clusterCostUsd: input.clusterResult.metrics.cost_usd ?? null,
     clusterWasNotInContext: /NOT IN CONTEXT/i.test(input.clusterResult.answer),
     shadowMethod: "direct_fresh"
   });
@@ -95,7 +95,7 @@ async function completeShadowComparison(runtime: RouterRuntime, comparisonId: st
     status: "ok",
     directAnswer: directResponse.result,
     directDurationMs: runtime.clock.nowMillis() - directStarted,
-    directCostUsd: null
+    directCostUsd: directResponse.totalCostUsd ?? null
   });
 
   const readyComparison = runtime.db.getConsultComparison(comparison.id);

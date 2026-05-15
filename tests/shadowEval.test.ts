@@ -26,6 +26,8 @@ describe("shadow comparison eval", () => {
 
     expect(comparison.shadow_status).toBe("ok");
     expect(comparison.direct_answer).toBe("Direct answer.");
+    expect(comparison.cluster_cost_usd).toBe(0.007);
+    expect(comparison.direct_cost_usd).toBe(0.011);
     expect(comparison.cluster_score).toBeGreaterThanOrEqual(2);
     expect(comparison.direct_score).toBeGreaterThanOrEqual(2);
     expect(["cluster", "direct", "tie"]).toContain(comparison.preferred);
@@ -89,7 +91,8 @@ class FakeClaude implements ClaudeAdapter {
       sessionId: "direct-session",
       result: "Direct answer.",
       tokensIn: 10,
-      tokensOut: 5
+      tokensOut: 5,
+      totalCostUsd: 0.011
     };
   }
 
@@ -163,7 +166,8 @@ function clusterResult(answer: string, durationMs: number): ClusterConsultSucces
     metrics: {
       duration_ms: durationMs,
       tokens_in: 1,
-      tokens_out: 1
+      tokens_out: 1,
+      cost_usd: 0.007
     }
   };
 }
