@@ -1050,6 +1050,39 @@ export class RouterDatabase {
       .all(...params) as ConsultComparisonRecord[];
   }
 
+  listJudgedConsultComparisons(input: {
+    projectId: string;
+    clusterId?: string | null;
+    preferred?: ComparisonPreference | null;
+    judgeReasoningContains?: string | null;
+    limit: number;
+  }): ConsultComparisonRecord[] {
+    const conditions = ["project_id = ?", "judged_at IS NOT NULL"];
+    const params: Array<string | number | null> = [input.projectId];
+    if (input.clusterId) {
+      conditions.push("cluster_id = ?");
+      params.push(input.clusterId);
+    }
+    if (input.preferred) {
+      conditions.push("preferred = ?");
+      params.push(input.preferred);
+    }
+    if (input.judgeReasoningContains) {
+      conditions.push("judge_reasoning LIKE ?");
+      params.push(`%${input.judgeReasoningContains}%`);
+    }
+    params.push(input.limit);
+    return this.db
+      .prepare(
+        `SELECT *
+         FROM consult_comparisons
+         WHERE ${conditions.join(" AND ")}
+         ORDER BY created_at DESC
+         LIMIT ?`
+      )
+      .all(...params) as ConsultComparisonRecord[];
+  }
+
   getConsultComparisonStats(projectId: string, clusterId?: string | null): ConsultComparisonStats[] {
     const conditions = ["project_id = ?", "judged_at IS NOT NULL"];
     const params: Array<string | number | null> = [projectId];

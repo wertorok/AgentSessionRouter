@@ -16,6 +16,7 @@ describe("shadow comparison eval", () => {
   it("runs direct fresh, judges blind answers, and stores decoded scores", async () => {
     const claude = new FakeClaude();
     const fixture = createShadowFixture(claude);
+    insertFactsheet(fixture.runtime.db);
 
     const comparison = await runShadowComparison(fixture.runtime, {
       projectId: "project",
@@ -34,6 +35,8 @@ describe("shadow comparison eval", () => {
     expect(comparison.judged_at).toBe("2026-05-13T00:00:00.000Z");
     expect(claude.judgeOptions?.extraArgs).toEqual(["--tools", ""]);
     expect(claude.judgeOptions?.includeConfiguredExtraArgs).toBe(false);
+    expect(claude.judgePrompt).toContain("Verified cluster factsheet ground truth");
+    expect(claude.judgePrompt).toContain("The bare profile uses --bare --tools");
     fixture.cleanup();
   });
 
@@ -115,6 +118,7 @@ describe("shadow comparison eval", () => {
 
 class FakeClaude implements ClaudeAdapter {
   judgeOptions: ClaudePromptOptions | undefined;
+  judgePrompt = "";
   judgeAttempts = 0;
 
   constructor(private readonly options: { failDirect?: boolean; invalidJudgeResponses?: number } = {}) {}
@@ -136,8 +140,9 @@ class FakeClaude implements ClaudeAdapter {
     };
   }
 
-  async runPromptWithOptions(_prompt: string, options: ClaudePromptOptions): Promise<ClaudeJsonResponse> {
+  async runPromptWithOptions(prompt: string, options: ClaudePromptOptions): Promise<ClaudeJsonResponse> {
     this.judgeOptions = options;
+    this.judgePrompt = prompt;
     this.judgeAttempts += 1;
     if (this.judgeAttempts <= (this.options.invalidJudgeResponses ?? 0)) {
       return {
@@ -195,6 +200,30 @@ class NoopLogger implements Logger {
   info(): void {}
   warn(): void {}
   error(): void {}
+}
+
+function insertFactsheet(db: RouterDatabase): void {
+  db.upsertCluster({
+    id: "router-ops",
+    projectId: "project",
+    name: "Router ops",
+    toolProfileDefault: "bare"
+  });
+  db.insertClusterFactsheet({
+    id: "factsheet-1",
+    clusterId: "router-ops",
+    status: "llm_verified",
+    trustState: "llm_verified",
+    contentJson: JSON.stringify({
+      facts: [
+        {
+          id: "bare-profile",
+          claim: "The bare profile uses --bare --tools \"\"."
+        }
+      ]
+    }),
+    fileHashes: []
+  });
 }
 
 function clusterResult(answer: string, durationMs: number): ClusterConsultSuccess {

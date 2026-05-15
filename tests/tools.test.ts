@@ -693,6 +693,79 @@ describe("cluster MCP tools", () => {
     fixture.cleanup();
   });
 
+  it("rejudges stored comparisons through MCP tool", async () => {
+    const fixture = createToolFixture(
+      new FakeClaude(
+        JSON.stringify({
+          answer_a_score: 3,
+          answer_a_errors: [],
+          answer_b_score: 2,
+          answer_b_errors: [],
+          preferred: "a",
+          reasoning: "A is stronger."
+        })
+      )
+    );
+    const server = new FakeServer();
+    registerTools(server as unknown as McpServer, fixture.runtime);
+    fixture.runtime.db.upsertCluster({
+      id: "router-ops",
+      projectId: "project",
+      name: "Router ops",
+      toolProfileDefault: "bare"
+    });
+    fixture.runtime.db.insertClusterFactsheet({
+      id: "factsheet-1",
+      clusterId: "router-ops",
+      status: "llm_verified",
+      trustState: "llm_verified",
+      contentJson: JSON.stringify({ facts: [{ id: "fact", claim: "Router monitor exists." }] }),
+      fileHashes: []
+    });
+    fixture.runtime.db.insertConsultComparison({
+      id: "cmp-rejudge",
+      projectId: "project",
+      clusterId: "router-ops",
+      question: "What exists?",
+      clusterAnswer: "Router monitor exists.",
+      clusterDurationMs: 10
+    });
+    fixture.runtime.db.updateConsultComparisonDirect({
+      id: "cmp-rejudge",
+      status: "ok",
+      directAnswer: "Search needed.",
+      directDurationMs: 20
+    });
+    fixture.runtime.db.updateConsultComparisonJudge({
+      id: "cmp-rejudge",
+      clusterScore: 1,
+      directScore: 3,
+      preferred: "direct",
+      clusterErrors: [],
+      directErrors: [],
+      judgeReasoning: "old policy"
+    });
+
+    const result = parseToolJson(
+      await server.call("comparison_rejudge", {
+        project_id: "project",
+        preferred: "direct",
+        limit: 1
+      })
+    );
+
+    expect(result.processed_count).toBe(1);
+    expect(result.processed[0]).toMatchObject({
+      id: "cmp-rejudge",
+      before_preferred: "direct",
+      before_cluster_score: 1,
+      before_direct_score: 3
+    });
+    expect(result.processed[0].error).toBeUndefined();
+    expect(["cluster", "direct"]).toContain(result.processed[0].after_preferred);
+    fixture.cleanup();
+  });
+
   it("returns aggregate router status with stale cluster and shadow eval warnings", async () => {
     const fixture = createToolFixture();
     const server = new FakeServer();

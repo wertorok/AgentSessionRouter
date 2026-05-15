@@ -165,6 +165,14 @@ const comparisonProcessPendingInput = z.object({
   limit: z.number().int().min(1).max(20).default(5)
 });
 
+const comparisonRejudgeInput = z.object({
+  project_id: z.string().nullable().optional(),
+  cluster_id: z.string().nullable().optional(),
+  preferred: comparisonPreferredInput.nullable().optional(),
+  judge_reasoning_contains: z.string().min(1).nullable().optional(),
+  limit: z.number().int().min(1).max(20).default(5)
+});
+
 export function registerTools(server: McpServer, runtime: RouterRuntime): void {
   const consultService = new ConsultService(runtime, runtime.locks);
 
@@ -784,6 +792,82 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
             id: row.id,
             cluster_id: row.cluster_id,
             before_status: row.shadow_status,
+            error: error instanceof Error ? error.message : String(error)
+          });
+        }
+      }
+
+      return jsonToolResult({
+        project_id: projectId,
+        requested_limit: input.limit ?? 5,
+        processed_count: processed.length,
+        processed
+      });
+    }
+  );
+
+  server.registerTool(
+    "comparison_rejudge",
+    {
+      title: "Rejudge comparisons",
+      description:
+        "Re-runs the judge for already judged shadow comparison rows using current judge policy and current cluster factsheet ground truth.",
+      inputSchema: comparisonRejudgeInput
+    },
+    async (input) => {
+      const projectId = resolveProjectId(input.project_id, runtime.cwd);
+      if (runtime.degradedMode) {
+        const diagnosis = diagnoseClaudeFailure(runtime.degradedReason);
+        return jsonToolResult(
+          errorPayload(ERROR_CODES.CLAUDE_INCOMPATIBLE, SPEC_ERROR_MESSAGES[ERROR_CODES.CLAUDE_INCOMPATIBLE], {
+            reason: diagnosis.reason,
+            category: diagnosis.category,
+            operator_action: diagnosis.operator_action
+          }),
+          true
+        );
+      }
+
+      const rows = runtime.db.listJudgedConsultComparisons({
+        projectId,
+        clusterId: input.cluster_id,
+        preferred: input.preferred ?? null,
+        judgeReasoningContains: input.judge_reasoning_contains ?? null,
+        limit: input.limit ?? 5
+      });
+      const processed: Array<{
+        id: string;
+        cluster_id: string | null;
+        before_preferred: string | null;
+        after_preferred?: string | null;
+        before_cluster_score: number | null;
+        after_cluster_score?: number | null;
+        before_direct_score: number | null;
+        after_direct_score?: number | null;
+        error?: string;
+      }> = [];
+
+      for (const row of rows) {
+        try {
+          await completeShadowComparison(runtime, row.id, { forceJudge: true });
+          const updated = runtime.db.getConsultComparison(row.id);
+          processed.push({
+            id: row.id,
+            cluster_id: row.cluster_id,
+            before_preferred: row.preferred,
+            after_preferred: updated?.preferred ?? null,
+            before_cluster_score: row.cluster_score,
+            after_cluster_score: updated?.cluster_score ?? null,
+            before_direct_score: row.direct_score,
+            after_direct_score: updated?.direct_score ?? null
+          });
+        } catch (error: unknown) {
+          processed.push({
+            id: row.id,
+            cluster_id: row.cluster_id,
+            before_preferred: row.preferred,
+            before_cluster_score: row.cluster_score,
+            before_direct_score: row.direct_score,
             error: error instanceof Error ? error.message : String(error)
           });
         }

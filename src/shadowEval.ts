@@ -70,12 +70,16 @@ function insertComparison(
   });
 }
 
-export async function completeShadowComparison(runtime: RouterRuntime, comparisonId: string): Promise<void> {
+export async function completeShadowComparison(
+  runtime: RouterRuntime,
+  comparisonId: string,
+  options: { forceJudge?: boolean } = {}
+): Promise<void> {
   let comparison = runtime.db.getConsultComparison(comparisonId);
   if (!comparison) {
     return;
   }
-  if (comparison.judged_at) {
+  if (comparison.judged_at && !options.forceJudge) {
     return;
   }
 
@@ -112,7 +116,12 @@ export async function completeShadowComparison(runtime: RouterRuntime, compariso
   const clusterIsA = Math.random() < 0.5;
   const answerA = clusterIsA ? readyComparison.cluster_answer : readyComparison.direct_answer;
   const answerB = clusterIsA ? readyComparison.direct_answer : readyComparison.cluster_answer;
-  const judgePrompt = buildJudgePrompt(readyComparison.question, answerA, answerB);
+  const judgePrompt = buildJudgePrompt(
+    readyComparison.question,
+    answerA,
+    answerB,
+    buildFactsheetGroundTruth(runtime, readyComparison.cluster_id)
+  );
   const judge = await runJudgeWithRetry(runtime, readyComparison.id, judgePrompt);
   const preferred = decodePreference(judge.preferred, clusterIsA);
 
@@ -163,9 +172,41 @@ function buildDirectFreshPrompt(cwd: string, question: string): string {
   ].join("\n");
 }
 
-function buildJudgePrompt(question: string, answerA: string, answerB: string): string {
+function buildFactsheetGroundTruth(runtime: RouterRuntime, clusterId: string | null): string | null {
+  if (!clusterId) {
+    return null;
+  }
+  const factsheet = runtime.db.getCurrentClusterFactsheet(clusterId) ?? runtime.db.getLatestClusterFactsheet(clusterId);
+  if (!factsheet) {
+    return null;
+  }
+  return truncateForPrompt(
+    JSON.stringify(
+      {
+        cluster_id: factsheet.cluster_id,
+        factsheet_id: factsheet.id,
+        factsheet_version: factsheet.version,
+        status: factsheet.status,
+        content: safeJsonParse(factsheet.content_json)
+      },
+      null,
+      2
+    ),
+    60_000
+  );
+}
+
+function buildJudgePrompt(question: string, answerA: string, answerB: string, groundTruth: string | null): string {
   return [
     "You are evaluating two answers to the same technical question about a software project.",
+    "",
+    "Use the verified cluster factsheet below as ground truth when it is provided.",
+    "If an answer makes a claim that is directly supported by the factsheet, treat it as verified even if the answer does not show its evidence.",
+    "Do not prefer a response that merely starts searching or asks to inspect files over a concise answer supported by the factsheet.",
+    "If a claim is not in the factsheet, mark it unsupported unless the answer explicitly says it is outside context.",
+    "",
+    "Verified cluster factsheet ground truth:",
+    groundTruth ?? "NOT PROVIDED",
     "",
     "Question:",
     question,
@@ -201,6 +242,21 @@ function buildJudgePrompt(question: string, answerA: string, answerB: string): s
       2
     )
   ].join("\n");
+}
+
+function safeJsonParse(source: string): unknown {
+  try {
+    return JSON.parse(source);
+  } catch {
+    return source;
+  }
+}
+
+function truncateForPrompt(source: string, maxChars: number): string {
+  if (source.length <= maxChars) {
+    return source;
+  }
+  return `${source.slice(0, maxChars)}\n...[truncated]`;
 }
 
 export function parseJudgeResponse(source: string): JudgeResult {
