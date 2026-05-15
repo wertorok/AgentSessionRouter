@@ -19,16 +19,19 @@ experiments/mcp-workload-<date>/
   stub-summary.md
   live-matrix.json
   live-summary.md
-  claude-code-report.md
 ```
 
-## Claude Code Parent-Agent Mode
+## Agent Boundary
 
-Claude Code is connected locally with:
+Claude Code helper agents are not part of the normal MCP client path. They are spawned workers/consultants; they should receive the project task and local file/Bash permissions needed for that task, not permanent access to AgentSessionRouter's MCP server.
+
+The production client path is:
 
 ```txt
-agent-session-router: node /root/projects/AgentSessionRouter/dist/src/index.js
+Codex/parent caller -> AgentSessionRouter MCP -> router internals -> Claude CLI when needed
 ```
+
+The workload matrix exercises AgentSessionRouter directly through the MCP SDK. This is intentional: it tests the application without leaking router internals into unrelated Claude Code agents.
 
 The project-local `router.config.toml` is intentionally gitignored and used only for this machine. It enables shadow telemetry and prevents recursive MCP loading inside the router's own `claude -p` calls:
 
@@ -40,19 +43,7 @@ shadow_mode = true
 extra_args = ["--tools", "", "--strict-mcp-config", "--mcp-config", '{"mcpServers":{}}']
 ```
 
-Under root, Claude Code refuses `bypassPermissions`; the working permission mode is `auto` with default tools, the connected MCP server, and an explicit CLI allowlist. This is the real executable mode for this host, not a no-permission dry run.
-
-Example parent-agent monitor workload:
-
-```bash
-claude -p \
-  --permission-mode auto \
-  --tools default \
-  --allowedTools "mcp__agent-session-router__router_monitor,mcp__agent-session-router__router_status,mcp__agent-session-router__cluster_list,mcp__agent-session-router__comparison_stats,mcp__agent-session-router__comparison_list,Bash(npm test:*),Write,mcp__filesystem__write_file" \
-  "Use router_monitor, router_status, cluster_list, comparison_stats, comparison_list, run npm test -- --run tests/tools.test.ts, and write the monitor report."
-```
-
-The broader Claude Code workload intentionally tried `cluster_consult` and `claude_consult` from inside Claude Code. Those calls reached the MCP server but timed out at Claude Code's MCP transport layer because they invoke nested Claude calls. The production consult paths are therefore covered by `npm run mcp:workload:live`, which uses the MCP SDK directly with longer tool-call timeouts. Claude Code is used as the parent-agent monitor and operator caller.
+If a one-off Claude Code integration diagnostic is needed, pass MCP config explicitly on that single command with `--strict-mcp-config --mcp-config ...`. Do not register AgentSessionRouter as a persistent Claude Code MCP server.
 
 ## Coverage Matrix
 
@@ -76,7 +67,6 @@ The broader Claude Code workload intentionally tried `cluster_consult` and `clau
 | Missing cluster | unknown `cluster_id` | fallback to `claude_consult`, caller still gets answer |
 | LLM verifier | `verification_mode=llm` | `factsheet_llm_verified`, `llm_verifier` |
 | Monitor diagnosis | final `router_monitor` | cache/quality recommendations |
-| Claude Code caller | Claude uses MCP directly | report written by Claude under experiments |
 
 ## What To Watch
 
