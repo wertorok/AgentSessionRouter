@@ -4,7 +4,7 @@
 
 As of 2026-05-15, the production MCP baseline is:
 
-- code pushed on `master` through commit `3ba27be`
+- code pushed on `master` through commit `2a15bc0`
 - public MCP tools: 17
 - tests: `81 passed`
 - build: passing
@@ -14,8 +14,10 @@ As of 2026-05-15, the production MCP baseline is:
 - active direct wins after grounded judge: 0
 - `fallback_count_last_24h`: 0
 - current monitor signals:
-  - latest full codebase cluster has 3 `NOT IN CONTEXT` samples
-  - one slow `new_session` event around 302 seconds
+  - no active direct wins after grounded judge
+  - no low-scoring active `NOT IN CONTEXT` coverage failures
+  - one slow `new_session` event around 302 seconds, caused by a broad
+    `tokens_in=78,258` direct roadmap consult
 
 Use `router_monitor` as the first diagnostic entry point. Treat its output as
 the information monitor for what works, what fails, why it failed, and what to
@@ -23,17 +25,16 @@ inspect next.
 
 Current follow-up priorities:
 
-1. Inspect the 3 active `NOT IN CONTEXT` samples and decide whether they are
-   factsheet gaps, noisy full-cluster scope, or questions that should route to
-   `claude_consult`.
-2. Keep targeted `SESSION_UPDATE_JSON` coverage separate from answer-quality
+1. Keep targeted `SESSION_UPDATE_JSON` coverage separate from answer-quality
    benchmarks, especially parse-failure threshold and archived-bootstrap
    recovery behavior.
-3. Inspect slow direct `new_session` events when they recur; prefer
+2. Inspect slow direct `new_session` events when they recur; prefer
    `cluster_consult` for covered questions when direct discovery approaches the
    caller timeout boundary. Use `router_monitor.latency.slow_session_samples`
    for the exact session id, topic, question, token counts, duration, and raw
    response path.
+3. Use monitor data for the next real decision. Do not add fork/distill work
+   until monitor shows latency/cost or coverage as the actual bottleneck.
 
 ## Cluster Factsheet Re-Prepare
 
