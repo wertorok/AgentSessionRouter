@@ -1,5 +1,38 @@
 # Maintenance
 
+## Current Operator Baseline
+
+As of 2026-05-15, the production MCP baseline is:
+
+- code pushed on `master` through commit `3ba27be`
+- public MCP tools: 17
+- tests: `80 passed`
+- build: passing
+- shadow eval: `90/90` judged, `0` pending, `0` failed
+- active benchmark clusters: 3
+- archived superseded benchmark clusters: 8
+- active direct wins after grounded judge: 0
+- `fallback_count_last_24h`: 0
+- current monitor signals:
+  - latest full codebase cluster has 3 `NOT IN CONTEXT` samples
+  - one slow `new_session` event around 302 seconds
+
+Use `router_monitor` as the first diagnostic entry point. Treat its output as
+the information monitor for what works, what fails, why it failed, and what to
+inspect next.
+
+Current follow-up priorities:
+
+1. Inspect the 3 active `NOT IN CONTEXT` samples and decide whether they are
+   factsheet gaps, noisy full-cluster scope, or questions that should route to
+   `claude_consult`.
+2. Keep targeted `SESSION_UPDATE_JSON` coverage separate from answer-quality
+   benchmarks, especially parse-failure threshold and archived-bootstrap
+   recovery behavior.
+3. Inspect slow direct `new_session` events when they recur; prefer
+   `cluster_consult` for covered questions when direct discovery approaches the
+   caller timeout boundary.
+
 ## Cluster Factsheet Re-Prepare
 
 Re-prepare affected cluster factsheets after any architectural PR that changes:

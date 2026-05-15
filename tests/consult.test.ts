@@ -400,6 +400,89 @@ SESSION_UPDATE_JSON:
     fixture.cleanup();
   });
 
+  it("archives sessions with recurring SESSION_UPDATE_JSON parse failures and bootstraps a replacement", async () => {
+    const fixture = createRuntimeFixture();
+    fixture.runtime.db.createSession({
+      id: "flaky",
+      projectId: "project",
+      claudeSessionId: "flaky-claude",
+      topic: "auth system refactor",
+      dormantAfterDays: 30,
+      archiveAfterDays: 90
+    });
+    fixture.runtime.db.applySessionUpdate("flaky", {
+      summary: "Stable summary before parser failures",
+      decisions: ["Keep stable metadata"],
+      open_questions: ["Keep stable open question"],
+      files_discussed: ["src/auth/stable.ts"],
+      tags: ["stable"],
+      aliases: ["stable auth"]
+    });
+    fixture.claude.existingSessions.add("flaky-claude");
+    fixture.claude.result = `Answer without valid metadata.
+
+SESSION_UPDATE_JSON:
+{
+  "summary": "broken"
+`;
+    const service = new ConsultService(fixture.runtime, fixture.runtime.locks);
+
+    for (let index = 0; index < 10; index += 1) {
+      const result = await service.consult({ ...baseInput(), sessionId: "flaky" });
+      expect("error" in result).toBe(false);
+    }
+
+    const archived = fixture.runtime.db.getSession("flaky");
+    const archivedView = fixture.runtime.db.inspectSession("flaky", 20)?.session;
+    expect(archived?.status).toBe("archived");
+    expect(fixture.runtime.db.getLastArchiveReason("flaky")).toBe("parse_failure_threshold");
+    expect(archivedView).toMatchObject({
+      summary: "Stable summary before parser failures",
+      decisions: ["Keep stable metadata"],
+      open_questions: ["Keep stable open question"],
+      files_discussed: ["src/auth/stable.ts"],
+      tags: ["stable"],
+      aliases: ["stable auth"]
+    });
+    const thresholdEvent = fixture.runtime.db.db
+      .prepare("SELECT event_type, error FROM session_events WHERE session_id = ? AND event_type = ?")
+      .get("flaky", "parse_failed_threshold_exceeded") as { event_type: string; error: string } | undefined;
+    expect(thresholdEvent).toEqual({
+      event_type: "parse_failed_threshold_exceeded",
+      error: "parse_failure_threshold"
+    });
+
+    fixture.claude.result = `Replacement answer with clean metadata.
+
+SESSION_UPDATE_JSON:
+{
+  "summary": "Replacement session is healthy.",
+  "decisions": ["Use replacement after parse threshold"],
+  "open_questions": [],
+  "files_discussed": ["src/auth/replacement.ts"],
+  "tags": ["auth"],
+  "aliases": ["replacement auth"]
+}`;
+    const replacement = await service.consult(baseInput());
+
+    expect("error" in replacement).toBe(false);
+    if ("error" in replacement) {
+      throw new Error("unexpected error");
+    }
+    expect(replacement.session_id).not.toBe("flaky");
+    expect(replacement.routing.was_new_session).toBe(true);
+    expect(replacement.routing.match_reason).toContain("Archived session used as bootstrap");
+    expect(replacement.routing.match_reason).toContain("parse_failure_threshold");
+    expect(fixture.runtime.db.inspectSession(replacement.session_id, 10)?.session).toMatchObject({
+      summary: "Replacement session is healthy.",
+      decisions: ["Use replacement after parse threshold"],
+      files_discussed: ["src/auth/replacement.ts"],
+      tags: ["auth"],
+      aliases: ["replacement auth"]
+    });
+    fixture.cleanup();
+  });
+
   it("logs broad cwd warnings during boot", async () => {
     const fixture = createRuntimeFixture(os.homedir());
 

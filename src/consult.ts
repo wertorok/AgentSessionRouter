@@ -375,6 +375,28 @@ export class ConsultService {
     const archivedSessions = this.runtime.db
       .listMatchCandidates(input.projectId, true)
       .filter((session) => session.status === "archived");
+    const exactTopicSession = archivedSessions.find(
+      (session) => normalizeTopicKey(session.topic) === normalizeTopicKey(input.topicHint)
+    );
+    if (exactTopicSession) {
+      const view = this.runtime.db.getSessionView(exactTopicSession.id);
+      if (!view) {
+        return null;
+      }
+      const archiveReason =
+        this.runtime.db.getLastArchiveReason(exactTopicSession.id) === "parse_failure_threshold"
+          ? "parse_failure_threshold"
+          : "archived_resume";
+      return {
+        selectedSession: null,
+        selectedView: null,
+        bootstrapContext: buildBootstrapContext(view, archiveReason),
+        matchScore: 1,
+        matchReason: `Archived session used as bootstrap; creating replacement. Exact normalized topic match. reason=${archiveReason}.`,
+        wasOrphanRecovery: false
+      };
+    }
+
     const match = findBestSessionMatch(
       archivedSessions,
       {

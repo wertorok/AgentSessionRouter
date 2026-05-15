@@ -68,7 +68,7 @@ Optional shadow-eval tools:
 
 Validation performed:
 
-- Unit/integration tests: `79 passed`
+- Unit/integration tests: `80 passed`
 - Live MCP stdio E2E: `LIVE_CONSULT_PASS`
 - Live matrix run: committed as `LIVE_TEST_LOG.md`
 - Post-fix targeted live rerun: `TARGETED_RERUN_PASS`
