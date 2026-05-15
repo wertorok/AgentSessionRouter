@@ -5,8 +5,8 @@
 As of 2026-05-15, the production MCP baseline is:
 
 - code pushed on `master`; use `git log -1 --oneline` for the latest commit
-- public MCP tools: 17
-- tests: `83 passed`
+- public MCP tools: 18
+- tests: `86 passed`
 - build: passing
 - shadow eval: `90/90` judged, `0` pending, `0` failed
 - active benchmark clusters: 3
@@ -16,6 +16,8 @@ As of 2026-05-15, the production MCP baseline is:
 - current monitor signals:
   - no active direct wins after grounded judge
   - no low-scoring active `NOT IN CONTEXT` coverage failures
+  - `router_monitor.route_health` is available; expect it to stay empty until
+    real calls go through `router_consult`
   - one slow `new_session` event around 302 seconds, caused by a broad
     `tokens_in=78,258` direct roadmap consult
 
@@ -28,11 +30,13 @@ Current follow-up priorities:
 1. Keep targeted `SESSION_UPDATE_JSON` coverage separate from answer-quality
    benchmarks. The MCP workload matrix now exercises clean metadata updates,
    parse-failure threshold archival, and archived-bootstrap replacement.
-2. Inspect slow direct `new_session` events when they recur; prefer
-   `cluster_consult` for covered questions when direct discovery approaches the
-   caller timeout boundary. Use `router_monitor.latency.slow_session_samples`
-   for the exact session id, topic, question, token counts, duration, and raw
-   response path.
+2. Inspect slow direct `new_session` events when they recur. Use
+   `router_consult` as the recommended parent-agent entry point so route
+   decisions are recorded in `router_monitor.route_health`. Prefer explicit
+   `cluster_id` for covered questions and explicit/exact sessions for broad
+   reasoning before repeating cold discovery. Use
+   `router_monitor.latency.slow_session_samples` for the exact session id,
+   topic, question, token counts, duration, and raw response path.
 3. Use monitor data for the next real decision. Do not add fork/distill work
    until monitor shows latency/cost or coverage as the actual bottleneck.
 4. Save monitor snapshots before and after larger router changes with
@@ -42,6 +46,29 @@ Current follow-up priorities:
 `router_monitor.quality.auto_routing_candidates` is a read-only research signal.
 It means a cluster is stable enough to study for future routing suggestions; it
 does not mean automatic routing is enabled.
+
+## Consultation Routing Invariant
+
+The normal parent-agent entry point is `router_consult`.
+
+Operational rule:
+
+- If the caller knows the covered cluster, pass `cluster_id`; the router uses
+  `cluster_consult` and records `selected_path=cluster_consult_explicit`.
+- If the caller knows the durable session, pass `session_id`; the router uses
+  `claude_consult` with that session and records
+  `selected_path=claude_consult_explicit_session`.
+- If neither is provided, the router may reuse an exact or high-confidence v1
+  session; otherwise it delegates to normal `claude_consult` auto-routing.
+- Automatic cluster selection is not enabled. Stable cluster candidates from
+  `router_monitor.quality.auto_routing_candidates` are telemetry only.
+- Every `router_consult` writes `router_route_decision`. Use
+  `router_monitor.route_health.samples` to inspect accidental broad
+  `claude_consult_auto` decisions before adding new routing logic.
+
+Do not push cluster/session health handling back to the parent caller. The
+router should answer through the safest available path and expose internal
+route/cache health through monitor telemetry.
 
 ## Monitor Signal Filtering Invariants
 

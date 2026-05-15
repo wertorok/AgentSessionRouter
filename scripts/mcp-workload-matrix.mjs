@@ -199,6 +199,18 @@ try {
 
     await prepareMonitorCluster(client, "monitor-static", "allow", "static");
 
+    await scenario("router_consult_explicit_cluster_route", async () => {
+      const consult = await callTool(client, "router_consult", {
+        project_id: null,
+        cluster_id: "monitor-static",
+        question: "What is router_monitor for through the conservative router?"
+      });
+      return {
+        pass: consult.route_decision?.selected_path === "cluster_consult_explicit" && consult.cluster_id === "monitor-static",
+        details: summarizeRouterConsult(consult)
+      };
+    });
+
     await scenario("v2_cluster_consult_fast_path_with_shadow", async () => {
       const consult = await callTool(client, "cluster_consult", {
         project_id: null,
@@ -394,7 +406,8 @@ try {
         pass:
           monitor.health?.v2_clusters?.total >= 1 &&
           Array.isArray(monitor.next_directions) &&
-          (mode !== "stub" || monitor.metadata_health?.event_counts?.some((event) => event.event_type === "parse_failed")),
+          (mode !== "stub" || monitor.metadata_health?.event_counts?.some((event) => event.event_type === "parse_failed")) &&
+          monitor.route_health?.decision_counts?.some((event) => event.selected_path === "cluster_consult_explicit"),
         details: monitor
       };
     });
@@ -618,6 +631,7 @@ function hasTools(toolNames) {
     "claude_sessions_list",
     "claude_session_inspect",
     "claude_consult",
+    "router_consult",
     "claude_session_archive",
     "claude_router_reset",
     "router_status",
@@ -627,8 +641,11 @@ function hasTools(toolNames) {
     "cluster_consult",
     "comparison_stats",
     "comparison_list",
+    "comparison_process_pending",
+    "comparison_rejudge",
     "cluster_refresh",
-    "cluster_list"
+    "cluster_list",
+    "cluster_archive"
   ];
   return expected.every((tool) => toolNames.includes(tool));
 }
@@ -652,6 +669,16 @@ function summarizeClusterConsult(payload) {
     used_fork: payload.used_fork,
     claude_session_id: payload.claude_session_id,
     metrics: payload.metrics
+  };
+}
+
+function summarizeRouterConsult(payload) {
+  return {
+    route_decision: payload.route_decision,
+    session_id: payload.session_id,
+    cluster_id: payload.cluster_id,
+    routing: payload.routing ?? null,
+    metrics: payload.metrics ?? null
   };
 }
 

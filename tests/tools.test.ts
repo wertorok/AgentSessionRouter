@@ -184,6 +184,114 @@ describe("cluster MCP tools", () => {
     fixture.cleanup();
   });
 
+  it("routes router_consult through an explicit cluster and records the decision", async () => {
+    const fixture = createToolFixture();
+    const server = new FakeServer();
+    registerTools(server as unknown as McpServer, fixture.runtime);
+    mkdirSync(path.join(fixture.dir, "src"), { recursive: true });
+    writeFileSync(path.join(fixture.dir, "src", "config.ts"), "export const extraArgs = [];\n");
+    await prepareExtraArgsCluster(server);
+
+    const result = parseToolJson(
+      await server.call("router_consult", {
+        project_id: "project",
+        cluster_id: "router-ops",
+        question: "What does the config cluster know?"
+      })
+    );
+    const decisions = fixture.runtime.db.db
+      .prepare("SELECT event_type, answer_summary, match_score, match_reason FROM session_events ORDER BY id")
+      .all() as Array<{ event_type: string; answer_summary: string; match_score: number; match_reason: string }>;
+
+    expect(result.route_decision).toMatchObject({
+      selected_path: "cluster_consult_explicit",
+      cluster_id: "router-ops",
+      match_score: 1,
+      auto_cluster_routing: "disabled_read_only"
+    });
+    expect(result.cluster_id).toBe("router-ops");
+    expect(decisions).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          event_type: "router_route_decision",
+          answer_summary: "cluster_consult_explicit",
+          match_score: 1,
+          match_reason: expect.stringContaining("cluster_id=router-ops")
+        })
+      ])
+    );
+    fixture.cleanup();
+  });
+
+  it("routes router_consult to an exact existing session before creating a new session", async () => {
+    const fixture = createToolFixture();
+    const server = new FakeServer();
+    registerTools(server as unknown as McpServer, fixture.runtime);
+    fixture.runtime.db.createSession({
+      id: "existing-session",
+      projectId: "project",
+      claudeSessionId: "claude-existing-session",
+      topic: "project roadmap",
+      dormantAfterDays: 30,
+      archiveAfterDays: 90
+    });
+
+    const result = parseToolJson(
+      await server.call("router_consult", {
+        project_id: "project",
+        topic_hint: "project roadmap",
+        question: "What should we do next?"
+      })
+    );
+
+    expect(result.route_decision).toMatchObject({
+      selected_path: "claude_consult_existing_session",
+      session_id: "existing-session",
+      match_score: 1
+    });
+    expect(result.session_id).toBe("existing-session");
+    expect(result.routing.was_new_session).toBe(false);
+    fixture.cleanup();
+  });
+
+  it("surfaces router_consult route decisions in router_monitor", async () => {
+    const fixture = createToolFixture();
+    const server = new FakeServer();
+    registerTools(server as unknown as McpServer, fixture.runtime);
+
+    const consult = parseToolJson(
+      await server.call("router_consult", {
+        project_id: "project",
+        question: "Broad new topic with no existing session"
+      })
+    );
+    const monitor = parseToolJson(
+      await server.call("router_monitor", {
+        project_id: "project",
+        recent_hours: 24,
+        sample_limit: 10
+      })
+    );
+
+    expect(consult.route_decision.selected_path).toBe("claude_consult_auto");
+    expect(monitor.route_health.decision_counts).toEqual([
+      expect.objectContaining({ selected_path: "claude_consult_auto", count: 1 })
+    ]);
+    expect(monitor.route_health.samples[0]).toMatchObject({
+      selected_path: "claude_consult_auto",
+      question: "Broad new topic with no existing session"
+    });
+    expect(monitor.recommendations).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          area: "routing",
+          action: expect.stringContaining("route_health.samples")
+        })
+      ])
+    );
+    fixture.cleanup();
+  });
+
   it("downgrades LLM verifier from bare to focused when bare probe fails", async () => {
     const claude = new FakeClaude(
       {

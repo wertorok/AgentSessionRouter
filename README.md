@@ -13,8 +13,9 @@ Coding agents often waste time and tokens rediscovering the same project before 
 - **v1 session router**: routes related questions back into durable, project-scoped Claude sessions and keeps compact registry memory in SQLite.
 - **v2 cluster cache**: stores verified factsheets per task cluster and uses restricted Claude tool profiles, such as `--bare --tools ""`, to skip project rediscovery when the factsheet is enough.
 - **v2.1-lite shadow eval**: optional telemetry that compares real `cluster_consult` answers against an isolated fresh Claude baseline in the background, then scores the pair with a blind structured judge.
+- **v2.3 conservative router**: exposes `router_consult` as the recommended parent-agent entry point. It records a route decision, prefers explicit clusters/sessions, reuses exact or high-confidence sessions, and leaves automatic cluster selection as monitored telemetry until real route data justifies it.
 
-The v1 layer is the durable session and decision registry. The v2 layer is the verified cache layer on top. The v2.1-lite eval layer is observability only. They work independently: you can use normal `claude_consult` sessions, cluster factsheet consults, optional shadow eval, or any combination.
+The v1 layer is the durable session and decision registry. The v2 layer is the verified cache layer on top. The v2.1-lite eval layer is observability only. The v2.3 router layer is conservative orchestration over those tools. They work independently: you can use `router_consult`, normal `claude_consult` sessions, cluster factsheet consults, optional shadow eval, or any combination.
 
 Measured on this repository during the v2 experiments:
 
@@ -44,6 +45,7 @@ Implemented MVP tools:
 
 - `claude_sessions_list`
 - `claude_consult`
+- `router_consult`
 - `claude_session_archive`
 - `claude_session_inspect`
 - `claude_router_reset`
@@ -68,12 +70,12 @@ Optional shadow-eval tools:
 
 Validation performed:
 
-- Unit/integration tests: `83 passed`
+- Unit/integration tests: `86 passed`
 - Live MCP stdio E2E: `LIVE_CONSULT_PASS`
 - Live matrix run: committed as `LIVE_TEST_LOG.md`
 - Post-fix targeted live rerun: `TARGETED_RERUN_PASS`
 - Post-install smoke: stub mode passes and covers v1, v2 cluster tools, `router_status`, and `router_monitor`
-- MCP workload matrix: stub mode passes 21/21 checks, including clean `SESSION_UPDATE_JSON`, parse-failure threshold archival, archived-bootstrap replacement, evidence revalidation, fallback, and shadow telemetry
+- MCP workload matrix: stub mode passes 22/22 checks, including clean `SESSION_UPDATE_JSON`, parse-failure threshold archival, archived-bootstrap replacement, conservative `router_consult`, evidence revalidation, fallback, and shadow telemetry
 - Router monitor snapshots: `npm run monitor:snapshot` writes `router_status` + `router_monitor` payloads under `experiments/router-monitor-snapshots/`
 
 Research and next-architecture docs:
@@ -88,7 +90,7 @@ The full live matrix found three important issues: duplicate same-topic concurre
 
 Claude usage-limit responses are classified as `claude_usage_limit` and include an actionable `operator_action`.
 
-The cluster-cache implementation can store `static_verified` factsheets, optionally run an LLM verifier to promote them to `llm_verified`, consult Claude through a verified factsheet without fork, and revalidate changed evidence with selector/snippet checks. It probes `bare`/`focused` tool profiles and deterministically downgrades `bare` to `focused` when needed. If the cache path cannot prove its evidence, caller-facing `cluster_consult` falls back internally to normal `claude_consult` and still returns an answer when Claude is available. Optional shadow eval records real-world quality/cost telemetry without changing the answer returned to the parent agent. Fork baselines, distillation from existing v1 sessions, and auto-routing are post-MVP enhancements rather than release blockers.
+The cluster-cache implementation can store `static_verified` factsheets, optionally run an LLM verifier to promote them to `llm_verified`, consult Claude through a verified factsheet without fork, and revalidate changed evidence with selector/snippet checks. It probes `bare`/`focused` tool profiles and deterministically downgrades `bare` to `focused` when needed. If the cache path cannot prove its evidence, caller-facing `cluster_consult` falls back internally to normal `claude_consult` and still returns an answer when Claude is available. Optional shadow eval records real-world quality/cost telemetry without changing the answer returned to the parent agent. `router_consult` records top-level route decisions and avoids accidental broad cold discovery when the caller provides an explicit cluster/session or a reusable session can be matched. Fork baselines, distillation from existing v1 sessions, and automatic cluster selection are post-MVP enhancements rather than release blockers.
 
 ## Requirements
 
@@ -215,7 +217,11 @@ Use the comparison tools to inspect accumulated results:
 
 ## Consultation Method Selection
 
-Use the benchmark-backed decision tree below when choosing how a parent agent should consult Claude.
+Use `router_consult` as the recommended parent-agent entry point when the caller wants an answer and does not need to exercise a specific lower-level path for debugging. Pass `cluster_id` when the domain is known to be covered by a cluster, or `session_id` when a specific durable session must be used. If neither is provided, `router_consult` reuses exact/high-confidence v1 sessions and otherwise delegates to normal `claude_consult` auto-routing while recording the decision in `router_monitor.route_health`.
+
+Automatic cluster selection is intentionally disabled in the current conservative router. Stable clusters appear as monitor signals, not as automatic routing targets.
+
+Use the benchmark-backed decision tree below when choosing an explicit lower-level consult path.
 
 Use `cluster_consult` when:
 
@@ -494,6 +500,53 @@ Output:
 }
 ```
 
+### `router_consult`
+
+Recommended parent-agent entry point. It wraps the lower-level consult tools with conservative route selection and records the decision for `router_monitor.route_health`.
+
+Input:
+
+```json
+{
+  "project_id": null,
+  "cluster_id": null,
+  "session_id": null,
+  "topic_hint": "project roadmap",
+  "trigger": "parent agent needs a consult",
+  "task": "Plan the next router maintenance step",
+  "relevant_code": "",
+  "question": "What should we fix next after the v2.3 monitor work?",
+  "tool_profile": null
+}
+```
+
+Behavior:
+
+- If `cluster_id` is provided, calls `cluster_consult` explicitly.
+- If `session_id` is provided, calls `claude_consult` with that session explicitly.
+- If no explicit target is provided, reuses exact or high-confidence v1 sessions.
+- If no reusable session is found, delegates to normal `claude_consult` auto-routing.
+- Records `router_route_decision` in `session_events`.
+- Does not automatically select a cluster from monitor candidates yet; `auto_cluster_routing` is `disabled_read_only`.
+
+Output excerpt:
+
+```json
+{
+  "project_id": "AgentSessionRouter",
+  "route_decision": {
+    "selected_path": "claude_consult_existing_session",
+    "reason": "Exact topic match found in active session registry.",
+    "session_id": "session_...",
+    "match_score": 1,
+    "topic_hint": "project roadmap",
+    "auto_cluster_routing": "disabled_read_only"
+  },
+  "session_id": "session_...",
+  "answer": "..."
+}
+```
+
 ### `claude_session_inspect`
 
 Returns the full compact registry view without invoking Claude and without counting against cost limits.
@@ -647,6 +700,7 @@ Output sections:
 - `cache_health`: stale/needs-prepare clusters and recent revalidation/fallback attention events.
 - `latency`: slow consult aggregates plus concrete slow-session samples with topic, question, token counts, duration, and raw response path.
 - `metadata_health`: `SESSION_UPDATE_JSON` parse failures, affected sessions, threshold archives, and raw response paths.
+- `route_health`: recent `router_consult` selected-path counts and concrete route-decision samples.
 - `quality`: recent shadow comparison stats, direct-win samples, `NOT IN CONTEXT` samples, and read-only auto-routing candidates.
 - `recommendations`: prioritized actions with area, cluster id, action, and reason.
 - `next_directions`: higher-level signals such as factsheet expansion, shadow stabilization, or future auto-routing candidates.

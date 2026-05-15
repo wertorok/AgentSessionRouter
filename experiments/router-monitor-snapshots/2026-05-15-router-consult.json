@@ -1,0 +1,237 @@
+{
+  "captured_at": "2026-05-15T16:14:31.767Z",
+  "project_id": null,
+  "recent_hours": 24,
+  "sample_limit": 20,
+  "status": {
+    "project_id": "AgentSessionRouter",
+    "checked_at": "2026-05-15T16:14:31.761Z",
+    "mode": "normal",
+    "degraded_reason": null,
+    "uptime_hours": 0,
+    "claude": {
+      "detected_version": "2.1.92 (Claude Code)",
+      "tested_versions": [
+        "\"2.1.138 (Claude Code)\"",
+        "\"2.1.92 (Claude Code)\""
+      ]
+    },
+    "v1_sessions": {
+      "active": 2,
+      "dormant": 0,
+      "archived": 0,
+      "orphaned": 0,
+      "total": 2
+    },
+    "v2_clusters": {
+      "active": 3,
+      "stale": 0,
+      "needs_prepare": 0,
+      "invalidated": 0,
+      "archived": 8,
+      "total": 11,
+      "fallback_count_last_24h": 0,
+      "stale_clusters": []
+    },
+    "recent_window_hours": 24,
+    "recent_errors": {
+      "session_events": [],
+      "slow_session_events": [
+        {
+          "event_type": "new_session",
+          "count": 1,
+          "max_duration_ms": 302712,
+          "latest_created_at": "2026-05-15T12:08:08.351Z"
+        }
+      ],
+      "cluster_events": []
+    },
+    "shadow_eval": {
+      "enabled": true,
+      "total": 90,
+      "judged": 90,
+      "pending": 0,
+      "ok_unjudged": 0,
+      "failed_auth": 0,
+      "failed_timeout": 0,
+      "failed_other": 0,
+      "last_created_at": "2026-05-15T09:57:00.404Z",
+      "last_judged_at": "2026-05-15T15:18:55.099Z"
+    },
+    "warnings": [
+      "Session event 'new_session' exceeded the slow-call threshold 1 time(s); max duration 302712ms."
+    ]
+  },
+  "monitor": {
+    "project_id": "AgentSessionRouter",
+    "checked_at": "2026-05-15T16:14:31.764Z",
+    "recent_window_hours": 24,
+    "health": {
+      "mode": "normal",
+      "degraded_reason": null,
+      "claude": {
+        "detected_version": "2.1.92 (Claude Code)",
+        "tested_versions": [
+          "\"2.1.138 (Claude Code)\"",
+          "\"2.1.92 (Claude Code)\""
+        ]
+      },
+      "v1_sessions": {
+        "active": 2,
+        "dormant": 0,
+        "archived": 0,
+        "orphaned": 0,
+        "total": 2
+      },
+      "v2_clusters": {
+        "active": 3,
+        "stale": 0,
+        "needs_prepare": 0,
+        "invalidated": 0,
+        "archived": 8,
+        "total": 11,
+        "fallback_count_last_24h": 0
+      },
+      "shadow_eval": {
+        "enabled": true,
+        "total": 90,
+        "judged": 90,
+        "pending": 0,
+        "ok_unjudged": 0,
+        "failed_auth": 0,
+        "failed_timeout": 0,
+        "failed_other": 0,
+        "last_created_at": "2026-05-15T09:57:00.404Z",
+        "last_judged_at": "2026-05-15T15:18:55.099Z"
+      }
+    },
+    "cache_health": {
+      "stale_or_needs_prepare": [],
+      "attention_by_event": [],
+      "attention_by_cluster": []
+    },
+    "latency": {
+      "slow_session_threshold_ms": 100000,
+      "slow_session_events": [
+        {
+          "event_type": "new_session",
+          "count": 1,
+          "max_duration_ms": 302712,
+          "latest_created_at": "2026-05-15T12:08:08.351Z"
+        }
+      ],
+      "slow_session_samples": [
+        {
+          "event_id": 63,
+          "session_id": "session_e65145e0-1911-4a87-ad7d-8477254bdbb2",
+          "topic": "project roadmap after v2.3.1",
+          "event_type": "new_session",
+          "question": "Given this state, what should we do next? Please prioritize 3-5 concrete next steps, and distinguish must-do production hardening from optional research. Be direct and call out anything you think we are over-optimizing.",
+          "raw_response_path": "/root/projects/AgentSessionRouter/.claude-session-router/raw/session_e65145e0-1911-4a87-ad7d-8477254bdbb2-1778846888340.txt",
+          "tokens_in": 78258,
+          "tokens_out": 3048,
+          "duration_ms": 302712,
+          "created_at": "2026-05-15T12:08:08.351Z"
+        }
+      ]
+    },
+    "metadata_health": {
+      "event_counts": [],
+      "affected_sessions": [],
+      "samples": []
+    },
+    "route_health": {
+      "decision_counts": [],
+      "samples": []
+    },
+    "quality": {
+      "cluster_stats": [
+        {
+          "cluster_id": "agentsessionrouter-codebase-reprepared-2026-05-15-full",
+          "total": 30,
+          "judged": 30,
+          "not_in_context": 0,
+          "failed_shadow": 0,
+          "n": 30,
+          "cluster_q": 1.63,
+          "direct_q": 0.13,
+          "gap": -1.5,
+          "cluster_wins": 19,
+          "direct_wins": 0,
+          "ties": 11
+        },
+        {
+          "cluster_id": "agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3",
+          "total": 10,
+          "judged": 10,
+          "not_in_context": 0,
+          "failed_shadow": 0,
+          "n": 10,
+          "cluster_q": 1.7,
+          "direct_q": 0.3,
+          "gap": -1.4,
+          "cluster_wins": 9,
+          "direct_wins": 0,
+          "ties": 1
+        }
+      ],
+      "direct_win_samples": [],
+      "not_in_context_samples": [],
+      "auto_routing_candidates": [
+        {
+          "cluster_id": "agentsessionrouter-codebase-reprepared-2026-05-15-full",
+          "judged": 30,
+          "cluster_q": 1.63,
+          "direct_q": 0.13,
+          "gap": -1.5,
+          "cluster_wins": 19,
+          "ties": 11,
+          "reason": "Cluster has 30 judged comparison(s), 0 direct win(s), 0 low-score NOT IN CONTEXT row(s), and average gap -1.5."
+        },
+        {
+          "cluster_id": "agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3",
+          "judged": 10,
+          "cluster_q": 1.7,
+          "direct_q": 0.3,
+          "gap": -1.4,
+          "cluster_wins": 9,
+          "ties": 1,
+          "reason": "Cluster has 10 judged comparison(s), 0 direct win(s), 0 low-score NOT IN CONTEXT row(s), and average gap -1.4."
+        }
+      ]
+    },
+    "recommendations": [
+      {
+        "priority": "medium",
+        "area": "latency",
+        "action": "Prefer cluster_consult for covered questions, or inspect the raw Claude response when direct consults approach the caller timeout boundary.",
+        "reason": "Session event 'new_session' exceeded the slow-call threshold 1 time(s); max duration 302712ms."
+      },
+      {
+        "priority": "medium",
+        "area": "latency",
+        "action": "Treat this as direct-discovery/context bloat: reuse an existing session or a covered cluster before repeating a broad new_session consult.",
+        "reason": "Slow new_session used 78258 input tokens over 302712ms for topic 'project roadmap after v2.3.1'. Raw response: /root/projects/AgentSessionRouter/.claude-session-router/raw/session_e65145e0-1911-4a87-ad7d-8477254bdbb2-1778846888340.txt."
+      },
+      {
+        "priority": "low",
+        "area": "routing",
+        "cluster_id": "agentsessionrouter-codebase-reprepared-2026-05-15-full",
+        "action": "Keep explicit cluster_consult for now, but treat this cluster as a read-only candidate for future automatic routing suggestions.",
+        "reason": "Cluster has 30 judged comparison(s), 0 direct win(s), 0 low-score NOT IN CONTEXT row(s), and average gap -1.5."
+      },
+      {
+        "priority": "low",
+        "area": "routing",
+        "cluster_id": "agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3",
+        "action": "Keep explicit cluster_consult for now, but treat this cluster as a read-only candidate for future automatic routing suggestions.",
+        "reason": "Cluster has 10 judged comparison(s), 0 direct win(s), 0 low-score NOT IN CONTEXT row(s), and average gap -1.4."
+      }
+    ],
+    "next_directions": [
+      "Clusters with stable quality and no fallback are candidates for future automatic cluster routing.",
+      "Fork baselines are still low priority unless monitor data shows latency/cost, not quality, is the bottleneck."
+    ]
+  },
+  "server_stderr": ""
+}

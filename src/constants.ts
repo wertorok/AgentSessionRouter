@@ -18,6 +18,7 @@ export const EVENT_TYPES = [
   "unknown_claude_version",
   "broad_cwd_warning",
   "token_anomaly",
+  "router_route_decision",
   "resume_systematic_failure",
   "degraded_mode_entered",
   "router_reset"

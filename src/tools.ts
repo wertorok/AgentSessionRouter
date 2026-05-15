@@ -13,6 +13,7 @@ import type {
   ClusterFactsheetRecord,
   ConsultComparisonMonitorStats,
   EventCount,
+  RouteDecisionCount,
   ShadowEvalHealth,
   SessionMetadataAffectedSession,
   SlowSessionEventCount,
@@ -21,6 +22,7 @@ import type {
   StatusCount
 } from "./db.js";
 import { diagnoseClaudeFailure, errorPayload, SPEC_ERROR_MESSAGES } from "./errors.js";
+import { findBestSessionMatch, normalizeTopicKey } from "./matching.js";
 import { pickProfile, type ProfileSelection } from "./profiles.js";
 import { resolveProjectId } from "./project.js";
 import type { RouterRuntime } from "./runtime.js";
@@ -48,6 +50,18 @@ const consultInput = z.object({
   task: z.string(),
   relevant_code: z.string(),
   question: z.string()
+});
+
+const routerConsultInput = z.object({
+  project_id: z.string().nullable().optional(),
+  cluster_id: z.string().nullable().optional(),
+  session_id: z.string().nullable().optional(),
+  topic_hint: z.string().nullable().optional(),
+  trigger: z.string().nullable().optional(),
+  task: z.string().nullable().optional(),
+  relevant_code: z.string().nullable().optional(),
+  question: z.string().min(1),
+  tool_profile: z.enum(["bare", "focused", "agent"]).nullable().optional()
 });
 
 const archiveInput = z.object({
@@ -266,6 +280,67 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
   );
 
   server.registerTool(
+    "router_consult",
+    {
+      title: "Conservative router consult",
+      description:
+        "Recommended parent-agent entry point. Conservatively chooses explicit cluster_consult, explicit/exact/high-confidence session reuse, or claude_consult fallback, and records the route decision.",
+      inputSchema: routerConsultInput
+    },
+    async (input) => {
+      const projectId = resolveProjectId(input.project_id, runtime.cwd);
+      runtime.db.applyLifecycle(projectId);
+      const normalizedInput = normalizeRouterConsultInput(input);
+      const decision = resolveRouterConsultDecision(runtime, projectId, normalizedInput);
+      logRouterRouteDecision(runtime, projectId, normalizedInput.question, decision);
+
+      if (decision.selected_path === "cluster_consult_explicit" && decision.cluster_id) {
+        const result = await consultClusterForCaller(runtime, consultService, {
+          projectId,
+          clusterId: decision.cluster_id,
+          question: normalizedInput.question,
+          toolProfile: normalizedInput.tool_profile
+        });
+        if (!("error" in result) && isClusterConsultSuccess(result)) {
+          scheduleShadowComparison(runtime, {
+            projectId,
+            clusterId: decision.cluster_id,
+            question: normalizedInput.question,
+            clusterResult: result
+          });
+        }
+        return jsonToolResult(
+          {
+            project_id: projectId,
+            route_decision: decision,
+            ...result
+          },
+          "error" in result
+        );
+      }
+
+      const result = await consultService.consult({
+        projectId,
+        sessionId: decision.session_id ?? null,
+        topicHint: normalizedInput.topic_hint,
+        trigger: normalizedInput.trigger,
+        task: normalizedInput.task,
+        relevantCode: normalizedInput.relevant_code,
+        question: normalizedInput.question
+      });
+
+      return jsonToolResult(
+        {
+          project_id: projectId,
+          route_decision: decision,
+          ...result
+        },
+        "error" in result
+      );
+    }
+  );
+
+  server.registerTool(
     "claude_session_archive",
     {
       title: "Archive Claude session",
@@ -453,6 +528,8 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
         input.sample_limit ?? 10
       );
       const metadataSamples = runtime.db.listRecentSessionMetadataEventSamples(projectId, sinceIso, input.sample_limit ?? 10);
+      const routeDecisionCounts = runtime.db.getRecentRouteDecisionCounts(projectId, sinceIso);
+      const routeDecisionSamples = runtime.db.listRecentRouteDecisionSamples(projectId, sinceIso, input.sample_limit ?? 10);
       const clusterAttention = runtime.db.getRecentClusterAttentionCounts(projectId, sinceIso);
       const clusterAttentionByCluster = runtime.db.getRecentClusterAttentionCountsByCluster(projectId, sinceIso);
       const shadowEval = runtime.db.getShadowEvalHealth(projectId);
@@ -520,6 +597,7 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
         sessionErrors,
         metadataEventCounts,
         metadataAffectedSessions,
+        routeDecisionCounts,
         slowSessionEvents,
         slowSessionSamples,
         clusterAttentionByCluster,
@@ -566,6 +644,10 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
           event_counts: metadataEventCounts,
           affected_sessions: metadataAffectedSessions,
           samples: metadataSamples
+        },
+        route_health: {
+          decision_counts: routeDecisionCounts,
+          samples: routeDecisionSamples
         },
         quality: {
           cluster_stats: comparisonStats,
@@ -1020,6 +1102,161 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
   );
 }
 
+interface RouterConsultNormalizedInput {
+  cluster_id?: string | null;
+  session_id?: string | null;
+  topic_hint: string;
+  trigger: string;
+  task: string;
+  relevant_code: string;
+  question: string;
+  tool_profile?: "bare" | "focused" | "agent" | null;
+}
+
+type RouterConsultSelectedPath =
+  | "cluster_consult_explicit"
+  | "claude_consult_explicit_session"
+  | "claude_consult_existing_session"
+  | "claude_consult_auto";
+
+interface RouterConsultDecision {
+  selected_path: RouterConsultSelectedPath;
+  reason: string;
+  session_id?: string | null;
+  cluster_id?: string | null;
+  match_score: number;
+  topic_hint: string;
+  auto_cluster_routing: "disabled_read_only";
+}
+
+function normalizeRouterConsultInput(input: z.infer<typeof routerConsultInput>): RouterConsultNormalizedInput {
+  return {
+    cluster_id: cleanOptionalString(input.cluster_id),
+    session_id: cleanOptionalString(input.session_id),
+    topic_hint: cleanOptionalString(input.topic_hint) ?? inferTopicHint(input.question),
+    trigger: cleanOptionalString(input.trigger) ?? "router_consult",
+    task: cleanOptionalString(input.task) ?? "Answer the parent agent's question through AgentSessionRouter.",
+    relevant_code: cleanOptionalString(input.relevant_code) ?? "",
+    question: input.question,
+    tool_profile: input.tool_profile ?? null
+  };
+}
+
+function resolveRouterConsultDecision(
+  runtime: RouterRuntime,
+  projectId: string,
+  input: RouterConsultNormalizedInput
+): RouterConsultDecision {
+  if (input.cluster_id) {
+    return {
+      selected_path: "cluster_consult_explicit",
+      reason: input.session_id
+        ? "Explicit cluster_id provided; conservative router prefers explicit cluster over session_id."
+        : "Explicit cluster_id provided by caller.",
+      cluster_id: input.cluster_id,
+      match_score: 1,
+      topic_hint: input.topic_hint,
+      auto_cluster_routing: "disabled_read_only"
+    };
+  }
+
+  if (input.session_id) {
+    return {
+      selected_path: "claude_consult_explicit_session",
+      reason: "Explicit session_id provided by caller.",
+      session_id: input.session_id,
+      match_score: 1,
+      topic_hint: input.topic_hint,
+      auto_cluster_routing: "disabled_read_only"
+    };
+  }
+
+  const sessions = runtime.db.listMatchCandidates(projectId, false);
+  const exactTopicSession = sessions.find((session) => normalizeTopicKey(session.topic) === normalizeTopicKey(input.topic_hint));
+  if (exactTopicSession) {
+    return {
+      selected_path: "claude_consult_existing_session",
+      reason: "Exact normalized topic match; routing to existing session before allowing a new session.",
+      session_id: exactTopicSession.id,
+      match_score: 1,
+      topic_hint: input.topic_hint,
+      auto_cluster_routing: "disabled_read_only"
+    };
+  }
+
+  const match = findBestSessionMatch(
+    sessions,
+    {
+      topicHint: input.topic_hint,
+      task: input.task,
+      relevantCode: input.relevant_code,
+      question: input.question
+    },
+    runtime.config.matching.thresholdUse,
+    runtime.config.matching.thresholdLowConfidence
+  );
+  if (match.session && !match.lowConfidence) {
+    return {
+      selected_path: "claude_consult_existing_session",
+      reason: `High-confidence existing session match. ${match.reason}`,
+      session_id: match.session.id,
+      match_score: match.score,
+      topic_hint: input.topic_hint,
+      auto_cluster_routing: "disabled_read_only"
+    };
+  }
+
+  return {
+    selected_path: "claude_consult_auto",
+    reason:
+      match.session
+        ? `Only low-confidence session match was available; delegating final session/new-session decision to claude_consult. ${match.reason}`
+        : `No exact or high-confidence existing session; delegating to claude_consult. ${match.reason}`,
+    match_score: match.score,
+    topic_hint: input.topic_hint,
+    auto_cluster_routing: "disabled_read_only"
+  };
+}
+
+function logRouterRouteDecision(
+  runtime: RouterRuntime,
+  projectId: string,
+  question: string,
+  decision: RouterConsultDecision
+): void {
+  runtime.db.logEvent({
+    sessionId: decision.session_id ?? null,
+    projectId,
+    eventType: "router_route_decision",
+    question,
+    answerSummary: decision.selected_path,
+    matchScore: decision.match_score,
+    matchReason: [
+      decision.reason,
+      `topic_hint=${decision.topic_hint}`,
+      `auto_cluster_routing=${decision.auto_cluster_routing}`,
+      decision.cluster_id ? `cluster_id=${decision.cluster_id}` : null,
+      decision.session_id ? `session_id=${decision.session_id}` : null
+    ]
+      .filter(Boolean)
+      .join("; ")
+  });
+}
+
+function cleanOptionalString(value: string | null | undefined): string | null {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : null;
+}
+
+function inferTopicHint(question: string): string {
+  const normalized = question.replace(/\s+/g, " ").trim();
+  if (!normalized) {
+    return "router consult";
+  }
+  const sentence = normalized.split(/[.!?]/)[0]?.trim() || normalized;
+  return sentence.slice(0, 80);
+}
+
 async function consultClusterForCaller(
   runtime: RouterRuntime,
   consultService: ConsultService,
@@ -1198,6 +1435,7 @@ function buildMonitorRecommendations(input: {
   sessionErrors: EventCount[];
   metadataEventCounts: EventCount[];
   metadataAffectedSessions: SessionMetadataAffectedSession[];
+  routeDecisionCounts: RouteDecisionCount[];
   slowSessionEvents: SlowSessionEventCount[];
   slowSessionSamples: SlowSessionEventSample[];
   clusterAttentionByCluster: ClusterEventCount[];
@@ -1365,6 +1603,16 @@ function buildMonitorRecommendations(input: {
         `Session ${session.session_id ?? "unknown"} (${session.topic ?? "unknown topic"}) had ` +
         `${session.parse_failed_count} parse failure(s), ${session.threshold_exceeded_count} threshold event(s), ` +
         `status=${session.session_status ?? "unknown"}, latest raw=${session.latest_raw_response_path ?? "n/a"}.`
+    });
+  }
+
+  const autoRouteCount = input.routeDecisionCounts.find((decision) => decision.selected_path === "claude_consult_auto")?.count ?? 0;
+  if (autoRouteCount > 0) {
+    recommendations.push({
+      priority: "low",
+      area: "routing",
+      action: "Inspect route_health.samples for claude_consult_auto decisions; add explicit cluster_id/session_id or improve topic hints if these become slow.",
+      reason: `${autoRouteCount} router_consult call(s) delegated to claude_consult auto-routing in the recent window.`
     });
   }
 
