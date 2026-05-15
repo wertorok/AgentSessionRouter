@@ -14,6 +14,7 @@ import type {
   ConsultComparisonMonitorStats,
   EventCount,
   ShadowEvalHealth,
+  SlowSessionEventCount,
   StaleClusterView,
   StatusCount
 } from "./db.js";
@@ -333,6 +334,11 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
       const fallbackCountLast24h = runtime.db.getClusterFallbackCount(projectId, isoHoursAgo(runtime.clock, 24));
       const staleClusters = runtime.db.listStaleClusters(projectId, warningsLimit);
       const sessionErrors = runtime.db.getRecentSessionErrorCounts(projectId, sinceIso);
+      const slowSessionEvents = runtime.db.getRecentSlowSessionEvents(
+        projectId,
+        sinceIso,
+        slowSessionThresholdMs(runtime.config.claude.commandTimeoutMs)
+      );
       const clusterAttention = runtime.db.getRecentClusterAttentionCounts(projectId, sinceIso);
       const shadowEval = runtime.db.getShadowEvalHealth(projectId);
       const sessionCounts = countMap(runtime.db.getSessionStatusCounts(projectId), SESSION_STATUSES);
@@ -348,6 +354,7 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
         degradedReason: runtime.degradedReason,
         staleClusters,
         sessionErrors,
+        slowSessionEvents,
         clusterAttention,
         shadowEval,
         shadowEnabled: runtime.config.eval.shadowMode,
@@ -377,6 +384,7 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
         recent_window_hours: recentHours,
         recent_errors: {
           session_events: sessionErrors,
+          slow_session_events: slowSessionEvents,
           cluster_events: clusterAttention
         },
         shadow_eval: {
@@ -403,6 +411,11 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
       const sinceIso = isoHoursAgo(runtime.clock, recentHours);
       const staleClusters = runtime.db.listStaleClusters(projectId, input.sample_limit ?? 10);
       const sessionErrors = runtime.db.getRecentSessionErrorCounts(projectId, sinceIso);
+      const slowSessionEvents = runtime.db.getRecentSlowSessionEvents(
+        projectId,
+        sinceIso,
+        slowSessionThresholdMs(runtime.config.claude.commandTimeoutMs)
+      );
       const clusterAttention = runtime.db.getRecentClusterAttentionCounts(projectId, sinceIso);
       const clusterAttentionByCluster = runtime.db.getRecentClusterAttentionCountsByCluster(projectId, sinceIso);
       const shadowEval = runtime.db.getShadowEvalHealth(projectId);
@@ -451,6 +464,7 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
         shadowEval,
         staleClusters,
         sessionErrors,
+        slowSessionEvents,
         clusterAttentionByCluster,
         comparisonStats
       });
@@ -484,6 +498,10 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
           stale_or_needs_prepare: staleClusters,
           attention_by_event: clusterAttention,
           attention_by_cluster: clusterAttentionByCluster
+        },
+        latency: {
+          slow_session_threshold_ms: slowSessionThresholdMs(runtime.config.claude.commandTimeoutMs),
+          slow_session_events: slowSessionEvents
         },
         quality: {
           cluster_stats: comparisonStats,
@@ -884,11 +902,19 @@ function round2(value: number): number {
   return Math.round(value * 100) / 100;
 }
 
+function slowSessionThresholdMs(commandTimeoutMs: number): number {
+  if (!Number.isFinite(commandTimeoutMs) || commandTimeoutMs <= 0) {
+    return 100_000;
+  }
+  return Math.min(100_000, Math.max(30_000, Math.floor(commandTimeoutMs * 0.8)));
+}
+
 function buildStatusWarnings(input: {
   degradedMode: boolean;
   degradedReason?: string;
   staleClusters: StaleClusterView[];
   sessionErrors: EventCount[];
+  slowSessionEvents: SlowSessionEventCount[];
   clusterAttention: EventCount[];
   shadowEval: ShadowEvalHealth;
   shadowEnabled: boolean;
@@ -911,6 +937,11 @@ function buildStatusWarnings(input: {
   for (const event of input.sessionErrors) {
     warnings.push(`Session event '${event.event_type}' has ${event.count} error row(s) in the recent window.`);
   }
+  for (const event of input.slowSessionEvents) {
+    warnings.push(
+      `Session event '${event.event_type}' exceeded the slow-call threshold ${event.count} time(s); max duration ${event.max_duration_ms ?? "unknown"}ms.`
+    );
+  }
   if (input.shadowEnabled) {
     const stalled = input.shadowEval.pending + input.shadowEval.ok_unjudged;
     const failed = input.shadowEval.failed_auth + input.shadowEval.failed_timeout + input.shadowEval.failed_other;
@@ -931,6 +962,7 @@ function buildMonitorRecommendations(input: {
   shadowEval: ShadowEvalHealth;
   staleClusters: StaleClusterView[];
   sessionErrors: EventCount[];
+  slowSessionEvents: SlowSessionEventCount[];
   clusterAttentionByCluster: ClusterEventCount[];
   comparisonStats: ConsultComparisonMonitorStats[];
 }): Array<{ priority: "high" | "medium" | "low"; area: string; cluster_id?: string | null; action: string; reason: string }> {
@@ -1034,6 +1066,14 @@ function buildMonitorRecommendations(input: {
         action: "Inspect direct_win_samples, then expand or rebuild the cluster factsheet.",
         reason: `Direct baseline is beating cluster by ${stats.gap} points on average.`
       });
+    } else if ((stats.direct_wins ?? 0) >= 2) {
+      recommendations.push({
+        priority: "medium",
+        area: "quality",
+        cluster_id: stats.cluster_id,
+        action: "Inspect recurring direct wins and decide whether the cluster needs narrower scope, richer facts, or routing away from that question type.",
+        reason: `Direct baseline won ${stats.direct_wins} judged comparison(s) in the recent window even though the average gap is small.`
+      });
     } else if ((stats.not_in_context ?? 0) > 0) {
       recommendations.push({
         priority: "medium",
@@ -1051,6 +1091,15 @@ function buildMonitorRecommendations(input: {
       area: "sessions",
       action: "Inspect recent session_events and raw responses.",
       reason: `Session event '${event.event_type}' has ${event.count} error row(s).`
+    });
+  }
+
+  for (const event of input.slowSessionEvents) {
+    recommendations.push({
+      priority: "medium",
+      area: "latency",
+      action: "Prefer cluster_consult for covered questions, or inspect the raw Claude response when direct consults approach the caller timeout boundary.",
+      reason: `Session event '${event.event_type}' exceeded the slow-call threshold ${event.count} time(s); max duration ${event.max_duration_ms ?? "unknown"}ms.`
     });
   }
 

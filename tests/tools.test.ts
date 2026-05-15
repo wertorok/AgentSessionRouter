@@ -711,6 +711,12 @@ describe("cluster MCP tools", () => {
       eventType: "parse_failed",
       error: "bad SESSION_UPDATE_JSON"
     });
+    fixture.runtime.db.logEvent({
+      sessionId: "session-1",
+      projectId: "project",
+      eventType: "consult",
+      durationMs: 150_000
+    });
     fixture.runtime.db.upsertCluster({
       id: "router-ops",
       projectId: "project",
@@ -773,6 +779,11 @@ describe("cluster MCP tools", () => {
     expect(status.v2_clusters.fallback_count_last_24h).toBe(1);
     expect(status.v2_clusters.stale_clusters[0].id).toBe("router-ops");
     expect(status.recent_errors.session_events[0]).toMatchObject({ event_type: "parse_failed", count: 1 });
+    expect(status.recent_errors.slow_session_events[0]).toMatchObject({
+      event_type: "consult",
+      count: 1,
+      max_duration_ms: 150_000
+    });
     expect(status.recent_errors.cluster_events).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ event_type: "cluster_refresh_required", count: 1 }),

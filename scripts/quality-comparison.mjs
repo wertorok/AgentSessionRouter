@@ -611,10 +611,15 @@ async function prepareClusterFactsheet() {
     return {
       ...result,
       duration_ms_observed: Date.now() - started,
-      cost_usd: estimateCost({
-        tokensIn: metrics.tokens_in,
-        tokensOut: metrics.tokens_out
-      })
+      cost_usd:
+        finiteOrBlank(metrics.cost_usd) === ""
+          ? estimateCost({
+              tokensIn: metrics.tokens_in,
+              tokensOut: metrics.tokens_out,
+              cacheCreationInputTokens: metrics.cache_creation_input_tokens,
+              cacheReadInputTokens: metrics.cache_read_input_tokens
+            })
+          : metrics.cost_usd
     };
   });
 }
@@ -762,19 +767,25 @@ async function runClusterConsultBlock() {
             cluster_id: clusterId,
             question: buildClusterQuestion(question.text)
           });
+          const metrics = result.metrics ?? {};
           const responsePath = writeResponse(name, result.answer ?? "");
           appendMatrixRow({
             question_id: question.id,
             question_category: question.category,
             method: "cluster_consult",
             run_number: run,
-            duration_ms: result.metrics?.duration_ms ?? Date.now() - started,
-            tokens_in: result.metrics?.tokens_in ?? "",
-            tokens_out: result.metrics?.tokens_out ?? "",
-            cost_usd: estimateCost({
-              tokensIn: result.metrics?.tokens_in,
-              tokensOut: result.metrics?.tokens_out
-            }),
+            duration_ms: metrics.duration_ms ?? Date.now() - started,
+            tokens_in: metrics.tokens_in ?? "",
+            tokens_out: metrics.tokens_out ?? "",
+            cost_usd:
+              finiteOrBlank(metrics.cost_usd) === ""
+                ? estimateCost({
+                    tokensIn: metrics.tokens_in,
+                    tokensOut: metrics.tokens_out,
+                    cacheCreationInputTokens: metrics.cache_creation_input_tokens,
+                    cacheReadInputTokens: metrics.cache_read_input_tokens
+                  })
+                : metrics.cost_usd,
             cluster_id: clusterId,
             profile_used: result.tool_profile ?? "",
             was_stale: false,
@@ -783,11 +794,11 @@ async function runClusterConsultBlock() {
             was_new_session: true,
             response_length_chars: String(result.answer ?? "").length,
             response_path: relativeOutPath(responsePath),
-            cache_creation_input_tokens: "",
-            cache_read_input_tokens: "",
-            reported_total_cost_usd: "",
-            model: "",
-            num_turns: "",
+            cache_creation_input_tokens: metrics.cache_creation_input_tokens ?? "",
+            cache_read_input_tokens: metrics.cache_read_input_tokens ?? "",
+            reported_total_cost_usd: metrics.cost_usd ?? "",
+            model: metrics.model ?? "",
+            num_turns: metrics.num_turns ?? "",
             error: "",
             quality_score: "",
             quality_notes: ""
@@ -1335,7 +1346,7 @@ function writeSummary() {
       ? `Factsheet prep cost ${formatMoney(prep.cost_usd)}. cluster_consult saves ${formatMoney(savingsVsResume)} per invocation vs direct_resume by this estimate. Breakeven at ${breakeven ?? "n/a"} cluster_consult invocations.`
       : `Factsheet prep cost ${formatMoney(prep.cost_usd)}. Breakeven requires a comparison method and is not computed for this targeted method set.`,
     "",
-    "Claude Code reported actual `total_cost_usd` for direct CLI calls, but the MCP adapter currently does not expose it for cluster_consult. Reported totals where available:",
+    "Claude Code reported actual `total_cost_usd` where the adapter exposed it. `cluster_consult` now forwards that value through MCP metrics when Claude Code provides it. Reported totals where available:",
     "",
     ...reportedCostRows.map((row) => `- ${row.method}: ${formatMoney(row.reported_total_cost)}`),
     "",

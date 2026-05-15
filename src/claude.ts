@@ -10,6 +10,11 @@ export interface ClaudeJsonResponse {
   result: string;
   tokensIn?: number;
   tokensOut?: number;
+  cacheCreationInputTokens?: number;
+  cacheReadInputTokens?: number;
+  totalCostUsd?: number;
+  model?: string;
+  numTurns?: number;
 }
 
 export interface ClaudePromptOptions {
@@ -137,6 +142,8 @@ export function parseClaudeJson(stdout: string): ClaudeJsonResponse {
     throw new Error("Claude JSON response was not an object");
   }
 
+  const usage = objectField(parsed, "usage");
+  const modelUsage = objectField(parsed, "modelUsage");
   const sessionId = stringField(parsed, "session_id") ?? stringField(parsed, "sessionId");
   const result = stringField(parsed, "result") ?? stringField(parsed, "text") ?? stringField(parsed, "answer");
   if (!sessionId || !result) {
@@ -152,13 +159,21 @@ export function parseClaudeJson(stdout: string): ClaudeJsonResponse {
     tokensIn:
       numberField(parsed, "tokens_in") ??
       numberField(parsed, "input_tokens") ??
-      numberField(objectField(parsed, "usage"), "input_tokens") ??
+      numberField(usage, "input_tokens") ??
       undefined,
     tokensOut:
       numberField(parsed, "tokens_out") ??
       numberField(parsed, "output_tokens") ??
-      numberField(objectField(parsed, "usage"), "output_tokens") ??
-      undefined
+      numberField(usage, "output_tokens") ??
+      undefined,
+    cacheCreationInputTokens:
+      numberField(parsed, "cache_creation_input_tokens") ?? numberField(usage, "cache_creation_input_tokens") ?? undefined,
+    cacheReadInputTokens:
+      numberField(parsed, "cache_read_input_tokens") ?? numberField(usage, "cache_read_input_tokens") ?? undefined,
+    totalCostUsd:
+      numberField(parsed, "total_cost_usd") ?? numberField(parsed, "cost_usd") ?? numberField(usage, "total_cost_usd") ?? undefined,
+    model: stringField(parsed, "model") ?? Object.keys(modelUsage)[0] ?? undefined,
+    numTurns: numberField(parsed, "num_turns") ?? numberField(parsed, "numTurns") ?? undefined
   };
 }
 

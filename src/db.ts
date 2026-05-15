@@ -227,6 +227,10 @@ export interface EventCount {
   latest_created_at: string | null;
 }
 
+export interface SlowSessionEventCount extends EventCount {
+  max_duration_ms: number | null;
+}
+
 export interface ClusterEventCount extends EventCount {
   cluster_id: string;
 }
@@ -1110,6 +1114,23 @@ export class RouterDatabase {
          ORDER BY count DESC, event_type ASC`
       )
       .all(projectId, sinceIso) as EventCount[];
+  }
+
+  getRecentSlowSessionEvents(projectId: string, sinceIso: string, thresholdMs: number): SlowSessionEventCount[] {
+    return this.db
+      .prepare(
+        `SELECT event_type,
+                COUNT(*) AS count,
+                MAX(duration_ms) AS max_duration_ms,
+                MAX(created_at) AS latest_created_at
+         FROM session_events
+         WHERE project_id = ?
+           AND created_at >= ?
+           AND duration_ms >= ?
+         GROUP BY event_type
+         ORDER BY count DESC, event_type ASC`
+      )
+      .all(projectId, sinceIso, thresholdMs) as SlowSessionEventCount[];
   }
 
   getRecentClusterAttentionCounts(projectId: string, sinceIso: string): EventCount[] {

@@ -278,15 +278,29 @@ Extra text from Claude.`);
       JSON.stringify({
         session_id: "claude-session",
         result: "answer",
+        total_cost_usd: 0.0123,
+        num_turns: 2,
+        modelUsage: {
+          "claude-test-model": {
+            input_tokens: 12
+          }
+        },
         usage: {
           input_tokens: 12,
-          output_tokens: 34
+          output_tokens: 34,
+          cache_creation_input_tokens: 56,
+          cache_read_input_tokens: 78
         }
       })
     );
 
     expect(parsed.tokensIn).toBe(12);
     expect(parsed.tokensOut).toBe(34);
+    expect(parsed.cacheCreationInputTokens).toBe(56);
+    expect(parsed.cacheReadInputTokens).toBe(78);
+    expect(parsed.totalCostUsd).toBe(0.0123);
+    expect(parsed.model).toBe("claude-test-model");
+    expect(parsed.numTurns).toBe(2);
   });
 
   it("passes configured Claude CLI extra args before router-managed output args", async () => {

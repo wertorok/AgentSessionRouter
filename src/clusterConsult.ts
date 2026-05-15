@@ -28,6 +28,11 @@ export interface ClusterConsultSuccess {
     duration_ms: number;
     tokens_in?: number;
     tokens_out?: number;
+    cache_creation_input_tokens?: number;
+    cache_read_input_tokens?: number;
+    cost_usd?: number;
+    model?: string;
+    num_turns?: number;
   };
 }
 
@@ -110,7 +115,12 @@ export async function consultCluster(
       metrics: {
         duration_ms: durationMs,
         tokens_in: response.tokensIn,
-        tokens_out: response.tokensOut
+        tokens_out: response.tokensOut,
+        cache_creation_input_tokens: response.cacheCreationInputTokens,
+        cache_read_input_tokens: response.cacheReadInputTokens,
+        cost_usd: response.totalCostUsd,
+        model: response.model,
+        num_turns: response.numTurns
       }
     };
     db.logClusterEvent({
@@ -128,7 +138,8 @@ export async function consultCluster(
       },
       durationMs,
       tokensIn: response.tokensIn,
-      tokensOut: response.tokensOut
+      tokensOut: response.tokensOut,
+      costUsd: response.totalCostUsd
     });
     if (profileSelection.downgraded) {
       db.logClusterEvent({

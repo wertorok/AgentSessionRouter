@@ -92,6 +92,11 @@ export interface PrepareClusterResult {
     duration_ms: number;
     tokens_in?: number;
     tokens_out?: number;
+    cache_creation_input_tokens?: number;
+    cache_read_input_tokens?: number;
+    cost_usd?: number;
+    model?: string;
+    num_turns?: number;
   };
 }
 
@@ -241,7 +246,8 @@ export async function prepareCluster(
     },
     durationMs: llmVerification.durationMs,
     tokensIn: llmVerification.response.tokensIn,
-    tokensOut: llmVerification.response.tokensOut
+    tokensOut: llmVerification.response.tokensOut,
+    costUsd: llmVerification.response.totalCostUsd
   });
 
   return {
@@ -258,7 +264,12 @@ export async function prepareCluster(
       tool_profile: llmVerification.toolProfile,
       duration_ms: llmVerification.durationMs,
       tokens_in: llmVerification.response.tokensIn,
-      tokens_out: llmVerification.response.tokensOut
+      tokens_out: llmVerification.response.tokensOut,
+      cache_creation_input_tokens: llmVerification.response.cacheCreationInputTokens,
+      cache_read_input_tokens: llmVerification.response.cacheReadInputTokens,
+      cost_usd: llmVerification.response.totalCostUsd,
+      model: llmVerification.response.model,
+      num_turns: llmVerification.response.numTurns
     }
   };
 }

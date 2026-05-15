@@ -48,6 +48,11 @@ describe("cluster_consult service", () => {
     expect(result.answer).toBe("Cluster answer.");
     expect(result.tool_profile).toBe("bare");
     expect(result.used_fork).toBe(false);
+    expect(result.metrics.cost_usd).toBe(0.00042);
+    expect(result.metrics.cache_creation_input_tokens).toBe(7);
+    expect(result.metrics.cache_read_input_tokens).toBe(9);
+    expect(result.metrics.model).toBe("claude-test-model");
+    expect(result.metrics.num_turns).toBe(1);
     expect(claude.lastOptions?.extraArgs).toEqual(["--bare", "--tools", ""]);
     expect(claude.lastOptions?.appendSystemPrompt).toContain("Factsheet JSON");
     expect(claude.lastOptions?.appendSystemPrompt).toContain("extraArgs exists");
@@ -171,7 +176,12 @@ class FakeClaude implements ClaudeAdapter {
       sessionId: "cluster-consult-session",
       result: typeof this.result === "string" ? this.result : JSON.stringify(this.result),
       tokensIn: 10,
-      tokensOut: 5
+      tokensOut: 5,
+      cacheCreationInputTokens: 7,
+      cacheReadInputTokens: 9,
+      totalCostUsd: 0.00042,
+      model: "claude-test-model",
+      numTurns: 1
     };
   }
 }
