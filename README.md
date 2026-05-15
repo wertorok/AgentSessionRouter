@@ -239,12 +239,15 @@ probabilities. Before changing thresholds or score weights, run:
 ```bash
 npm run build
 npm run route:calibration -- --project-id AgentSessionRouter --recent-hours 168
+npm run route:calibration -- --project-id AgentSessionRouter --recent-hours 168 --metadata-only
 ```
 
 This writes `experiments/route-calibration-<date>/summary.md` and
 `calibration-report.json`. The report does not invoke Claude or change routing;
 it produces a labeling queue of low-gap, ambiguous, near-duplicate, slow, or
 metadata-risk route decisions that should be inspected before tuning.
+`metadata_score` is `0.35 topic_hint + 0.35 related_files + 0.20 tags + 0.10 task_type`;
+scores below `0.70` mean the caller gave weak routing hints.
 
 Use the benchmark-backed decision tree below when choosing an explicit lower-level consult path.
 

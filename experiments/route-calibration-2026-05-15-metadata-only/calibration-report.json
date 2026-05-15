@@ -1,0 +1,21 @@
+{
+  "project_id": "AgentSessionRouter",
+  "db_path": "/root/projects/AgentSessionRouter/.claude-session-router/sessions.sqlite",
+  "generated_at": "2026-05-15T21:25:51.198Z",
+  "recent_hours": 168,
+  "since": "2026-05-08T21:25:51.192Z",
+  "metadata_only": true,
+  "thresholds": {
+    "low_gap": 0.15,
+    "near_topic": 0.5,
+    "slow_ms": 120000,
+    "high_tokens_in": 50000
+  },
+  "session_count": 8,
+  "route_decision_count": 0,
+  "selected_path_counts": [],
+  "suspicious_counts": [],
+  "calibration_queue": [],
+  "route_decisions": [],
+  "summary": "# Route Calibration Report\n\nGenerated: 2026-05-15T21:25:51.198Z\nProject: `AgentSessionRouter`\nWindow: last 168h since 2026-05-08T21:25:51.192Z\nFilter: metadata_score events only\n\nThis is an offline report. It does not invoke Claude and does not change routing behavior. It turns real `router_route_decision` telemetry into a calibration queue for future match-score tuning.\n\n## Executive Summary\n\n- Route decisions inspected: 0\n- Active/dormant sessions considered for near-topic analysis: 8\n- Decisions with candidate-gap telemetry: 0\n- Decisions with metadata-quality telemetry: 0\n- Low-gap decisions (< 0.15): 0\n- Low-metadata decisions (< 0.70): 0\n- New-session route decisions: 0\n- Expensive/slow outcome signals: 0\n- Near-duplicate topic signals: 0\n- Calibration queue items: 0\n\n> Sample is still small. Use this report for inspection, not threshold tuning.\n\n## Selected Path Counts\n\n| Selected path | Count |\n| ------------- | ----- |\n|               |       |\n\n## Suspicious Signal Counts\n\n| Signal | Count |\n| ------ | ----- |\n|        |       |\n\n## Calibration Queue\n\nNo suspicious route decisions found in this window.\n\n## How To Use This\n\n1. Inspect the calibration queue before changing score weights.\n2. Label each queued route as `correct_reuse`, `wrong_reuse`, `correct_new_session`, or `unnecessary_new_session`.\n3. Only after labels exist, compare alternative weights/thresholds against those labels.\n4. Treat explicit cluster/session routes as operator intent, not evidence that fuzzy matching worked.\n\n## Artifacts\n\n- `calibration-report.json`: full machine-readable route decisions, parsed reasons, outcome signals, and queue."
+}

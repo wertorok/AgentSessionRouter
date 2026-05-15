@@ -18,6 +18,7 @@ const slowThresholdMs = Number(args.slow_threshold_ms ?? 120000);
 const highTokenThreshold = Number(args.high_token_threshold ?? 50000);
 const queueLimit = Number(args.queue_limit ?? 30);
 const includeAll = Boolean(args.all);
+const metadataOnly = Boolean(args.metadata_only);
 
 if (!existsSync(matchingModulePath)) {
   fail(`Built matching module is missing at ${matchingModulePath}. Run npm run build first.`);
@@ -44,6 +45,7 @@ const report = {
   generated_at: new Date().toISOString(),
   recent_hours: includeAll ? null : recentHours,
   since: sinceIso,
+  metadata_only: metadataOnly,
   thresholds: {
     low_gap: gapThreshold,
     near_topic: nearTopicThreshold,
@@ -69,6 +71,7 @@ console.log(
       out_dir: outDir,
       project_id: projectId,
       route_decisions: routeDecisions.length,
+      metadata_only: metadataOnly,
       selected_path_counts: report.selected_path_counts,
       suspicious_counts: report.suspicious_counts,
       calibration_queue: report.calibration_queue.length
@@ -97,6 +100,7 @@ function loadSessions() {
 
 function loadRouteDecisions() {
   const whereSince = sinceIso ? "AND e.created_at >= ?" : "";
+  const whereMetadata = metadataOnly ? "AND e.match_reason LIKE '%metadata_score=%'" : "";
   const params = sinceIso ? [projectId, sinceIso] : [projectId];
   return db
     .prepare(
@@ -116,6 +120,7 @@ function loadRouteDecisions() {
          ON s.id = e.session_id
        WHERE e.project_id = ?
          ${whereSince}
+         ${whereMetadata}
          AND e.event_type = 'router_route_decision'
        ORDER BY e.id ASC`
     )
@@ -444,6 +449,7 @@ function buildSummary(decisions) {
     `Generated: ${new Date().toISOString()}`,
     `Project: \`${projectId}\``,
     `Window: ${includeAll ? "all route decisions" : `last ${recentHours}h since ${sinceIso}`}`,
+    `Filter: ${metadataOnly ? "metadata_score events only" : "all route decisions"}`,
     "",
     "This is an offline report. It does not invoke Claude and does not change routing behavior. It turns real `router_route_decision` telemetry into a calibration queue for future match-score tuning.",
     "",

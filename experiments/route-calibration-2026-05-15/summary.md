@@ -1,8 +1,9 @@
 # Route Calibration Report
 
-Generated: 2026-05-15T21:16:02.743Z
+Generated: 2026-05-15T21:25:51.029Z
 Project: `AgentSessionRouter`
-Window: last 168h since 2026-05-08T21:16:02.719Z
+Window: last 168h since 2026-05-08T21:25:50.997Z
+Filter: all route decisions
 
 This is an offline report. It does not invoke Claude and does not change routing behavior. It turns real `router_route_decision` telemetry into a calibration queue for future match-score tuning.
 

@@ -272,6 +272,12 @@ npm run build
 npm run route:calibration -- --project-id AgentSessionRouter --recent-hours 168
 ```
 
+Post-metadata-hints command:
+
+```bash
+npm run route:calibration -- --project-id AgentSessionRouter --recent-hours 168 --metadata-only
+```
+
 Artifacts are written under `experiments/route-calibration-<date>/`:
 
 - `summary.md`: selected-path counts, suspicious signal counts, and the
@@ -292,6 +298,20 @@ Only after labels exist should weights or thresholds be changed. The report is
 designed to catch cases like low candidate gaps, ambiguity-forced new sessions,
 near-duplicate topics, slow/high-token outcomes after a route, and metadata
 parse failures after a route.
+
+`metadata_score` is computed from caller-provided routing hints:
+
+- `topic_hint` from caller: `0.35`
+- `related_files` non-empty: `0.35`
+- `tags` non-empty: `0.20`
+- `task_type` present: `0.10`
+
+Interpretation:
+
+- `1.00`: full metadata
+- `0.70-0.99`: good enough for normal inspection
+- `0.35-0.69`: weak; improve caller hints before tuning weights
+- `<0.35`: poor; router is mostly working from inferred/question-only context
 
 Determinism rule:
 
