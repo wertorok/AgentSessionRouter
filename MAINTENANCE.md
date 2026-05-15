@@ -6,21 +6,31 @@ As of 2026-05-15, the production MCP baseline is:
 
 - code pushed on `master`; use `git log -1 --oneline` for the latest commit
 - public MCP tools: 18
-- tests: `86 passed`
+- tests: `91 passed`
 - build: passing
-- shadow eval: `90/90` judged, `0` pending, `0` failed
-- active benchmark clusters: 3
-- archived superseded benchmark clusters: 8
+- shadow eval: `118/118` judged, `0` pending, `0` failed
+- active benchmark clusters: 1 (`agentsessionrouter-codebase`)
+- archived superseded benchmark clusters: 10
 - active direct wins after grounded judge: 0
 - `fallback_count_last_24h`: 0
 - current monitor signals:
   - no active direct wins after grounded judge
-  - no low-scoring active `NOT IN CONTEXT` coverage failures
+  - one historical active-cluster `NOT IN CONTEXT` sample remains in the recent
+    window; inspect the judged sample before treating it as a coverage issue
+  - no active stale or `needs_prepare` clusters after archiving superseded
+    validation clusters
   - `router_monitor.route_health` is available and records `router_consult`
     selected-path samples
-  - 2026-05-15 live `router:sanity` first found stale codebase clusters after
-    route/docs changes; `agentsessionrouter-codebase` was then re-prepared to
-    factsheet version 2 and passed a cluster route sanity check
+  - 2026-05-15 live route sampling found stale codebase evidence after
+    route/docs/answer-hygiene changes; `agentsessionrouter-codebase` was then
+    re-prepared to factsheet version 4 with `llm_verified`, 50 verified facts,
+    and 0 rejected facts
+  - post-cleanup live route sample showed 12 real calls, 0 failures,
+    0 caller-facing pseudo tool-call leaks, 0 empty answers, and 0
+    `NOT IN CONTEXT` answers
+  - post-v4 cluster sample showed A1/A2/A3 all served by
+    `cluster_consult_explicit` with 0 failures, 0 pseudo tool-call leaks, and 0
+    `NOT IN CONTEXT` answers
   - one slow `new_session` event around 302 seconds, caused by a broad
     `tokens_in=78,258` direct roadmap consult
 
@@ -47,8 +57,8 @@ Current follow-up priorities:
    improved metadata health, latency, cache fallback, or quality.
 5. After route changes, run `npm run router:sanity` to generate a small live
    `router_consult` trace before relying on route-health conclusions.
-6. Older superseded codebase clusters are still stale. Prefer the fresh
-   `agentsessionrouter-codebase` factsheet version 2 for route sanity and
+6. Older superseded codebase clusters are archived. Prefer the fresh
+   `agentsessionrouter-codebase` factsheet version 4 for route sanity and
    future benchmark work.
 
 `router_monitor.quality.auto_routing_candidates` is a read-only research signal.
@@ -114,10 +124,11 @@ Do not interpret very low direct shadow scores blindly. If direct answers are
 tool-call plans or search intents, the shadow baseline is measuring fallback
 hygiene, not pure reasoning quality.
 
-For monitor snapshots, keep `sample_limit` conservative. `sample_limit=30`
-worked in the 2026-05-15 route sample; `sample_limit=80` produced an oversized
-or non-JSON MCP error and should be replaced by pagination/truncation before it
-is used routinely.
+For monitor snapshots, `router_monitor` caps large `sample_limit` requests to a
+safe effective limit and reports `output_limits.truncated`. As of 2026-05-15,
+`sample_limit=80` is accepted by the snapshot script, becomes
+`effective_sample_limit=30` inside `router_monitor`, and uses
+`warnings_limit=50` for `router_status`.
 
 ## Monitor Signal Filtering Invariants
 

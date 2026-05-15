@@ -83,10 +83,11 @@ const routerStatusInput = z.object({
 const routerMonitorInput = z.object({
   project_id: z.string().nullable().optional(),
   recent_hours: z.number().int().min(1).max(168).default(24),
-  sample_limit: z.number().int().min(1).max(50).default(10)
+  sample_limit: z.number().int().min(1).max(200).default(10)
 });
 
 const SLOW_SESSION_TOKEN_BLOAT_THRESHOLD = 50_000;
+const ROUTER_MONITOR_SAMPLE_LIMIT_CAP = 30;
 
 const clusterToolProfileInput = z.enum(["bare", "focused", "agent"]);
 const staticFactsheetPolicyInput = z.enum(["allow", "deny"]);
@@ -508,7 +509,9 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
       runtime.db.applyLifecycle(projectId);
       const recentHours = input.recent_hours ?? 24;
       const sinceIso = isoHoursAgo(runtime.clock, recentHours);
-      const staleClusters = runtime.db.listStaleClusters(projectId, input.sample_limit ?? 10);
+      const requestedSampleLimit = input.sample_limit ?? 10;
+      const sampleLimit = Math.min(requestedSampleLimit, ROUTER_MONITOR_SAMPLE_LIMIT_CAP);
+      const staleClusters = runtime.db.listStaleClusters(projectId, sampleLimit);
       const sessionErrors = runtime.db.getRecentSessionErrorCounts(projectId, sinceIso);
       const slowSessionEvents = runtime.db.getRecentSlowSessionEvents(
         projectId,
@@ -519,17 +522,17 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
         projectId,
         sinceIso,
         slowSessionThresholdMs(runtime.config.claude.commandTimeoutMs),
-        input.sample_limit ?? 10
+        sampleLimit
       );
       const metadataEventCounts = runtime.db.getRecentSessionMetadataEventCounts(projectId, sinceIso);
       const metadataAffectedSessions = runtime.db.listRecentSessionMetadataAffectedSessions(
         projectId,
         sinceIso,
-        input.sample_limit ?? 10
+        sampleLimit
       );
-      const metadataSamples = runtime.db.listRecentSessionMetadataEventSamples(projectId, sinceIso, input.sample_limit ?? 10);
+      const metadataSamples = runtime.db.listRecentSessionMetadataEventSamples(projectId, sinceIso, sampleLimit);
       const routeDecisionCounts = runtime.db.getRecentRouteDecisionCounts(projectId, sinceIso);
-      const routeDecisionSamples = runtime.db.listRecentRouteDecisionSamples(projectId, sinceIso, input.sample_limit ?? 10);
+      const routeDecisionSamples = runtime.db.listRecentRouteDecisionSamples(projectId, sinceIso, sampleLimit);
       const clusterAttention = runtime.db.getRecentClusterAttentionCounts(projectId, sinceIso);
       const clusterAttentionByCluster = runtime.db.getRecentClusterAttentionCountsByCluster(projectId, sinceIso);
       const shadowEval = runtime.db.getShadowEvalHealth(projectId);
@@ -541,7 +544,7 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
         .listConsultComparisons({
           projectId,
           preferred: "direct",
-          limit: input.sample_limit ?? 10
+          limit: sampleLimit
         })
         .filter(
           (comparison) =>
@@ -559,7 +562,7 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
       const notInContextSamples = runtime.db
         .listConsultComparisons({
           projectId,
-          limit: input.sample_limit ?? 10
+          limit: sampleLimit
         })
         .filter(
           (comparison) =>
@@ -609,6 +612,11 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
         project_id: projectId,
         checked_at: runtime.clock.nowIso(),
         recent_window_hours: recentHours,
+        output_limits: {
+          requested_sample_limit: requestedSampleLimit,
+          effective_sample_limit: sampleLimit,
+          truncated: requestedSampleLimit > sampleLimit
+        },
         health: {
           mode: runtime.degradedMode ? "degraded" : "normal",
           degraded_reason: runtime.degradedReason ?? null,

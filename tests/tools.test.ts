@@ -1225,6 +1225,39 @@ describe("cluster MCP tools", () => {
     fixture.cleanup();
   });
 
+  it("caps large router_monitor sample limits and reports truncation", async () => {
+    const fixture = createToolFixture();
+    const server = new FakeServer();
+    registerTools(server as unknown as McpServer, fixture.runtime);
+
+    for (let index = 0; index < 40; index += 1) {
+      fixture.runtime.db.logEvent({
+        projectId: "project",
+        eventType: "router_route_decision",
+        question: `Route decision ${index}`,
+        answerSummary: "claude_consult_auto",
+        matchScore: 0.1,
+        matchReason: "synthetic sample"
+      });
+    }
+
+    const monitor = parseToolJson(
+      await server.call("router_monitor", {
+        project_id: "project",
+        recent_hours: 24,
+        sample_limit: 80
+      })
+    );
+
+    expect(monitor.output_limits).toEqual({
+      requested_sample_limit: 80,
+      effective_sample_limit: 30,
+      truncated: true
+    });
+    expect(monitor.route_health.samples).toHaveLength(30);
+    fixture.cleanup();
+  });
+
   it("surfaces SESSION_UPDATE_JSON metadata health in the operator monitor", async () => {
     const fixture = createToolFixture();
     const server = new FakeServer();

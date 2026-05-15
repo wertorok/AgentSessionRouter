@@ -70,13 +70,16 @@ Optional shadow-eval tools:
 
 Validation performed:
 
-- Unit/integration tests: `86 passed`
+- Unit/integration tests: `91 passed`
 - Live MCP stdio E2E: `LIVE_CONSULT_PASS`
 - Live matrix run: committed as `LIVE_TEST_LOG.md`
 - Post-fix targeted live rerun: `TARGETED_RERUN_PASS`
 - Post-install smoke: stub mode passes and covers v1, v2 cluster tools, `router_status`, and `router_monitor`
 - MCP workload matrix: stub mode passes 22/22 checks, including clean `SESSION_UPDATE_JSON`, parse-failure threshold archival, archived-bootstrap replacement, conservative `router_consult`, evidence revalidation, fallback, and shadow telemetry
 - Router monitor snapshots: `npm run monitor:snapshot` writes `router_status` + `router_monitor` payloads under `experiments/router-monitor-snapshots/`
+- Route sample follow-up: 118/118 shadow comparisons judged, 0 pending, active
+  `agentsessionrouter-codebase` factsheet v4 is `llm_verified` with 50
+  verified facts and 0 rejected facts
 
 Research and next-architecture docs:
 
@@ -706,6 +709,11 @@ Output sections:
 - `next_directions`: higher-level signals such as factsheet expansion, shadow stabilization, or future auto-routing candidates.
 
 Use `router_status` for a compact health check. Use `router_monitor` when deciding what to fix next.
+
+Large monitor samples are bounded in the tool response. `router_monitor` accepts
+requested `sample_limit` values up to 200, caps the effective sample output to a
+safe internal limit, and reports `output_limits` so callers know when output was
+truncated.
 
 To save a point-in-time monitor snapshot for trend comparison:
 

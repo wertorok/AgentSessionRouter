@@ -400,6 +400,52 @@ SESSION_UPDATE_JSON:
     fixture.cleanup();
   });
 
+  it("returns cleaned caller answer when SESSION_UPDATE_JSON parse fails with pseudo tool calls", async () => {
+    const fixture = createRuntimeFixture();
+    fixture.claude.result = `I will inspect the project first.
+<minimax:tool_call>
+<invoke name="Grep">
+<parameter name="query">router_monitor</parameter>
+</invoke>
+</minimax:tool_call>
+Final answer from available registry context.`;
+    const service = new ConsultService(fixture.runtime, fixture.runtime.locks);
+
+    const result = await service.consult(baseInput());
+
+    expect("error" in result).toBe(false);
+    if ("error" in result) {
+      throw new Error("unexpected error");
+    }
+    expect(result.warning?.code).toBe(ERROR_CODES.SESSION_UPDATE_PARSE_FAILED);
+    expect(result.answer).toContain("I will inspect the project first.");
+    expect(result.answer).toContain("Final answer from available registry context.");
+    expect(result.answer).not.toContain("<minimax:tool_call>");
+    expect(result.answer).not.toContain("<invoke");
+    fixture.cleanup();
+  });
+
+  it("does not return raw pseudo tool-call markup when no caller answer remains", async () => {
+    const fixture = createRuntimeFixture();
+    fixture.claude.result = `<minimax:tool_call>
+<invoke name="Grep">
+<parameter name="query">router_monitor</parameter>
+</invoke>
+</minimax:tool_call>`;
+    const service = new ConsultService(fixture.runtime, fixture.runtime.locks);
+
+    const result = await service.consult(baseInput());
+
+    expect("error" in result).toBe(false);
+    if ("error" in result) {
+      throw new Error("unexpected error");
+    }
+    expect(result.answer).toContain("Claude did not produce a caller-facing answer");
+    expect(result.answer).not.toContain("<minimax:tool_call>");
+    expect(result.answer).not.toContain("<invoke");
+    fixture.cleanup();
+  });
+
   it("archives sessions with recurring SESSION_UPDATE_JSON parse failures and bootstraps a replacement", async () => {
     const fixture = createRuntimeFixture();
     fixture.runtime.db.createSession({

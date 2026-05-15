@@ -1,0 +1,1839 @@
+{
+  "started_at": "2026-05-15T18:57:13.135Z",
+  "project_id": null,
+  "cwd": "/root/projects/AgentSessionRouter",
+  "config": {
+    "cluster_limit": 3,
+    "stale_cluster_limit": 0,
+    "explicit_session_limit": 0,
+    "secondary_session_limit": 0,
+    "exact_topic_limit": 0,
+    "auto_limit": 0
+  },
+  "selected": {
+    "fresh_cluster": {
+      "id": "agentsessionrouter-codebase",
+      "status": "active",
+      "trust_state": "llm_verified",
+      "factsheet_status": "llm_verified",
+      "factsheet_version": 4
+    },
+    "stale_clusters": [],
+    "primary_session": {
+      "id": "session_e5feff70-5233-4395-906d-0ecb13bbbb69",
+      "topic": "router consult shadow eval sample",
+      "status": "active",
+      "last_used": "2026-05-15T18:53:09.959Z"
+    },
+    "secondary_sessions": [
+      {
+        "id": "session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4",
+        "topic": "router consult cache maintenance sample",
+        "status": "active",
+        "last_used": "2026-05-15T18:53:06.838Z"
+      },
+      {
+        "id": "session_570b63cb-efa6-4345-96bc-84d875385637",
+        "topic": "router consult route telemetry sample",
+        "status": "active",
+        "last_used": "2026-05-15T18:53:04.022Z"
+      },
+      {
+        "id": "session_63fec26d-9e40-4981-80ce-5b7311daa01c",
+        "topic": "cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-full",
+        "status": "active",
+        "last_used": "2026-05-15T18:52:57.279Z"
+      },
+      {
+        "id": "session_e04a3fed-2a53-44f2-92ea-695d2e3e193e",
+        "topic": "cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3",
+        "status": "active",
+        "last_used": "2026-05-15T18:52:48.620Z"
+      },
+      {
+        "id": "session_9e3540b3-5451-442f-af26-03c888b7e859",
+        "topic": "cluster fallback claude-code-live-workload",
+        "status": "active",
+        "last_used": "2026-05-15T18:52:41.340Z"
+      },
+      {
+        "id": "session_11d18ee8-3799-443f-8f5f-ecd866db9e57",
+        "topic": "v2.1 shadow eval architecture",
+        "status": "active",
+        "last_used": "2026-05-15T17:02:04.041Z"
+      },
+      {
+        "id": "session_e65145e0-1911-4a87-ad7d-8477254bdbb2",
+        "topic": "project roadmap after v2.3.1",
+        "status": "active",
+        "last_used": "2026-05-15T12:08:08.334Z"
+      }
+    ]
+  },
+  "preflight": [
+    {
+      "cluster_id": "agentsessionrouter-codebase",
+      "ok": true,
+      "duration_ms": 30,
+      "fresh": true,
+      "error": null
+    }
+  ],
+  "calls": [
+    {
+      "name": "cluster_A1",
+      "tool": "router_consult",
+      "ok": true,
+      "duration_ms": 11452,
+      "selected_path": "cluster_consult_explicit",
+      "route_decision": {
+        "selected_path": "cluster_consult_explicit",
+        "reason": "Explicit cluster_id provided by caller.",
+        "cluster_id": "agentsessionrouter-codebase",
+        "match_score": 1,
+        "topic_hint": "Route sample A1",
+        "auto_cluster_routing": "disabled_read_only"
+      },
+      "cluster_id": "agentsessionrouter-codebase",
+      "session_id": null,
+      "routing": null,
+      "metrics": {
+        "duration_ms": 4018,
+        "tokens_in": 16639,
+        "tokens_out": 196,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cost_usd": 0.088095,
+        "model": "MiniMax-M2.7",
+        "num_turns": 1
+      },
+      "answer_chars": 361,
+      "answer_preview": "\n\nBased on the verified factsheet, the **clusters table** fields are, in order:\n\n1. `id`\n2. `project_id`\n3. `name`\n4. `description`\n5. `tool_profile_default`\n6. `static_factsheet_policy`\n7. `baseline_session_id`\n8. `status`\n9. `trust_state`\n10. `created_at`\n11. `last_used`\n\nThis is sourced from the `CREATE TABLE IF NOT EXISTS clusters` DDL in `src/schema.ts`.",
+      "diagnostics": {
+        "has_not_in_context": false,
+        "has_tool_markup": false,
+        "starts_with_search_intent": false
+      },
+      "error": null
+    },
+    {
+      "name": "cluster_A2",
+      "tool": "router_consult",
+      "ok": true,
+      "duration_ms": 8278,
+      "selected_path": "cluster_consult_explicit",
+      "route_decision": {
+        "selected_path": "cluster_consult_explicit",
+        "reason": "Explicit cluster_id provided by caller.",
+        "cluster_id": "agentsessionrouter-codebase",
+        "match_score": 1,
+        "topic_hint": "Route sample A2",
+        "auto_cluster_routing": "disabled_read_only"
+      },
+      "cluster_id": "agentsessionrouter-codebase",
+      "session_id": null,
+      "routing": null,
+      "metrics": {
+        "duration_ms": 8263,
+        "tokens_in": 16643,
+        "tokens_out": 720,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cost_usd": 0.10121500000000001,
+        "model": "MiniMax-M2.7",
+        "num_turns": 1
+      },
+      "answer_chars": 1356,
+      "answer_preview": "\n\n## cluster_events Event Types (Verified)\n\nThe following event types are written to `cluster_events`, as verified in the factsheet:\n\n### Factsheet Lifecycle\n- **cluster_created** — new cluster creation\n- **factsheet_generated** — generated, not yet verified\n- **factsheet_static_verified** — fully statically verified\n- **factsheet_partially_static_verified** — partially statically verified\n- **factsheet_llm_verified** — fully LLM-verified\n- **factsheet_partially_llm_verified** — partially LLM-verified\n- **factsheet_rejected** — a fact was rejected\n- **factsheet_stale** — stale factsheet found ",
+      "diagnostics": {
+        "has_not_in_context": false,
+        "has_tool_markup": false,
+        "starts_with_search_intent": false
+      },
+      "error": null
+    },
+    {
+      "name": "cluster_A3",
+      "tool": "router_consult",
+      "ok": true,
+      "duration_ms": 13323,
+      "selected_path": "cluster_consult_explicit",
+      "route_decision": {
+        "selected_path": "cluster_consult_explicit",
+        "reason": "Explicit cluster_id provided by caller.",
+        "cluster_id": "agentsessionrouter-codebase",
+        "match_score": 1,
+        "topic_hint": "Route sample A3",
+        "auto_cluster_routing": "disabled_read_only"
+      },
+      "cluster_id": "agentsessionrouter-codebase",
+      "session_id": null,
+      "routing": null,
+      "metrics": {
+        "duration_ms": 13311,
+        "tokens_in": 0,
+        "tokens_out": 612,
+        "cache_creation_input_tokens": 16640,
+        "cache_read_input_tokens": 0,
+        "cost_usd": 0.11929999999999999,
+        "model": "MiniMax-M2.7",
+        "num_turns": 1
+      },
+      "answer_chars": 1442,
+      "answer_preview": "## Route Sample A3: Caller-Facing `cluster_consult` — Stale Factsheet Behavior\n\nBased on verified router facts, when the caller-facing `cluster_consult` tool encounters a stale factsheet, the following sequence occurs:\n\n### Step 1 — Evidence Revalidation\nWhen `cluster_consult` is invoked, `revalidateClusterEvidence` is called to perform **strict** evidence revalidation on the cluster's scoped evidence files.\n\n### Step 2 — Fallback on Failure\nIf strict revalidation fails, the caller-facing path **does not** return `CLUSTER_FACTSHEET_STALE` to the caller. Instead it calls `fallbackToClaudeConsul",
+      "diagnostics": {
+        "has_not_in_context": false,
+        "has_tool_markup": false,
+        "starts_with_search_intent": false
+      },
+      "error": null
+    },
+    {
+      "name": "stale_cluster_matrix_skipped",
+      "ok": true,
+      "skipped": true,
+      "reason": "No stale active clusters found."
+    }
+  ],
+  "shadow_drain": [
+    {
+      "pass": 1,
+      "ok": true,
+      "duration_ms": 20414,
+      "payload": {
+        "project_id": "AgentSessionRouter",
+        "requested_limit": 20,
+        "processed_count": 2,
+        "processed": [
+          {
+            "id": "comparison_94441778-f7dd-470d-a7b4-0250a082e0d9",
+            "cluster_id": "agentsessionrouter-codebase",
+            "before_status": "ok",
+            "after_status": "ok",
+            "judged_at": "2026-05-15T18:58:01.805Z"
+          },
+          {
+            "id": "comparison_2fe2bd1e-1a45-4124-ab45-d92410c08635",
+            "cluster_id": "agentsessionrouter-codebase",
+            "before_status": "pending",
+            "after_status": "ok",
+            "judged_at": "2026-05-15T18:58:11.761Z"
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "pass": 2,
+      "ok": true,
+      "duration_ms": 3,
+      "payload": {
+        "project_id": "AgentSessionRouter",
+        "requested_limit": 20,
+        "processed_count": 0,
+        "processed": []
+      },
+      "error": null
+    }
+  ],
+  "final_status": {
+    "project_id": "AgentSessionRouter",
+    "checked_at": "2026-05-15T18:58:11.771Z",
+    "mode": "normal",
+    "degraded_reason": null,
+    "uptime_hours": 0.02,
+    "claude": {
+      "detected_version": "2.1.92 (Claude Code)",
+      "tested_versions": [
+        "\"2.1.138 (Claude Code)\"",
+        "\"2.1.92 (Claude Code)\""
+      ]
+    },
+    "v1_sessions": {
+      "active": 8,
+      "dormant": 0,
+      "archived": 0,
+      "orphaned": 0,
+      "total": 8
+    },
+    "v2_clusters": {
+      "active": 1,
+      "stale": 0,
+      "needs_prepare": 3,
+      "invalidated": 0,
+      "archived": 7,
+      "total": 11,
+      "fallback_count_last_24h": 9,
+      "stale_clusters": [
+        {
+          "id": "agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3",
+          "name": "AgentSessionRouter codebase",
+          "status": "needs_prepare",
+          "trust_state": "untrusted",
+          "last_used": "2026-05-15T18:52:15.464Z",
+          "factsheet_id": "factsheet_462264ce-f355-4b3d-bbc6-785a6c518d8f",
+          "factsheet_version": 1,
+          "factsheet_status": "stale",
+          "verified_at": "2026-05-15T08:54:41.094Z"
+        },
+        {
+          "id": "claude-code-live-workload",
+          "name": "Claude Code Live Workload",
+          "status": "needs_prepare",
+          "trust_state": "untrusted",
+          "last_used": "2026-05-15T18:52:08.663Z",
+          "factsheet_id": "factsheet_03616a74-e8b6-488b-9395-64e5af913314",
+          "factsheet_version": 1,
+          "factsheet_status": "stale",
+          "verified_at": "2026-05-14T23:14:37.282Z"
+        },
+        {
+          "id": "agentsessionrouter-codebase-reprepared-2026-05-15-full",
+          "name": "AgentSessionRouter codebase",
+          "status": "needs_prepare",
+          "trust_state": "untrusted",
+          "last_used": "2026-05-15T18:52:03.876Z",
+          "factsheet_id": "factsheet_d27eb28a-7fdc-4ef3-bf24-50501b8dbecd",
+          "factsheet_version": 1,
+          "factsheet_status": "stale",
+          "verified_at": "2026-05-15T08:59:49.158Z"
+        }
+      ]
+    },
+    "recent_window_hours": 24,
+    "recent_errors": {
+      "session_events": [
+        {
+          "event_type": "cost_limit_exceeded",
+          "count": 9,
+          "latest_created_at": "2026-05-15T17:05:27.482Z"
+        },
+        {
+          "event_type": "parse_failed",
+          "count": 9,
+          "latest_created_at": "2026-05-15T18:53:09.962Z"
+        },
+        {
+          "event_type": "token_anomaly",
+          "count": 2,
+          "latest_created_at": "2026-05-15T16:54:17.619Z"
+        },
+        {
+          "event_type": "health_check_failed",
+          "count": 1,
+          "latest_created_at": "2026-05-15T16:25:19.448Z"
+        }
+      ],
+      "slow_session_events": [
+        {
+          "event_type": "new_session",
+          "count": 1,
+          "max_duration_ms": 302712,
+          "latest_created_at": "2026-05-15T12:08:08.351Z"
+        }
+      ],
+      "cluster_events": [
+        {
+          "event_type": "evidence_revalidation_failed",
+          "count": 10,
+          "latest_created_at": "2026-05-15T18:52:15.462Z"
+        },
+        {
+          "event_type": "cluster_fallback_to_claude_consult",
+          "count": 9,
+          "latest_created_at": "2026-05-15T18:52:22.313Z"
+        },
+        {
+          "event_type": "factsheet_stale",
+          "count": 5,
+          "latest_created_at": "2026-05-15T18:53:37.486Z"
+        },
+        {
+          "event_type": "cluster_fallback_failed",
+          "count": 1,
+          "latest_created_at": "2026-05-15T16:25:19.451Z"
+        },
+        {
+          "event_type": "cluster_refresh_required",
+          "count": 1,
+          "latest_created_at": "2026-05-15T16:22:19.367Z"
+        }
+      ]
+    },
+    "shadow_eval": {
+      "enabled": true,
+      "total": 118,
+      "judged": 118,
+      "pending": 0,
+      "ok_unjudged": 0,
+      "failed_auth": 0,
+      "failed_timeout": 0,
+      "failed_other": 0,
+      "last_created_at": "2026-05-15T18:57:51.351Z",
+      "last_judged_at": "2026-05-15T18:58:11.761Z"
+    },
+    "warnings": [
+      "Cluster 'agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3' is stale; latest factsheet factsheet_462264ce-f355-4b3d-bbc6-785a6c518d8f version 1 needs refresh or re-prepare.",
+      "Cluster 'claude-code-live-workload' is stale; latest factsheet factsheet_03616a74-e8b6-488b-9395-64e5af913314 version 1 needs refresh or re-prepare.",
+      "Cluster 'agentsessionrouter-codebase-reprepared-2026-05-15-full' is stale; latest factsheet factsheet_d27eb28a-7fdc-4ef3-bf24-50501b8dbecd version 1 needs refresh or re-prepare.",
+      "Cluster event 'evidence_revalidation_failed' occurred 10 time(s) in the recent window.",
+      "Cluster event 'cluster_fallback_to_claude_consult' occurred 9 time(s) in the recent window.",
+      "Cluster event 'factsheet_stale' occurred 5 time(s) in the recent window.",
+      "Cluster event 'cluster_fallback_failed' occurred 1 time(s) in the recent window.",
+      "Cluster event 'cluster_refresh_required' occurred 1 time(s) in the recent window.",
+      "Session event 'cost_limit_exceeded' has 9 error row(s) in the recent window.",
+      "Session event 'parse_failed' has 9 error row(s) in the recent window.",
+      "Session event 'token_anomaly' has 2 error row(s) in the recent window.",
+      "Session event 'health_check_failed' has 1 error row(s) in the recent window.",
+      "Session event 'new_session' exceeded the slow-call threshold 1 time(s); max duration 302712ms."
+    ]
+  },
+  "final_monitor": {
+    "project_id": "AgentSessionRouter",
+    "checked_at": "2026-05-15T18:58:11.774Z",
+    "recent_window_hours": 24,
+    "output_limits": {
+      "requested_sample_limit": 40,
+      "effective_sample_limit": 30,
+      "truncated": true
+    },
+    "health": {
+      "mode": "normal",
+      "degraded_reason": null,
+      "claude": {
+        "detected_version": "2.1.92 (Claude Code)",
+        "tested_versions": [
+          "\"2.1.138 (Claude Code)\"",
+          "\"2.1.92 (Claude Code)\""
+        ]
+      },
+      "v1_sessions": {
+        "active": 8,
+        "dormant": 0,
+        "archived": 0,
+        "orphaned": 0,
+        "total": 8
+      },
+      "v2_clusters": {
+        "active": 1,
+        "stale": 0,
+        "needs_prepare": 3,
+        "invalidated": 0,
+        "archived": 7,
+        "total": 11,
+        "fallback_count_last_24h": 9
+      },
+      "shadow_eval": {
+        "enabled": true,
+        "total": 118,
+        "judged": 118,
+        "pending": 0,
+        "ok_unjudged": 0,
+        "failed_auth": 0,
+        "failed_timeout": 0,
+        "failed_other": 0,
+        "last_created_at": "2026-05-15T18:57:51.351Z",
+        "last_judged_at": "2026-05-15T18:58:11.761Z"
+      }
+    },
+    "cache_health": {
+      "stale_or_needs_prepare": [
+        {
+          "id": "agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3",
+          "name": "AgentSessionRouter codebase",
+          "status": "needs_prepare",
+          "trust_state": "untrusted",
+          "last_used": "2026-05-15T18:52:15.464Z",
+          "factsheet_id": "factsheet_462264ce-f355-4b3d-bbc6-785a6c518d8f",
+          "factsheet_version": 1,
+          "factsheet_status": "stale",
+          "verified_at": "2026-05-15T08:54:41.094Z"
+        },
+        {
+          "id": "claude-code-live-workload",
+          "name": "Claude Code Live Workload",
+          "status": "needs_prepare",
+          "trust_state": "untrusted",
+          "last_used": "2026-05-15T18:52:08.663Z",
+          "factsheet_id": "factsheet_03616a74-e8b6-488b-9395-64e5af913314",
+          "factsheet_version": 1,
+          "factsheet_status": "stale",
+          "verified_at": "2026-05-14T23:14:37.282Z"
+        },
+        {
+          "id": "agentsessionrouter-codebase-reprepared-2026-05-15-full",
+          "name": "AgentSessionRouter codebase",
+          "status": "needs_prepare",
+          "trust_state": "untrusted",
+          "last_used": "2026-05-15T18:52:03.876Z",
+          "factsheet_id": "factsheet_d27eb28a-7fdc-4ef3-bf24-50501b8dbecd",
+          "factsheet_version": 1,
+          "factsheet_status": "stale",
+          "verified_at": "2026-05-15T08:59:49.158Z"
+        }
+      ],
+      "attention_by_event": [
+        {
+          "event_type": "evidence_revalidation_failed",
+          "count": 10,
+          "latest_created_at": "2026-05-15T18:52:15.462Z"
+        },
+        {
+          "event_type": "cluster_fallback_to_claude_consult",
+          "count": 9,
+          "latest_created_at": "2026-05-15T18:52:22.313Z"
+        },
+        {
+          "event_type": "factsheet_stale",
+          "count": 5,
+          "latest_created_at": "2026-05-15T18:53:37.486Z"
+        },
+        {
+          "event_type": "cluster_fallback_failed",
+          "count": 1,
+          "latest_created_at": "2026-05-15T16:25:19.451Z"
+        },
+        {
+          "event_type": "cluster_refresh_required",
+          "count": 1,
+          "latest_created_at": "2026-05-15T16:22:19.367Z"
+        }
+      ],
+      "attention_by_cluster": [
+        {
+          "cluster_id": "agentsessionrouter-codebase-reprepared-2026-05-15-full",
+          "event_type": "evidence_revalidation_failed",
+          "count": 4,
+          "latest_created_at": "2026-05-15T18:52:03.872Z"
+        },
+        {
+          "cluster_id": "agentsessionrouter-codebase-reprepared-2026-05-15-full",
+          "event_type": "cluster_fallback_to_claude_consult",
+          "count": 3,
+          "latest_created_at": "2026-05-15T18:52:08.647Z"
+        },
+        {
+          "cluster_id": "agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3",
+          "event_type": "cluster_fallback_to_claude_consult",
+          "count": 3,
+          "latest_created_at": "2026-05-15T18:52:22.313Z"
+        },
+        {
+          "cluster_id": "agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3",
+          "event_type": "evidence_revalidation_failed",
+          "count": 3,
+          "latest_created_at": "2026-05-15T18:52:15.462Z"
+        },
+        {
+          "cluster_id": "claude-code-live-workload",
+          "event_type": "cluster_fallback_to_claude_consult",
+          "count": 3,
+          "latest_created_at": "2026-05-15T18:52:15.448Z"
+        },
+        {
+          "cluster_id": "claude-code-live-workload",
+          "event_type": "evidence_revalidation_failed",
+          "count": 3,
+          "latest_created_at": "2026-05-15T18:52:08.659Z"
+        },
+        {
+          "cluster_id": "agentsessionrouter-codebase",
+          "event_type": "factsheet_stale",
+          "count": 2,
+          "latest_created_at": "2026-05-15T18:53:37.486Z"
+        },
+        {
+          "cluster_id": "agentsessionrouter-codebase-reprepared-2026-05-15-full",
+          "event_type": "cluster_fallback_failed",
+          "count": 1,
+          "latest_created_at": "2026-05-15T16:25:19.451Z"
+        },
+        {
+          "cluster_id": "agentsessionrouter-codebase-reprepared-2026-05-15-full",
+          "event_type": "cluster_refresh_required",
+          "count": 1,
+          "latest_created_at": "2026-05-15T16:22:19.367Z"
+        },
+        {
+          "cluster_id": "agentsessionrouter-codebase-reprepared-2026-05-15-full",
+          "event_type": "factsheet_stale",
+          "count": 1,
+          "latest_created_at": "2026-05-15T16:27:09.659Z"
+        },
+        {
+          "cluster_id": "agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3",
+          "event_type": "factsheet_stale",
+          "count": 1,
+          "latest_created_at": "2026-05-15T16:27:09.637Z"
+        },
+        {
+          "cluster_id": "claude-code-live-workload",
+          "event_type": "factsheet_stale",
+          "count": 1,
+          "latest_created_at": "2026-05-15T16:27:09.645Z"
+        }
+      ]
+    },
+    "latency": {
+      "slow_session_threshold_ms": 100000,
+      "slow_session_events": [
+        {
+          "event_type": "new_session",
+          "count": 1,
+          "max_duration_ms": 302712,
+          "latest_created_at": "2026-05-15T12:08:08.351Z"
+        }
+      ],
+      "slow_session_samples": [
+        {
+          "event_id": 63,
+          "session_id": "session_e65145e0-1911-4a87-ad7d-8477254bdbb2",
+          "topic": "project roadmap after v2.3.1",
+          "event_type": "new_session",
+          "question": "Given this state, what should we do next? Please prioritize 3-5 concrete next steps, and distinguish must-do production hardening from optional research. Be direct and call out anything you think we are over-optimizing.",
+          "raw_response_path": "/root/projects/AgentSessionRouter/.claude-session-router/raw/session_e65145e0-1911-4a87-ad7d-8477254bdbb2-1778846888340.txt",
+          "tokens_in": 78258,
+          "tokens_out": 3048,
+          "duration_ms": 302712,
+          "created_at": "2026-05-15T12:08:08.351Z"
+        }
+      ]
+    },
+    "metadata_health": {
+      "event_counts": [
+        {
+          "event_type": "parse_failed",
+          "count": 9,
+          "latest_created_at": "2026-05-15T18:53:09.962Z"
+        }
+      ],
+      "affected_sessions": [
+        {
+          "session_id": "session_e5feff70-5233-4395-906d-0ecb13bbbb69",
+          "topic": "router consult shadow eval sample",
+          "session_status": "active",
+          "parse_failed_count": 2,
+          "threshold_exceeded_count": 0,
+          "latest_created_at": "2026-05-15T18:53:09.962Z",
+          "latest_error": "SESSION_UPDATE_JSON block missing",
+          "latest_raw_response_path": "/root/projects/AgentSessionRouter/.claude-session-router/raw/session_e5feff70-5233-4395-906d-0ecb13bbbb69-1778871189962.txt"
+        },
+        {
+          "session_id": "session_9e3540b3-5451-442f-af26-03c888b7e859",
+          "topic": "cluster fallback claude-code-live-workload",
+          "session_status": "active",
+          "parse_failed_count": 2,
+          "threshold_exceeded_count": 0,
+          "latest_created_at": "2026-05-15T17:05:19.250Z",
+          "latest_error": "SESSION_UPDATE_JSON block missing",
+          "latest_raw_response_path": "/root/projects/AgentSessionRouter/.claude-session-router/raw/session_9e3540b3-5451-442f-af26-03c888b7e859-1778864719250.txt"
+        },
+        {
+          "session_id": "session_570b63cb-efa6-4345-96bc-84d875385637",
+          "topic": "router consult route telemetry sample",
+          "session_status": "active",
+          "parse_failed_count": 2,
+          "threshold_exceeded_count": 0,
+          "latest_created_at": "2026-05-15T17:01:50.160Z",
+          "latest_error": "SESSION_UPDATE_JSON block missing",
+          "latest_raw_response_path": "/root/projects/AgentSessionRouter/.claude-session-router/raw/session_570b63cb-efa6-4345-96bc-84d875385637-1778864510160.txt"
+        },
+        {
+          "session_id": "session_e04a3fed-2a53-44f2-92ea-695d2e3e193e",
+          "topic": "cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3",
+          "session_status": "active",
+          "parse_failed_count": 1,
+          "threshold_exceeded_count": 0,
+          "latest_created_at": "2026-05-15T17:01:26.659Z",
+          "latest_error": "SESSION_UPDATE_JSON block missing",
+          "latest_raw_response_path": "/root/projects/AgentSessionRouter/.claude-session-router/raw/session_e04a3fed-2a53-44f2-92ea-695d2e3e193e-1778864486659.txt"
+        },
+        {
+          "session_id": "session_63fec26d-9e40-4981-80ce-5b7311daa01c",
+          "topic": "cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-full",
+          "session_status": "active",
+          "parse_failed_count": 1,
+          "threshold_exceeded_count": 0,
+          "latest_created_at": "2026-05-15T17:01:19.128Z",
+          "latest_error": "SESSION_UPDATE_JSON block missing",
+          "latest_raw_response_path": "/root/projects/AgentSessionRouter/.claude-session-router/raw/session_63fec26d-9e40-4981-80ce-5b7311daa01c-1778864479127.txt"
+        },
+        {
+          "session_id": "session_11d18ee8-3799-443f-8f5f-ecd866db9e57",
+          "topic": "v2.1 shadow eval architecture",
+          "session_status": "active",
+          "parse_failed_count": 1,
+          "threshold_exceeded_count": 0,
+          "latest_created_at": "2026-05-15T16:25:22.926Z",
+          "latest_error": "SESSION_UPDATE_JSON block missing",
+          "latest_raw_response_path": "/root/projects/AgentSessionRouter/.claude-session-router/raw/session_11d18ee8-3799-443f-8f5f-ecd866db9e57-1778862322925.txt"
+        }
+      ],
+      "samples": [
+        {
+          "event_id": 254,
+          "session_id": "session_e5feff70-5233-4395-906d-0ecb13bbbb69",
+          "topic": "router consult shadow eval sample",
+          "session_status": "active",
+          "event_type": "parse_failed",
+          "question": null,
+          "raw_response_path": "/root/projects/AgentSessionRouter/.claude-session-router/raw/session_e5feff70-5233-4395-906d-0ecb13bbbb69-1778871189962.txt",
+          "error": "SESSION_UPDATE_JSON block missing",
+          "created_at": "2026-05-15T18:53:09.962Z"
+        },
+        {
+          "event_id": 204,
+          "session_id": "session_9e3540b3-5451-442f-af26-03c888b7e859",
+          "topic": "cluster fallback claude-code-live-workload",
+          "session_status": "active",
+          "event_type": "parse_failed",
+          "question": null,
+          "raw_response_path": "/root/projects/AgentSessionRouter/.claude-session-router/raw/session_9e3540b3-5451-442f-af26-03c888b7e859-1778864719250.txt",
+          "error": "SESSION_UPDATE_JSON block missing",
+          "created_at": "2026-05-15T17:05:19.250Z"
+        },
+        {
+          "event_id": 195,
+          "session_id": "session_e5feff70-5233-4395-906d-0ecb13bbbb69",
+          "topic": "router consult shadow eval sample",
+          "session_status": "active",
+          "event_type": "parse_failed",
+          "question": null,
+          "raw_response_path": "/root/projects/AgentSessionRouter/.claude-session-router/raw/session_e5feff70-5233-4395-906d-0ecb13bbbb69-1778864563951.txt",
+          "error": "SESSION_UPDATE_JSON block missing",
+          "created_at": "2026-05-15T17:02:43.952Z"
+        },
+        {
+          "event_id": 180,
+          "session_id": "session_570b63cb-efa6-4345-96bc-84d875385637",
+          "topic": "router consult route telemetry sample",
+          "session_status": "active",
+          "event_type": "parse_failed",
+          "question": null,
+          "raw_response_path": "/root/projects/AgentSessionRouter/.claude-session-router/raw/session_570b63cb-efa6-4345-96bc-84d875385637-1778864510160.txt",
+          "error": "SESSION_UPDATE_JSON block missing",
+          "created_at": "2026-05-15T17:01:50.160Z"
+        },
+        {
+          "event_id": 169,
+          "session_id": "session_e04a3fed-2a53-44f2-92ea-695d2e3e193e",
+          "topic": "cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3",
+          "session_status": "active",
+          "event_type": "parse_failed",
+          "question": null,
+          "raw_response_path": "/root/projects/AgentSessionRouter/.claude-session-router/raw/session_e04a3fed-2a53-44f2-92ea-695d2e3e193e-1778864486659.txt",
+          "error": "SESSION_UPDATE_JSON block missing",
+          "created_at": "2026-05-15T17:01:26.659Z"
+        },
+        {
+          "event_id": 166,
+          "session_id": "session_9e3540b3-5451-442f-af26-03c888b7e859",
+          "topic": "cluster fallback claude-code-live-workload",
+          "session_status": "active",
+          "event_type": "parse_failed",
+          "question": null,
+          "raw_response_path": "/root/projects/AgentSessionRouter/.claude-session-router/raw/session_9e3540b3-5451-442f-af26-03c888b7e859-1778864482520.txt",
+          "error": "SESSION_UPDATE_JSON block missing",
+          "created_at": "2026-05-15T17:01:22.521Z"
+        },
+        {
+          "event_id": 163,
+          "session_id": "session_63fec26d-9e40-4981-80ce-5b7311daa01c",
+          "topic": "cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-full",
+          "session_status": "active",
+          "event_type": "parse_failed",
+          "question": null,
+          "raw_response_path": "/root/projects/AgentSessionRouter/.claude-session-router/raw/session_63fec26d-9e40-4981-80ce-5b7311daa01c-1778864479127.txt",
+          "error": "SESSION_UPDATE_JSON block missing",
+          "created_at": "2026-05-15T17:01:19.128Z"
+        },
+        {
+          "event_id": 145,
+          "session_id": "session_570b63cb-efa6-4345-96bc-84d875385637",
+          "topic": "router consult route telemetry sample",
+          "session_status": "active",
+          "event_type": "parse_failed",
+          "question": null,
+          "raw_response_path": "/root/projects/AgentSessionRouter/.claude-session-router/raw/session_570b63cb-efa6-4345-96bc-84d875385637-1778864123907.txt",
+          "error": "SESSION_UPDATE_JSON block missing",
+          "created_at": "2026-05-15T16:55:23.907Z"
+        },
+        {
+          "event_id": 102,
+          "session_id": "session_11d18ee8-3799-443f-8f5f-ecd866db9e57",
+          "topic": "v2.1 shadow eval architecture",
+          "session_status": "active",
+          "event_type": "parse_failed",
+          "question": null,
+          "raw_response_path": "/root/projects/AgentSessionRouter/.claude-session-router/raw/session_11d18ee8-3799-443f-8f5f-ecd866db9e57-1778862322925.txt",
+          "error": "SESSION_UPDATE_JSON block missing",
+          "created_at": "2026-05-15T16:25:22.926Z"
+        }
+      ]
+    },
+    "route_health": {
+      "decision_counts": [
+        {
+          "selected_path": "cluster_consult_explicit",
+          "count": 37,
+          "latest_created_at": "2026-05-15T18:57:38.034Z"
+        },
+        {
+          "selected_path": "claude_consult_explicit_session",
+          "count": 21,
+          "latest_created_at": "2026-05-15T18:52:41.351Z"
+        },
+        {
+          "selected_path": "claude_consult_existing_session",
+          "count": 18,
+          "latest_created_at": "2026-05-15T18:53:06.848Z"
+        },
+        {
+          "selected_path": "claude_consult_auto",
+          "count": 3,
+          "latest_created_at": "2026-05-15T17:02:39.057Z"
+        }
+      ],
+      "samples": [
+        {
+          "event_id": 262,
+          "selected_path": "cluster_consult_explicit",
+          "session_id": null,
+          "topic": null,
+          "question": "Route sample A3. Answer from verified router facts. What happens in cluster_consult when the factsheet is stale?",
+          "match_score": 1,
+          "match_reason": "Explicit cluster_id provided by caller.; topic_hint=Route sample A3; auto_cluster_routing=disabled_read_only; cluster_id=agentsessionrouter-codebase",
+          "created_at": "2026-05-15T18:57:38.034Z"
+        },
+        {
+          "event_id": 261,
+          "selected_path": "cluster_consult_explicit",
+          "session_id": null,
+          "topic": null,
+          "question": "Route sample A2. Answer from verified router facts. Which event types are written to cluster_events? List the important ones.",
+          "match_score": 1,
+          "match_reason": "Explicit cluster_id provided by caller.; topic_hint=Route sample A2; auto_cluster_routing=disabled_read_only; cluster_id=agentsessionrouter-codebase",
+          "created_at": "2026-05-15T18:57:29.756Z"
+        },
+        {
+          "event_id": 260,
+          "selected_path": "cluster_consult_explicit",
+          "session_id": null,
+          "topic": null,
+          "question": "Route sample A1. Answer from verified router facts. What are the exact field names in the clusters table?",
+          "match_score": 1,
+          "match_reason": "Explicit cluster_id provided by caller.; topic_hint=Route sample A1; auto_cluster_routing=disabled_read_only; cluster_id=agentsessionrouter-codebase",
+          "created_at": "2026-05-15T18:57:18.301Z"
+        },
+        {
+          "event_id": 253,
+          "selected_path": "claude_consult_existing_session",
+          "session_id": "session_e5feff70-5233-4395-906d-0ecb13bbbb69",
+          "topic": "router consult shadow eval sample",
+          "question": "Route sample: explain in two concise bullets what shadow eval measures and why it must not affect caller answers.",
+          "match_score": 1,
+          "match_reason": "Exact normalized topic match; routing to existing session before allowing a new session.; topic_hint=router consult shadow eval sample; auto_cluster_routing=disabled_read_only; session_id=session_e5feff70-5233-4395-906d-0ecb13bbbb69",
+          "created_at": "2026-05-15T18:53:06.848Z"
+        },
+        {
+          "event_id": 251,
+          "selected_path": "claude_consult_existing_session",
+          "session_id": "session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4",
+          "topic": "router consult cache maintenance sample",
+          "question": "Route sample: explain in two concise bullets when a codebase cluster should be re-prepared.",
+          "match_score": 1,
+          "match_reason": "Exact normalized topic match; routing to existing session before allowing a new session.; topic_hint=router consult cache maintenance sample; auto_cluster_routing=disabled_read_only; session_id=session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4",
+          "created_at": "2026-05-15T18:53:04.030Z"
+        },
+        {
+          "event_id": 249,
+          "selected_path": "claude_consult_existing_session",
+          "session_id": "session_570b63cb-efa6-4345-96bc-84d875385637",
+          "topic": "router consult route telemetry sample",
+          "question": "Route sample: explain in two concise bullets why route_health exists and what operator should inspect first.",
+          "match_score": 1,
+          "match_reason": "Exact normalized topic match; routing to existing session before allowing a new session.; topic_hint=router consult route telemetry sample; auto_cluster_routing=disabled_read_only; session_id=session_570b63cb-efa6-4345-96bc-84d875385637",
+          "created_at": "2026-05-15T18:52:57.287Z"
+        },
+        {
+          "event_id": 247,
+          "selected_path": "claude_consult_existing_session",
+          "session_id": "session_63fec26d-9e40-4981-80ce-5b7311daa01c",
+          "topic": "cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-full",
+          "question": "Route sample exact topic. Reuse the existing session if routing works; explain what route_health tells us.",
+          "match_score": 1,
+          "match_reason": "Exact normalized topic match; routing to existing session before allowing a new session.; topic_hint=cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-full; auto_cluster_routing=disabled_read_only; session_id=session_63fec26d-9e40-4981-80ce-5b7311daa01c",
+          "created_at": "2026-05-15T18:52:52.328Z"
+        },
+        {
+          "event_id": 245,
+          "selected_path": "claude_consult_existing_session",
+          "session_id": "session_63fec26d-9e40-4981-80ce-5b7311daa01c",
+          "topic": "cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-full",
+          "question": "Route sample exact topic. Reuse the existing session if routing works; summarize the most important router maintenance invariant.",
+          "match_score": 1,
+          "match_reason": "Exact normalized topic match; routing to existing session before allowing a new session.; topic_hint=cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-full; auto_cluster_routing=disabled_read_only; session_id=session_63fec26d-9e40-4981-80ce-5b7311daa01c",
+          "created_at": "2026-05-15T18:52:48.629Z"
+        },
+        {
+          "event_id": 243,
+          "selected_path": "claude_consult_explicit_session",
+          "session_id": "session_e04a3fed-2a53-44f2-92ea-695d2e3e193e",
+          "topic": "cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3",
+          "question": "Route sample secondary session. In two bullets, what current router behavior should be preserved?",
+          "match_score": 1,
+          "match_reason": "Explicit session_id provided by caller.; topic_hint=cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3; auto_cluster_routing=disabled_read_only; session_id=session_e04a3fed-2a53-44f2-92ea-695d2e3e193e",
+          "created_at": "2026-05-15T18:52:41.351Z"
+        },
+        {
+          "event_id": 241,
+          "selected_path": "claude_consult_explicit_session",
+          "session_id": "session_9e3540b3-5451-442f-af26-03c888b7e859",
+          "topic": "cluster fallback claude-code-live-workload",
+          "question": "Route sample secondary session. In two bullets, what stale or outdated assumption should this session avoid repeating?",
+          "match_score": 1,
+          "match_reason": "Explicit session_id provided by caller.; topic_hint=cluster fallback claude-code-live-workload; auto_cluster_routing=disabled_read_only; session_id=session_9e3540b3-5451-442f-af26-03c888b7e859",
+          "created_at": "2026-05-15T18:52:34.493Z"
+        },
+        {
+          "event_id": 239,
+          "selected_path": "claude_consult_explicit_session",
+          "session_id": "session_63fec26d-9e40-4981-80ce-5b7311daa01c",
+          "topic": "cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-full",
+          "question": "Route sample session explicit. In two bullets, what should monitor data decide before adding auto routing?",
+          "match_score": 1,
+          "match_reason": "Explicit session_id provided by caller.; topic_hint=cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-full; auto_cluster_routing=disabled_read_only; session_id=session_63fec26d-9e40-4981-80ce-5b7311daa01c",
+          "created_at": "2026-05-15T18:52:28.662Z"
+        },
+        {
+          "event_id": 237,
+          "selected_path": "claude_consult_explicit_session",
+          "session_id": "session_63fec26d-9e40-4981-80ce-5b7311daa01c",
+          "topic": "cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-full",
+          "question": "Route sample session explicit. In two bullets, what should parent agents use as the default consult entry point?",
+          "match_score": 1,
+          "match_reason": "Explicit session_id provided by caller.; topic_hint=cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-full; auto_cluster_routing=disabled_read_only; session_id=session_63fec26d-9e40-4981-80ce-5b7311daa01c",
+          "created_at": "2026-05-15T18:52:22.316Z"
+        },
+        {
+          "event_id": 235,
+          "selected_path": "cluster_consult_explicit",
+          "session_id": null,
+          "topic": null,
+          "question": "Route sample stale cluster. Explain what operator signal should be checked after a stale cluster fallback.",
+          "match_score": 1,
+          "match_reason": "Explicit cluster_id provided by caller.; topic_hint=stale cluster sample agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3; auto_cluster_routing=disabled_read_only; cluster_id=agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3",
+          "created_at": "2026-05-15T18:52:15.451Z"
+        },
+        {
+          "event_id": 233,
+          "selected_path": "cluster_consult_explicit",
+          "session_id": null,
+          "topic": null,
+          "question": "Route sample stale cluster. Answer the caller-facing rule for unrecoverable factsheet evidence in one concise paragraph.",
+          "match_score": 1,
+          "match_reason": "Explicit cluster_id provided by caller.; topic_hint=stale cluster sample claude-code-live-workload; auto_cluster_routing=disabled_read_only; cluster_id=claude-code-live-workload",
+          "created_at": "2026-05-15T18:52:08.653Z"
+        },
+        {
+          "event_id": 231,
+          "selected_path": "cluster_consult_explicit",
+          "session_id": null,
+          "topic": null,
+          "question": "Route sample stale cluster. If this cluster cannot serve from verified facts, explain the fallback behavior in two bullets.",
+          "match_score": 1,
+          "match_reason": "Explicit cluster_id provided by caller.; topic_hint=stale cluster sample agentsessionrouter-codebase-reprepared-2026-05-15-full; auto_cluster_routing=disabled_read_only; cluster_id=agentsessionrouter-codebase-reprepared-2026-05-15-full",
+          "created_at": "2026-05-15T18:51:56.404Z"
+        },
+        {
+          "event_id": 224,
+          "selected_path": "claude_consult_existing_session",
+          "session_id": "session_e5feff70-5233-4395-906d-0ecb13bbbb69",
+          "topic": "router consult shadow eval sample",
+          "question": "Route sample: explain in two concise bullets what shadow eval measures and why it must not affect caller answers.",
+          "match_score": 1,
+          "match_reason": "Exact normalized topic match; routing to existing session before allowing a new session.; topic_hint=router consult shadow eval sample; auto_cluster_routing=disabled_read_only; session_id=session_e5feff70-5233-4395-906d-0ecb13bbbb69",
+          "created_at": "2026-05-15T17:05:27.480Z"
+        },
+        {
+          "event_id": 222,
+          "selected_path": "claude_consult_existing_session",
+          "session_id": "session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4",
+          "topic": "router consult cache maintenance sample",
+          "question": "Route sample: explain in two concise bullets when a codebase cluster should be re-prepared.",
+          "match_score": 1,
+          "match_reason": "Exact normalized topic match; routing to existing session before allowing a new session.; topic_hint=router consult cache maintenance sample; auto_cluster_routing=disabled_read_only; session_id=session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4",
+          "created_at": "2026-05-15T17:05:27.474Z"
+        },
+        {
+          "event_id": 220,
+          "selected_path": "claude_consult_existing_session",
+          "session_id": "session_570b63cb-efa6-4345-96bc-84d875385637",
+          "topic": "router consult route telemetry sample",
+          "question": "Route sample: explain in two concise bullets why route_health exists and what operator should inspect first.",
+          "match_score": 1,
+          "match_reason": "Exact normalized topic match; routing to existing session before allowing a new session.; topic_hint=router consult route telemetry sample; auto_cluster_routing=disabled_read_only; session_id=session_570b63cb-efa6-4345-96bc-84d875385637",
+          "created_at": "2026-05-15T17:05:27.469Z"
+        },
+        {
+          "event_id": 218,
+          "selected_path": "claude_consult_existing_session",
+          "session_id": "session_e5feff70-5233-4395-906d-0ecb13bbbb69",
+          "topic": "router consult shadow eval sample",
+          "question": "Route sample exact topic. Reuse the existing session if routing works; explain what route_health tells us.",
+          "match_score": 1,
+          "match_reason": "Exact normalized topic match; routing to existing session before allowing a new session.; topic_hint=router consult shadow eval sample; auto_cluster_routing=disabled_read_only; session_id=session_e5feff70-5233-4395-906d-0ecb13bbbb69",
+          "created_at": "2026-05-15T17:05:27.463Z"
+        },
+        {
+          "event_id": 216,
+          "selected_path": "claude_consult_existing_session",
+          "session_id": "session_e5feff70-5233-4395-906d-0ecb13bbbb69",
+          "topic": "router consult shadow eval sample",
+          "question": "Route sample exact topic. Reuse the existing session if routing works; summarize the most important router maintenance invariant.",
+          "match_score": 1,
+          "match_reason": "Exact normalized topic match; routing to existing session before allowing a new session.; topic_hint=router consult shadow eval sample; auto_cluster_routing=disabled_read_only; session_id=session_e5feff70-5233-4395-906d-0ecb13bbbb69",
+          "created_at": "2026-05-15T17:05:27.456Z"
+        },
+        {
+          "event_id": 214,
+          "selected_path": "claude_consult_explicit_session",
+          "session_id": "session_570b63cb-efa6-4345-96bc-84d875385637",
+          "topic": "router consult route telemetry sample",
+          "question": "Route sample secondary session. In two bullets, what current router behavior should be preserved?",
+          "match_score": 1,
+          "match_reason": "Explicit session_id provided by caller.; topic_hint=router consult route telemetry sample; auto_cluster_routing=disabled_read_only; session_id=session_570b63cb-efa6-4345-96bc-84d875385637",
+          "created_at": "2026-05-15T17:05:27.449Z"
+        },
+        {
+          "event_id": 212,
+          "selected_path": "claude_consult_explicit_session",
+          "session_id": "session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4",
+          "topic": "router consult cache maintenance sample",
+          "question": "Route sample secondary session. In two bullets, what stale or outdated assumption should this session avoid repeating?",
+          "match_score": 1,
+          "match_reason": "Explicit session_id provided by caller.; topic_hint=router consult cache maintenance sample; auto_cluster_routing=disabled_read_only; session_id=session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4",
+          "created_at": "2026-05-15T17:05:27.443Z"
+        },
+        {
+          "event_id": 210,
+          "selected_path": "claude_consult_explicit_session",
+          "session_id": "session_e5feff70-5233-4395-906d-0ecb13bbbb69",
+          "topic": "router consult shadow eval sample",
+          "question": "Route sample session explicit. In two bullets, what should monitor data decide before adding auto routing?",
+          "match_score": 1,
+          "match_reason": "Explicit session_id provided by caller.; topic_hint=router consult shadow eval sample; auto_cluster_routing=disabled_read_only; session_id=session_e5feff70-5233-4395-906d-0ecb13bbbb69",
+          "created_at": "2026-05-15T17:05:27.434Z"
+        },
+        {
+          "event_id": 208,
+          "selected_path": "claude_consult_explicit_session",
+          "session_id": "session_e5feff70-5233-4395-906d-0ecb13bbbb69",
+          "topic": "router consult shadow eval sample",
+          "question": "Route sample session explicit. In two bullets, what should parent agents use as the default consult entry point?",
+          "match_score": 1,
+          "match_reason": "Explicit session_id provided by caller.; topic_hint=router consult shadow eval sample; auto_cluster_routing=disabled_read_only; session_id=session_e5feff70-5233-4395-906d-0ecb13bbbb69",
+          "created_at": "2026-05-15T17:05:27.427Z"
+        },
+        {
+          "event_id": 206,
+          "selected_path": "cluster_consult_explicit",
+          "session_id": null,
+          "topic": null,
+          "question": "Route sample stale cluster. Explain what operator signal should be checked after a stale cluster fallback.",
+          "match_score": 1,
+          "match_reason": "Explicit cluster_id provided by caller.; topic_hint=stale cluster sample agentsessionrouter-codebase-reprepared-2026-05-15-full; auto_cluster_routing=disabled_read_only; cluster_id=agentsessionrouter-codebase-reprepared-2026-05-15-full",
+          "created_at": "2026-05-15T17:05:19.258Z"
+        },
+        {
+          "event_id": 203,
+          "selected_path": "cluster_consult_explicit",
+          "session_id": null,
+          "topic": null,
+          "question": "Route sample stale cluster. Answer the caller-facing rule for unrecoverable factsheet evidence in one concise paragraph.",
+          "match_score": 1,
+          "match_reason": "Explicit cluster_id provided by caller.; topic_hint=stale cluster sample claude-code-live-workload; auto_cluster_routing=disabled_read_only; cluster_id=claude-code-live-workload",
+          "created_at": "2026-05-15T17:05:10.809Z"
+        },
+        {
+          "event_id": 201,
+          "selected_path": "cluster_consult_explicit",
+          "session_id": null,
+          "topic": null,
+          "question": "Route sample stale cluster. If this cluster cannot serve from verified facts, explain the fallback behavior in two bullets.",
+          "match_score": 1,
+          "match_reason": "Explicit cluster_id provided by caller.; topic_hint=stale cluster sample agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3; auto_cluster_routing=disabled_read_only; cluster_id=agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3",
+          "created_at": "2026-05-15T17:04:49.031Z"
+        },
+        {
+          "event_id": 200,
+          "selected_path": "cluster_consult_explicit",
+          "session_id": null,
+          "topic": null,
+          "question": "Route sample A3. Answer from verified router facts. What happens in cluster_consult when the factsheet is stale?",
+          "match_score": 1,
+          "match_reason": "Explicit cluster_id provided by caller.; topic_hint=Route sample A3; auto_cluster_routing=disabled_read_only; cluster_id=agentsessionrouter-codebase",
+          "created_at": "2026-05-15T17:04:39.008Z"
+        },
+        {
+          "event_id": 199,
+          "selected_path": "cluster_consult_explicit",
+          "session_id": null,
+          "topic": null,
+          "question": "Route sample A2. Answer from verified router facts. Which event types are written to cluster_events? List the important ones.",
+          "match_score": 1,
+          "match_reason": "Explicit cluster_id provided by caller.; topic_hint=Route sample A2; auto_cluster_routing=disabled_read_only; cluster_id=agentsessionrouter-codebase",
+          "created_at": "2026-05-15T17:04:21.698Z"
+        },
+        {
+          "event_id": 198,
+          "selected_path": "cluster_consult_explicit",
+          "session_id": null,
+          "topic": null,
+          "question": "Route sample A1. Answer from verified router facts. What are the exact field names in the clusters table?",
+          "match_score": 1,
+          "match_reason": "Explicit cluster_id provided by caller.; topic_hint=Route sample A1; auto_cluster_routing=disabled_read_only; cluster_id=agentsessionrouter-codebase",
+          "created_at": "2026-05-15T17:04:11.873Z"
+        }
+      ]
+    },
+    "quality": {
+      "cluster_stats": [
+        {
+          "cluster_id": "agentsessionrouter-codebase-reprepared-2026-05-15-full",
+          "total": 30,
+          "judged": 30,
+          "not_in_context": 0,
+          "failed_shadow": 0,
+          "n": 30,
+          "cluster_q": 1.63,
+          "direct_q": 0.13,
+          "gap": -1.5,
+          "cluster_wins": 19,
+          "direct_wins": 0,
+          "ties": 11
+        },
+        {
+          "cluster_id": "agentsessionrouter-codebase",
+          "total": 28,
+          "judged": 28,
+          "not_in_context": 1,
+          "failed_shadow": 0,
+          "n": 28,
+          "cluster_q": 2.75,
+          "direct_q": 0.39,
+          "gap": -2.36,
+          "cluster_wins": 28,
+          "direct_wins": 0,
+          "ties": 0
+        },
+        {
+          "cluster_id": "agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3",
+          "total": 10,
+          "judged": 10,
+          "not_in_context": 0,
+          "failed_shadow": 0,
+          "n": 10,
+          "cluster_q": 1.7,
+          "direct_q": 0.3,
+          "gap": -1.4,
+          "cluster_wins": 9,
+          "direct_wins": 0,
+          "ties": 1
+        }
+      ],
+      "direct_win_samples": [],
+      "not_in_context_samples": [
+        {
+          "id": "comparison_21028001-4dff-4ff8-a1b3-b0769484fcaa",
+          "cluster_id": "agentsessionrouter-codebase",
+          "question": "Route sample B2. Answer from verified router facts. If a Claude jsonl file is deleted, what should happen on the next claude_consult to that session?",
+          "preferred": "cluster",
+          "created_at": "2026-05-15T16:53:20.728Z"
+        }
+      ],
+      "auto_routing_candidates": []
+    },
+    "recommendations": [
+      {
+        "priority": "high",
+        "area": "cache",
+        "cluster_id": "agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3",
+        "action": "Run cluster_prepare or expand/rebuild this factsheet.",
+        "reason": "Cluster is needs_prepare; factsheet factsheet_462264ce-f355-4b3d-bbc6-785a6c518d8f cannot be trusted as current cache."
+      },
+      {
+        "priority": "high",
+        "area": "cache",
+        "cluster_id": "claude-code-live-workload",
+        "action": "Run cluster_prepare or expand/rebuild this factsheet.",
+        "reason": "Cluster is needs_prepare; factsheet factsheet_03616a74-e8b6-488b-9395-64e5af913314 cannot be trusted as current cache."
+      },
+      {
+        "priority": "high",
+        "area": "cache",
+        "cluster_id": "agentsessionrouter-codebase-reprepared-2026-05-15-full",
+        "action": "Run cluster_prepare or expand/rebuild this factsheet.",
+        "reason": "Cluster is needs_prepare; factsheet factsheet_d27eb28a-7fdc-4ef3-bf24-50501b8dbecd cannot be trusted as current cache."
+      },
+      {
+        "priority": "medium",
+        "area": "cache",
+        "cluster_id": "agentsessionrouter-codebase-reprepared-2026-05-15-full",
+        "action": "Refresh factsheet evidence; selectors or snippets changed.",
+        "reason": "Strict evidence revalidation failed 4 time(s)."
+      },
+      {
+        "priority": "medium",
+        "area": "cache",
+        "cluster_id": "agentsessionrouter-codebase-reprepared-2026-05-15-full",
+        "action": "Re-prepare or broaden this cluster if fallback is recurring.",
+        "reason": "Router fell back to claude_consult 3 time(s), meaning cache could not serve those calls."
+      },
+      {
+        "priority": "medium",
+        "area": "cache",
+        "cluster_id": "agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3",
+        "action": "Re-prepare or broaden this cluster if fallback is recurring.",
+        "reason": "Router fell back to claude_consult 3 time(s), meaning cache could not serve those calls."
+      },
+      {
+        "priority": "medium",
+        "area": "cache",
+        "cluster_id": "agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3",
+        "action": "Refresh factsheet evidence; selectors or snippets changed.",
+        "reason": "Strict evidence revalidation failed 3 time(s)."
+      },
+      {
+        "priority": "medium",
+        "area": "cache",
+        "cluster_id": "claude-code-live-workload",
+        "action": "Re-prepare or broaden this cluster if fallback is recurring.",
+        "reason": "Router fell back to claude_consult 3 time(s), meaning cache could not serve those calls."
+      },
+      {
+        "priority": "medium",
+        "area": "cache",
+        "cluster_id": "claude-code-live-workload",
+        "action": "Refresh factsheet evidence; selectors or snippets changed.",
+        "reason": "Strict evidence revalidation failed 3 time(s)."
+      },
+      {
+        "priority": "high",
+        "area": "fallback",
+        "cluster_id": "agentsessionrouter-codebase-reprepared-2026-05-15-full",
+        "action": "Investigate Claude availability and fallback path immediately.",
+        "reason": "Fallback failed 1 time(s) in the recent window."
+      },
+      {
+        "priority": "medium",
+        "area": "coverage",
+        "cluster_id": "agentsessionrouter-codebase",
+        "action": "Inspect NOT IN CONTEXT samples and decide whether to expand factsheet or route those questions to claude_consult.",
+        "reason": "Cluster produced 1 NOT IN CONTEXT answer(s)."
+      },
+      {
+        "priority": "medium",
+        "area": "sessions",
+        "action": "Inspect recent session_events and raw responses.",
+        "reason": "Session event 'cost_limit_exceeded' has 9 error row(s)."
+      },
+      {
+        "priority": "medium",
+        "area": "sessions",
+        "action": "Inspect recent session_events and raw responses.",
+        "reason": "Session event 'parse_failed' has 9 error row(s)."
+      },
+      {
+        "priority": "medium",
+        "area": "sessions",
+        "action": "Inspect recent session_events and raw responses.",
+        "reason": "Session event 'token_anomaly' has 2 error row(s)."
+      },
+      {
+        "priority": "medium",
+        "area": "sessions",
+        "action": "Inspect recent session_events and raw responses.",
+        "reason": "Session event 'health_check_failed' has 1 error row(s)."
+      },
+      {
+        "priority": "medium",
+        "area": "metadata",
+        "action": "Inspect metadata_health.samples raw responses and tighten SESSION_UPDATE_JSON prompting if failures repeat.",
+        "reason": "9 SESSION_UPDATE_JSON parse failure(s) occurred in the recent window."
+      },
+      {
+        "priority": "low",
+        "area": "routing",
+        "action": "Inspect route_health.samples for claude_consult_auto decisions; add explicit cluster_id/session_id or improve topic hints if these become slow.",
+        "reason": "3 router_consult call(s) delegated to claude_consult auto-routing in the recent window."
+      },
+      {
+        "priority": "medium",
+        "area": "latency",
+        "action": "Prefer cluster_consult for covered questions, or inspect the raw Claude response when direct consults approach the caller timeout boundary.",
+        "reason": "Session event 'new_session' exceeded the slow-call threshold 1 time(s); max duration 302712ms."
+      },
+      {
+        "priority": "medium",
+        "area": "latency",
+        "action": "Treat this as direct-discovery/context bloat: reuse an existing session or a covered cluster before repeating a broad new_session consult.",
+        "reason": "Slow new_session used 78258 input tokens over 302712ms for topic 'project roadmap after v2.3.1'. Raw response: /root/projects/AgentSessionRouter/.claude-session-router/raw/session_e65145e0-1911-4a87-ad7d-8477254bdbb2-1778846888340.txt."
+      }
+    ],
+    "next_directions": [
+      "Prioritize factsheet expansion or distillation for clusters where direct wins or NOT IN CONTEXT appears.",
+      "Re-prepare decayed clusters before using their data to judge routing quality.",
+      "Fork baselines are still low priority unless monitor data shows latency/cost, not quality, is the bottleneck."
+    ]
+  },
+  "final_comparison_stats": {
+    "project_id": "AgentSessionRouter",
+    "stats": [
+      {
+        "cluster_id": "agentsessionrouter-codebase-reprepared-2026-05-15-full",
+        "n": 30,
+        "cluster_q": 1.63,
+        "direct_q": 0.13,
+        "gap": -1.5,
+        "cluster_wins": 19,
+        "direct_wins": 0,
+        "ties": 11
+      },
+      {
+        "cluster_id": "agentsessionrouter-codebase-rerun",
+        "n": 30,
+        "cluster_q": 2.17,
+        "direct_q": 0.3,
+        "gap": -1.87,
+        "cluster_wins": 27,
+        "direct_wins": 0,
+        "ties": 3
+      },
+      {
+        "cluster_id": "agentsessionrouter-codebase",
+        "n": 28,
+        "cluster_q": 2.75,
+        "direct_q": 0.39,
+        "gap": -2.36,
+        "cluster_wins": 28,
+        "direct_wins": 0,
+        "ties": 0
+      },
+      {
+        "cluster_id": "agentsessionrouter-codebase-reprepared-2026-05-15-targeted",
+        "n": 10,
+        "cluster_q": 2.1,
+        "direct_q": 0.1,
+        "gap": -2,
+        "cluster_wins": 8,
+        "direct_wins": 0,
+        "ties": 2
+      },
+      {
+        "cluster_id": "agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v2",
+        "n": 10,
+        "cluster_q": 1.8,
+        "direct_q": 0.1,
+        "gap": -1.7,
+        "cluster_wins": 8,
+        "direct_wins": 0,
+        "ties": 2
+      },
+      {
+        "cluster_id": "agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3",
+        "n": 10,
+        "cluster_q": 1.7,
+        "direct_q": 0.3,
+        "gap": -1.4,
+        "cluster_wins": 9,
+        "direct_wins": 0,
+        "ties": 1
+      }
+    ]
+  },
+  "latest_comparisons": [
+    {
+      "id": "comparison_2fe2bd1e-1a45-4124-ab45-d92410c08635",
+      "project_id": "AgentSessionRouter",
+      "cluster_id": "agentsessionrouter-codebase",
+      "question": "Route sample A3. Answer from verified router facts. What happens in cluster_consult when the factsheet is stale?",
+      "cluster_answer": "[omitted]",
+      "cluster_duration_ms": 13311,
+      "cluster_cost_usd": 0.11929999999999999,
+      "cluster_was_not_in_context": 0,
+      "shadow_method": "direct_fresh",
+      "shadow_status": "ok",
+      "shadow_error": null,
+      "direct_answer": "[omitted]",
+      "direct_duration_ms": 3840,
+      "direct_cost_usd": 0.032012250000000006,
+      "cluster_score": 3,
+      "direct_score": 0,
+      "preferred": "cluster",
+      "cluster_errors_json": "[]",
+      "direct_errors_json": "[\"Answer A is only a file read tool call with no answer text. It does not address the question at all.\"]",
+      "judge_reasoning": "Answer A is not an answer at all—it is merely a Read tool call invocation with no response content. Answer B correctly describes the caller-facing cluster_consult stale factsheet behavior: strict evidence revalidation, fallback to claude_consult (never returning CLUSTER_FACTSHEET_STALE to the caller), and event logging with cluster_fallback_to_claude_consult or cluster_fallback_failed. Both claims are directly supported by factsheet entries 'caller-facing-stale-cluster-consult-current' and 'cluster-fallback-events-current'.",
+      "judged_at": "2026-05-15T18:58:11.761Z",
+      "created_at": "2026-05-15T18:57:51.351Z"
+    },
+    {
+      "id": "comparison_94441778-f7dd-470d-a7b4-0250a082e0d9",
+      "project_id": "AgentSessionRouter",
+      "cluster_id": "agentsessionrouter-codebase",
+      "question": "Route sample A2. Answer from verified router facts. Which event types are written to cluster_events? List the important ones.",
+      "cluster_answer": "[omitted]",
+      "cluster_duration_ms": 8263,
+      "cluster_cost_usd": 0.10121500000000001,
+      "cluster_was_not_in_context": 0,
+      "shadow_method": "direct_fresh",
+      "shadow_status": "ok",
+      "shadow_error": null,
+      "direct_answer": "[omitted]",
+      "direct_duration_ms": 5684,
+      "direct_cost_usd": 0.0351435,
+      "cluster_score": 3,
+      "direct_score": 1,
+      "preferred": "cluster",
+      "cluster_errors_json": "[]",
+      "direct_errors_json": "[\"Answer B never actually answered the question—it only performed a file search without providing any event type list\"]",
+      "judge_reasoning": "Answer A is fully correct and substantive, listing all verified cluster_events event types from the factsheet across factsheet lifecycle, consultation, evidence revalidation, runtime/tool profile, and fallback categories. Answer B failed to answer the question, doing only a file glob without stating a single event type.",
+      "judged_at": "2026-05-15T18:58:01.805Z",
+      "created_at": "2026-05-15T18:57:38.027Z"
+    },
+    {
+      "id": "comparison_3b2c5e59-4176-41f5-9508-08f6d88911c1",
+      "project_id": "AgentSessionRouter",
+      "cluster_id": "agentsessionrouter-codebase",
+      "question": "Route sample A1. Answer from verified router facts. What are the exact field names in the clusters table?",
+      "cluster_answer": "[omitted]",
+      "cluster_duration_ms": 4018,
+      "cluster_cost_usd": 0.088095,
+      "cluster_was_not_in_context": 0,
+      "shadow_method": "direct_fresh",
+      "shadow_status": "ok",
+      "shadow_error": null,
+      "direct_answer": "[omitted]",
+      "direct_duration_ms": 3578,
+      "direct_cost_usd": 0.05559,
+      "cluster_score": 3,
+      "direct_score": 0,
+      "preferred": "cluster",
+      "cluster_errors_json": "[]",
+      "direct_errors_json": "[\"No answer provided - Answer A is only a statement of intent to search, not an actual answer to the question\"]",
+      "judge_reasoning": "Answer A is not an answer at all — it merely states an intention to explore. Answer B correctly and completely lists all 11 clusters table field names as verified in the factsheet from src/schema.ts: id, project_id, name, description, tool_profile_default, static_factsheet_policy, baseline_session_id, status, trust_state, created_at, and last_used.",
+      "judged_at": "2026-05-15T18:57:43.282Z",
+      "created_at": "2026-05-15T18:57:29.749Z"
+    },
+    {
+      "id": "comparison_4409f37a-cacb-46a1-9e2e-69acdfb074e4",
+      "project_id": "AgentSessionRouter",
+      "cluster_id": "agentsessionrouter-codebase",
+      "question": "Route sample A3. Answer from verified router facts. What happens in cluster_consult when the factsheet is stale?",
+      "cluster_answer": "[omitted]",
+      "cluster_duration_ms": 10012,
+      "cluster_cost_usd": 0.1167,
+      "cluster_was_not_in_context": 0,
+      "shadow_method": "direct_fresh",
+      "shadow_status": "ok",
+      "shadow_error": null,
+      "direct_answer": "[omitted]",
+      "direct_duration_ms": 4857,
+      "direct_cost_usd": 0.03330325,
+      "cluster_score": 3,
+      "direct_score": 0,
+      "preferred": "cluster",
+      "cluster_errors_json": "[]",
+      "direct_errors_json": "[\"Answer B is not an answer at all—it only announces an intent to explore the project and search for code, but provides no information about stale factsheet behavior in cluster_consult.\"]",
+      "judge_reasoning": "Answer A is fully correct and substantively addresses the question using verified factsheet claims (stale-cluster-consult-behavior, caller-facing-stale-cluster-consult-behavior, caller-facing-stale-event-sequence). It correctly describes both the low-level consultCluster behavior (marks stale, logs cluster_refresh_required, returns CLUSTER_FACTSHEET_STALE) and the caller-facing cluster_consult tool behavior (revalidation under per-cluster lock, evidence_revalidated or evidence_revalidation_failed events, fallback to claude_consult with cluster_fallback_to_claude_consult event). Answer B makes no attempt to answer the question, instead announcing it will search for code—making it worthless as an answer despite having a score of 0 rather than being actually wrong.",
+      "judged_at": "2026-05-15T17:05:08.208Z",
+      "created_at": "2026-05-15T17:04:49.026Z"
+    },
+    {
+      "id": "comparison_20b85458-f596-4152-9ee3-2ffddc60cc27",
+      "project_id": "AgentSessionRouter",
+      "cluster_id": "agentsessionrouter-codebase",
+      "question": "Route sample A2. Answer from verified router facts. Which event types are written to cluster_events? List the important ones.",
+      "cluster_answer": "[omitted]",
+      "cluster_duration_ms": 17299,
+      "cluster_cost_usd": 0.11702000000000001,
+      "cluster_was_not_in_context": 0,
+      "shadow_method": "direct_fresh",
+      "shadow_status": "ok",
+      "shadow_error": null,
+      "direct_answer": "[omitted]",
+      "direct_duration_ms": 6117,
+      "direct_cost_usd": 0.0629875,
+      "cluster_score": 3,
+      "direct_score": 0,
+      "preferred": "cluster",
+      "cluster_errors_json": "[]",
+      "direct_errors_json": "[\"No actual answer provided — the response only initiates a search instead of answering from the factsheet\"]",
+      "judge_reasoning": "Answer A makes no attempt to answer the question from the factsheet, instead saying it needs to search. Answer B correctly and comprehensively lists all cluster_events event types from the verified factsheet (factsheet_generated, factsheet_static_verified, factsheet_partially_static_verified, factsheet_llm_verified, factsheet_partially_llm_verified, factsheet_rejected, factsheet_stale, cluster_created, cluster_refresh, cluster_refresh_required, llm_verifier, cluster_consult, cluster_consult_failed, evidence_revalidated, evidence_revalidation_failed, cluster_fallback_to_claude_consult, cluster_fallback_failed, bare_probe_failed, tool_profile_downgraded), organizes them meaningfully, and correctly describes the stale factsheet caller-facing event sequence.",
+      "judged_at": "2026-05-15T17:05:03.449Z",
+      "created_at": "2026-05-15T17:04:39.003Z"
+    },
+    {
+      "id": "comparison_dda3e8fb-fd09-4941-89aa-a48c2a9e9def",
+      "project_id": "AgentSessionRouter",
+      "cluster_id": "agentsessionrouter-codebase",
+      "question": "Route sample A1. Answer from verified router facts. What are the exact field names in the clusters table?",
+      "cluster_answer": "[omitted]",
+      "cluster_duration_ms": 3281,
+      "cluster_cost_usd": 0.08866,
+      "cluster_was_not_in_context": 0,
+      "shadow_method": "direct_fresh",
+      "shadow_status": "ok",
+      "shadow_error": null,
+      "direct_answer": "[omitted]",
+      "direct_duration_ms": 7399,
+      "direct_cost_usd": 0.049277999999999995,
+      "cluster_score": 3,
+      "direct_score": 2,
+      "preferred": "cluster",
+      "cluster_errors_json": "[]",
+      "direct_errors_json": "[\"Answer B did not actually provide the field names—it only started a search rather than answering the question. The factsheet already contained the verified answer, making the search unnecessary and the response incomplete.\"]",
+      "judge_reasoning": "Answer A correctly lists all 11 clusters table fields from the verified factsheet (id, project_id, name, description, tool_profile_default, static_factsheet_policy, baseline_session_id, status, trust_state, created_at, last_used) with a proper source citation. Answer B failed to actually answer the question—it only initiated a search without providing the field names. The verified factsheet already contained this information, making a search unnecessary.",
+      "judged_at": "2026-05-15T17:04:42.988Z",
+      "created_at": "2026-05-15T17:04:21.692Z"
+    },
+    {
+      "id": "comparison_5e3527de-138c-4c58-82d5-093689926280",
+      "project_id": "AgentSessionRouter",
+      "cluster_id": "agentsessionrouter-codebase",
+      "question": "Route sample C2. Answer from verified router facts. Name one likely bare/no-tools failure mode and how the router should detect it.",
+      "cluster_answer": "[omitted]",
+      "cluster_duration_ms": 19981,
+      "cluster_cost_usd": 0.02506225,
+      "cluster_was_not_in_context": 0,
+      "shadow_method": "direct_fresh",
+      "shadow_status": "ok",
+      "shadow_error": null,
+      "direct_answer": "[omitted]",
+      "direct_duration_ms": 8108,
+      "direct_cost_usd": 0.027902000000000003,
+      "cluster_score": 3,
+      "direct_score": 0,
+      "preferred": "cluster",
+      "cluster_errors_json": "[]",
+      "direct_errors_json": "[\"Answer A does not attempt to answer the question — it merely states intent to explore rather than providing any concrete answer from the factsheet.\"]",
+      "judge_reasoning": "Answer B correctly identifies a failure mode (stale scoped evidence files when bare/no-tools relies on factsheet content) and explains the full detection chain: cluster_refresh verify-only checks file hashes and selectors, marks stale with factsheet_stale, propagates via cluster_refresh_required, and completes with evidence_revalidated or evidence_revalidation_failed events. This is fully supported by the factsheet entries for cluster-refresh-verify-only, cluster-refresh-stale-semantics, stale-cluster-consult-behavior, and bare-profile-risk. Answer A defers answering with exploration language and provides no substantive response.",
+      "judged_at": "2026-05-15T17:01:31.064Z",
+      "created_at": "2026-05-15T17:01:07.840Z"
+    },
+    {
+      "id": "comparison_a61d8c18-d1f0-4109-8610-18ede133c9d4",
+      "project_id": "AgentSessionRouter",
+      "cluster_id": "agentsessionrouter-codebase",
+      "question": "Route sample C1. Answer from verified router facts. Suggest three safe ways to improve cluster_refresh without changing caller semantics.",
+      "cluster_answer": "[omitted]",
+      "cluster_duration_ms": 23513,
+      "cluster_cost_usd": 0.10437,
+      "cluster_was_not_in_context": 0,
+      "shadow_method": "direct_fresh",
+      "shadow_status": "ok",
+      "shadow_error": null,
+      "direct_answer": "[omitted]",
+      "direct_duration_ms": 6744,
+      "direct_cost_usd": 0.033788750000000006,
+      "cluster_score": 1,
+      "direct_score": 0,
+      "preferred": "cluster",
+      "cluster_errors_json": "[\"Suggestions 2 and 3 (incremental changed-file detection, precomputed rejection heuristics) are internal optimization ideas not directly supported by any verified factsheet fact — only suggestion 1 is explicitly backed by the factsheet.\"]",
+      "direct_errors_json": "[\"Answer A does not answer the question; it only describes investigative actions (Glob, Grep) without providing any suggestions or claims about cluster_refresh improvements.\"]",
+      "judge_reasoning": "Answer A fails to answer entirely. Answer B is the only one that actually engages with the question and grounds at least one suggestion in a verified fact (selector precision as a spec-backed open question per cluster-refresh-selector-improvement-open-question), making it the clear preferred answer despite suggestions 2 and 3 lacking direct factual support.",
+      "judged_at": "2026-05-15T17:01:25.588Z",
+      "created_at": "2026-05-15T17:00:47.839Z"
+    },
+    {
+      "id": "comparison_4f841012-7925-42c9-a76c-15b9e5aaa46b",
+      "project_id": "AgentSessionRouter",
+      "cluster_id": "agentsessionrouter-codebase",
+      "question": "Route sample B3. Answer from verified router facts. Explain static_verified, partial_llm, and llm_verified trust states.",
+      "cluster_answer": "[omitted]",
+      "cluster_duration_ms": 10617,
+      "cluster_cost_usd": 0.09634,
+      "cluster_was_not_in_context": 1,
+      "shadow_method": "direct_fresh",
+      "shadow_status": "ok",
+      "shadow_error": null,
+      "direct_answer": "[omitted]",
+      "direct_duration_ms": 5113,
+      "direct_cost_usd": 0.04888799999999999,
+      "cluster_score": 3,
+      "direct_score": 1,
+      "preferred": "cluster",
+      "cluster_errors_json": "[]",
+      "direct_errors_json": "[\"Search produced no definitions; answer never actually explained the three trust states\",\"Did not address the question at all\"]",
+      "judge_reasoning": "Answer A correctly and fully explains all three trust states (static_verified, partial_llm, llm_verified) using precise conditions from verified facts, and properly refuses route sample B3 with NOT IN CONTEXT. Answer B merely searches without providing any substantive answer, making it functionally useless for the question asked.",
+      "judged_at": "2026-05-15T17:00:45.654Z",
+      "created_at": "2026-05-15T17:00:24.315Z"
+    },
+    {
+      "id": "comparison_97349b15-61ff-4c8b-b527-abd500aa6668",
+      "project_id": "AgentSessionRouter",
+      "cluster_id": "agentsessionrouter-codebase",
+      "question": "Route sample B2. Answer from verified router facts. If a Claude jsonl file is deleted, what should happen on the next claude_consult to that session?",
+      "cluster_answer": "[omitted]",
+      "cluster_duration_ms": 10395,
+      "cluster_cost_usd": 0.019684,
+      "cluster_was_not_in_context": 0,
+      "shadow_method": "direct_fresh",
+      "shadow_status": "ok",
+      "shadow_error": null,
+      "direct_answer": "[omitted]",
+      "direct_duration_ms": 2750,
+      "direct_cost_usd": 0.052364999999999995,
+      "cluster_score": 3,
+      "direct_score": 0,
+      "preferred": "cluster",
+      "cluster_errors_json": "[]",
+      "direct_errors_json": "[\"No answer provided — answer consists only of a statement to search, providing zero factual content\"]",
+      "judge_reasoning": "Answer B is fully correct and substantively addresses the question using verified router facts. Answer A is not an answer at all, merely an intent-to-search placeholder that provides zero information.",
+      "judged_at": "2026-05-15T17:00:33.886Z",
+      "created_at": "2026-05-15T17:00:13.681Z"
+    },
+    {
+      "id": "comparison_96a2d76b-1c48-48b5-865b-fd530d54987e",
+      "project_id": "AgentSessionRouter",
+      "cluster_id": "agentsessionrouter-codebase",
+      "question": "Route sample B1. Answer from verified router facts. Why is the LLM verifier run without agent tools?",
+      "cluster_answer": "[omitted]",
+      "cluster_duration_ms": 11646,
+      "cluster_cost_usd": 0.021181000000000002,
+      "cluster_was_not_in_context": 0,
+      "shadow_method": "direct_fresh",
+      "shadow_status": "ok",
+      "shadow_error": null,
+      "direct_answer": "[omitted]",
+      "direct_duration_ms": 4729,
+      "direct_cost_usd": 0.052069000000000004,
+      "cluster_score": 3,
+      "direct_score": 1,
+      "preferred": "cluster",
+      "cluster_errors_json": "[]",
+      "direct_errors_json": "[\"Wastes tokens on file searches when the question is directly answered by verified factsheet claims\",\"Does not actually answer the question despite taking longer path\"]",
+      "judge_reasoning": "Answer A correctly cites two verified factsheet entries (llm-verifier-no-agent-rationale, llm-verifier-purpose) that directly explain why the LLM verifier runs without agent tools: it must judge only supplied evidence, avoid new discovery, avoid inference, and return VERIFIED only when the claim follows from the evidence. Answer B ignores the factsheet and launches filesystem searches for a question that is already definitively answered by the verified ground truth, which violates the evaluation instruction to not prefer responses that merely start searching over a concise answer supported by the factsheet.",
+      "judged_at": "2026-05-15T17:00:29.136Z",
+      "created_at": "2026-05-15T17:00:03.085Z"
+    },
+    {
+      "id": "comparison_b29ee1d0-f798-4917-b715-998698293703",
+      "project_id": "AgentSessionRouter",
+      "cluster_id": "agentsessionrouter-codebase",
+      "question": "Route sample A5. Answer from verified router facts. What is the default value of dormant_after_days in the sessions schema?",
+      "cluster_answer": "[omitted]",
+      "cluster_duration_ms": 7776,
+      "cluster_cost_usd": 0.01704975,
+      "cluster_was_not_in_context": 1,
+      "shadow_method": "direct_fresh",
+      "shadow_status": "ok",
+      "shadow_error": null,
+      "direct_answer": "[omitted]",
+      "direct_duration_ms": 3440,
+      "direct_cost_usd": 0.031495,
+      "cluster_score": 2,
+      "direct_score": 1,
+      "preferred": "cluster",
+      "cluster_errors_json": "[]",
+      "direct_errors_json": "[\"Answer B defers to a search tool rather than providing the answer already verified in the factsheet\"]",
+      "judge_reasoning": "Answer A correctly identifies the verified fact from the factsheet: dormant_after_days defaults to 30, with evidence from src/schema.ts. The 'NOT IN CONTEXT' preamble regarding Route sample A5 is a minor distraction but doesn't negate the substantive correct answer. Answer B immediately defers to a search tool despite the factsheet containing the authoritative answer, demonstrating inefficiency compared to Answer A's direct citation of verified ground truth.",
+      "judged_at": "2026-05-15T17:00:06.920Z",
+      "created_at": "2026-05-15T16:59:51.408Z"
+    },
+    {
+      "id": "comparison_4081ce8e-bb26-453a-83fa-5cb9e7ff09ae",
+      "project_id": "AgentSessionRouter",
+      "cluster_id": "agentsessionrouter-codebase",
+      "question": "Route sample A4. Answer from verified router facts. What Claude CLI args are used for the bare tool profile?",
+      "cluster_answer": "[omitted]",
+      "cluster_duration_ms": 5470,
+      "cluster_cost_usd": 0.10723750000000001,
+      "cluster_was_not_in_context": 0,
+      "shadow_method": "direct_fresh",
+      "shadow_status": "ok",
+      "shadow_error": null,
+      "direct_answer": "[omitted]",
+      "direct_duration_ms": 5891,
+      "direct_cost_usd": 0.0344325,
+      "cluster_score": 2,
+      "direct_score": 0,
+      "preferred": "cluster",
+      "cluster_errors_json": "[]",
+      "direct_errors_json": "[\"Answer B never actually answers the question — it only announces an intent to search\",\"No factual claim is made, making it impossible to verify against the factsheet\"]",
+      "judge_reasoning": "Answer A directly states '--bare --tools \"\"' which is a verified fact from the bare-profile-args entry in the factsheet (src/profiles.ts evidence). Answer B is not an answer at all — it is a search announcement with no actual claim, making it both incomplete and unverifiable against the factsheet.",
+      "judged_at": "2026-05-15T17:00:02.506Z",
+      "created_at": "2026-05-15T16:59:43.614Z"
+    },
+    {
+      "id": "comparison_54b59b8c-eb45-4dfb-ab4b-2c62cc46cd4d",
+      "project_id": "AgentSessionRouter",
+      "cluster_id": "agentsessionrouter-codebase",
+      "question": "Route sample A3. Answer from verified router facts. What happens in cluster_consult when the factsheet is stale?",
+      "cluster_answer": "[omitted]",
+      "cluster_duration_ms": 9275,
+      "cluster_cost_usd": 0.10525000000000001,
+      "cluster_was_not_in_context": 1,
+      "shadow_method": "direct_fresh",
+      "shadow_status": "ok",
+      "shadow_error": null,
+      "direct_answer": "[omitted]",
+      "direct_duration_ms": 5580,
+      "direct_cost_usd": 0.034113750000000005,
+      "cluster_score": 3,
+      "direct_score": 0,
+      "preferred": "cluster",
+      "cluster_errors_json": "[]",
+      "direct_errors_json": "[\"Answer A never attempted to answer the question. It merely searched files and asked follow-up questions instead of providing the answer from the verified factsheet.\"]",
+      "judge_reasoning": "Answer A failed to provide any substantive response—it just searched files and asked to continue investigating rather than delivering the verified facts. Answer B correctly synthesized all relevant factsheet entries: the low-level consultCluster behavior (marks stale, logs cluster_refresh_required, returns CLUSTER_FACTSHEET_STALE), the caller-facing behavior (autoRefresh revalidation under per-cluster lock, fallback to claude_consult on failure), the complete event sequence (cluster_refresh_required → evidence_revalidated/revalidation_failed → cluster_fallback_to_claude_consult), and the key design point about NOT IN CONTEXT for missing facts. All claims in Answer B are directly supported by the verified factsheet.",
+      "judged_at": "2026-05-15T17:00:00.748Z",
+      "created_at": "2026-05-15T16:59:38.132Z"
+    },
+    {
+      "id": "comparison_67bc1474-2055-4d77-a35c-b68516da704c",
+      "project_id": "AgentSessionRouter",
+      "cluster_id": "agentsessionrouter-codebase",
+      "question": "Route sample A2. Answer from verified router facts. Which event types are written to cluster_events? List the important ones.",
+      "cluster_answer": "[omitted]",
+      "cluster_duration_ms": 10404,
+      "cluster_cost_usd": 0.03227,
+      "cluster_was_not_in_context": 0,
+      "shadow_method": "direct_fresh",
+      "shadow_status": "ok",
+      "shadow_error": null,
+      "direct_answer": "[omitted]",
+      "direct_duration_ms": 3453,
+      "direct_cost_usd": 0.043437,
+      "cluster_score": 3,
+      "direct_score": 1,
+      "preferred": "cluster",
+      "cluster_errors_json": "[]",
+      "direct_errors_json": "[\"Answer B deflects to file exploration rather than answering from the verified factsheet, which explicitly lists all cluster_events event types\"]",
+      "judge_reasoning": "Answer A is fully correct and substantive — every event type it lists is directly verified in the factsheet, and it categorizes them appropriately into cluster lifecycle, factsheet generation, and operational importance tiers. Answer B fails to answer the question at all, deflecting to glob exploration of files despite the factsheet already containing the complete list of cluster_events event types with their evidence. The instructions explicitly state to prefer a concise answer supported by the factsheet over one that merely starts searching.",
+      "judged_at": "2026-05-15T16:59:56.967Z",
+      "created_at": "2026-05-15T16:59:28.846Z"
+    },
+    {
+      "id": "comparison_d22609ca-e731-48cf-bbbc-d2163efd187a",
+      "project_id": "AgentSessionRouter",
+      "cluster_id": "agentsessionrouter-codebase",
+      "question": "Route sample A1. Answer from verified router facts. What are the exact field names in the clusters table?",
+      "cluster_answer": "[omitted]",
+      "cluster_duration_ms": 5882,
+      "cluster_cost_usd": 0.08926,
+      "cluster_was_not_in_context": 0,
+      "shadow_method": "direct_fresh",
+      "shadow_status": "ok",
+      "shadow_error": null,
+      "direct_answer": "[omitted]",
+      "direct_duration_ms": 7397,
+      "direct_cost_usd": 0.048608,
+      "cluster_score": 3,
+      "direct_score": 0,
+      "preferred": "cluster",
+      "cluster_errors_json": "[]",
+      "direct_errors_json": "[\"Never provided an answer; only announced intent to search\"]",
+      "judge_reasoning": "Answer A correctly and completely listed all 11 verified field names from the factsheet (id, project_id, name, description, tool_profile_default, static_factsheet_policy, baseline_session_id, status, trust_state, created_at, last_used). Answer B only expressed intent to search without ever delivering an answer, making it a non-response rather than a useful answer.",
+      "judged_at": "2026-05-15T16:59:34.553Z",
+      "created_at": "2026-05-15T16:59:18.430Z"
+    },
+    {
+      "id": "comparison_e4cb588e-9e15-4d04-8006-a96ef23199fc",
+      "project_id": "AgentSessionRouter",
+      "cluster_id": "agentsessionrouter-codebase",
+      "question": "Route sample C2. Answer from verified router facts. Name one likely bare/no-tools failure mode and how the router should detect it.",
+      "cluster_answer": "[omitted]",
+      "cluster_duration_ms": 17271,
+      "cluster_cost_usd": 0.028629250000000002,
+      "cluster_was_not_in_context": 1,
+      "shadow_method": "direct_fresh",
+      "shadow_status": "ok",
+      "shadow_error": null,
+      "direct_answer": "[omitted]",
+      "direct_duration_ms": 2746,
+      "direct_cost_usd": 0.048864000000000005,
+      "cluster_score": 3,
+      "direct_score": 0,
+      "preferred": "cluster",
+      "cluster_errors_json": "[]",
+      "direct_errors_json": "[\"Answer A provides no substantive response to the question — it merely states intent to explore files without offering any answer about bare/no-tools failure modes or router detection\"]",
+      "judge_reasoning": "Answer B correctly identifies stale scoped evidence files as a bare/no-tools failure mode and accurately describes the full detection path: low-level consultCluster hash mismatch detection logs cluster_refresh_required, the caller-facing cluster_consult tool consumes CLUSTER_FACTSHEET_STALE and under autoRefresh acquires a per-cluster lock for strict revalidation (logging evidence_revalidated or evidence_revalidation_failed), and falls back to claude_consult with cluster_fallback_to_claude_consult logging when revalidation fails or autoRefresh is disabled. All of this is directly supported by the factsheet's stale-cluster-consult-behavior, caller-facing-stale-cluster-consult-behavior, caller-facing-stale-event-flow, and bare-profile-risk entries. Answer A is a non-answer that merely announces intent to explore.",
+      "judged_at": "2026-05-15T16:54:28.830Z",
+      "created_at": "2026-05-15T16:54:09.755Z"
+    },
+    {
+      "id": "comparison_809d0ede-9c53-47e6-b65d-bfbd0ae5fa02",
+      "project_id": "AgentSessionRouter",
+      "cluster_id": "agentsessionrouter-codebase",
+      "question": "Route sample C1. Answer from verified router facts. Suggest three safe ways to improve cluster_refresh without changing caller semantics.",
+      "cluster_answer": "[omitted]",
+      "cluster_duration_ms": 16708,
+      "cluster_cost_usd": 0.028960499999999997,
+      "cluster_was_not_in_context": 0,
+      "shadow_method": "direct_fresh",
+      "shadow_status": "ok",
+      "shadow_error": null,
+      "direct_answer": "[omitted]",
+      "direct_duration_ms": 4855,
+      "direct_cost_usd": 0.033030750000000005,
+      "cluster_score": 3,
+      "direct_score": 0,
+      "preferred": "cluster",
+      "cluster_errors_json": "[]",
+      "direct_errors_json": "[\"Non-answer: only states intent to explore, provides no actual content\"]",
+      "judge_reasoning": "Answer B is substantive and grounded in verified facts. Answer A is not an answer at all—it merely announces a search intention without delivering any content. B is the clear winner.",
+      "judged_at": "2026-05-15T16:54:12.527Z",
+      "created_at": "2026-05-15T16:53:52.470Z"
+    },
+    {
+      "id": "comparison_3fcb4b8f-6cd0-49ac-a63b-87733c12d8aa",
+      "project_id": "AgentSessionRouter",
+      "cluster_id": "agentsessionrouter-codebase",
+      "question": "Route sample B3. Answer from verified router facts. Explain static_verified, partial_llm, and llm_verified trust states.",
+      "cluster_answer": "[omitted]",
+      "cluster_duration_ms": 15007,
+      "cluster_cost_usd": 0.100135,
+      "cluster_was_not_in_context": 1,
+      "shadow_method": "direct_fresh",
+      "shadow_status": "ok",
+      "shadow_error": null,
+      "direct_answer": "[omitted]",
+      "direct_duration_ms": 5756,
+      "direct_cost_usd": 0.03403075,
+      "cluster_score": 3,
+      "direct_score": 1,
+      "preferred": "cluster",
+      "cluster_errors_json": "[]",
+      "direct_errors_json": "[\"Answer B begins searching rather than answering from the verified factsheet, indicating it does not have the information readily available\",\"Answer B never actually explains the trust states, only announces intent to look for them\"]",
+      "judge_reasoning": "Answer A correctly explains all three trust states (static_verified, partial_llm, llm_verified) using verified facts from the factsheet, accurately citing the evidence paths. It also honestly declines the route sample B3 portion as NOT IN CONTEXT since the factsheet omits that topic. Answer B merely announces it will search rather than providing the answer, which violates the instruction to prefer a concise answer supported by the factsheet over one that starts searching.",
+      "judged_at": "2026-05-15T16:54:01.310Z",
+      "created_at": "2026-05-15T16:53:35.748Z"
+    },
+    {
+      "id": "comparison_21028001-4dff-4ff8-a1b3-b0769484fcaa",
+      "project_id": "AgentSessionRouter",
+      "cluster_id": "agentsessionrouter-codebase",
+      "question": "Route sample B2. Answer from verified router facts. If a Claude jsonl file is deleted, what should happen on the next claude_consult to that session?",
+      "cluster_answer": "[omitted]",
+      "cluster_duration_ms": 7252,
+      "cluster_cost_usd": 0.09829500000000001,
+      "cluster_was_not_in_context": 1,
+      "shadow_method": "direct_fresh",
+      "shadow_status": "ok",
+      "shadow_error": null,
+      "direct_answer": "[omitted]",
+      "direct_duration_ms": 3151,
+      "direct_cost_usd": 0.049238,
+      "cluster_score": 1,
+      "direct_score": 0,
+      "preferred": "cluster",
+      "cluster_errors_json": "[\"Incorrectly claims the orphan recovery facts are outside the factsheet scope - the factsheet fully covers what happens when a session file is deleted, making the NOT IN CONTEXT stance unjustified\"]",
+      "direct_errors_json": "[\"Asks to investigate the router implementation when the factsheet already provides the verified answer - this is a waste of tokens and violates the 'use factsheet over searching' principle\"]",
+      "judge_reasoning": "Answer A correctly identifies the orphan recovery behavior from the factsheet (claude_consult marks session orphaned, builds bootstrap context, creates replacement route, sets was_orphan_recovery: true), which is exactly what should happen when a jsonl file is deleted. However A errs by saying these facts don't cover B2 - the factsheet's verified claims about orphan recovery are authoritative for this scenario regardless of route sample B2's specific wording. B is clearly worse as it defers investigation rather than answering from the verified factsheet already provided.",
+      "judged_at": "2026-05-15T16:53:40.038Z",
+      "created_at": "2026-05-15T16:53:20.728Z"
+    }
+  ],
+  "server_stderr": "",
+  "finished_at": "2026-05-15T18:58:11.780Z"
+}

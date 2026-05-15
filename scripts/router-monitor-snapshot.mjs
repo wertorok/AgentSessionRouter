@@ -13,6 +13,7 @@ const outPath = path.resolve(
 );
 const recentHours = Number(args.recent_hours ?? 24);
 const sampleLimit = Number(args.sample_limit ?? 20);
+const warningsLimit = Math.min(sampleLimit, 50);
 const projectId = args.project_id === undefined ? null : args.project_id === "null" ? null : String(args.project_id);
 
 if (!existsSync(serverEntry)) {
@@ -36,7 +37,7 @@ try {
     callTool("router_status", {
       project_id: projectId,
       recent_hours: recentHours,
-      warnings_limit: sampleLimit
+      warnings_limit: warningsLimit
     }),
     callTool("router_monitor", {
       project_id: projectId,
@@ -50,6 +51,7 @@ try {
     project_id: projectId,
     recent_hours: recentHours,
     sample_limit: sampleLimit,
+    warnings_limit: warningsLimit,
     status,
     monitor,
     server_stderr: stderr.join("")

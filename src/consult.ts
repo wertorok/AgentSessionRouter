@@ -472,7 +472,7 @@ export class ConsultService {
         throw new Error("SESSION_UPDATE_JSON block missing");
       }
       return {
-        answer: parsed.answer,
+        answer: parsed.answer || EMPTY_CALLER_ANSWER_MESSAGE,
         update: parsed.update
       };
     } catch (error: unknown) {
@@ -484,8 +484,9 @@ export class ConsultService {
         rawResponsePath,
         error: message
       });
+      const cleanedAnswer = cleanCallerAnswer(rawResponse);
       return {
-        answer: cleanCallerAnswer(rawResponse) || rawResponse,
+        answer: cleanedAnswer || EMPTY_CALLER_ANSWER_MESSAGE,
         warning: {
           code: ERROR_CODES.SESSION_UPDATE_PARSE_FAILED,
           message: SPEC_ERROR_MESSAGES[ERROR_CODES.SESSION_UPDATE_PARSE_FAILED]
@@ -568,6 +569,9 @@ export class ConsultService {
     };
   }
 }
+
+const EMPTY_CALLER_ANSWER_MESSAGE =
+  "Claude did not produce a caller-facing answer; it emitted only pseudo tool-call markup or an empty response.";
 
 interface RouteResolution {
   selectedSession: SessionRecord | null;
