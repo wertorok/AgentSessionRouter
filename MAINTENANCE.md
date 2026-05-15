@@ -64,6 +64,10 @@ Current follow-up priorities:
    repeated questions in one durable session. Do not infer session-memory
    quality from cluster shadow eval, because shadow uses a fresh direct
    baseline by design.
+8. Use `npm run session:collision` when evaluating whether similar topics can
+   confuse the router. Exact-topic continuity is the easy case; collision
+   analysis separates exact reuse from fuzzy high-confidence reuse,
+   low-confidence reuse, and conservative no-reuse.
 
 `router_monitor.quality.auto_routing_candidates` is a read-only research signal.
 It means a cluster is stable enough to study for future routing suggestions; it
@@ -84,6 +88,10 @@ Operational rule:
   session; otherwise it delegates to normal `claude_consult` auto-routing.
 - Automatic cluster selection is not enabled. Stable cluster candidates from
   `router_monitor.quality.auto_routing_candidates` are telemetry only.
+- Exact normalized topic reuse is intentionally strong, but it only proves the
+  easy path. For overlapping or near-duplicate topics, use
+  `npm run session:collision` before changing thresholds or claiming the router
+  can disambiguate similar sessions.
 - Every `router_consult` writes `router_route_decision`. Use
   `router_monitor.route_health.samples` to inspect accidental broad
   `claude_consult_auto` decisions before adding new routing logic.
@@ -165,6 +173,32 @@ Operational rule:
 - Use session continuity benchmark for durable session memory.
 - Do not compare `cluster_consult` only against `direct_fresh` when the question
   being asked is whether the router preserves multi-turn context.
+
+## Session Routing Collision Analysis
+
+Use `npm run session:collision` to inspect fuzzy routing risk without spending
+Claude tokens. The script reads the router SQLite DB, applies the same matching
+weights as `src/matching.ts`, and writes artifacts under
+`experiments/session-routing-collision-<date>/`.
+
+Read the output this way:
+
+- `exact_topic_reuse`: expected and safe when the caller repeats the same topic.
+- `exact_topic_collision`: two active sessions normalize to the same topic key;
+  rename/archive one before trusting exact routing.
+- `high_confidence_route`: fuzzy score crosses the router-consult reuse
+  threshold.
+- `low_confidence_reuse_possible`: lower-level `claude_consult` may reuse the
+  session, but `router_consult` delegates rather than claiming confidence.
+- `low_confidence_ambiguous`: lower-level `claude_consult` may reuse one of two
+  close candidates; inspect or pass an explicit session before trusting auto
+  reuse.
+- `conservative_no_reuse`: the router is unlikely to confuse sessions; the risk
+  is under-reuse/new-session creation, not wrong-session reuse.
+
+Do not lower fuzzy thresholds just to increase reuse. First inspect collision
+gaps and route-health samples; then add aliases/tags/file evidence or split
+near-duplicate sessions.
 
 ## Monitor Signal Filtering Invariants
 

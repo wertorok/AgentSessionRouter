@@ -1,0 +1,935 @@
+{
+  "project_id": "AgentSessionRouter",
+  "db_path": "/root/projects/AgentSessionRouter/.claude-session-router/sessions.sqlite",
+  "thresholds": {
+    "threshold_use": 0.7,
+    "threshold_low_confidence": 0.55
+  },
+  "active_candidate_count": 8,
+  "exact_key_collisions": [],
+  "pairwise_topic_similarity": [
+    {
+      "left_id": "session_63fec26d-9e40-4981-80ce-5b7311daa01c",
+      "left_topic": "cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-full",
+      "right_id": "session_e04a3fed-2a53-44f2-92ea-695d2e3e193e",
+      "right_topic": "cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3",
+      "topic_jaccard": 0.73
+    },
+    {
+      "left_id": "session_e5feff70-5233-4395-906d-0ecb13bbbb69",
+      "left_topic": "router consult shadow eval sample",
+      "right_id": "session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4",
+      "right_topic": "router consult cache maintenance sample",
+      "topic_jaccard": 0.43
+    },
+    {
+      "left_id": "session_e5feff70-5233-4395-906d-0ecb13bbbb69",
+      "left_topic": "router consult shadow eval sample",
+      "right_id": "session_570b63cb-efa6-4345-96bc-84d875385637",
+      "right_topic": "router consult route telemetry sample",
+      "topic_jaccard": 0.43
+    },
+    {
+      "left_id": "session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4",
+      "left_topic": "router consult cache maintenance sample",
+      "right_id": "session_570b63cb-efa6-4345-96bc-84d875385637",
+      "right_topic": "router consult route telemetry sample",
+      "topic_jaccard": 0.43
+    },
+    {
+      "left_id": "session_e5feff70-5233-4395-906d-0ecb13bbbb69",
+      "left_topic": "router consult shadow eval sample",
+      "right_id": "session_11d18ee8-3799-443f-8f5f-ecd866db9e57",
+      "right_topic": "v2.1 shadow eval architecture",
+      "topic_jaccard": 0.25
+    },
+    {
+      "left_id": "session_11d18ee8-3799-443f-8f5f-ecd866db9e57",
+      "left_topic": "v2.1 shadow eval architecture",
+      "right_id": "session_e65145e0-1911-4a87-ad7d-8477254bdbb2",
+      "right_topic": "project roadmap after v2.3.1",
+      "topic_jaccard": 0.22
+    },
+    {
+      "left_id": "session_63fec26d-9e40-4981-80ce-5b7311daa01c",
+      "left_topic": "cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-full",
+      "right_id": "session_9e3540b3-5451-442f-af26-03c888b7e859",
+      "right_topic": "cluster fallback claude-code-live-workload",
+      "topic_jaccard": 0.15
+    },
+    {
+      "left_id": "session_e04a3fed-2a53-44f2-92ea-695d2e3e193e",
+      "left_topic": "cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3",
+      "right_id": "session_9e3540b3-5451-442f-af26-03c888b7e859",
+      "right_topic": "cluster fallback claude-code-live-workload",
+      "topic_jaccard": 0.14
+    },
+    {
+      "left_id": "session_e5feff70-5233-4395-906d-0ecb13bbbb69",
+      "left_topic": "router consult shadow eval sample",
+      "right_id": "session_63fec26d-9e40-4981-80ce-5b7311daa01c",
+      "right_topic": "cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-full",
+      "topic_jaccard": 0
+    },
+    {
+      "left_id": "session_e5feff70-5233-4395-906d-0ecb13bbbb69",
+      "left_topic": "router consult shadow eval sample",
+      "right_id": "session_e04a3fed-2a53-44f2-92ea-695d2e3e193e",
+      "right_topic": "cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3",
+      "topic_jaccard": 0
+    },
+    {
+      "left_id": "session_e5feff70-5233-4395-906d-0ecb13bbbb69",
+      "left_topic": "router consult shadow eval sample",
+      "right_id": "session_9e3540b3-5451-442f-af26-03c888b7e859",
+      "right_topic": "cluster fallback claude-code-live-workload",
+      "topic_jaccard": 0
+    },
+    {
+      "left_id": "session_e5feff70-5233-4395-906d-0ecb13bbbb69",
+      "left_topic": "router consult shadow eval sample",
+      "right_id": "session_e65145e0-1911-4a87-ad7d-8477254bdbb2",
+      "right_topic": "project roadmap after v2.3.1",
+      "topic_jaccard": 0
+    },
+    {
+      "left_id": "session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4",
+      "left_topic": "router consult cache maintenance sample",
+      "right_id": "session_63fec26d-9e40-4981-80ce-5b7311daa01c",
+      "right_topic": "cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-full",
+      "topic_jaccard": 0
+    },
+    {
+      "left_id": "session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4",
+      "left_topic": "router consult cache maintenance sample",
+      "right_id": "session_e04a3fed-2a53-44f2-92ea-695d2e3e193e",
+      "right_topic": "cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3",
+      "topic_jaccard": 0
+    },
+    {
+      "left_id": "session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4",
+      "left_topic": "router consult cache maintenance sample",
+      "right_id": "session_9e3540b3-5451-442f-af26-03c888b7e859",
+      "right_topic": "cluster fallback claude-code-live-workload",
+      "topic_jaccard": 0
+    },
+    {
+      "left_id": "session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4",
+      "left_topic": "router consult cache maintenance sample",
+      "right_id": "session_11d18ee8-3799-443f-8f5f-ecd866db9e57",
+      "right_topic": "v2.1 shadow eval architecture",
+      "topic_jaccard": 0
+    },
+    {
+      "left_id": "session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4",
+      "left_topic": "router consult cache maintenance sample",
+      "right_id": "session_e65145e0-1911-4a87-ad7d-8477254bdbb2",
+      "right_topic": "project roadmap after v2.3.1",
+      "topic_jaccard": 0
+    },
+    {
+      "left_id": "session_570b63cb-efa6-4345-96bc-84d875385637",
+      "left_topic": "router consult route telemetry sample",
+      "right_id": "session_63fec26d-9e40-4981-80ce-5b7311daa01c",
+      "right_topic": "cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-full",
+      "topic_jaccard": 0
+    },
+    {
+      "left_id": "session_570b63cb-efa6-4345-96bc-84d875385637",
+      "left_topic": "router consult route telemetry sample",
+      "right_id": "session_e04a3fed-2a53-44f2-92ea-695d2e3e193e",
+      "right_topic": "cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3",
+      "topic_jaccard": 0
+    },
+    {
+      "left_id": "session_570b63cb-efa6-4345-96bc-84d875385637",
+      "left_topic": "router consult route telemetry sample",
+      "right_id": "session_9e3540b3-5451-442f-af26-03c888b7e859",
+      "right_topic": "cluster fallback claude-code-live-workload",
+      "topic_jaccard": 0
+    }
+  ],
+  "probes": [
+    {
+      "id": "route-cache-overlap",
+      "expected_domain": "route telemetry or cache maintenance",
+      "topicHint": "router consult route cache telemetry sample",
+      "task": "Explain route_health and cache maintenance monitor signals.",
+      "relevantCode": "",
+      "question": "Which prior session should answer a mixed route/cache monitor question?",
+      "best_session_id": null,
+      "best_topic": null,
+      "best_score": 0.41,
+      "best_low_confidence": false,
+      "best_reason": "Matched topic=0.83, files=0, tags=0.2, aliases=0.33, recency=0.71.",
+      "exact_topic_matches": [],
+      "router_consult_would_reuse": false,
+      "claude_consult_would_reuse": false,
+      "ambiguity_gap": 0.11,
+      "risk": "conservative_no_reuse",
+      "top_candidates": [
+        {
+          "session_id": "session_570b63cb-efa6-4345-96bc-84d875385637",
+          "topic": "router consult route telemetry sample",
+          "score": 0.41,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0.83, files=0, tags=0.2, aliases=0.33, recency=0.71."
+        },
+        {
+          "session_id": "session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4",
+          "topic": "router consult cache maintenance sample",
+          "score": 0.3,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0.57, files=0, tags=0.14, aliases=0.1, recency=0.86."
+        },
+        {
+          "session_id": "session_e5feff70-5233-4395-906d-0ecb13bbbb69",
+          "topic": "router consult shadow eval sample",
+          "score": 0.21,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0.38, files=0, tags=0, aliases=0, recency=1."
+        },
+        {
+          "session_id": "session_63fec26d-9e40-4981-80ce-5b7311daa01c",
+          "topic": "cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-full",
+          "score": 0.13,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0, files=0, tags=0.22, aliases=0.18, recency=0.57."
+        },
+        {
+          "session_id": "session_e04a3fed-2a53-44f2-92ea-695d2e3e193e",
+          "topic": "cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3",
+          "score": 0.08,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0, files=0, tags=0.05, aliases=0.15, recency=0.43."
+        }
+      ]
+    },
+    {
+      "id": "cache-shadow-overlap",
+      "expected_domain": "cache maintenance or shadow eval",
+      "topicHint": "router consult cache shadow eval sample",
+      "task": "Explain cluster re-prepare and shadow eval quality.",
+      "relevantCode": "",
+      "question": "When should factsheet be rebuilt after shadow signals?",
+      "best_session_id": null,
+      "best_topic": null,
+      "best_score": 0.35,
+      "best_low_confidence": false,
+      "best_reason": "Matched topic=0.83, files=0, tags=0, aliases=0, recency=1.",
+      "exact_topic_matches": [],
+      "router_consult_would_reuse": false,
+      "claude_consult_would_reuse": false,
+      "ambiguity_gap": 0.05,
+      "risk": "conservative_no_reuse",
+      "top_candidates": [
+        {
+          "session_id": "session_e5feff70-5233-4395-906d-0ecb13bbbb69",
+          "topic": "router consult shadow eval sample",
+          "score": 0.35,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0.83, files=0, tags=0, aliases=0, recency=1."
+        },
+        {
+          "session_id": "session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4",
+          "topic": "router consult cache maintenance sample",
+          "score": 0.3,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0.57, files=0, tags=0.14, aliases=0.13, recency=0.86."
+        },
+        {
+          "session_id": "session_570b63cb-efa6-4345-96bc-84d875385637",
+          "topic": "router consult route telemetry sample",
+          "score": 0.21,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0.38, files=0, tags=0, aliases=0.14, recency=0.71."
+        },
+        {
+          "session_id": "session_11d18ee8-3799-443f-8f5f-ecd866db9e57",
+          "topic": "v2.1 shadow eval architecture",
+          "score": 0.13,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0.22, files=0, tags=0.13, aliases=0.14, recency=0.14."
+        },
+        {
+          "session_id": "session_63fec26d-9e40-4981-80ce-5b7311daa01c",
+          "topic": "cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-full",
+          "score": 0.08,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0, files=0, tags=0.05, aliases=0.08, recency=0.57."
+        }
+      ]
+    },
+    {
+      "id": "shadow-route-overlap",
+      "expected_domain": "shadow eval or route telemetry",
+      "topicHint": "router consult shadow route telemetry sample",
+      "task": "Explain shadow eval and route_health.",
+      "relevantCode": "",
+      "question": "How should the operator interpret route and shadow data?",
+      "best_session_id": null,
+      "best_topic": null,
+      "best_score": 0.44,
+      "best_low_confidence": false,
+      "best_reason": "Matched topic=0.83, files=0, tags=0.25, aliases=0.43, recency=0.71.",
+      "exact_topic_matches": [],
+      "router_consult_would_reuse": false,
+      "claude_consult_would_reuse": false,
+      "ambiguity_gap": 0.17,
+      "risk": "conservative_no_reuse",
+      "top_candidates": [
+        {
+          "session_id": "session_570b63cb-efa6-4345-96bc-84d875385637",
+          "topic": "router consult route telemetry sample",
+          "score": 0.44,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0.83, files=0, tags=0.25, aliases=0.43, recency=0.71."
+        },
+        {
+          "session_id": "session_e5feff70-5233-4395-906d-0ecb13bbbb69",
+          "topic": "router consult shadow eval sample",
+          "score": 0.27,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0.57, files=0, tags=0, aliases=0, recency=1."
+        },
+        {
+          "session_id": "session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4",
+          "topic": "router consult cache maintenance sample",
+          "score": 0.23,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0.38, files=0, tags=0.1, aliases=0.08, recency=0.86."
+        },
+        {
+          "session_id": "session_63fec26d-9e40-4981-80ce-5b7311daa01c",
+          "topic": "cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-full",
+          "score": 0.08,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0, files=0, tags=0.05, aliases=0.09, recency=0.57."
+        },
+        {
+          "session_id": "session_11d18ee8-3799-443f-8f5f-ecd866db9e57",
+          "topic": "v2.1 shadow eval architecture",
+          "score": 0.07,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0.1, files=0, tags=0.09, aliases=0.09, recency=0.14."
+        }
+      ]
+    },
+    {
+      "id": "cluster-fallback-generic",
+      "expected_domain": "cluster fallback",
+      "topicHint": "cluster fallback agentsessionrouter-codebase",
+      "task": "Explain stale factsheet fallback and route telemetry.",
+      "relevantCode": "",
+      "question": "What happens when a cluster cannot serve from verified facts?",
+      "best_session_id": null,
+      "best_topic": null,
+      "best_score": 0.22,
+      "best_low_confidence": false,
+      "best_reason": "Matched topic=0.44, files=0, tags=0.11, aliases=0.08, recency=0.57.",
+      "exact_topic_matches": [],
+      "router_consult_would_reuse": false,
+      "claude_consult_would_reuse": false,
+      "ambiguity_gap": 0.02,
+      "risk": "conservative_no_reuse",
+      "top_candidates": [
+        {
+          "session_id": "session_63fec26d-9e40-4981-80ce-5b7311daa01c",
+          "topic": "cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-full",
+          "score": 0.22,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0.44, files=0, tags=0.11, aliases=0.08, recency=0.57."
+        },
+        {
+          "session_id": "session_e04a3fed-2a53-44f2-92ea-695d2e3e193e",
+          "topic": "cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3",
+          "score": 0.2,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0.4, files=0, tags=0.11, aliases=0.12, recency=0.43."
+        },
+        {
+          "session_id": "session_11d18ee8-3799-443f-8f5f-ecd866db9e57",
+          "topic": "v2.1 shadow eval architecture",
+          "score": 0.17,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0, files=0, tags=0.04, aliases=1, recency=0.14."
+        },
+        {
+          "session_id": "session_9e3540b3-5451-442f-af26-03c888b7e859",
+          "topic": "cluster fallback claude-code-live-workload",
+          "score": 0.16,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0.25, files=0, tags=0.17, aliases=0.13, recency=0.29."
+        },
+        {
+          "session_id": "session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4",
+          "topic": "router consult cache maintenance sample",
+          "score": 0.13,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0, files=0, tags=0.15, aliases=0.08, recency=0.86."
+        }
+      ]
+    },
+    {
+      "id": "roadmap-monitor-overlap",
+      "expected_domain": "roadmap or monitor",
+      "topicHint": "router monitor roadmap after v2.3.1",
+      "task": "Plan the next router maintenance step.",
+      "relevantCode": "",
+      "question": "What should we do next?",
+      "best_session_id": null,
+      "best_topic": null,
+      "best_score": 0.23,
+      "best_low_confidence": false,
+      "best_reason": "Matched topic=0.63, files=0, tags=0, aliases=0.26, recency=0.",
+      "exact_topic_matches": [],
+      "router_consult_would_reuse": false,
+      "claude_consult_would_reuse": false,
+      "ambiguity_gap": 0.1,
+      "risk": "conservative_no_reuse",
+      "top_candidates": [
+        {
+          "session_id": "session_e65145e0-1911-4a87-ad7d-8477254bdbb2",
+          "topic": "project roadmap after v2.3.1",
+          "score": 0.23,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0.63, files=0, tags=0, aliases=0.26, recency=0."
+        },
+        {
+          "session_id": "session_e5feff70-5233-4395-906d-0ecb13bbbb69",
+          "topic": "router consult shadow eval sample",
+          "score": 0.13,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0.09, files=0, tags=0, aliases=0, recency=1."
+        },
+        {
+          "session_id": "session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4",
+          "topic": "router consult cache maintenance sample",
+          "score": 0.13,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0.09, files=0, tags=0.05, aliases=0.03, recency=0.86."
+        },
+        {
+          "session_id": "session_570b63cb-efa6-4345-96bc-84d875385637",
+          "topic": "router consult route telemetry sample",
+          "score": 0.13,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0.09, files=0, tags=0.11, aliases=0.05, recency=0.71."
+        },
+        {
+          "session_id": "session_11d18ee8-3799-443f-8f5f-ecd866db9e57",
+          "topic": "v2.1 shadow eval architecture",
+          "score": 0.1,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0.2, files=0, tags=0.09, aliases=0.05, recency=0.14."
+        }
+      ]
+    },
+    {
+      "id": "near-current-1",
+      "expected_domain": "router consult shadow eval sample",
+      "topicHint": "router consult shadow eval",
+      "task": "Continue the work from router consult shadow eval sample.",
+      "relevantCode": "",
+      "question": "Should this route back to the session for router consult shadow eval sample?",
+      "best_session_id": null,
+      "best_topic": null,
+      "best_score": 0.34,
+      "best_low_confidence": false,
+      "best_reason": "Matched topic=0.8, files=0, tags=0, aliases=0, recency=1.",
+      "exact_topic_matches": [],
+      "router_consult_would_reuse": false,
+      "claude_consult_would_reuse": false,
+      "ambiguity_gap": 0.11,
+      "risk": "conservative_no_reuse",
+      "top_candidates": [
+        {
+          "session_id": "session_e5feff70-5233-4395-906d-0ecb13bbbb69",
+          "topic": "router consult shadow eval sample",
+          "score": 0.34,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0.8, files=0, tags=0, aliases=0, recency=1."
+        },
+        {
+          "session_id": "session_570b63cb-efa6-4345-96bc-84d875385637",
+          "topic": "router consult route telemetry sample",
+          "score": 0.23,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0.29, files=0, tags=0.18, aliases=0.27, recency=0.71."
+        },
+        {
+          "session_id": "session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4",
+          "topic": "router consult cache maintenance sample",
+          "score": 0.2,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0.29, files=0, tags=0.09, aliases=0.05, recency=0.86."
+        },
+        {
+          "session_id": "session_11d18ee8-3799-443f-8f5f-ecd866db9e57",
+          "topic": "v2.1 shadow eval architecture",
+          "score": 0.13,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0.29, files=0, tags=0.08, aliases=0.09, recency=0.14."
+        },
+        {
+          "session_id": "session_63fec26d-9e40-4981-80ce-5b7311daa01c",
+          "topic": "cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-full",
+          "score": 0.09,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0, files=0, tags=0.1, aliases=0.09, recency=0.57."
+        }
+      ]
+    },
+    {
+      "id": "near-current-2",
+      "expected_domain": "router consult cache maintenance sample",
+      "topicHint": "router consult cache maintenance",
+      "task": "Continue the work from router consult cache maintenance sample.",
+      "relevantCode": "scripts/router-route-sample.mjs",
+      "question": "Should this route back to the session for router consult cache maintenance sample?",
+      "best_session_id": "session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4",
+      "best_topic": "router consult cache maintenance sample",
+      "best_score": 0.6,
+      "best_low_confidence": true,
+      "best_reason": "Matched topic=0.8, files=1, tags=0.09, aliases=0.05, recency=0.86.",
+      "exact_topic_matches": [],
+      "router_consult_would_reuse": false,
+      "claude_consult_would_reuse": true,
+      "ambiguity_gap": 0.37,
+      "risk": "low_confidence_reuse_possible",
+      "top_candidates": [
+        {
+          "session_id": "session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4",
+          "topic": "router consult cache maintenance sample",
+          "score": 0.6,
+          "would_be_low_confidence": true,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0.8, files=1, tags=0.09, aliases=0.05, recency=0.86."
+        },
+        {
+          "session_id": "session_570b63cb-efa6-4345-96bc-84d875385637",
+          "topic": "router consult route telemetry sample",
+          "score": 0.23,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0.29, files=0, tags=0.18, aliases=0.27, recency=0.71."
+        },
+        {
+          "session_id": "session_e5feff70-5233-4395-906d-0ecb13bbbb69",
+          "topic": "router consult shadow eval sample",
+          "score": 0.19,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0.29, files=0, tags=0, aliases=0, recency=1."
+        },
+        {
+          "session_id": "session_63fec26d-9e40-4981-80ce-5b7311daa01c",
+          "topic": "cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-full",
+          "score": 0.1,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0, files=0, tags=0.15, aliases=0.09, recency=0.57."
+        },
+        {
+          "session_id": "session_e04a3fed-2a53-44f2-92ea-695d2e3e193e",
+          "topic": "cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3",
+          "score": 0.08,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0, files=0, tags=0.1, aliases=0.1, recency=0.43."
+        }
+      ]
+    },
+    {
+      "id": "near-current-3",
+      "expected_domain": "router consult route telemetry sample",
+      "topicHint": "router consult route telemetry",
+      "task": "Continue the work from router consult route telemetry sample.",
+      "relevantCode": "",
+      "question": "Should this route back to the session for router consult route telemetry sample?",
+      "best_session_id": null,
+      "best_topic": null,
+      "best_score": 0.46,
+      "best_low_confidence": false,
+      "best_reason": "Matched topic=0.8, files=0, tags=0.44, aliases=0.38, recency=0.71.",
+      "exact_topic_matches": [],
+      "router_consult_would_reuse": false,
+      "claude_consult_would_reuse": false,
+      "ambiguity_gap": 0.25,
+      "risk": "conservative_no_reuse",
+      "top_candidates": [
+        {
+          "session_id": "session_570b63cb-efa6-4345-96bc-84d875385637",
+          "topic": "router consult route telemetry sample",
+          "score": 0.46,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0.8, files=0, tags=0.44, aliases=0.38, recency=0.71."
+        },
+        {
+          "session_id": "session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4",
+          "topic": "router consult cache maintenance sample",
+          "score": 0.21,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0.29, files=0, tags=0.14, aliases=0.06, recency=0.86."
+        },
+        {
+          "session_id": "session_e5feff70-5233-4395-906d-0ecb13bbbb69",
+          "topic": "router consult shadow eval sample",
+          "score": 0.19,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0.29, files=0, tags=0, aliases=0, recency=1."
+        },
+        {
+          "session_id": "session_63fec26d-9e40-4981-80ce-5b7311daa01c",
+          "topic": "cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-full",
+          "score": 0.09,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0, files=0, tags=0.1, aliases=0.1, recency=0.57."
+        },
+        {
+          "session_id": "session_e04a3fed-2a53-44f2-92ea-695d2e3e193e",
+          "topic": "cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3",
+          "score": 0.08,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0, files=0, tags=0.1, aliases=0.1, recency=0.43."
+        }
+      ]
+    },
+    {
+      "id": "near-current-4",
+      "expected_domain": "cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-full",
+      "topicHint": "cluster fallback agentsessionrouter codebase reprepared 2026 05 15",
+      "task": "Continue the work from cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-full.",
+      "relevantCode": "src/prompt.ts\ntests/core.test.ts",
+      "question": "Should this route back to the session for cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-full?",
+      "best_session_id": "session_63fec26d-9e40-4981-80ce-5b7311daa01c",
+      "best_topic": "cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-full",
+      "best_score": 0.61,
+      "best_low_confidence": true,
+      "best_reason": "Matched topic=0.89, files=1, tags=0.08, aliases=0.11, recency=0.57.",
+      "exact_topic_matches": [],
+      "router_consult_would_reuse": false,
+      "claude_consult_would_reuse": true,
+      "ambiguity_gap": 0.04,
+      "risk": "low_confidence_ambiguous",
+      "top_candidates": [
+        {
+          "session_id": "session_63fec26d-9e40-4981-80ce-5b7311daa01c",
+          "topic": "cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-full",
+          "score": 0.61,
+          "would_be_low_confidence": true,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0.89, files=1, tags=0.08, aliases=0.11, recency=0.57."
+        },
+        {
+          "session_id": "session_e04a3fed-2a53-44f2-92ea-695d2e3e193e",
+          "topic": "cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3",
+          "score": 0.57,
+          "would_be_low_confidence": true,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0.8, files=1, tags=0.08, aliases=0.12, recency=0.43."
+        },
+        {
+          "session_id": "session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4",
+          "topic": "router consult cache maintenance sample",
+          "score": 0.11,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0, files=0, tags=0.07, aliases=0.08, recency=0.86."
+        },
+        {
+          "session_id": "session_9e3540b3-5451-442f-af26-03c888b7e859",
+          "topic": "cluster fallback claude-code-live-workload",
+          "score": 0.11,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0.17, files=0, tags=0.11, aliases=0.08, recency=0.29."
+        },
+        {
+          "session_id": "session_e5feff70-5233-4395-906d-0ecb13bbbb69",
+          "topic": "router consult shadow eval sample",
+          "score": 0.1,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0, files=0, tags=0, aliases=0, recency=1."
+        }
+      ]
+    },
+    {
+      "id": "near-current-5",
+      "expected_domain": "cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3",
+      "topicHint": "cluster fallback agentsessionrouter codebase reprepared 2026 05 15 targeted",
+      "task": "Continue the work from cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3.",
+      "relevantCode": "src/prompt.ts\ntests/core.test.ts\nsrc/monitor.ts",
+      "question": "Should this route back to the session for cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3?",
+      "best_session_id": "session_e04a3fed-2a53-44f2-92ea-695d2e3e193e",
+      "best_topic": "cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3",
+      "best_score": 0.6,
+      "best_low_confidence": true,
+      "best_reason": "Matched topic=0.9, files=1, tags=0.08, aliases=0.12, recency=0.43.",
+      "exact_topic_matches": [],
+      "router_consult_would_reuse": false,
+      "claude_consult_would_reuse": true,
+      "ambiguity_gap": 0.02,
+      "risk": "low_confidence_ambiguous",
+      "top_candidates": [
+        {
+          "session_id": "session_e04a3fed-2a53-44f2-92ea-695d2e3e193e",
+          "topic": "cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3",
+          "score": 0.6,
+          "would_be_low_confidence": true,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0.9, files=1, tags=0.08, aliases=0.12, recency=0.43."
+        },
+        {
+          "session_id": "session_63fec26d-9e40-4981-80ce-5b7311daa01c",
+          "topic": "cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-full",
+          "score": 0.58,
+          "would_be_low_confidence": true,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0.8, files=1, tags=0.08, aliases=0.11, recency=0.57."
+        },
+        {
+          "session_id": "session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4",
+          "topic": "router consult cache maintenance sample",
+          "score": 0.11,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0, files=0, tags=0.07, aliases=0.07, recency=0.86."
+        },
+        {
+          "session_id": "session_9e3540b3-5451-442f-af26-03c888b7e859",
+          "topic": "cluster fallback claude-code-live-workload",
+          "score": 0.11,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0.15, files=0, tags=0.11, aliases=0.08, recency=0.29."
+        },
+        {
+          "session_id": "session_e5feff70-5233-4395-906d-0ecb13bbbb69",
+          "topic": "router consult shadow eval sample",
+          "score": 0.1,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0, files=0, tags=0, aliases=0, recency=1."
+        }
+      ]
+    },
+    {
+      "id": "near-current-6",
+      "expected_domain": "cluster fallback claude-code-live-workload",
+      "topicHint": "cluster fallback claude code live",
+      "task": "Continue the work from cluster fallback claude-code-live-workload.",
+      "relevantCode": "src/consult.ts",
+      "question": "Should this route back to the session for cluster fallback claude-code-live-workload?",
+      "best_session_id": "session_9e3540b3-5451-442f-af26-03c888b7e859",
+      "best_topic": "cluster fallback claude-code-live-workload",
+      "best_score": 0.61,
+      "best_low_confidence": true,
+      "best_reason": "Matched topic=0.83, files=1, tags=0.13, aliases=0.33, recency=0.29.",
+      "exact_topic_matches": [],
+      "router_consult_would_reuse": false,
+      "claude_consult_would_reuse": true,
+      "ambiguity_gap": 0.33,
+      "risk": "low_confidence_reuse_possible",
+      "top_candidates": [
+        {
+          "session_id": "session_9e3540b3-5451-442f-af26-03c888b7e859",
+          "topic": "cluster fallback claude-code-live-workload",
+          "score": 0.61,
+          "would_be_low_confidence": true,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0.83, files=1, tags=0.13, aliases=0.33, recency=0.29."
+        },
+        {
+          "session_id": "session_11d18ee8-3799-443f-8f5f-ecd866db9e57",
+          "topic": "v2.1 shadow eval architecture",
+          "score": 0.28,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0, files=1, tags=0.04, aliases=0.07, recency=0.14."
+        },
+        {
+          "session_id": "session_63fec26d-9e40-4981-80ce-5b7311daa01c",
+          "topic": "cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-full",
+          "score": 0.14,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0.17, files=0, tags=0.09, aliases=0.13, recency=0.57."
+        },
+        {
+          "session_id": "session_e04a3fed-2a53-44f2-92ea-695d2e3e193e",
+          "topic": "cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3",
+          "score": 0.13,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0.15, files=0, tags=0.1, aliases=0.13, recency=0.43."
+        },
+        {
+          "session_id": "session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4",
+          "topic": "router consult cache maintenance sample",
+          "score": 0.12,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0, files=0, tags=0.13, aliases=0.08, recency=0.86."
+        }
+      ]
+    },
+    {
+      "id": "near-current-7",
+      "expected_domain": "v2.1 shadow eval architecture",
+      "topicHint": "v2 1 shadow eval",
+      "task": "Continue the work from v2.1 shadow eval architecture.",
+      "relevantCode": "src/schema.ts\nsrc/db.ts\nsrc/clusterConsult.ts",
+      "question": "Should this route back to the session for v2.1 shadow eval architecture?",
+      "best_session_id": null,
+      "best_topic": null,
+      "best_score": 0.54,
+      "best_low_confidence": false,
+      "best_reason": "Matched topic=0.8, files=1, tags=0.1, aliases=0.11, recency=0.14.",
+      "exact_topic_matches": [],
+      "router_consult_would_reuse": false,
+      "claude_consult_would_reuse": false,
+      "ambiguity_gap": 0.17,
+      "risk": "conservative_no_reuse",
+      "top_candidates": [
+        {
+          "session_id": "session_11d18ee8-3799-443f-8f5f-ecd866db9e57",
+          "topic": "v2.1 shadow eval architecture",
+          "score": 0.54,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0.8, files=1, tags=0.1, aliases=0.11, recency=0.14."
+        },
+        {
+          "session_id": "session_e65145e0-1911-4a87-ad7d-8477254bdbb2",
+          "topic": "project roadmap after v2.3.1",
+          "score": 0.37,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0.25, files=1, tags=0.13, aliases=0.16, recency=0."
+        },
+        {
+          "session_id": "session_e5feff70-5233-4395-906d-0ecb13bbbb69",
+          "topic": "router consult shadow eval sample",
+          "score": 0.19,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0.29, files=0, tags=0, aliases=0, recency=1."
+        },
+        {
+          "session_id": "session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4",
+          "topic": "router consult cache maintenance sample",
+          "score": 0.09,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0, files=0, tags=0, aliases=0, recency=0.86."
+        },
+        {
+          "session_id": "session_570b63cb-efa6-4345-96bc-84d875385637",
+          "topic": "router consult route telemetry sample",
+          "score": 0.08,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0, files=0, tags=0, aliases=0.06, recency=0.71."
+        }
+      ]
+    },
+    {
+      "id": "near-current-8",
+      "expected_domain": "project roadmap after v2.3.1",
+      "topicHint": "project roadmap after v2 3",
+      "task": "Continue the work from project roadmap after v2.3.1.",
+      "relevantCode": "src/clusterConsult.ts\nsrc/tools.ts\nsrc/clusterEvidenceRevalidation.ts",
+      "question": "Should this route back to the session for project roadmap after v2.3.1?",
+      "best_session_id": null,
+      "best_topic": null,
+      "best_score": 0.54,
+      "best_low_confidence": false,
+      "best_reason": "Matched topic=0.83, files=1, tags=0, aliases=0.28, recency=0.",
+      "exact_topic_matches": [],
+      "router_consult_would_reuse": false,
+      "claude_consult_would_reuse": false,
+      "ambiguity_gap": 0.22,
+      "risk": "conservative_no_reuse",
+      "top_candidates": [
+        {
+          "session_id": "session_e65145e0-1911-4a87-ad7d-8477254bdbb2",
+          "topic": "project roadmap after v2.3.1",
+          "score": 0.54,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0.83, files=1, tags=0, aliases=0.28, recency=0."
+        },
+        {
+          "session_id": "session_11d18ee8-3799-443f-8f5f-ecd866db9e57",
+          "topic": "v2.1 shadow eval architecture",
+          "score": 0.32,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0.11, files=1, tags=0.04, aliases=0.09, recency=0.14."
+        },
+        {
+          "session_id": "session_e5feff70-5233-4395-906d-0ecb13bbbb69",
+          "topic": "router consult shadow eval sample",
+          "score": 0.1,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0, files=0, tags=0, aliases=0, recency=1."
+        },
+        {
+          "session_id": "session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4",
+          "topic": "router consult cache maintenance sample",
+          "score": 0.09,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0, files=0, tags=0, aliases=0, recency=0.86."
+        },
+        {
+          "session_id": "session_570b63cb-efa6-4345-96bc-84d875385637",
+          "topic": "router consult route telemetry sample",
+          "score": 0.08,
+          "would_be_low_confidence": false,
+          "would_be_high_confidence": false,
+          "reason": "Matched topic=0, files=0, tags=0, aliases=0.05, recency=0.71."
+        }
+      ]
+    }
+  ],
+  "summary": "# Session Routing Collision Analysis\n\nProject id: AgentSessionRouter\nActive candidates: 8\nThresholds: use=0.7, low_confidence=0.55\n\n## Executive Result\n\n- Exact normalized topic collisions: 0\n- Probe exact-topic reuses: 0\n- Probe exact-topic collisions: 0\n- High collision risk probes: 0\n- router_consult high-confidence fuzzy reuses: 0\n- lower-level claude_consult ambiguous low-confidence reuses: 2\n- lower-level claude_consult low-confidence possible reuses: 2\n- conservative no-reuse probes: 9\n\nInterpretation: exact-topic reuse is proven by the continuity benchmark, but it is the easy case. This report separates exact-topic reuse from fuzzy matching. With the current active sessions and thresholds, similar topic names mostly do not cross the router-consult fuzzy reuse threshold. The main router_consult risk is missed reuse/new sessions; the remaining confusion risk is lower-level low-confidence reuse when two candidates have close scores.\n\n## Closest Active Topic Pairs\n\n| Topic Jaccard | Left | Right |\n| ---: | --- | --- |\n| 0.73 | cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-full | cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3 |\n| 0.43 | router consult shadow eval sample | router consult cache maintenance sample |\n| 0.43 | router consult shadow eval sample | router consult route telemetry sample |\n| 0.43 | router consult cache maintenance sample | router consult route telemetry sample |\n| 0.25 | router consult shadow eval sample | v2.1 shadow eval architecture |\n| 0.22 | v2.1 shadow eval architecture | project roadmap after v2.3.1 |\n| 0.15 | cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-full | cluster fallback claude-code-live-workload |\n| 0.14 | cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3 | cluster fallback claude-code-live-workload |\n| 0 | router consult shadow eval sample | cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-full |\n| 0 | router consult shadow eval sample | cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3 |\n\n## Probe Results\n\n| Probe | Risk | Best fuzzy score | Gap to second | Exact or best topic |\n| --- | --- | ---: | ---: | --- |\n| route-cache-overlap | conservative_no_reuse | 0.41 | 0.11 |  |\n| cache-shadow-overlap | conservative_no_reuse | 0.35 | 0.05 |  |\n| shadow-route-overlap | conservative_no_reuse | 0.44 | 0.17 |  |\n| cluster-fallback-generic | conservative_no_reuse | 0.22 | 0.02 |  |\n| roadmap-monitor-overlap | conservative_no_reuse | 0.23 | 0.1 |  |\n| near-current-1 | conservative_no_reuse | 0.34 | 0.11 |  |\n| near-current-2 | low_confidence_reuse_possible | 0.6 | 0.37 | router consult cache maintenance sample |\n| near-current-3 | conservative_no_reuse | 0.46 | 0.25 |  |\n| near-current-4 | low_confidence_ambiguous | 0.61 | 0.04 | cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-full |\n| near-current-5 | low_confidence_ambiguous | 0.6 | 0.02 | cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3 |\n| near-current-6 | low_confidence_reuse_possible | 0.61 | 0.33 | cluster fallback claude-code-live-workload |\n| near-current-7 | conservative_no_reuse | 0.54 | 0.17 |  |\n| near-current-8 | conservative_no_reuse | 0.54 | 0.22 |  |\n\n## Operational Conclusion\n\n- The previous `router_exact_topic` continuity score should be read as exact-topic reuse, not fuzzy semantic routing.\n- Current top-level fuzzy matching is safe but under-reuses sessions unless topic, tags, aliases, or file paths strongly overlap.\n- Ambiguous low-confidence cases should be inspected before relying on auto `claude_consult` reuse.\n- To improve non-exact reuse later, collect route-health samples first and then add ambiguity-aware matching rather than lowering thresholds blindly.\n"
+}

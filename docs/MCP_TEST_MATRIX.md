@@ -9,6 +9,7 @@ npm run mcp:workload
 npm run mcp:workload:live
 npm run monitor:snapshot
 npm run session:continuity
+npm run session:collision
 ```
 
 The default workload uses a deterministic fake Claude CLI so failure paths can be exercised without waiting on live model behavior. The live workload uses the real `claude` CLI and should be run only when local auth/rate limits are healthy.
@@ -16,6 +17,11 @@ The default workload uses a deterministic fake Claude CLI so failure paths can b
 `session:continuity` is a live continuity benchmark. It is not a cluster
 quality benchmark. It measures whether repeated questions in one durable session
 remember prior benchmark decisions better than fresh-each-turn calls.
+
+`session:collision` is an offline routing-risk benchmark. It does not invoke
+Claude. It inspects the router DB and asks whether similar active session topics
+would be exact-topic reused, high-confidence fuzzy reused, low-confidence reused
+by lower-level `claude_consult`, or conservatively routed to a new/auto path.
 
 Artifacts are written under:
 
@@ -80,6 +86,7 @@ If a one-off Claude Code integration diagnostic is needed, pass MCP config expli
 | LLM verifier | `verification_mode=llm` | `factsheet_llm_verified`, `llm_verifier` |
 | Monitor diagnosis | final `router_monitor` | cache/quality recommendations |
 | Session continuity | `npm run session:continuity` | fresh-each-turn loses memory, same-session/router reuse preserves memory |
+| Session collision risk | `npm run session:collision` | similar topics are classified as exact reuse, fuzzy reuse, ambiguous low-confidence reuse, or conservative no-reuse |
 
 ## What To Watch
 
@@ -118,5 +125,10 @@ If `route_health` shows repeated `claude_consult_auto` decisions, inspect the sa
 If session-memory quality is under discussion, run `npm run session:continuity`
 instead of relying on shadow eval. Shadow eval intentionally compares clusters
 against isolated `direct_fresh`; it does not measure multi-turn session memory.
+
+If topic-collision risk is under discussion, run `npm run session:collision`.
+Do not infer fuzzy-routing quality from `router_exact_topic`; exact topic reuse
+is the easy case and does not prove the router can disambiguate overlapping
+topics.
 
 Run `npm run monitor:snapshot` daily or before/after larger router changes to keep a comparable JSON trail of `router_status` and `router_monitor`.

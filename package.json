@@ -35,6 +35,7 @@
     "router:sanity": "node scripts/router-consult-sanity.mjs",
     "router:sample": "node scripts/router-route-sample.mjs",
     "session:continuity": "node scripts/session-continuity-benchmark.mjs",
+    "session:collision": "node scripts/session-routing-collision.mjs",
     "monitor:snapshot": "node scripts/router-monitor-snapshot.mjs",
     "mcp:workload": "node scripts/mcp-workload-matrix.mjs",
     "mcp:workload:live": "node scripts/mcp-workload-matrix.mjs --live"
