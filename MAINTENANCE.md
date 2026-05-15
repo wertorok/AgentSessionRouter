@@ -18,9 +18,9 @@ As of 2026-05-15, the production MCP baseline is:
   - no low-scoring active `NOT IN CONTEXT` coverage failures
   - `router_monitor.route_health` is available and records `router_consult`
     selected-path samples
-  - 2026-05-15 live `router:sanity` found no fresh active cluster after the
-    router/docs changes; codebase clusters need re-prepare before relying on
-    cluster path again
+  - 2026-05-15 live `router:sanity` first found stale codebase clusters after
+    route/docs changes; `agentsessionrouter-codebase` was then re-prepared to
+    factsheet version 2 and passed a cluster route sanity check
   - one slow `new_session` event around 302 seconds, caused by a broad
     `tokens_in=78,258` direct roadmap consult
 
@@ -47,9 +47,9 @@ Current follow-up priorities:
    improved metadata health, latency, cache fallback, or quality.
 5. After route changes, run `npm run router:sanity` to generate a small live
    `router_consult` trace before relying on route-health conclusions.
-6. Re-prepare the AgentSessionRouter codebase cluster after this route layer
-   change. The latest sanity run correctly skipped stale clusters and used an
-   explicit session route instead.
+6. Older superseded codebase clusters are still stale. Prefer the fresh
+   `agentsessionrouter-codebase` factsheet version 2 for route sanity and
+   future benchmark work.
 
 `router_monitor.quality.auto_routing_candidates` is a read-only research signal.
 It means a cluster is stable enough to study for future routing suggestions; it

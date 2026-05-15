@@ -1,0 +1,15 @@
+**Low-level (`consultCluster` in `src/clusterConsult.ts`):**
+
+1. Detects stale scoped evidence files.
+2. Calls `db.markClusterFactsheetStale`.
+3. Logs `cluster_refresh_required` to `cluster_events` with `changed_files` in `details_json`.
+4. Returns `ERROR_CODES.CLUSTER_FACTSHEET_STALE` internally.
+
+**Caller-facing (`cluster_consult` tool in `src/tools.ts`):**
+
+The `CLUSTER_FACTSHEET_STALE` error is consumed at the tool level:
+
+- **If `autoRefresh` is enabled:** revalidates evidence under a per-cluster lock via `revalidateClusterEvidence`. On success logs `evidence_revalidated`; on failure logs `evidence_revalidation_failed`.
+- **If revalidation fails or `autoRefresh` is disabled:** falls back internally to `claude_consult`, logs `cluster_fallback_to_claude_consult`, and returns an answer to the caller.
+
+So the full event sequence is: `cluster_refresh_required` → (`evidence_revalidated` | `evidence_revalidation_failed`) → `cluster_fallback_to_claude_consult`.
