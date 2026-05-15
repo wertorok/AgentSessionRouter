@@ -49,7 +49,7 @@ If a one-off Claude Code integration diagnostic is needed, pass MCP config expli
 
 | Area | Scenario | Expected signal |
 | --- | --- | --- |
-| Tool discovery | MCP lists all public tools | 14 tools including `router_monitor` |
+| Tool discovery | MCP lists all public tools | 17 tools including `router_monitor` |
 | Router health | `router_status` baseline | normal/degraded state, Claude version, counts |
 | Information monitor | `router_monitor` baseline/final | recommendations and next directions |
 | v1 sessions | `claude_consult` new session | `new_session`, registry row, raw log |
@@ -59,6 +59,7 @@ If a one-off Claude Code integration diagnostic is needed, pass MCP config expli
 | Cluster fast path | `cluster_consult` with fresh evidence | `cluster_consult`, shadow comparison scheduled |
 | Shadow telemetry | `comparison_stats` / `comparison_list` | at least one judged comparison, wins/ties/gaps |
 | Refresh | `cluster_refresh verify_only` | fresh factsheet, unchanged files |
+| Cluster archive | `cluster_archive` superseded benchmark cluster | archived cluster disappears from active monitor quality/fallback signals |
 | Revalidation success | file hash changes, selector snippet same | `evidence_revalidated`, answer from cluster |
 | Revalidation failure | selector removed/renamed | `evidence_revalidation_failed`, `needs_prepare`, fallback |
 | Revalidation failure | selector still present, snippet changed | `evidence_revalidation_failed`, `needs_prepare`, fallback |

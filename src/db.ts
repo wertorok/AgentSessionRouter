@@ -739,6 +739,25 @@ export class RouterDatabase {
       .all(projectId) as ClusterRecord[];
   }
 
+  archiveCluster(projectId: string, clusterId: string, reason?: string | null): boolean {
+    const cluster = this.getCluster(projectId, clusterId);
+    if (!cluster) {
+      return false;
+    }
+    this.db
+      .prepare("UPDATE clusters SET status = 'archived', last_used = ? WHERE project_id = ? AND id = ?")
+      .run(this.clock.nowIso(), projectId, clusterId);
+    this.logClusterEvent({
+      clusterId,
+      projectId,
+      eventType: "cluster_archived",
+      details: {
+        reason: reason ?? null
+      }
+    });
+    return true;
+  }
+
   insertClusterFactsheet(input: ClusterFactsheetInput): ClusterFactsheetRecord {
     const insert = this.db.transaction(() => {
       const versionRow = this.db
@@ -1192,11 +1211,15 @@ export class RouterDatabase {
   getRecentClusterAttentionCounts(projectId: string, sinceIso: string): EventCount[] {
     return this.db
       .prepare(
-        `SELECT event_type, COUNT(*) AS count, MAX(created_at) AS latest_created_at
-         FROM cluster_events
-         WHERE project_id = ?
-           AND created_at >= ?
-           AND event_type IN (
+        `SELECT e.event_type, COUNT(*) AS count, MAX(e.created_at) AS latest_created_at
+         FROM cluster_events e
+         INNER JOIN clusters c
+           ON c.project_id = e.project_id
+          AND c.id = e.cluster_id
+          AND c.status != 'archived'
+         WHERE e.project_id = ?
+           AND e.created_at >= ?
+           AND e.event_type IN (
              'cluster_consult_failed',
              'cluster_fallback_to_claude_consult',
              'cluster_fallback_failed',
@@ -1207,8 +1230,8 @@ export class RouterDatabase {
              'bare_probe_failed',
              'tool_profile_downgraded'
            )
-         GROUP BY event_type
-         ORDER BY count DESC, event_type ASC`
+         GROUP BY e.event_type
+         ORDER BY count DESC, e.event_type ASC`
       )
       .all(projectId, sinceIso) as EventCount[];
   }
@@ -1216,11 +1239,15 @@ export class RouterDatabase {
   getRecentClusterAttentionCountsByCluster(projectId: string, sinceIso: string): ClusterEventCount[] {
     return this.db
       .prepare(
-        `SELECT cluster_id, event_type, COUNT(*) AS count, MAX(created_at) AS latest_created_at
-         FROM cluster_events
-         WHERE project_id = ?
-           AND created_at >= ?
-           AND event_type IN (
+        `SELECT e.cluster_id, e.event_type, COUNT(*) AS count, MAX(e.created_at) AS latest_created_at
+         FROM cluster_events e
+         INNER JOIN clusters c
+           ON c.project_id = e.project_id
+          AND c.id = e.cluster_id
+          AND c.status != 'archived'
+         WHERE e.project_id = ?
+           AND e.created_at >= ?
+           AND e.event_type IN (
              'cluster_consult_failed',
              'cluster_fallback_to_claude_consult',
              'cluster_fallback_failed',
@@ -1231,8 +1258,8 @@ export class RouterDatabase {
              'bare_probe_failed',
              'tool_profile_downgraded'
            )
-         GROUP BY cluster_id, event_type
-         ORDER BY count DESC, cluster_id ASC, event_type ASC`
+         GROUP BY e.cluster_id, e.event_type
+         ORDER BY count DESC, e.cluster_id ASC, e.event_type ASC`
       )
       .all(projectId, sinceIso) as ClusterEventCount[];
   }
@@ -1241,10 +1268,14 @@ export class RouterDatabase {
     const row = this.db
       .prepare(
         `SELECT COUNT(*) AS count
-         FROM cluster_events
-         WHERE project_id = ?
-           AND created_at >= ?
-           AND event_type = 'cluster_fallback_to_claude_consult'`
+         FROM cluster_events e
+         INNER JOIN clusters c
+           ON c.project_id = e.project_id
+          AND c.id = e.cluster_id
+          AND c.status != 'archived'
+         WHERE e.project_id = ?
+           AND e.created_at >= ?
+           AND e.event_type = 'cluster_fallback_to_claude_consult'`
       )
       .get(projectId, sinceIso) as { count: number } | undefined;
     return row?.count ?? 0;

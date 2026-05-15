@@ -57,15 +57,18 @@ Experimental cluster-cache tools:
 - `cluster_consult`
 - `cluster_refresh`
 - `cluster_list`
+- `cluster_archive`
 
 Optional shadow-eval tools:
 
 - `comparison_stats`
 - `comparison_list`
+- `comparison_process_pending`
+- `comparison_rejudge`
 
 Validation performed:
 
-- Unit/integration tests: `71 passed`
+- Unit/integration tests: `79 passed`
 - Live MCP stdio E2E: `LIVE_CONSULT_PASS`
 - Live matrix run: committed as `LIVE_TEST_LOG.md`
 - Post-fix targeted live rerun: `TARGETED_RERUN_PASS`
@@ -796,6 +799,20 @@ Input:
 {
   "project_id": null,
   "include_archived": false
+}
+```
+
+### `cluster_archive`
+
+Archives a cluster cache entry without deleting its factsheets, events, or comparison history. Archived clusters are hidden from normal `cluster_list` output and excluded from active `router_monitor` quality/fallback recommendations, while remaining available through `cluster_list` with `include_archived: true`.
+
+Input:
+
+```json
+{
+  "project_id": null,
+  "cluster_id": "old-benchmark-cluster",
+  "reason": "superseded by current benchmark cluster"
 }
 ```
 

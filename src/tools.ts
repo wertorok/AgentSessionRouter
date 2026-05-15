@@ -131,6 +131,12 @@ const clusterListInput = z.object({
   include_archived: z.boolean().default(false)
 });
 
+const clusterArchiveInput = z.object({
+  project_id: z.string().nullable().optional(),
+  cluster_id: z.string().min(1),
+  reason: z.string().nullable().optional()
+});
+
 const clusterConsultInput = z.object({
   project_id: z.string().nullable().optional(),
   cluster_id: z.string().min(1),
@@ -433,14 +439,20 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
       const clusterAttention = runtime.db.getRecentClusterAttentionCounts(projectId, sinceIso);
       const clusterAttentionByCluster = runtime.db.getRecentClusterAttentionCountsByCluster(projectId, sinceIso);
       const shadowEval = runtime.db.getShadowEvalHealth(projectId);
-      const comparisonStats = runtime.db.getConsultComparisonMonitorStats(projectId, sinceIso);
+      const activeClusterIds = new Set(runtime.db.listClusters(projectId, false).map((cluster) => cluster.id));
+      const comparisonStats = runtime.db
+        .getConsultComparisonMonitorStats(projectId, sinceIso)
+        .filter((stats) => !stats.cluster_id || activeClusterIds.has(stats.cluster_id));
       const directWins = runtime.db
         .listConsultComparisons({
           projectId,
           preferred: "direct",
           limit: input.sample_limit ?? 10
         })
-        .filter((comparison) => comparison.created_at >= sinceIso)
+        .filter(
+          (comparison) =>
+            comparison.created_at >= sinceIso && (!comparison.cluster_id || activeClusterIds.has(comparison.cluster_id))
+        )
         .map((comparison) => ({
           id: comparison.id,
           cluster_id: comparison.cluster_id,
@@ -455,7 +467,12 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
           projectId,
           limit: input.sample_limit ?? 10
         })
-        .filter((comparison) => comparison.created_at >= sinceIso && comparison.cluster_was_not_in_context === 1)
+        .filter(
+          (comparison) =>
+            comparison.created_at >= sinceIso &&
+            comparison.cluster_was_not_in_context === 1 &&
+            (!comparison.cluster_id || activeClusterIds.has(comparison.cluster_id))
+        )
         .map((comparison) => ({
           id: comparison.id,
           cluster_id: comparison.cluster_id,
@@ -937,6 +954,33 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
       return jsonToolResult({
         project_id: projectId,
         clusters
+      });
+    }
+  );
+
+  server.registerTool(
+    "cluster_archive",
+    {
+      title: "Archive cluster",
+      description: "Archives a cluster cache entry so router_monitor stops treating it as active.",
+      inputSchema: clusterArchiveInput
+    },
+    async (input) => {
+      const projectId = resolveProjectId(input.project_id, runtime.cwd);
+      const ok = runtime.db.archiveCluster(projectId, input.cluster_id, input.reason ?? null);
+      if (!ok) {
+        return jsonToolResult(
+          errorPayload(ERROR_CODES.CLUSTER_NOT_FOUND, SPEC_ERROR_MESSAGES[ERROR_CODES.CLUSTER_NOT_FOUND], {
+            cluster_id: input.cluster_id
+          }),
+          true
+        );
+      }
+      return jsonToolResult({
+        project_id: projectId,
+        cluster_id: input.cluster_id,
+        ok: true,
+        status: "archived"
       });
     }
   );

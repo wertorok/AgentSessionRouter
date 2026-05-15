@@ -957,6 +957,120 @@ describe("cluster MCP tools", () => {
     expect(monitor.next_directions.some((direction: string) => direction.includes("factsheet expansion"))).toBe(true);
     fixture.cleanup();
   });
+
+  it("archives clusters and removes them from active monitor signals", async () => {
+    const fixture = createToolFixture();
+    const server = new FakeServer();
+    registerTools(server as unknown as McpServer, fixture.runtime);
+    fixture.runtime.db.upsertCluster({
+      id: "old-benchmark",
+      projectId: "project",
+      name: "Old benchmark",
+      toolProfileDefault: "bare"
+    });
+    fixture.runtime.db.upsertCluster({
+      id: "current-cluster",
+      projectId: "project",
+      name: "Current cluster",
+      toolProfileDefault: "bare"
+    });
+    fixture.runtime.db.logClusterEvent({
+      clusterId: "old-benchmark",
+      projectId: "project",
+      eventType: "cluster_fallback_to_claude_consult"
+    });
+    fixture.runtime.db.insertConsultComparison({
+      id: "cmp-old-direct-win",
+      projectId: "project",
+      clusterId: "old-benchmark",
+      question: "Why did the old benchmark lose?",
+      clusterAnswer: "NOT IN CONTEXT",
+      clusterDurationMs: 5,
+      clusterWasNotInContext: true
+    });
+    fixture.runtime.db.updateConsultComparisonDirect({
+      id: "cmp-old-direct-win",
+      status: "ok",
+      directAnswer: "The old benchmark had a stale factsheet.",
+      directDurationMs: 10
+    });
+    fixture.runtime.db.updateConsultComparisonJudge({
+      id: "cmp-old-direct-win",
+      clusterScore: 1,
+      directScore: 3,
+      preferred: "direct",
+      clusterErrors: [],
+      directErrors: [],
+      judgeReasoning: "old cluster lost"
+    });
+    fixture.runtime.db.insertConsultComparison({
+      id: "cmp-current-cluster-win",
+      projectId: "project",
+      clusterId: "current-cluster",
+      question: "What does the current cluster answer?",
+      clusterAnswer: "Current answer",
+      clusterDurationMs: 5
+    });
+    fixture.runtime.db.updateConsultComparisonDirect({
+      id: "cmp-current-cluster-win",
+      status: "ok",
+      directAnswer: "Direct answer",
+      directDurationMs: 10
+    });
+    fixture.runtime.db.updateConsultComparisonJudge({
+      id: "cmp-current-cluster-win",
+      clusterScore: 3,
+      directScore: 2,
+      preferred: "cluster",
+      clusterErrors: [],
+      directErrors: [],
+      judgeReasoning: "current cluster wins"
+    });
+
+    const archive = parseToolJson(
+      await server.call("cluster_archive", {
+        project_id: "project",
+        cluster_id: "old-benchmark",
+        reason: "superseded benchmark data"
+      })
+    );
+    const activeList = parseToolJson(await server.call("cluster_list", { project_id: "project" }));
+    const allList = parseToolJson(
+      await server.call("cluster_list", {
+        project_id: "project",
+        include_archived: true
+      })
+    );
+    const monitor = parseToolJson(
+      await server.call("router_monitor", {
+        project_id: "project",
+        recent_hours: 24,
+        sample_limit: 10
+      })
+    );
+
+    expect(archive).toMatchObject({
+      project_id: "project",
+      cluster_id: "old-benchmark",
+      ok: true,
+      status: "archived"
+    });
+    expect(activeList.clusters.map((cluster: { id: string }) => cluster.id)).toEqual(["current-cluster"]);
+    expect(allList.clusters.find((cluster: { id: string }) => cluster.id === "old-benchmark").status).toBe("archived");
+    expect(monitor.health.v2_clusters.fallback_count_last_24h).toBe(0);
+    expect(monitor.cache_health.attention_by_cluster).toHaveLength(0);
+    expect(monitor.quality.cluster_stats.map((stats: { cluster_id: string }) => stats.cluster_id)).toEqual([
+      "current-cluster"
+    ]);
+    expect(monitor.quality.direct_win_samples).toHaveLength(0);
+    expect(monitor.quality.not_in_context_samples).toHaveLength(0);
+    expect(
+      monitor.recommendations.some(
+        (recommendation: { cluster_id?: string }) => recommendation.cluster_id === "old-benchmark"
+      )
+    ).toBe(false);
+    fixture.cleanup();
+  });
 });
 
 class FakeServer {
