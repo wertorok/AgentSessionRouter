@@ -1,0 +1,12 @@
+
+
+These were all answered earlier in this session — here's the concise recap:
+
+**1. Per-fact revalidation instead of all-or-nothing**
+Currently `verifyFactsheetStatic` throwing marks the whole factsheet stale. Catch per-fact failures and only reject individual facts, preserving facts that still verify. The `rejected_facts` field already exists in the output — just use it granularly.
+
+**2. Distinguish hash-changed from selector-actually-changed**
+`findChangedFiles` flags any file with a mismatched hash. But a changed hash doesn't prove the cited selector text moved. Recheck each `selector` + `snippet_hash` in changed files before marking stale — avoids false stale-marks from unrelated edits.
+
+**3. Schedule LLM re-verification after N days even on clean static pass**
+An `llm_verified` factsheet can go stale semantically without file hashes changing. Track `refresh_age_days`; if it exceeds a config threshold for an `llm_verified` factsheet, log `llm_reverify_scheduled` and mark `needs_prepare` rather than `active/fresh`. The existing trust-state semantics are unchanged — this pre-empts consults from trusting an aged factsheet.

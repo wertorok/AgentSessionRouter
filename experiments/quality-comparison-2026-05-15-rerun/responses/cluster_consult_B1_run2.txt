@@ -1,0 +1,11 @@
+From the factsheet:
+
+The LLM verifier is run in `bare` mode (or `focused` no-tools mode as fallback) because its purpose is to **judge only the supplied evidence**, not to discover new information or perform inference. The verifier prompt instructs Claude to:
+
+- Verify supplied evidence semantically
+- Return VERIFIED only when the claim follows from the evidence
+- Not infer
+- Not use tools
+- Return JSON only
+
+Agent mode would allow tool use and new discovery, which conflicts with the verification task of judging whether existing evidence supports a claim. As the factsheet states: the verifier "must judge only the supplied evidence, avoid new discovery, avoid inference, and return VERIFIED only when the claim follows from that evidence."

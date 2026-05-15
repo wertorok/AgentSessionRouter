@@ -1,0 +1,8 @@
+
+
+When `cluster_consult` finds stale scoped evidence files, it:
+
+1. Marks the factsheet stale
+2. Logs `cluster_refresh_required` to `cluster_events` with `changed_files`
+3. Returns `CLUSTER_FACTSHEET_STALE`
+4. Does **not** invoke Claude

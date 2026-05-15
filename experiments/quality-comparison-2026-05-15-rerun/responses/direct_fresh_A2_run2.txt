@@ -1,0 +1,40 @@
+
+
+From grepping the source, here are all distinct event types written to `cluster_events` (via `logClusterEvent` calls with `eventType:`):
+
+| Event type | Files |
+|---|---|
+| `archive` | `src/db.ts` |
+| `bare_probe_failed` | `src/runtime.ts` |
+| `broad_cwd_warning` | `src/runtime.ts` |
+| `cluster_consult` | `src/clusterConsult.ts` |
+| `cluster_consult_failed` | `src/clusterConsult.ts` |
+| `cluster_created` | `src/db.ts` |
+| `cluster_fallback_failed` | `src/tools.ts` |
+| `cluster_fallback_to_claude_consult` | `src/tools.ts` |
+| `cluster_refresh` | `src/clusterRefresh.ts` |
+| `cluster_refresh_required` | `src/clusterConsult.ts` |
+| `cost_limit_exceeded` | `src/consult.ts` |
+| `degraded_mode_entered` | `src/consult.ts`, `src/runtime.ts` |
+| `dormant` | `src/db.ts` |
+| `evidence_revalidation_failed` | `src/clusterEvidenceRevalidation.ts` |
+| `evidence_revalidated` | `src/clusterEvidenceRevalidation.ts` |
+| `factsheet_rejected` | `src/cluster.ts` |
+| `factsheet_stale` | `src/clusterRefresh.ts` |
+| `health_check_failed` | `src/consult.ts` |
+| `health_probe_failed` | `src/runtime.ts` |
+| `health_probe_passed` | `src/runtime.ts` |
+| `llm_verifier` | `src/cluster.ts` |
+| `orphan_recovery` | `src/db.ts` |
+| `parse_failed` | `src/consult.ts` |
+| `parse_failed_threshold_exceeded` | `src/consult.ts` |
+| `resume_failed` | `src/consult.ts` |
+| `resume_systematic_failure` | `src/consult.ts` |
+| `router_reset` | `src/runtime.ts` |
+| `token_anomaly` | `src/consult.ts` |
+| `tool_profile_downgraded` | `src/tools.ts`, `src/clusterConsult.ts` |
+| `unknown_claude_version` | `src/runtime.ts` |
+
+**Total: 30 distinct event types.**
+
+Key sources: `src/tools.ts`, `src/db.ts`, `src/consult.ts`, `src/runtime.ts`, `src/cluster.ts`, `src/clusterConsult.ts`, `src/clusterRefresh.ts`, `src/clusterEvidenceRevalidation.ts`.

@@ -236,6 +236,26 @@ describe("claude_consult service", () => {
     fixture.cleanup();
   });
 
+  it("stores raw response path on SESSION_UPDATE_JSON parse failures", async () => {
+    const fixture = createRuntimeFixture();
+    fixture.claude.result = "Plain answer without the required session update block.";
+    const service = new ConsultService(fixture.runtime, fixture.runtime.locks);
+
+    const result = await service.consult(baseInput());
+
+    expect("error" in result).toBe(false);
+    if ("error" in result) {
+      throw new Error("unexpected error");
+    }
+    expect(result.warning?.code).toBe(ERROR_CODES.SESSION_UPDATE_PARSE_FAILED);
+    const parseFailed = fixture.runtime.db.db
+      .prepare("SELECT raw_response_path, error FROM session_events WHERE event_type = 'parse_failed'")
+      .get() as { raw_response_path: string | null; error: string } | undefined;
+    expect(parseFailed?.error).toBe("SESSION_UPDATE_JSON block missing");
+    expect(parseFailed?.raw_response_path).toBeTruthy();
+    fixture.cleanup();
+  });
+
   it("logs broad cwd warnings during boot", async () => {
     const fixture = createRuntimeFixture(os.homedir());
 
@@ -290,16 +310,7 @@ class FakeClaude implements ClaudeAdapter {
   lastResumeSessionId: string | undefined;
   tokensIn = 100;
   tokensOut = 50;
-
-  async getVersion(): Promise<string> {
-    return "VERSION_A";
-  }
-
-  async runPrompt(_prompt: string, resumeSessionId?: string): Promise<ClaudeJsonResponse> {
-    this.lastResumeSessionId = resumeSessionId;
-    return {
-      sessionId: resumeSessionId ?? "new-claude-session",
-      result: `Use the passport strategy.
+  result = `Use the passport strategy.
 
 SESSION_UPDATE_JSON:
 {
@@ -309,7 +320,17 @@ SESSION_UPDATE_JSON:
   "files_discussed": ["src/auth/routes.ts"],
   "tags": ["auth", "oauth"],
   "aliases": ["social login"]
-}`,
+}`;
+
+  async getVersion(): Promise<string> {
+    return "VERSION_A";
+  }
+
+  async runPrompt(_prompt: string, resumeSessionId?: string): Promise<ClaudeJsonResponse> {
+    this.lastResumeSessionId = resumeSessionId;
+    return {
+      sessionId: resumeSessionId ?? "new-claude-session",
+      result: this.result,
       tokensIn: this.tokensIn,
       tokensOut: this.tokensOut
     };

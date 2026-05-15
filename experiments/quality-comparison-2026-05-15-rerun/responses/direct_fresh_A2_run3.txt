@@ -1,0 +1,25 @@
+
+
+The complete list, as documented in `README.md:1053-1073` and confirmed by `logClusterEvent` call sites across `src/`:
+
+```
+cluster_consult
+cluster_consult_failed
+cluster_created
+cluster_fallback_failed
+cluster_fallback_to_claude_consult
+evidence_revalidated
+evidence_revalidation_failed
+cluster_refresh
+cluster_refresh_required
+factsheet_static_verified
+factsheet_partially_static_verified
+factsheet_llm_verified
+factsheet_partially_llm_verified
+factsheet_rejected
+factsheet_stale
+llm_verifier
+tool_profile_downgraded
+```
+
+These are written by `logClusterEvent()` calls in `src/clusterRefresh.ts`, `src/runtime.ts`, `src/clusterEvidenceRevalidation.ts`, `src/cluster.ts`, `src/clusterConsult.ts`, `src/db.ts`, and `src/tools.ts`.

@@ -1,0 +1,68 @@
+
+
+Here's the full code path when a `.jsonl` file is deleted before a `claude_consult` call:
+
+## Entry point
+
+**`src/tools.ts:221`** — the `claude_consult` MCP tool is registered. It calls `consultService.consult()`.
+
+## Route resolution
+
+**`src/consult.ts:249` — `resolveRoute()`** is where the deleted file is detected. There are three paths, all converging on the same orphan-check:
+
+### Path 1: Explicit `session_id` provided (lines 250–291)
+```
+getSession(input.sessionId)         → finds session in DB
+sessionFileExists(session)          → CliClaudeAdapter.sessionFileExists() at src/claude.ts:104
+```
+If the `.jsonl` is gone, `sessionFileExists` returns `false`.
+
+### Path 2: Exact topic match (lines 296–321)
+Same check at line **300** on the topic-matched session.
+
+### Path 3: Best-session auto-match (lines 323–371)
+Same check at line **351** on the auto-selected session.
+
+## Orphan detection and recovery (shared logic, lines 271–282 / 300–311 / 351–363)
+
+```typescript
+const exists = await this.runtime.claude.sessionFileExists(session.claude_session_id);
+if (!exists) {
+    const oldView = this.runtime.db.getSessionView(session.id);
+    this.runtime.db.markSessionOrphaned(session.id);   // ← session flagged as orphaned in DB
+    return {
+        selectedSession: null,                          // ← no file to resume
+        selectedView: null,
+        bootstrapContext: oldView ? buildBootstrapContext(oldView, "orphaned") : undefined,
+        matchScore: 0,
+        matchReason: "... was orphaned; creating replacement from registry context.",
+        wasOrphanRecovery: true                         // ← logged in event
+    };
+}
+```
+
+**Key behaviors:**
+- The session is marked `orphaned` in the DB — it is **not** deleted, so the accumulated session context is preserved.
+- A `bootstrapContext` is built from the old session view — this injects the prior conversation summary into the prompt so the new replacement session has context.
+- `wasOrphanRecovery: true` is returned, which surfaces in the `routing` field of the response and generates a `new_session` event (not a `consult` event — see line 191).
+
+## Invocation (src/consult.ts:117)
+
+```typescript
+private async invokeClaude(input, route): Promise<ConsultResult> {
+    // ...
+    const claudeResponse = await this.runtime.claude.runPrompt(prompt, route.selectedSession?.claude_session_id);
+    //                                  ↑ route.selectedSession is null — so --resume is NOT passed
+```
+
+Because `selectedSession` is `null`, `runPrompt()` is called **without** `--resume`, so Claude starts a fresh session. The new session ID returned by Claude is then stored in the DB (lines 155–162).
+
+## Summary
+
+| What happens to the deleted file | Nothing — it's just gone |
+|---|---|
+| What happens to the DB session record | Marked `orphaned`; context preserved |
+| What happens on next consult | New session created; prior context injected via `bootstrapContext`; `wasOrphanRecovery: true` in response |
+| What does the user see | A `routing.was_orphan_recovery: true` flag; the session appears as a new session in the DB |
+
+The system never tries to force-reuse a deleted file — it silently pivots to orphan recovery. The old session's history is not lost; it's re-hydrated into the bootstrap prompt for the replacement.

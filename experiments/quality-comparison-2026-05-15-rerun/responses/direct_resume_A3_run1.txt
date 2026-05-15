@@ -1,0 +1,24 @@
+
+
+From `src/clusterConsult.ts:62-79`, the stale check happens immediately after loading context:
+
+```ts
+const staleFiles = findStaleFiles(cwd, loaded.fileHashes);
+if (staleFiles.length > 0) {
+  db.markClusterFactsheetStale(loaded.factsheet.id);
+  db.logClusterEvent({
+    clusterId: input.clusterId,
+    projectId: input.projectId,
+    eventType: "cluster_refresh_required",
+    details: { factsheet_id: loaded.factsheet.id, factsheet_version: loaded.factsheet.version, changed_files: staleFiles }
+  });
+  return errorPayload(ERROR_CODES.CLUSTER_FACTSHEET_STALE, ..., { cluster_id: input.clusterId, details: { changed_files: staleFiles } });
+}
+```
+
+This **returns the error upward**. The caller-facing behavior in `tools.ts:consultClusterForCaller` (lines 771–817) then decides what the caller sees:
+
+1. **Without `auto_refresh`:** immediately falls back to normal `claude_consult` (internal fallback, same question) — caller gets a normal answer, not an error.
+2. **With `auto_refresh`:** under a per-cluster lock, re-validates every cited `selector`/`snippet_hash`. If revalidation passes, the consult proceeds. If it fails, marks cluster `needs_prepare` and falls back to `claude_consult`.
+
+So there are two distinct stale-paths: a **fast fallback** (no refresh) and a **strict revalidation path** (auto_refresh enabled). Neither path returns a stale error to the caller in the MVP — the caller always gets an answer.

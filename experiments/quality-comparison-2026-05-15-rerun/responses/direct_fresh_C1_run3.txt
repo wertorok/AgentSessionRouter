@@ -1,0 +1,15 @@
+
+
+Here are 3 ways to make `cluster_refresh` smarter while preserving its current semantics:
+
+**1. File-change significance filtering**
+
+Currently any file change (including generated outputs, test fixtures, lockfiles) marks the factsheet stale. Add a significance filter in `findChangedFiles` that skips paths matching configurable patterns (e.g. `dist/`, `.test.`, `package-lock.json`). This avoids unnecessary staleness events for noise file changes.
+
+**2. Re-verify only affected facts on partial file changes**
+
+`verifyFactsheetStatic` re-checks every fact every call. Track which files each fact depends on (e.g. via a `dependencies` field in the factsheet or a sidecar index). When only a subset of files change, skip re-verification of facts whose declared dependencies are unchanged. This reduces compute on large clusters.
+
+**3. Distinguish "file changed" from "file inaccessible" in error handling**
+
+In `findChangedFiles`, any exception marks the file as changed. But a permission error or temporary I/O issue is not a content change. Add a secondary check: if the file can't be read but its stat (size/mtime) is unchanged from the hash record, treat it as an access error rather than a content change and emit a distinct event type instead of blindly marking stale. This prevents transient errors from corrupting trust state.

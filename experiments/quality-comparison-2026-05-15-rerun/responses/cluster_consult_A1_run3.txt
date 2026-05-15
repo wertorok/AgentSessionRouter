@@ -1,0 +1,5 @@
+
+
+NOT IN CONTEXT
+
+The factsheet does not contain the exact field names for the `clusters` table. The only schema-related fact in the factsheet pertains to the `sessions` table's `dormant_after_days` default value (in `src/schema.ts`), not the `clusters` table schema itself.

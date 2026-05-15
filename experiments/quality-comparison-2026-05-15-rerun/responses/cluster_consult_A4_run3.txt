@@ -1,0 +1,3 @@
+
+
+The bare tool profile uses: `--bare --tools ""`

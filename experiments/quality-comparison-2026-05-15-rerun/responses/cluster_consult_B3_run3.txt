@@ -1,0 +1,9 @@
+
+
+From the verified factsheet:
+
+- **`static_verified`**: Occurs when static verification stores at least one valid fact and no facts were rejected. (fact `trust-static-verified`)
+
+- **`llm_verified`**: Occurs when LLM verification accepts all facts and there are no static or LLM rejected facts. (fact `trust-llm-verified`)
+
+- **`partial_llm`**: Occurs after LLM verification when at least one fact is rejected but at least one LLM verified fact remains stored. (fact `trust-partial-llm`)

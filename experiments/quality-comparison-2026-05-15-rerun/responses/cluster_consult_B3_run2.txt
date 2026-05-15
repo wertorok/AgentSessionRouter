@@ -1,0 +1,7 @@
+**`static_verified`** occurs when static verification (checking file hashes/selectors against scoped evidence) stores at least one valid fact and no facts were rejected.
+
+**`llm_verified`** occurs when LLM verification accepts all facts and there are no static or LLM rejected facts.
+
+**`partial_llm`** occurs after LLM verification when at least one fact is rejected but at least one LLM verified fact remains stored.
+
+The progression is roughly: static verification runs first, then LLM verification judges whether stored facts semantically follow from the evidence. If any fact fails either stage, the state degrades from fully verified to partial.

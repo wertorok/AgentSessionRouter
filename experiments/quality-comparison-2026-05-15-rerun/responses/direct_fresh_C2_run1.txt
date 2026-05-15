@@ -1,0 +1,24 @@
+
+
+A likely untested failure mode:
+
+**`--bare --tools ""` silently produces wrong output, but the probe still passes.**
+
+In `probeProfile` (`src/profiles.ts:112-126`), availability is determined solely by whether `runPromptWithOptions` throws an error. The probe prompt is `"Return exactly: PROFILE_OK"`, but the code never validates that the response actually contains `"PROFILE_OK"`. So if `--bare --tools ""` causes Claude Code to:
+- Drop the prompt silently, or
+- Return `{}` / malformed JSON that parses without throwing
+
+...the profile appears `"available: true"` while producing garbage output for every real task that follows.
+
+**How to detect it:**
+
+Add response-content validation to the probe, or check it in a test:
+
+```ts
+const response = await claude.runPromptWithOptions(PROFILE_PROBE_PROMPT, profilePromptOptions(profile));
+if (!response.result.includes("PROFILE_OK")) {
+  return { available: false, duration_ms: Date.now() - start, error: "probe response missing PROFILE_OK" };
+}
+```
+
+A smoke test would assert that when `detectAvailableProfiles` resolves, the `bare.result` or `focused.result` actually contains `PROFILE_OK` — not just that the call didn't throw. The existing test (`tests/profiles.test.ts:22`) only checks `available: true` / `available: false` and call ordering, never the actual response content.

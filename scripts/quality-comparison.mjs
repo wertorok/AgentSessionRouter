@@ -2,7 +2,7 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import Database from "better-sqlite3";
 import { spawn } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import process from "node:process";
@@ -21,8 +21,10 @@ const responseDir = path.join(outDir, "responses");
 const rawDir = path.join(outDir, "raw");
 const matrixPath = path.join(outDir, "matrix.csv");
 const summaryPath = path.join(outDir, "summary.md");
+const tracePath = path.join(outDir, "trace-report.md");
 const serverEntry = path.join(repoRoot, "dist", "src", "index.js");
 const dbPath = path.join(repoRoot, ".claude-session-router", "sessions.sqlite");
+let repoTextCache;
 
 const PRICING = {
   label: "Anthropic Claude Sonnet 4.6 standard token pricing",
@@ -115,9 +117,9 @@ const QUESTIONS = [
 ];
 
 const BASELINE_FACTSHEET_COVERAGE = {
-  A1: "Covered. Exact schema fields are present in verified facts.",
-  A2: "Covered. Cluster event sources are present in verified facts.",
-  A3: "Covered. Stale cluster_consult behavior is present in verified facts.",
+  A1: "Covered only if `clusters-table-fields` survives verifier; otherwise this is an explicit factsheet gap.",
+  A2: "Partially covered unless fallback/revalidation/bare-probe cluster event facts are present.",
+  A3: "Covered only if caller-facing stale behavior through `consultClusterForCaller` is present, not just low-level `consultCluster` internals.",
   A4: "Covered. Bare profile args are present in verified facts.",
   A5: "Covered. dormant_after_days default is present in verified facts.",
   B1: "Partially covered. The profile restriction is present, but rationale is only partially represented as derived design intent.",
@@ -141,14 +143,22 @@ const FACTSHEET = {
     {
       id: "clusters-table-fields",
       claim:
-        "The clusters table fields are id, project_id, name, description, tool_profile_default, baseline_session_id, status, trust_state, created_at, and last_used.",
-      evidence: [{ path: "src/schema.ts", selector: "CREATE TABLE IF NOT EXISTS clusters" }]
+        "The clusters table fields are id, project_id, name, description, tool_profile_default, static_factsheet_policy, baseline_session_id, status, trust_state, created_at, and last_used.",
+      evidence: [
+        { path: "src/schema.ts", selector: "CREATE TABLE IF NOT EXISTS clusters" },
+        { path: "src/schema.ts", selector: "static_factsheet_policy TEXT NOT NULL DEFAULT 'deny'" },
+        { path: "src/schema.ts", selector: "last_used TEXT NOT NULL" }
+      ]
     },
     {
       id: "cluster-events-table-fields",
       claim:
         "The cluster_events table fields are id, cluster_id, project_id, event_type, details_json, duration_ms, tokens_in, tokens_out, cost_usd, and created_at.",
-      evidence: [{ path: "src/schema.ts", selector: "CREATE TABLE IF NOT EXISTS cluster_events" }]
+      evidence: [
+        { path: "src/schema.ts", selector: "CREATE TABLE IF NOT EXISTS cluster_events" },
+        { path: "src/schema.ts", selector: "duration_ms INTEGER" },
+        { path: "src/schema.ts", selector: "created_at TEXT NOT NULL" }
+      ]
     },
     {
       id: "cluster-events-db-generated",
@@ -178,8 +188,33 @@ const FACTSHEET = {
     },
     {
       id: "cluster-event-refresh-required",
-      claim: "A stale factsheet detected before cluster_consult writes cluster_refresh_required to cluster_events.",
+      claim: "The low-level stale factsheet detection in consultCluster writes cluster_refresh_required to cluster_events.",
       evidence: [{ path: "src/clusterConsult.ts", selector: "eventType: \"cluster_refresh_required\"" }]
+    },
+    {
+      id: "cluster-event-evidence-revalidation-failed",
+      claim: "Strict cluster evidence revalidation failures write evidence_revalidation_failed to cluster_events.",
+      evidence: [{ path: "src/clusterEvidenceRevalidation.ts", selector: "eventType: \"evidence_revalidation_failed\"" }]
+    },
+    {
+      id: "cluster-event-evidence-revalidated",
+      claim: "Successful strict cluster evidence revalidation writes evidence_revalidated to cluster_events.",
+      evidence: [{ path: "src/clusterEvidenceRevalidation.ts", selector: "eventType: \"evidence_revalidated\"" }]
+    },
+    {
+      id: "cluster-event-fallback-to-claude-consult",
+      claim: "When cluster_consult falls back internally to normal claude_consult, it writes cluster_fallback_to_claude_consult to cluster_events.",
+      evidence: [{ path: "src/tools.ts", selector: "cluster_fallback_to_claude_consult" }]
+    },
+    {
+      id: "cluster-event-fallback-failed",
+      claim: "If the internal fallback from cluster_consult to claude_consult fails, it writes cluster_fallback_failed to cluster_events.",
+      evidence: [{ path: "src/tools.ts", selector: "cluster_fallback_failed" }]
+    },
+    {
+      id: "cluster-event-bare-probe-failed",
+      claim: "If the bare profile availability probe fails, the router writes bare_probe_failed to cluster_events.",
+      evidence: [{ path: "src/runtime.ts", selector: "eventType: \"bare_probe_failed\"" }]
     },
     {
       id: "cluster-event-downgraded",
@@ -199,11 +234,22 @@ const FACTSHEET = {
     {
       id: "stale-cluster-consult-behavior",
       claim:
-        "When cluster_consult finds stale scoped evidence files, it marks the factsheet stale, logs cluster_refresh_required with changed_files, returns CLUSTER_FACTSHEET_STALE, and does not invoke Claude.",
+        "The low-level consultCluster function marks the factsheet stale, logs cluster_refresh_required with changed_files, and returns CLUSTER_FACTSHEET_STALE internally when scoped evidence files are stale.",
       evidence: [
         { path: "src/clusterConsult.ts", selector: "db.markClusterFactsheetStale" },
         { path: "src/clusterConsult.ts", selector: "ERROR_CODES.CLUSTER_FACTSHEET_STALE" },
         { path: "tests/clusterConsult.test.ts", selector: "should not run" }
+      ]
+    },
+    {
+      id: "caller-facing-stale-cluster-consult-behavior",
+      claim:
+        "The caller-facing cluster_consult tool consumes internal CLUSTER_FACTSHEET_STALE errors: if autoRefresh is enabled it revalidates evidence under a per-cluster lock; if revalidation fails or autoRefresh is disabled, it falls back internally to claude_consult and returns an answer to the caller.",
+      evidence: [
+        { path: "src/tools.ts", selector: "result.error.code !== ERROR_CODES.CLUSTER_FACTSHEET_STALE" },
+        { path: "src/tools.ts", selector: "runtime.locks.withLock(`cluster-evidence-revalidation:" },
+        { path: "src/tools.ts", selector: "revalidateClusterEvidence(runtime.db, runtime.cwd" },
+        { path: "src/tools.ts", selector: "return fallbackToClaudeConsult(runtime, consultService, input, revalidation)" }
       ]
     },
     {
@@ -421,10 +467,12 @@ async function main() {
     const endVersion = await runText("claude", ["--version"], repoRoot, 30_000);
     writeFileSync(path.join(outDir, "claude-version-end.txt"), endVersion.trim() + "\n");
     dumpClusterEvents();
+    dumpSessionEvents();
   }
 
   scoreMatrix();
   writeSummary();
+  writeTraceReport();
 }
 
 async function prepareClusterFactsheet() {
@@ -802,7 +850,19 @@ function scoreAnswerContent(questionId, answer) {
   const text = answer.toLowerCase();
   switch (questionId) {
     case "A1": {
-      const expected = ["id", "project_id", "name", "description", "tool_profile_default", "baseline_session_id", "status", "trust_state", "created_at", "last_used"];
+      const expected = [
+        "id",
+        "project_id",
+        "name",
+        "description",
+        "tool_profile_default",
+        "static_factsheet_policy",
+        "baseline_session_id",
+        "status",
+        "trust_state",
+        "created_at",
+        "last_used"
+      ];
       return scoreExpectedTerms(answer, expected, {
         full: "all clusters fields present",
         partial: "missing some clusters fields"
@@ -823,7 +883,12 @@ function scoreAnswerContent(questionId, answer) {
         "cluster_refresh_required",
         "tool_profile_downgraded",
         "cluster_refresh",
-        "factsheet_stale"
+        "factsheet_stale",
+        "evidence_revalidation_failed",
+        "evidence_revalidated",
+        "cluster_fallback_failed",
+        "cluster_fallback_to_claude_consult",
+        "bare_probe_failed"
       ];
       return scoreExpectedTerms(answer, expected, {
         full: "all known cluster event types present",
@@ -831,9 +896,9 @@ function scoreAnswerContent(questionId, answer) {
       });
     }
     case "A3":
-      return scoreExpectedTerms(answer, ["mark", "stale", "cluster_refresh_required", "CLUSTER_FACTSHEET_STALE", "changed_files"], {
-        full: "captures stale marking, event, error, and changed_files",
-        partial: "captures only part of stale behavior"
+      return scoreExpectedTerms(answer, ["cluster_refresh_required", "revalidat", "evidence_revalidated", "evidence_revalidation_failed", "fallback", "claude_consult"], {
+        full: "captures caller-facing stale handling, strict revalidation, and fallback",
+        partial: "captures only part of caller-facing stale behavior"
       });
     case "A4":
       return scoreExpectedTerms(answer, ["--bare", "--tools"], {
@@ -841,7 +906,13 @@ function scoreAnswerContent(questionId, answer) {
         partial: "partial bare args"
       }, (source) => source.includes("\"\"") || source.includes("empty") || source.includes("''"));
     case "A5":
-      return text.includes("30") ? { score: 3, notes: "default 30 identified" } : { score: 0, notes: "default 30 missing" };
+      if (!text.includes("30")) {
+        return { score: 0, notes: "default 30 missing" };
+      }
+      if (text.includes("seminactive_after_days")) {
+        return { score: 2, notes: "default 30 identified, but fabricated schema identifier seminactive_after_days" };
+      }
+      return { score: 3, notes: "default 30 identified" };
     case "B1":
       return scoreB1(answer);
     case "B2":
@@ -933,7 +1004,7 @@ function writeSummary() {
     return { category, ...values };
   });
   const prep = readJsonIfExists(path.join(outDir, "factsheet_prep.json"));
-  const factsheetCoverage = num(prep.verified_facts) >= 30 ? EXPANDED_FACTSHEET_COVERAGE : BASELINE_FACTSHEET_COVERAGE;
+  const factsheetCoverage = buildFactsheetCoverage(prep);
   const resumeSetup = readJsonIfExists(path.join(outDir, "direct_resume_setup.json"));
   const clusterAgg = costTable.find((row) => row.method === "cluster_consult");
   const resumeAgg = costTable.find((row) => row.method === "direct_resume");
@@ -1119,6 +1190,34 @@ function writeSummary() {
   writeFileSync(summaryPath, lines.join("\n"));
 }
 
+function buildFactsheetCoverage(prep) {
+  const facts = prep?.factsheet?.facts ?? [];
+  const ids = new Set(facts.map((fact) => fact.id));
+  const rejected = new Map((prep?.rejected_fact_details ?? []).map((fact) => [fact.id, fact.reason]));
+  const coverage = { ...(num(prep?.verified_facts) >= 30 ? EXPANDED_FACTSHEET_COVERAGE : BASELINE_FACTSHEET_COVERAGE) };
+  if (!ids.has("clusters-table-fields")) {
+    coverage.A1 = rejected.has("clusters-table-fields")
+      ? `Not covered: clusters-table-fields was rejected by verifier (${oneLine(rejected.get("clusters-table-fields"))}).`
+      : "Not covered: clusters-table-fields is absent from the current factsheet.";
+  }
+  const a2Missing = [
+    ["cluster-event-evidence-revalidation-failed", "evidence_revalidation_failed"],
+    ["cluster-event-evidence-revalidated", "evidence_revalidated"],
+    ["cluster-event-fallback-to-claude-consult", "cluster_fallback_to_claude_consult"],
+    ["cluster-event-fallback-failed", "cluster_fallback_failed"],
+    ["cluster-event-bare-probe-failed", "bare_probe_failed"]
+  ]
+    .filter(([id]) => !ids.has(id))
+    .map(([, eventType]) => eventType);
+  if (a2Missing.length > 0) {
+    coverage.A2 = `Partially covered: current factsheet lacks cluster event facts for ${a2Missing.join(", ")}.`;
+  }
+  if (!ids.has("caller-facing-stale-cluster-consult-behavior")) {
+    coverage.A3 = "Partially covered: factsheet contains low-level stale behavior, but not caller-facing revalidation/fallback semantics.";
+  }
+  return coverage;
+}
+
 function aggregate(rows) {
   const costs = rows.map((row) => num(row.cost_usd)).filter(Number.isFinite);
   const qualities = rows.map((row) => num(row.quality_score)).filter(Number.isFinite);
@@ -1157,6 +1256,52 @@ function responseText(row) {
   return existsSync(filePath) ? readFileSync(filePath, "utf8") : "";
 }
 
+function suspiciousIdentifierTokens(text) {
+  const tokens = new Set();
+  for (const match of String(text).matchAll(/`([^`]{2,160})`/g)) {
+    for (const token of match[1].matchAll(/\b[A-Za-z][A-Za-z0-9]*_[A-Za-z0-9_]*\b/g)) {
+      tokens.add(token[0]);
+    }
+  }
+  return [...tokens]
+    .filter((token) => !repoText().includes(token))
+    .filter((token) => !token.startsWith("sha256_"))
+    .slice(0, 10);
+}
+
+function repoText() {
+  if (repoTextCache !== undefined) {
+    return repoTextCache;
+  }
+  const dirs = ["src", "tests", "docs"];
+  const chunks = [];
+  for (const dir of dirs) {
+    collectRepoText(path.join(repoRoot, dir), chunks);
+  }
+  repoTextCache = chunks.join("\n");
+  return repoTextCache;
+}
+
+function collectRepoText(currentPath, chunks) {
+  if (!existsSync(currentPath)) {
+    return;
+  }
+  const stat = statSync(currentPath);
+  if (stat.isDirectory()) {
+    for (const entry of readdirSync(currentPath)) {
+      if (entry === "node_modules" || entry === "dist" || entry.startsWith(".")) {
+        continue;
+      }
+      collectRepoText(path.join(currentPath, entry), chunks);
+    }
+    return;
+  }
+  if (!/\.(ts|tsx|js|mjs|md|sql|json)$/.test(currentPath) || stat.size > 500_000) {
+    return;
+  }
+  chunks.push(readFileSync(currentPath, "utf8"));
+}
+
 function dumpClusterEvents() {
   if (!existsSync(dbPath)) {
     writeFileSync(path.join(outDir, "cluster_events_dump.json"), "[]\n");
@@ -1169,6 +1314,215 @@ function dumpClusterEvents() {
   } finally {
     db.close();
   }
+}
+
+function dumpSessionEvents() {
+  if (!existsSync(dbPath)) {
+    writeFileSync(path.join(outDir, "session_events_dump.json"), "[]\n");
+    return;
+  }
+  const db = new Database(dbPath, { readonly: true });
+  try {
+    const rows = db.prepare("SELECT * FROM session_events ORDER BY id").all();
+    writeFileSync(path.join(outDir, "session_events_dump.json"), JSON.stringify(rows, null, 2));
+  } finally {
+    db.close();
+  }
+}
+
+function artifactStartIso() {
+  const marker = path.join(outDir, "claude-version-start.txt");
+  if (!existsSync(marker)) {
+    return null;
+  }
+  return statSync(marker).mtime.toISOString();
+}
+
+function writeTraceReport() {
+  const rows = readMatrixRows();
+  const methods = [...new Set(rows.map((row) => row.method))];
+  const questionIds = [...new Set(rows.map((row) => row.question_id))];
+  const parseEvents = readJsonIfExists(path.join(outDir, "session_events_dump.json")).filter?.((event) => event.event_type === "parse_failed") ?? [];
+  const runStartedAt = artifactStartIso();
+  const parseEventsThisRun = runStartedAt ? parseEvents.filter((event) => event.created_at >= runStartedAt) : [];
+  const sessionUpdateWarnings = rows.filter((row) => responseText(row).match(/SESSION_UPDATE_PARSE_FAILED|SESSION_UPDATE_JSON/i));
+  const notInContextRows = rows.filter((row) => responseText(row).match(/NOT IN CONTEXT/i));
+  const lowRows = rows.filter((row) => num(row.quality_score) <= 1 || row.error);
+  const suspiciousIdentifierRows = rows
+    .map((row) => ({ row, tokens: suspiciousIdentifierTokens(responseText(row)) }))
+    .filter((entry) => entry.tokens.length > 0);
+  const leakRows = [];
+
+  for (const questionId of questionIds) {
+    const directResume = meanScore(rows, questionId, "direct_resume");
+    const cluster = meanScore(rows, questionId, "cluster_consult");
+    const directFresh = meanScore(rows, questionId, "direct_fresh");
+    if (Number.isFinite(cluster) && Number.isFinite(directResume) && directResume - cluster >= 0.34) {
+      leakRows.push({
+        question_id: questionId,
+        kind: "direct_resume_beats_cluster",
+        gap: round2(directResume - cluster),
+        direct_resume: round2(directResume),
+        cluster_consult: round2(cluster),
+        direct_fresh: round2(directFresh)
+      });
+    }
+    const clusterRows = rows.filter((row) => row.question_id === questionId && row.method === "cluster_consult");
+    if (clusterRows.some((row) => responseText(row).match(/NOT IN CONTEXT/i))) {
+      leakRows.push({
+        question_id: questionId,
+        kind: "cluster_not_in_context",
+        gap: "",
+        direct_resume: Number.isFinite(directResume) ? round2(directResume) : "",
+        cluster_consult: Number.isFinite(cluster) ? round2(cluster) : "",
+        direct_fresh: Number.isFinite(directFresh) ? round2(directFresh) : ""
+      });
+    }
+    if (clusterRows.some((row) => num(row.quality_score) <= 1)) {
+      leakRows.push({
+        question_id: questionId,
+        kind: "cluster_low_score",
+        gap: "",
+        direct_resume: Number.isFinite(directResume) ? round2(directResume) : "",
+        cluster_consult: Number.isFinite(cluster) ? round2(cluster) : "",
+        direct_fresh: Number.isFinite(directFresh) ? round2(directFresh) : ""
+      });
+    }
+  }
+
+  const lines = [
+    "# Quality Trace Report",
+    "",
+    `Generated: ${new Date().toISOString()}`,
+    `Matrix: ${path.relative(repoRoot, matrixPath)}`,
+    "",
+    "## Executive Trace",
+    "",
+    `- Rows: ${rows.length}`,
+    `- Methods: ${methods.join(", ")}`,
+    `- Questions: ${questionIds.join(", ")}`,
+    `- Low/error rows: ${lowRows.length}`,
+    `- NOT IN CONTEXT rows: ${notInContextRows.length}`,
+    `- Suspicious identifier rows: ${suspiciousIdentifierRows.length}`,
+    `- Session parse_failed events in router DB dump: ${parseEvents.length}`,
+    `- Session parse_failed events since this run started: ${parseEventsThisRun.length}`,
+    `- Response rows mentioning SESSION_UPDATE_JSON/parse warning: ${sessionUpdateWarnings.length}`,
+    "",
+    "## Question Leaks",
+    "",
+    leakRows.length
+      ? [
+          "| Question | Kind | Gap | direct_fresh | direct_resume | cluster_consult |",
+          "|---|---|---:|---:|---:|---:|",
+          ...leakRows.map(
+            (row) =>
+              `| ${row.question_id} | ${row.kind} | ${row.gap} | ${row.direct_fresh} | ${row.direct_resume} | ${row.cluster_consult} |`
+          )
+        ].join("\n")
+      : "No direct-vs-cluster leaks detected by threshold.",
+    "",
+    "## Low/Error Rows",
+    "",
+    lowRows.length
+      ? lowRows.map((row) => renderTraceRow(row)).join("\n\n")
+      : "None.",
+    "",
+    "## NOT IN CONTEXT Rows",
+    "",
+    notInContextRows.length
+      ? notInContextRows.map((row) => renderTraceRow(row)).join("\n\n")
+      : "None.",
+    "",
+    "## Suspicious Identifier Claims",
+    "",
+    suspiciousIdentifierRows.length
+      ? suspiciousIdentifierRows
+          .slice(0, 30)
+          .map(({ row, tokens }) =>
+            [
+              `### ${row.question_id} ${row.method} run ${row.run_number}`,
+              "",
+              `- suspicious identifiers not found in repo text: ${tokens.join(", ")}`,
+              `- score: ${row.quality_score || "NA"}`,
+              `- response: ${row.response_path}`,
+              "",
+              "```txt",
+              excerpt(responseText(row), 800),
+              "```"
+            ].join("\n")
+          )
+          .join("\n\n")
+      : "None.",
+    "",
+    "## SESSION_UPDATE_JSON Audit",
+    "",
+    "The 90-call quality benchmark compares direct Claude modes and cluster_consult. It does not fully exercise claude_consult metadata parsing unless a fallback path invokes claude_consult. SESSION_UPDATE_JSON quality must therefore be tracked through session_events and targeted claude_consult tests, not only answer quality scores.",
+    "",
+    "Code audit note: parse_failed events now include raw_response_path when the raw Claude response was already written, so monitor output can point operators to the exact failed response.",
+    "",
+    parseEvents.length
+      ? [
+          "Recent parse_failed samples from session_events_dump.json:",
+          "",
+          ...parseEvents.slice(-20).map((event) =>
+            [
+              `- id=${event.id} session_id=${event.session_id ?? "null"} created_at=${event.created_at}`,
+              `  error=${oneLine(event.error ?? "")}`,
+              `  raw_response_path=${event.raw_response_path ?? "null"}`
+            ].join("\n")
+          )
+        ].join("\n")
+      : "No parse_failed events were present in the dumped router DB at report generation time.",
+    "",
+    "## Method/Question Score Grid",
+    "",
+    "| Question | " + methods.join(" | ") + " |",
+    "|---|" + methods.map(() => "---:").join("|") + "|",
+    ...questionIds.map((questionId) => `| ${questionId} | ${methods.map((method) => formatScoreRuns(rows, questionId, method)).join(" | ")} |`),
+    ""
+  ];
+  writeFileSync(tracePath, lines.join("\n"));
+}
+
+function meanScore(rows, questionId, method) {
+  const scores = rows
+    .filter((row) => row.question_id === questionId && row.method === method)
+    .map((row) => Number(row.quality_score))
+    .filter(Number.isFinite);
+  return scores.length ? mean(scores) : Number.NaN;
+}
+
+function formatScoreRuns(rows, questionId, method) {
+  const scores = rows
+    .filter((row) => row.question_id === questionId && row.method === method)
+    .map((row) => row.quality_score || "NA");
+  if (scores.length === 0) {
+    return "";
+  }
+  return `${scores.join("/")} (${mean(scores.map(Number).filter(Number.isFinite)).toFixed(2)})`;
+}
+
+function renderTraceRow(row) {
+  const text = responseText(row);
+  return [
+    `### ${row.question_id} ${row.method} run ${row.run_number}`,
+    "",
+    `- score: ${row.quality_score || "NA"}`,
+    `- notes: ${row.quality_notes || row.error || ""}`,
+    `- response: ${row.response_path}`,
+    "",
+    "```txt",
+    excerpt(text),
+    "```"
+  ].join("\n");
+}
+
+function excerpt(text, max = 1200) {
+  const cleaned = String(text).trim();
+  if (cleaned.length <= max) {
+    return cleaned;
+  }
+  return `${cleaned.slice(0, max)}\n...[truncated]`;
 }
 
 function writeResponse(name, answer) {
@@ -1346,6 +1700,10 @@ function variance(values) {
   }
   const avg = mean(finite);
   return mean(finite.map((value) => (value - avg) ** 2));
+}
+
+function round2(value) {
+  return Math.round(value * 100) / 100;
 }
 
 function formatMoney(value) {

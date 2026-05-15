@@ -1,0 +1,75 @@
+
+
+## 3 Ways to Make `cluster_refresh` Smarter (Without Breaking Semantics)
+
+Here are three targeted improvements, grounded in the current implementation:
+
+---
+
+### 1. Evidence-Aware File Change Detection (Skip Cosmetic-Only Changes)
+
+**Problem:** `findChangedFiles` (`clusterRefresh.ts:150`) treats any hash or size delta as a full "changed file" — but it doesn't understand *what* changed. A one-line doc fix and an API signature rewrite both invalidate the factsheet identically today.
+
+**How:** Before declaring a file "changed", do a quick content-level diff to distinguish:
+- **Cosmetic changes** (formatting, comments, whitespace, auto-formatters) → skip revalidation, update hash silently
+- **Substantive changes** (code logic, config values, exports) → proceed normally
+
+This is strictly narrower than today's behavior — it only reduces false-positive stale flags, never suppresses a real one. The success/stale/error contracts are unchanged.
+
+**File:** `src/clusterRefresh.ts` — `findChangedFiles` is the insertion point.
+
+---
+
+### 2. Per-Fact Partial Refresh Tracking (Return Partial Results on Stale)
+
+**Problem:** When `changedFiles.length > 0`, the current code immediately marks the entire factsheet stale and bails out. There's no concept of "some facts still verify."
+
+**How:** In the verification loop, track per-fact status:
+- Facts whose cited evidence files are **unchanged** → still verified, count toward `verified_facts`
+- Facts whose cited evidence files **changed** but selectors still resolve → re-add to `verified_facts`
+- Facts whose cited evidence files **changed** and selectors don't resolve → add to `rejected_facts`
+
+Then instead of returning a blanket `CLUSTER_FACTSHEET_STALE`, return a `ClusterRefreshSuccess` with a non-zero `rejected_facts` count and the changed files listed. The caller (or `cluster_consult` fallback) can decide what to do.
+
+This preserves the existing return *type* (`ClusterRefreshResult`) but enriches the `rejected_facts` field from a boolean-like `0` to a real count. No existing caller type-checks on this field, so it's backward-compatible.
+
+**File:** `src/clusterRefresh.ts:44–87` — the verification loop around `verifyFactsheetStatic` is where this tracking would be added.
+
+---
+
+### 3. Smart Pre-Filter: Skip Known-Noise File Patterns
+
+**Problem:** `node_modules`, `package-lock.json`, `.git/`, `dist/`, and generated files change constantly and are rarely relevant to factsheet validity, yet `findChangedFiles` rehashes every file in `cluster_file_hashes` every time.
+
+**How:** Add a lightweight pattern exclusion list before the expensive `statSync` + `readFileSync` chain:
+
+```ts
+const KNOWN_NOISE_PATTERNS = [
+  "**/node_modules/**",
+  "**/package-lock.json",
+  "**/.git/**",
+  "**/dist/**",
+  "**/.claude/**",
+];
+
+// in findChangedFiles, before the expensive ops:
+if (KNOWN_NOISE_PATTERNS.some(p => picomatch(p, file.path))) {
+  continue; // skip — noise for factsheet purposes
+}
+```
+
+This is purely a performance optimization and a false-positive reducer. It never changes a "stale" result to "fresh" for a file that actually matters. Since `picomatch` is already a project dependency (seen in `node_modules`), no new deps are needed.
+
+**File:** `src/clusterRefresh.ts:150` — the top of `findChangedFiles`.
+
+---
+
+### Summary
+
+| # | Approach | What it improves | Backward-compatible? |
+|---|----------|-----------------|---------------------|
+| 1 | Evidence-aware diff on changed files | Prevents cosmetic changes from causing full stale | ✅ Yes — narrower false-positives only |
+| 2 | Per-fact rejected tracking | Partial refresh data instead of all-or-nothing | ✅ Yes — `rejected_facts` was always a number |
+| 3 | Noise pattern pre-filter | Fewer rehashes, fewer spurious stale flags | ✅ Yes — skips only noise files |
+
+All three preserve the existing `ClusterRefreshResult` type and error codes. The semantics remain the same for any caller — the improvement is that the "fresh" path is reached more often for the right reasons, and the "stale" path carries richer diagnostic information when it is reached.

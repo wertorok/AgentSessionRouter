@@ -1,0 +1,5 @@
+
+
+NOT IN CONTEXT
+
+The factsheet does not include the `clusters` table schema. The only schema fact present (`sessions-dormant-default`) references `src/schema.ts` for the `sessions` table, but no equivalent fact documents the `clusters` table fields.

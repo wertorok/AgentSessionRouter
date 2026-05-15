@@ -1,0 +1,30 @@
+
+
+The orphan detection path:
+
+1. **`claude_consult`** with explicit `session_id` → `ConsultService.consult` (`src/consult.ts:52`)
+
+2. **`resolveRoute`** (`src/consult.ts:250`) sees `sessionId` is provided → fetches session from DB, checks project membership
+
+3. **`sessionFileExists`** check (`src/claude.ts:104-122`) — looks for:
+   - `~/.claude/sessions/<claude_session_id>.json`
+   - `~/.claude/sessions/<claude_session_id>.jsonl`
+   - recursively in `~/.claude/projects`
+   
+   File missing → returns `false`
+
+4. **Mark orphaned** (`src/consult.ts:273-282`):
+   - `db.markSessionOrphaned(session.id)` → sets DB status to `orphaned`
+   - `db.getSessionView(session.id)` → loads compact context from registry
+   - Returns route with `selectedSession: null`, `bootstrapContext`, `wasOrphanRecovery: true`
+
+5. **`invokeWithRouteLock`** (`src/consult.ts:97-115`) sees `route.selectedSession === null` → calls `invokeClaude` directly (no `--resume` flag)
+
+6. **New session created** (`src/consult.ts:154-162`) with:
+   - Fresh internal `id`
+   - New `claudeSessionId` from the new Claude process
+   - Bootstrap context injected into the prompt
+
+7. **`session_events`** row written with `event_type: "orphan_recovery"`, `was_orphan_recovery: 1`
+
+**Result:** The deleted session is marked `orphaned` in SQLite, a new Claude session is created, and the old registry context (topic, summary, decisions, files, tags, aliases) is injected as bootstrap into the new session's prompt.

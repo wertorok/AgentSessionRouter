@@ -1,0 +1,66 @@
+
+
+## Code Path: Deleting a Claude `.jsonl` File Before `claude_consult`
+
+### The Core Check
+
+The critical function is `sessionFileExists()` in `src/claude.ts:104–122`. It looks for:
+
+```typescript
+path.join(home, ".claude", "sessions", `${claudeSessionId}.jsonl`)
+```
+
+If that file is deleted, the check returns **false**.
+
+---
+
+### Full Walk-Through
+
+**1. `claude_consult` tool call** (`src/tools.ts:220–241`)
+- Creates a `ConsultService` and calls `consultService.consult({ sessionId, ... })`
+
+**2. `ConsultService.consult()`** (`src/consult.ts:52–65`)
+- Delegates to `consultWithCostLock()`, which calls `resolveRoute()`
+
+**3. `resolveRoute()`** (`src/consult.ts:249–372`)
+Two cases depending on whether you pass an explicit `session_id`:
+
+**Case A — Auto-routed (no `session_id`):**
+- Calls `listMatchCandidates()` to get candidate sessions from DB
+- For the best-matched session, calls `sessionFileExists(session.claude_session_id)` at line **300** or **351**
+- If the `.jsonl` is gone → `runtime.db.markSessionOrphaned(selectedSession.id)` at line **303**
+- Returns `RouteResolution` with `selectedSession: null`, `wasOrphanRecovery: true`
+
+**Case B — Explicit `session_id` provided:**
+- Same check at line **271** — `sessionFileExists(session.claude_session_id)`
+- If file missing → same orphan path, line **274**
+
+**4. `invokeWithRouteLock()`** (`src/consult.ts:97–115`)
+- Since `route.selectedSession` is now `null`, falls through to `invokeClaude(input, route)` with no session
+
+**5. `invokeClaude()`** (`src/consult.ts:117–247`)
+- Calls `this.runtime.claude.runPrompt(prompt, route.selectedSession?.claude_session_id)` — **no resume ID**
+- The CLI is invoked **without** `--resume`, so Claude starts a fresh session
+- After response: `createSession()` is called with the **new** `claudeSessionId` from the response (line **155–162**)
+- The old orphaned session record remains in the DB, marked `orphaned`
+
+---
+
+### What Happens to the Deleted Session
+
+| Aspect | Result |
+|---|---|
+| Session record in DB | Marked `orphaned` (status change), not deleted |
+| History/context | **Gone** — new session has no conversation history |
+| Next auto-route match | Session still in candidate pool but will be re-checked and orphaned again if still missing |
+| Orphan recovery flag | `wasOrphanRecovery: true` in the consult result's `routing` object |
+
+---
+
+### Key Files Involved
+
+- `src/claude.ts:104–122` — `sessionFileExists()` check
+- `src/consult.ts:271,300,351` — calls to `sessionFileExists()` on every route resolve
+- `src/consult.ts:274,303` — `markSessionOrphaned()` call
+- `src/consult.ts:148` — `runPrompt(prompt, undefined)` (no `--resume` flag = fresh session)
+- `src/consult.ts:155–162` — creates new session record with new `claudeSessionId`

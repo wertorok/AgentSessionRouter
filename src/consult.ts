@@ -165,7 +165,7 @@ export class ConsultService {
       }
 
       const rawResponsePath = this.writeRawResponse(sessionId, claudeResponse.result);
-      const parsedUpdate = this.tryParseUpdate(sessionId, input.projectId, claudeResponse.result);
+      const parsedUpdate = this.tryParseUpdate(sessionId, input.projectId, claudeResponse.result, rawResponsePath);
       if (parsedUpdate.update) {
         this.runtime.db.applySessionUpdate(sessionId, parsedUpdate.update);
       }
@@ -443,7 +443,7 @@ export class ConsultService {
     );
   }
 
-  private tryParseUpdate(sessionId: string, projectId: string, rawResponse: string): ParsedUpdateResult {
+  private tryParseUpdate(sessionId: string, projectId: string, rawResponse: string, rawResponsePath: string): ParsedUpdateResult {
     try {
       const parsed = parseSessionUpdate(rawResponse);
       if (!parsed) {
@@ -459,6 +459,7 @@ export class ConsultService {
         sessionId,
         projectId,
         eventType: "parse_failed",
+        rawResponsePath,
         error: message
       });
       return {

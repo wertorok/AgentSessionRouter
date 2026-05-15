@@ -1,0 +1,23 @@
+
+
+From `src/profiles.ts:30-39`:
+
+```ts
+export function profileArgs(profile: ClaudeToolProfile): string[] {
+  switch (profile) {
+    case "bare":
+      return ["--bare", "--tools", ""];
+    case "focused":
+      return ["--tools", ""];
+    case "agent":
+      return [];
+  }
+}
+```
+
+**Bare profile:** `["--bare", "--tools", ""]`
+
+Resulting CLI invocation:
+```
+claude -p --bare --tools "" --output-format json "<prompt>"
+```

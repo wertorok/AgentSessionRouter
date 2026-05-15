@@ -1,0 +1,7 @@
+
+
+```ts
+["--bare", "--tools", ""]
+```
+
+(`src/profiles.ts:33`)

@@ -1,0 +1,27 @@
+
+
+All event types written to `cluster_events`:
+
+| Event Type | Location(s) |
+|---|---|
+| `bare_probe_failed` | `src/runtime.ts:148` |
+| `cluster_consult` | `src/clusterConsult.ts:116` |
+| `cluster_consult_failed` | `src/clusterConsult.ts:144` |
+| `cluster_created` | `src/db.ts:685` |
+| `cluster_fallback_failed` | `src/tools.ts:844` |
+| `cluster_fallback_to_claude_consult` | `src/tools.ts:844` |
+| `cluster_refresh` | `src/clusterRefresh.ts:94` |
+| `cluster_refresh_required` | `src/clusterConsult.ts:65` |
+| `evidence_revalidated` | `src/clusterEvidenceRevalidation.ts:144` |
+| `evidence_revalidation_failed` | `src/clusterEvidenceRevalidation.ts:97` |
+| `factsheet_generated` | via `factsheetEventType()` in `src/db.ts:1310` |
+| `factsheet_llm_verified` | via `factsheetEventType()` in `src/db.ts:1308` |
+| `factsheet_partially_llm_verified` | via `factsheetEventType()` in `src/db.ts:1302` |
+| `factsheet_partially_static_verified` | via `factsheetEventType()` in `src/db.ts:1299` |
+| `factsheet_rejected` | via `factsheetEventType()` in `src/db.ts:1310`; also `src/cluster.ts:207,448` |
+| `factsheet_static_verified` | via `factsheetEventType()` in `src/db.ts:1305` |
+| `factsheet_stale` | `src/clusterRefresh.ts:77` |
+| `llm_verifier` | `src/cluster.ts:232` |
+| `tool_profile_downgraded` | `src/clusterConsult.ts:134`, `src/tools.ts:546` |
+
+**Total: 19 distinct event types.** The `factsheetEventType()` helper at `src/db.ts:1297` maps factsheet status + trust state into 6 of these (`factsheet_*`).

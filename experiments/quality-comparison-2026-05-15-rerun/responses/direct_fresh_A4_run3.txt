@@ -1,0 +1,16 @@
+
+
+For the **bare** tool profile, the CLI args are:
+
+```js
+["--bare", "--tools", ""]
+```
+
+This is defined in `src/profiles.ts:32-33` within the `profileArgs()` function:
+
+```ts
+case "bare":
+  return ["--bare", "--tools", ""];
+```
+
+The bare profile passes both `--bare` (disables most tools) and `--tools ""` (explicitly empty tool list) to the Claude CLI.

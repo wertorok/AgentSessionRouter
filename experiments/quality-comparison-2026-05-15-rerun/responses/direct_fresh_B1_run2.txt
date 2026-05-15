@@ -1,0 +1,31 @@
+
+
+The LLM verifier runs in `bare` mode (and `focused` as fallback), never `agent` mode, by design. Here's why:
+
+## Verification purpose requires no tools
+
+The verifier's job is a **single-pass semantic check** — read the supplied evidence files and verify whether they support the claimed facts. As documented in `docs/CLUSTER_CACHE_SPEC.md:794`:
+
+> Run verifier in `bare` no-tools mode when available, otherwise focused no-tools mode.
+
+Running in `agent` mode would enable `Glob`/`Read`/`Agent` tool use, which **defeats the purpose** — the verifier could "find" evidence outside the factsheet's scoped files, corrupting the verification guarantee.
+
+## Type-level enforcement
+
+`src/profiles.ts:4` explicitly excludes `agent` from the verifier's allowed profiles:
+
+```typescript
+export type VerifierToolProfile = "bare" | "focused";  // no "agent"
+```
+
+`agent` is only available for `ClaudeToolProfile` (the type used for regular cluster operations), not for `VerifierToolProfile`.
+
+## The three profiles and why `agent` is wrong for verification
+
+| Profile | Args | Tool use | Suitable for verifier? |
+|---------|------|----------|------------------------|
+| `bare` | `--bare --tools ""` | None | ✓ Preferred (cheapest, strongest guarantee) |
+| `focused` | `--tools ""` | None | ✓ Fallback when `--bare` auth fails |
+| `agent` | (none) | Full tools | ✗ Would allow exploration beyond evidence scope |
+
+The verifier is intentionally lightweight and deterministic. `agent` mode would inflate cost and add agentic tool loops that provide no benefit for a simple yes/no judgment task.

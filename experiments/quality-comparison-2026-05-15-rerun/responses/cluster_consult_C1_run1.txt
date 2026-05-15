@@ -1,0 +1,7 @@
+Based on the verified factsheet:
+
+1. **Store exact line ranges alongside selectors.** The spec leaves open whether to store exact line ranges, AST selectors, or both. Adding line-range verification would catch more precise staleness (e.g., content shifted but selector still matched), improving detection without changing verify_only semantics.
+
+2. **Add `focused_refresh` mode for scoped-file updates.** The spec reserves this future mode. When specific scoped files change, a focused refresh could re-extract only affected facts rather than revalidating all facts—still no Claude invocation, just smarter partial re-verification.
+
+3. **Distinguish selector drift from content drift.** Currently stale detection checks file hashes and static rejection. A smarter verify could compare whether a selector still points to the *same logical content* (e.g., via anchor tokens or structural hash) even when surrounding lines shift, reducing false-positive staleness flags.

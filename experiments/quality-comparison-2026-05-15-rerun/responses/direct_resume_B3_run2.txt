@@ -1,0 +1,20 @@
+
+
+**`static_verified`** — all facts passed deterministic local checks (file exists, hash matches, size matches, selector present, snippet_hash matches). Zero rejected facts. Used when `verification_mode: "static"` completes with no rejections.
+
+**`partial_static`** — static verifier ran but ≥1 fact failed deterministic checks (e.g. file moved, selector text changed). Factsheet is usable only if `static_factsheet_policy: "allow"` on the cluster.
+
+**`llm_verified`** — static phase passed, then the no-tools LLM verifier marked every surviving fact `VERIFIED`. The factsheet is semantically trusted.
+
+**`partial_llm`** — static phase passed, but the LLM verifier marked ≥1 fact `UNVERIFIED` or `AMBIGUOUS`. Only `VERIFIED` facts are stored; the rejection count is tracked in `omitted_facts`.
+
+**When each is set** (`src/cluster.ts:131`, `src/cluster.ts:175`, `src/cluster.ts:221`):
+```ts
+// After static verification
+trustState = verification.rejectedFacts.length === 0 ? "static_verified" : "partial_static";
+
+// After LLM verification (rejectedFacts includes both static + LLM rejections)
+trustState = rejectedFacts.length === 0 ? "llm_verified" : "partial_llm";
+```
+
+**During `cluster_refresh`** (`src/clusterRefresh.ts:176-181`), the trust state is re-inferred from `omitted_facts` count in the stored factsheet content, not re-verified — if `status === "llm_verified"` and `omitted_facts > 0`, it downgrades to `partial_llm`.

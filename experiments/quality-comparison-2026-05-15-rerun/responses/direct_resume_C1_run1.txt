@@ -1,0 +1,60 @@
+
+
+Here are three improvements to `cluster_refresh` that preserve existing semantics:
+
+---
+
+**1. Granular per-fact revalidation instead of all-or-nothing**
+
+Currently (`src/clusterRefresh.ts:54-66`), if `verifyFactsheetStatic` throws, the entire factsheet is marked stale. Instead, catch individual fact failures and re-run static verification per-fact:
+
+```ts
+// Instead of one global try/catch around the whole verification:
+for (const fact of loaded.factsheetContent.facts ?? []) {
+  try {
+    verifyOneFact(cwd, fact, loaded.fileHashes);
+  } catch (error) {
+    // track per-fact failure, keep facts that still pass
+  }
+}
+```
+
+This preserves `rejected_facts` granularity (already tracked) and avoids marking a factsheet stale when only one fact's evidence moved.
+
+---
+
+**2. Partial revalidation: distinguish file-content-changed vs selector-changed**
+
+`findChangedFiles` (`src/clusterRefresh.ts:150-166`) returns any file with a hash or size change. But a file hash mismatch doesn't prove the cited `selector` text changed. A smarter refresh could:
+
+1. For changed files, re-read and check each `selector` string + `snippet_hash` cited against that file.
+2. Only mark stale if the selector/snippet actually changed, not just the file.
+3. If the file changed but all selectors still match, record `evidence_revalidated` for that file without full stale marking.
+
+This mirrors what `revalidateClusterEvidence` does during consult, but runs it proactively in refresh — and avoids false stale marks when unrelated parts of a file changed.
+
+---
+
+**3. Track refresh age and auto-trigger LLM re-verification on staleness**
+
+Currently `cluster_refresh` with `mode: "verify_only"` only does static checks. If the factsheet is `llm_verified` and hasn't been refreshed in N days, even a clean static pass doesn't re-confirm semantic correctness (the LLM may have hallucinated a fact whose evidence still happens to pass static checks by coincidence).
+
+Add a `refresh_age_days` threshold:
+
+```ts
+// After static verification passes, check if LLM re-verification is needed
+const lastRefreshAge = daysBetweenIso(runtime.clock, loaded.factsheet.verified_at ?? loaded.factsheet.generated_at);
+const needsLlmReverify = loaded.factsheet.status === "llm_verified" 
+  && lastRefreshAge > config.cluster.llmReverifyAfterDays;
+
+if (needsLlmReverify) {
+  db.logClusterEvent({ eventType: "llm_reverify_scheduled" });
+  // Mark the factsheet as needing prepare rather than fresh
+}
+```
+
+This doesn't change the trust state semantics — it only schedules LLM re-verification before the next consult. The existing `llm_verified` trust state is preserved until re-verification actually runs.
+
+---
+
+All three are additive: existing callers of `cluster_refresh` get the same output shape (`fresh: true` vs the stale error payload), but with better fidelity about *which* facts are actually questionable.

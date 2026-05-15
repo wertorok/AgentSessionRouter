@@ -1,0 +1,7 @@
+
+
+**Likely untested failure mode:** The bare profile LLM produces hallucinated API/config names instead of returning `"NOT IN CONTEXT"` when faced with questions whose answers are absent from the factsheet.
+
+**How to detect it:** Write a test case where cluster_consult is asked about a fact not present in the factsheet, and assert the response contains the literal string `"NOT IN CONTEXT"` rather than a plausible but fabricated API name, config key, or function signature.
+
+**Evidence in factsheet:** The `bare-profile-risk` fact documents this exact risk, citing the instruction in both `src/clusterConsult.ts` and `docs/CLUSTER_CACHE_SPEC.md`: *"If a required fact is absent, write NOT IN CONTEXT."* The factsheet identifies this as a known failure mode of bare/no-tools consulting, but does not enumerate existing test coverage for it.

@@ -1,0 +1,12 @@
+
+
+| Trust state | When set | Meaning |
+|-------------|----------|---------|
+| `static_verified` | Static verifier: all facts pass, zero rejected | Every fact's evidence exists and matches locally |
+| `partial_static` | Static verifier: ≥1 fact rejected | Usable only with `static_factsheet_policy: "allow"` |
+| `llm_verified` | LLM verifier: all facts `VERIFIED`, zero rejected | Semantically trusted after no-tools LLM check |
+| `partial_llm` | LLM verifier: ≥1 fact `UNVERIFIED`/`AMBIGUOUS` | Some facts invalidated by LLM; stored in `omitted_facts` |
+
+**Set at:** `src/cluster.ts:131` (static path), `src/cluster.ts:175` (static-only path), `src/cluster.ts:221` (LLM path).
+
+**Re-inferred at refresh:** `src/clusterRefresh.ts:176-181` — uses `omitted_facts` count from stored factsheet content, not re-verification.

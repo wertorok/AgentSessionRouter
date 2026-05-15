@@ -1,0 +1,89 @@
+
+
+## AgentSessionRouter — Project Map
+
+### Purpose
+An MCP server that routes each coding-agent consultation to the correct long-lived Claude session (v1) and serves verified cluster factsheets (v2) to avoid re-sending context.
+
+---
+
+### Architecture (two layers)
+
+```
+Parent Codex / Claude Code
+        |
+        v
+MCP Server (src/tools.ts — all tool registration)
+        |
+        +-- v1: ConsultService (src/consult.ts)
+        |       |-- SQLite registry (src/db.ts + src/schema.ts)
+        |       |-- Session matcher (matching.ts)
+        |       |-- Lock provider (locks.ts)
+        |       +-- Claude CLI adapter (src/claude.ts)
+        |
+        +-- v2: Cluster system
+                |-- prepareCluster / verifyFactsheetStatic (src/cluster.ts)
+                |-- consultCluster (src/clusterConsult.ts)
+                |-- refreshCluster (src/clusterRefresh.ts)
+                |-- Profile detection/probing (src/profiles.ts)
+                +-- Shadow eval / comparison telemetry
+```
+
+---
+
+### Core Concepts
+
+| Concept | Location | Summary |
+|---------|----------|---------|
+| **Session** | `src/db.ts:SessionRecord` | Internal registry entry pointing to a real Claude `.jsonl` session |
+| **Session lifecycle** | `src/db.ts:applyLifecycle` | `active → dormant → archived`; `orphaned` when file missing |
+| **Routing score** | `src/matching.ts` | Weighted Jaccard over topic(0.30), files(0.25), tags(0.20), aliases(0.15), recency(0.10) |
+| **Cost circuit breaker** | `src/consult.ts:checkAllConsultLimits` | Per-project hourly/daily consult counts + per-call token cap |
+| **SESSION_UPDATE_JSON** | `src/sessionUpdate.ts` | Appended to every Claude response; parsed and sanitized into registry |
+| **Orphan recovery** | `src/consult.ts:resolveRoute` | If `--resume` target missing → mark orphaned, bootstrap from compact context |
+| **Cluster** | `src/db.ts:ClusterRecord` | Project-scoped named knowledge area with a verified factsheet |
+| **Factsheet** | `src/cluster.ts:FactsheetInput` | Compact JSON of weighted facts backed by file evidence + selectors |
+| **Static verification** | `src/cluster.ts:verifyFactsheetStatic` | Checks file hash, size, and selector/snippet presence |
+| **LLM verification** | `src/cluster.ts:verifyFactsheetWithLlm` | No-tools Claude call promotes facts to `llm_verified` |
+| **Tool profiles** | `src/profiles.ts` | `bare` (`--bare --tools ""`), `focused` (`--tools ""`), `agent` (full tool access) |
+| **Staleness** | `src/clusterConsult.ts:findStaleFiles` | Scoped file-hash mismatch triggers strict revalidation or fallback |
+| **Shadow eval** | `src/shadowEval.ts` | Side-by-side cluster vs direct comparison for quality telemetry |
+
+---
+
+### Key Data Flow: `claude_consult`
+
+1. `tools.ts:claude_consult` → `ConsultService.consult`
+2. Acquire per-session or per-topic lock
+3. Check hourly/daily cost limits
+4. `resolveRoute`: explicit `session_id` → validate project + health check; null → auto-route via matching
+5. `invokeClaude`: build prompt + bootstrap context, call CLI, parse `SESSION_UPDATE_JSON`
+6. On orphan detection: mark orphaned, inject compact context into new session
+7. Log `session_events` row (match_score, tokens, duration, etc.)
+
+---
+
+### Key Data Flow: `cluster_consult`
+
+1. Load cluster + current factsheet
+2. Trust check: `llm_verified` always trusted; `static_verified` only if `static_factsheet_policy = allow`
+3. Probe/profile selection: `bare → focused` downgrade if bare unavailable
+4. Stale evidence check: compare current file hashes against `cluster_file_hashes`
+5. If stale + `auto_refresh`: strict revalidation under per-cluster lock (re-check every selector/snippet hash)
+6. If revalidation fails: fallback to normal `claude_consult` internally
+7. If fresh: inject factsheet via `--append-system-prompt`, call Claude, log `cluster_events`
+
+---
+
+### SQLite Schema (key tables)
+- `sessions` — internal id, claude_session_id, topic, status, lifecycle columns
+- `session_decisions` — append-only audit log
+- `session_events` — every consult/lifecycle event with match_score, tokens, duration
+- `clusters` — id, project_id, tool_profile_default, static_factsheet_policy, trust_state
+- `cluster_factsheets` — versioned JSON content, status (draft/static_verified/llm_verified/stale)
+- `cluster_file_hashes` — scoped evidence paths with sha256 hash and size
+- `consult_comparisons` — shadow eval records with cluster_score / direct_score / preferred
+
+---
+
+Ready for follow-up questions.

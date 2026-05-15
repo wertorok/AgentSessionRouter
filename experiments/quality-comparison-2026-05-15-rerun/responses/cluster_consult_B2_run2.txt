@@ -1,0 +1,20 @@
+
+
+## Code Path: Deleted Claude Session File on Next `claude_consult`
+
+The factsheet covers three orphan recovery paths (all in `src/consult.ts`, hash `db9c...6b85c`), but the core logic is identical regardless of how the session was matched:
+
+1. **`sessionFileExists(session.claude_session_id)`** returns `false` — the `.jsonl` file is gone.
+2. **`this.runtime.db.markSessionOrphaned(session.id)`** — marks the registry session as orphaned.
+3. **Bootstrap context is built** from the old session view (`buildBootstrapContext(oldView, "orphaned")`) or from registry context.
+4. **A replacement route is created** from that bootstrap context.
+5. **`wasOrphanRecovery: true`** is set on the new route.
+6. Output includes **`routing.was_orphan_recovery: true`** (verified by tests in `tests/consult.test.ts`).
+
+The three variations are only in *how* the session was originally located:
+
+- **Explicit `session_id`**: "Selected session was orphaned; creating replacement from registry context."
+- **Exact topic match**: "Exact normalized topic match was orphaned; creating replacement from registry context."
+- **Non-exact auto-routed**: "Auto-routed session was orphaned; creating replacement from registry context."
+
+In every case the old session is orphaned, a new route is bootstrapped from available context, and the caller receives `was_orphan_recovery: true` so they know the factsheet may be stale.

@@ -1,0 +1,21 @@
+
+
+When the factsheet is stale, `consultCluster` does the following at lines 62-79:
+
+**Detection**: Files are checked for changes by comparing SHA-256 hashes and file sizes against the stored `fileHashes` via `findStaleFiles()` (line 62).
+
+**Actions taken when stale files are found**:
+
+1. **`db.markClusterFactsheetStale(loaded.factsheet.id)`** — marks the factsheet record as stale in the database (line 64)
+
+2. **`db.logClusterEvent(...)`** — logs a `cluster_refresh_required` event with details including the `factsheet_id`, `factsheet_version`, and the list of changed files (lines 65-74)
+
+3. **Returns an error** with code `ERROR_CODES.CLUSTER_FACTSHEET_STALE` (lines 75-78), including `changed_files` in the details
+
+There's also an early exit in `loadClusterContext` (lines 176-183): if `getCurrentClusterFactsheet()` returns nothing and the latest factsheet already has `status === "stale"`, it immediately returns a `CLUSTER_FACTSHEET_STALE` error without even checking file hashes.
+
+So stale detection can happen in two ways:
+- **Already-marked stale** (status field set previously) — caught early in `loadClusterContext`
+- **Newly-detected stale** (files changed since factsheet was built) — caught by `findStaleFiles` in the main path
+
+In both cases the result is the same: `CLUSTER_FACTSHEET_STALE` error returned to the caller, and the consult does **not** proceed.

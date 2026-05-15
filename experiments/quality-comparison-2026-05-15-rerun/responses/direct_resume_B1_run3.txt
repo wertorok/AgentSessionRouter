@@ -1,0 +1,10 @@
+
+
+**To prevent the verifier from fabricating evidence.**
+
+The verifier prompt (`src/cluster.ts:481-495`) says:
+> "Do not infer. Do not use tools. Return JSON only."
+
+`agent` mode would allow the verifier process to call `Agent`/`Glob`/`Read` — it could self-discover evidence and incorrectly mark facts as `VERIFIED` rather than checking the pre-cited evidence it's given.
+
+It also avoids measured cost: bare mode is ~22x cheaper in tokens and ~7x faster than agent exploration (`docs/CLUSTER_CACHE_SPEC.md:19`).

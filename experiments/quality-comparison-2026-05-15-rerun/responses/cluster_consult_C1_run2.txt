@@ -1,0 +1,11 @@
+
+
+Based on the verified factsheet:
+
+1. **Selector precision** — The spec explicitly leaves open whether factsheets should store exact line ranges, AST selectors, or both. Storing AST-based selectors (or both) would make `cluster_refresh` detect more precise staleness than current line-range or hash-based checks.
+
+2. **`focused_refresh` mode** — The spec reserves this for scoped-file updates. Unlike `verify_only` (which only checks for staleness), `focused_refresh` would regenerate facts only for changed scoped files, making the refresh smarter about scope and cost.
+
+3. **`agent_refresh` mode** — The spec reserves this for explicit broad exploration. Enabling full re-generation on demand would let `cluster_refresh` recover from accumulated staleness beyond what static re-verification can detect.
+
+All three avoid breaking existing `verify_only` semantics — they extend rather than replace them.

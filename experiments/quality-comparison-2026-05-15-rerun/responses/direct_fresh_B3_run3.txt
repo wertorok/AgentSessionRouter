@@ -1,0 +1,58 @@
+
+
+## Trust States in AgentSessionRouter
+
+`src/db.ts:86-92` defines `ClusterTrustState`:
+
+```typescript
+export type ClusterTrustState =
+  | "unprepared"
+  | "static_verified"
+  | "llm_verified"
+  | "partial_static"
+  | "partial_llm"
+  | "untrusted";
+```
+
+### When Each Occurs
+
+**`static_verified`** — `src/cluster.ts:131,175`
+- Static verification passed with **zero rejected facts**
+- Factsheet status set to `"static_verified"` in DB
+- Triggered when `verificationMode !== "llm"` (i.e., default static-only path) and no facts fail static checks
+
+**`partial_static`** — `src/cluster.ts:131,175`
+- Static verification had **some rejected facts**
+- Same static-only path, but at least one fact was rejected
+- Factsheet status remains `"static_verified"` but trust is partial
+
+**`llm_verified`** — `src/cluster.ts:221`
+- LLM verification passed with **zero rejected facts** (combined static + LLM rejections)
+- Factsheet status set to `"llm_verified"` in DB
+- Triggered when `verificationMode === "llm"` and no facts fail either static or LLM checks
+
+**`partial_llm`** — `src/cluster.ts:221`
+- LLM verification had **some rejected facts** (static or LLM)
+- Triggered when `verificationMode === "llm"` but at least one fact was rejected by either verifier
+
+### Relationship to Factsheet Status
+
+`src/clusterEvidenceRevalidation.ts:314-318`:
+
+```typescript
+function statusToTrustState(status: ClusterFactsheetStatus, complete: boolean): ClusterTrustState {
+  if (status === "llm_verified") {
+    return complete ? "llm_verified" : "partial_llm";
+  }
+  return complete ? "static_verified" : "partial_static";
+}
+```
+
+### Hierarchy
+
+| State | Stage | Rejected Facts |
+|-------|-------|---------------|
+| `static_verified` | static only | 0 |
+| `partial_static` | static only | ≥1 |
+| `llm_verified` | static + LLM | 0 |
+| `partial_llm` | static + LLM | ≥1 |

@@ -1,0 +1,9 @@
+{
+  "label": "Anthropic Claude Sonnet 4.6 standard token pricing",
+  "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+  "source_checked_at": "2026-05-12",
+  "input_per_mtok": 3,
+  "output_per_mtok": 15,
+  "cache_creation_5m_per_mtok": 3.75,
+  "cache_read_per_mtok": 0.3
+}

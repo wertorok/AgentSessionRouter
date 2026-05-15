@@ -1,0 +1,48 @@
+
+
+## What happens in `cluster_consult` when the factsheet is stale
+
+Based on `src/clusterConsult.ts` and `docs/CLUSTER_CACHE_SPEC.md`, there are two distinct stale scenarios:
+
+### 1. No current factsheet, latest factsheet is already marked `stale`
+
+In `loadClusterContext` (`clusterConsult.ts:173-188`):
+
+```typescript
+const factsheet = db.getCurrentClusterFactsheet(clusterId);
+if (!factsheet) {
+  const latestFactsheet = db.getLatestClusterFactsheet(clusterId);
+  if (latestFactsheet?.status === "stale") {
+    return errorPayload(ERROR_CODES.CLUSTER_FACTSHEET_STALE, ...);
+  }
+}
+```
+
+Returns a `CLUSTER_FACTSHEET_STALE` error with the stale factsheet's id and version.
+
+### 2. Current factsheet exists but its evidence files have changed
+
+In the main `consultCluster` flow (`clusterConsult.ts:62-79`):
+
+```typescript
+const staleFiles = findStaleFiles(cwd, loaded.fileHashes);
+if (staleFiles.length > 0) {
+  db.markClusterFactsheetStale(loaded.factsheet.id);   // marks factsheet status = "stale"
+  db.logClusterEvent({                                  // logs cluster_refresh_required event
+    eventType: "cluster_refresh_required",
+    details: { changed_files: staleFiles }
+  });
+  return errorPayload(ERROR_CODES.CLUSTER_FACTSHEET_STALE, ...);
+}
+```
+
+`findStaleFiles` (`clusterConsult.ts:198-214`) compares SHA-256 file hashes and file sizes against the stored `cluster_file_hashes`. If any file has changed (hash mismatch) or is unreadable, it is added to the stale list.
+
+**Key behaviors:**
+- The factsheet's status in the DB is updated to `"stale"`.
+- A `cluster_refresh_required` event is logged (with `changed_files` for diagnostics).
+- A `CLUSTER_FACTSHEET_STALE` error is returned to the caller — **it does not fall back to `claude_consult` automatically** at this level.
+
+### Spec note: fallback behavior
+
+Per the spec (§11), the caller-facing MCP tool should **fall back to normal `claude_consult`** when revalidation cannot prove the cache valid. However, the current implementation in `clusterConsult.ts` returns the error directly without attempting that fallback. The spec describes `auto_revalidate` and `fallback` as policy options, with `auto_revalidate` through `[cluster].auto_refresh = true` being the default — but that revalidation logic is not yet present in the source file, meaning the stale path currently returns an error rather than falling back.

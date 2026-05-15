@@ -1,0 +1,33 @@
+
+
+Here are three targeted improvements that preserve `cluster_refresh`'s existing semantics while making it smarter:
+
+---
+
+**1. Evidence-path-indexed selective re-verification**
+
+Currently `verifyFactsheetStatic` re-verifies *all* facts whenever any file changes — even facts whose evidence paths are completely unrelated to the changed files. Index facts by their evidence file paths during load; only re-verify facts whose paths intersect the changed-files set.
+
+**Why it's safe**: the existing pass/fail semantics are unchanged — we just skip work that would have produced the same result.
+
+**File to modify**: `src/clusterRefresh.ts` — add a helper that builds a `Map<path, factId[]>` and filters the verification scope.
+
+---
+
+**2. mtime + size as a fast-path before full content hash**
+
+`findChangedFiles` reads every tracked file's full content to compute SHA256 on every refresh. For large files or frequent refreshes this is expensive. Add an mtime check first: if `stat.mtimeMs` and `stat.size` both match, skip the content read. Only fall back to hashing when mtime or size changed.
+
+**Why it's safe**: mtime changes whenever a file is modified, and the existing logic already compares size. If either signal differs, we still fall through to content hash — so false negatives are impossible.
+
+**File to modify**: `src/clusterRefresh.ts:150` (`findChangedFiles`).
+
+---
+
+**3. Detect truncation-only changes (same size, shorter mtime)**
+
+A common false-positive trigger: a file is opened and saved by an editor without meaningful content change (e.g. auto-format on save, or `touch`). The current `findChangedFiles` detects this as changed because the content hash differs even though the logical content is the same. You can add a check: if the new size is *smaller* and the hash differs, treat it as a likely truncation rather than a semantic change — or at minimum surface it as a distinct flag in `changed_files` so callers can distinguish "meaningful change" from "minor rewrite".
+
+**Why it's safe**: it only *adds* signal; it doesn't change the existing changed-file detection. Callers that don't care won't be affected.
+
+**File to modify**: `src/clusterRefresh.ts:150` (`findChangedFiles`) — add a `change_type: "modified" | "truncated" | "added" | "removed"` discriminator to the returned entries.

@@ -1,0 +1,67 @@
+
+
+Here's the code path when a `.jsonl` file is deleted before the next `claude_consult`:
+
+## Code Path Walkthrough
+
+### Entry: `claude_consult` tool (`src/tools.ts:221`)
+Calls `consultService.consult({...})` → `ConsultService.consult()` (`src/consult.ts:52`)
+
+### Route Resolution: `resolveRoute()` (`src/consult.ts:249`)
+
+The critical check is **`sessionFileExists(claudeSessionId)`** at line 271 (explicit session) and lines 300/351 (auto-routed):
+
+```typescript
+const exists = await this.runtime.claude.sessionFileExists(session.claude_session_id);
+if (!exists) {
+  const oldView = this.runtime.db.getSessionView(session.id);
+  this.runtime.db.markSessionOrphaned(session.id);  // <-- marks DB record orphaned
+  return {
+    selectedSession: null,
+    selectedView: null,
+    bootstrapContext: oldView ? buildBootstrapContext(oldView, "orphaned") : undefined,
+    matchScore: 0,
+    matchReason: "Selected session was orphaned; creating replacement from registry context.",
+    wasOrphanRecovery: true
+  };
+}
+```
+
+The `sessionFileExists` check (`src/claude.ts:104`) looks for:
+- `~/.claude/sessions/{id}.json`
+- `~/.claude/sessions/{id}.jsonl`
+- Any `{id}.jsonl` up to 3 levels deep in `~/.claude/projects/`
+
+### `invokeWithRouteLock()` (`src/consult.ts:97`)
+Since `route.selectedSession` is now `null` (orphaned), the condition at line 98 is false, so it calls:
+```typescript
+return this.invokeClaude(input, route);  // route.selectedSession is null here
+```
+
+### `invokeClaude()` (`src/consult.ts:117`)
+With `route.selectedSession === null`:
+
+1. **`--resume` flag is NOT passed** — line 148 passes `route.selectedSession?.claude_session_id` which is `undefined`
+2. **A new session is created** in the DB (line 155):
+   ```typescript
+   this.runtime.db.createSession({
+     id: sessionId,
+     projectId: input.projectId,
+     claudeSessionId: claudeResponse.sessionId,  // new Claude session ID from fresh session
+     ...
+   });
+   ```
+3. The bootstrap context from the orphaned session is injected via `--append-system-prompt` so the new session has the conversation history context
+
+### Summary
+
+| Step | What Happens |
+|------|--------------|
+| 1. `claude_consult` called | Router looks up session by `claude_session_id` |
+| 2. `sessionFileExists` returns `false` | `.jsonl` file is gone |
+| 3. `markSessionOrphaned()` | DB record status → `"orphaned"`, preserving events/history |
+| 4. Route resolution returns `selectedSession: null` | No session to resume |
+| 5. `invokeClaude` with null session | Creates **new** Claude session, no `--resume` flag |
+| 6. Bootstrap context applied | Orphaned session's history is injected via `--append-system-prompt` |
+
+The result: a **fresh Claude session** is created, but it receives the orphaned session's history as bootstrap context so context is not lost — it's just re-hydrated into a new session rather than resumed.

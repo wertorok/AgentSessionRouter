@@ -1,0 +1,14 @@
+
+
+The **bare tool profile** uses the Claude CLI args: `--bare --tools ""`
+
+This is confirmed across the codebase in:
+
+- `README.md:14` — mentions `--bare --tools ""` as the restricted profile for cluster cache
+- `README.md:700` — `llm_verifier_profile: "bare"` invokes Claude with `--bare --tools ""`
+- `docs/EXPERIMENTS.md:65` — probe command: `claude -p --bare --tools "" --output-format json`
+- `docs/EXPERIMENTS.md:250` — describes `bare` (`--bare --tools ""`) for complete verified factsheets
+- `docs/CLUSTER_CACHE_SPEC.md:80` — defines `bare` as `claude -p --bare --tools ""`
+- `scripts/quality-comparison.mjs:212` — documents the claim: `"--bare --tools \"\""`
+
+These flags disable all tools (`--tools ""`) and skip project rediscovery (`--bare`), leaving only pure text generation. It's the most restricted profile — no filesystem access, no shell commands, just the model generating text.

@@ -1,0 +1,3 @@
+
+
+**30** — the schema defines it as `dormant_after_days INTEGER DEFAULT 30` in both `src/schema.ts:16` and `src/schema.sql:15`.

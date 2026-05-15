@@ -1,0 +1,10 @@
+
+
+In `src/profiles.ts:30-38`, the `profileArgs()` function defines the CLI args for each profile:
+
+```ts
+case "bare":
+  return ["--bare", "--tools", ""];
+```
+
+So the **bare tool profile** uses: **`--bare --tools ""`** (two args: the `--bare` flag and an empty `--tools` argument).

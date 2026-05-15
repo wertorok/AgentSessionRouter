@@ -1,0 +1,12 @@
+
+
+The LLM verifier runs in `bare` mode (or `focused` as fallback) because its sole job is to **check whether stated facts are supported by existing evidence** — it must not launch its own file exploration or tool use.
+
+From `docs/EXPERIMENTS.md`, the baseline failure that drove this design:
+
+> "Original broad issue-planning consult: Duration 264.8s, Input tokens 56,051, Tool calls: `Agent`, `Glob`, `Read` — Cause: Claude Code treated the planning request as a codebase exploration task, launched an Explore subagent, globbed the project, and read many files."
+
+The verifier prompt in `CLUSTER_CACHE_SPEC.md` explicitly says:
+> "Do not infer. Do not use tools."
+
+Running in `agent` mode would defeat the purpose — the verifier would spend time and tokens on the exact redundant exploration the factsheet cache exists to eliminate. The `agent` profile is reserved for explicit exploration or refresh (`CLUSTER_CACHE_SPEC.md` lines 306-308: "Used only for explicit exploration or refresh").

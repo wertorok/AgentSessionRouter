@@ -1,0 +1,40 @@
+
+
+**Code path walkthrough:**
+
+1. **`claude_consult`** with explicit `session_id` → `ConsultService.consult` (`src/consult.ts:52`)
+
+2. **`resolveRoute`** (`src/consult.ts:250-291`) sees explicit `sessionId`:
+   - Fetches session from DB
+   - Checks project membership
+   - Calls `this.runtime.claude.sessionFileExists(session.claude_session_id)` at line 271
+
+3. **`sessionFileExists`** (`src/claude.ts:104-122`) checks:
+   - `~/.claude/sessions/<claude_session_id>.json`
+   - `~/.claude/sessions/<claude_session_id>.jsonl`
+   - Recursively in `~/.claude/projects`
+   
+   Deleted file → returns `false`
+
+4. **Mark orphaned** (`src/consult.ts:273-282`):
+   ```ts
+   const oldView = this.runtime.db.getSessionView(session.id);
+   this.runtime.db.markSessionOrphaned(session.id); // status → 'orphaned'
+   return {
+     selectedSession: null,
+     bootstrapContext: buildBootstrapContext(oldView, "orphaned"),
+     wasOrphanRecovery: true,
+     ...
+   };
+   ```
+
+5. **`invokeWithRouteLock`** (`src/consult.ts:97-115`) sees `selectedSession === null` → calls `invokeClaude` directly (no `--resume`)
+
+6. **`invokeClaude`** (`src/consult.ts:154-162`) creates a new session:
+   - New internal `id`
+   - New `claudeSessionId` from fresh Claude process
+   - Bootstrap context from old registry view injected into prompt
+
+7. **`session_events`** row written with `event_type: "orphan_recovery"`, `was_orphan_recovery: 1`
+
+**Result:** Session marked `orphaned`, old compact context (topic, summary, decisions, files, tags, aliases) transferred into a fresh Claude session.

@@ -1,0 +1,58 @@
+
+
+**Trust states are set in four places:**
+
+### `static_verified` vs `partial_static`
+Set during static-only verification in `src/cluster.ts:131` and `src/cluster.ts:175`:
+
+```ts
+const trustState = verification.rejectedFacts.length === 0 ? "static_verified" : "partial_static";
+```
+
+- **`static_verified`**: every fact passed deterministic checks — file exists, hash matches, size matches, selector present, snippet_hash matches. Zero rejected facts.
+- **`partial_static`**: at least one fact failed deterministic checks (e.g. file moved, selector text changed, hash mismatch). The factsheet is usable only if `static_factsheet_policy = "allow"` on the cluster.
+
+### `llm_verified` vs `partial_llm`
+Set during the LLM verification path in `src/cluster.ts:221`:
+
+```ts
+const trustState = rejectedFacts.length === 0 ? "llm_verified" : "partial_llm";
+```
+
+where `rejectedFacts` combines both static rejections (from Phase 1) and LLM rejections (from Phase 2 verifier).
+
+- **`llm_verified`**: all facts that survived static checks were also marked `VERIFIED` by the no-tools LLM verifier. The factsheet is semantically trusted.
+- **`partial_llm`**: some facts were marked `UNVERIFIED` or `AMBIGUOUS` by the LLM verifier. Only the `VERIFIED` subset is stored; the count is tracked in `omitted_facts`.
+
+### During `cluster_refresh`
+At `src/clusterRefresh.ts:176-181`:
+
+```ts
+function inferTrustState(content, status): ClusterTrustState {
+  const omittedFacts = content.omitted_facts ?? 0;
+  if (status === "llm_verified")
+    return omittedFacts > 0 ? "partial_llm" : "llm_verified";
+  return omittedFacts > 0 ? "partial_static" : "static_verified";
+}
+```
+
+Refresh re-checks hashes without calling Claude. If any fact's evidence changed, the factsheet is marked `stale` before this function is called — so `inferTrustState` here handles the `omitted_facts` case for already-rejected facts.
+
+### During evidence revalidation
+At `src/clusterEvidenceRevalidation.ts:316-318`:
+
+```ts
+complete ? "llm_verified" : "partial_llm"   // when verifier ran llm
+complete ? "static_verified" : "partial_static"  // otherwise
+```
+
+Where `complete` means the revalidated fact count meets the `minRetainedRatio` threshold.
+
+### Summary table
+
+| Trust state | When |
+|-------------|------|
+| `static_verified` | Static verifier ran, zero rejected facts |
+| `partial_static` | Static verifier ran, ≥1 rejected fact |
+| `llm_verified` | LLM verifier ran, all submitted facts `VERIFIED` |
+| `partial_llm` | LLM verifier ran, ≥1 fact `UNVERIFIED`/`AMBIGUOUS` |

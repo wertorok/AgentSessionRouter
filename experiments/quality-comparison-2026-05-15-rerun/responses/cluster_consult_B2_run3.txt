@@ -1,0 +1,26 @@
+Based on the factsheet, here's the code path when a deleted `.jsonl` session file is encountered on `claude_consult`:
+
+## Detection
+
+`consult.ts` checks `sessionFileExists(session.claude_session_id)` — if the stored session ID's `.jsonl` file is absent, the file is gone.
+
+## Three Matching Modes, One Outcome
+
+The exact path depends on how the session was identified:
+
+1. **Explicit session_id** → `orphan-explicit-session` triggers
+2. **Auto-routed, exact topic match** → `orphan-exact-topic-session` triggers  
+3. **Auto-routed, non-exact match** → `orphan-auto-routed-session` triggers
+
+In all three cases the same sequence occurs:
+
+1. **`db.markSessionOrphaned(sessionId)`** — the registry entry is flagged orphaned in the DB
+2. **Bootstrap context built** from the old session's stored view (`buildBootstrapContext(oldView, "orphaned")`)
+3. **Replacement route created** from registry context (rather than from the missing session file)
+4. **`wasOrphanRecovery: true`** set on the new route
+
+## Output
+
+`claude_consult` returns with `routing.was_orphan_recovery: true` (per the `orphan-routing-output` fact), signaling to the caller that a lost session was recovered.
+
+**NOT IN CONTEXT:** The factsheet does not specify which DB function actually deletes the `.jsonl` file, or whether `sessionFileExists` uses the `claude_session_id` stored in the registry row vs. the sessions table's session ID field — it only gives the high-level check and the downstream orphan-recovery behavior.

@@ -1,0 +1,17 @@
+
+
+Two layers:
+
+**`clusterConsult.ts` (direct call, lines 62–79):**
+- Detects stale files via `findStaleFiles` (sha256 + size mismatch against `cluster_file_hashes`)
+- Calls `db.markClusterFactsheetStale()` + logs `cluster_refresh_required`
+- Returns `CLUSTER_FACTSHEET_STALE` error immediately — no consult attempted
+
+**`tools.ts → consultClusterForCaller` (caller-facing path, lines 771–817):**
+- If `auto_refresh` is **off**: immediately falls back to `claude_consult` internally; caller gets a normal answer, no error
+- If `auto_refresh` is **on**: under a per-cluster lock, re-validates every cited `selector`/`snippet_hash`
+  - If revalidation passes → proceeds with the consult
+  - If revalidation fails → falls back to `claude_consult`, marks cluster `needs_prepare`
+- In **either case**, the caller of `cluster_consult` always gets an answer — never a stale error
+
+**Key:** The stale error is returned by `clusterConsult.ts` but consumed and acted upon by `consultClusterForCaller` before reaching the caller. The stale path is an internal recovery mechanism, not a caller-visible failure mode.

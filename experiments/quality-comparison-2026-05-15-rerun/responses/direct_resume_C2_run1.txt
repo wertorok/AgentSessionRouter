@@ -1,0 +1,32 @@
+
+
+The untested failure mode I'd flag: **bare works for `ping` but fails for multi-turn conversations due to session state mismatch.**
+
+### Why `--bare --tools ""` could fail mid-conversation
+
+The health probe in `src/claude.ts:70-102` runs a single `await this.runPrompt("ping")` with the default profile — not bare. It passes if that succeeds. But bare mode has a different runtime contract:
+
+1. **Session mode mismatch**: A session created with `agent` or `focused` profile carries tool-call history. Resuming it with `--bare --tools ""` means Claude sees tool-call history in a no-tools context. Claude may reject this, or hallucinate tool-use despite the flag.
+
+2. **Auth vs API key divergence**: `--bare` authenticates differently — it may use `ANTHROPIC_API_KEY` from env rather than Claude Code's session auth. A machine where the health probe passes (Claude Code auth valid) but `ANTHROPIC_API_KEY` is unset or wrong would see bare fail only at consult time.
+
+3. **Output format inconsistency**: Bare mode in some Claude versions emits `result` vs `text` differently, or adds extra fields the `parseClaudeJson` parser (`src/claude.ts:134-163`) doesn't handle — the probe doesn't validate field shape for bare specifically.
+
+### How to detect it
+
+Add a second health probe phase that actually exercises bare:
+
+```ts
+// In CliClaudeAdapter.healthProbe() after existing ping:
+const bareProbe = await runCommand(
+  this.config.claude.command,
+  ["-p", "--bare", "--tools", "", "--output-format", "json", "ping"],
+  this.config.claude.commandTimeoutMs
+);
+const parsed = parseClaudeJson(bareProbe);
+// Verify session_id returned and result is non-empty
+```
+
+Log a new event type `bare_probe_succeeded` alongside `bare_probe_failed` so the failure is observable before it hits a live cluster consult.
+
+The existing `bare_probe_failed` event at `src/runtime.ts:151` is logged when bare availability probing was tried and failed — but the probe runs *at prepare time*, not at consult time. If the probe passes but bare still fails in a later multi-turn consult (scenario 1 above), there is currently no detection.

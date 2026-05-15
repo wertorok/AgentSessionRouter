@@ -1,0 +1,24 @@
+
+
+There are two distinct stale checks in `cluster_consult`:
+
+### 1. Stale at load time (`loadClusterContext`, line 173-184)
+When `getCurrentClusterFactsheet` returns null, it checks if the latest factsheet has status `"stale"`. If so, it returns early with `CLUSTER_FACTSHEET_STALE`:
+```ts
+if (latestFactsheet?.status === "stale") {
+  return errorPayload(ERROR_CODES.CLUSTER_FACTSHEET_STALE, ..., {
+    cluster_id: clusterId,
+    details: { factsheet_id: latestFactsheet.id, factsheet_version: latestFactsheet.version }
+  });
+}
+```
+
+### 2. Stale due to file changes (`consultCluster`, lines 62-79)
+Even if the factsheet is currently `"llm_verified"`, `findStaleFiles` compares the recorded SHA-256 hashes and file sizes of all tracked files against the actual filesystem. If any file has changed (or is missing):
+- `db.markClusterFactsheetStale()` is called immediately — setting the factsheet status to `"stale"` in the DB
+- A `cluster_refresh_required` event is logged
+- An error is returned with `CLUSTER_FACTSHEET_STALE`
+
+**In both cases the result is the same:** a `CLUSTER_FACTSHEET_STALE` error is returned to the caller, with the message `"Cluster factsheet is stale. Run cluster_refresh before consulting."` (from `errors.ts:43`). The cluster is not consulted — no LLM call is made.
+
+The root cause can differ: either the factsheet was already marked stale in the database, or the tracked source files were edited since the factsheet was built (which triggers a proactive DB update to mark it stale).

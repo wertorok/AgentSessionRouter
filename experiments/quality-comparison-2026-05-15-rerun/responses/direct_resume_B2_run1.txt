@@ -1,0 +1,87 @@
+
+
+The orphan detection happens in `ConsultService.resolveRoute` at `src/consult.ts:271-283`. Here's the walkthrough:
+
+**1. `claude_consult` call with explicit `session_id`**
+
+Input e.g. `{ session_id: "internal-abc", question: "..." }` → `tools.ts:226` → `ConsultService.consult` (`src/consult.ts:52`)
+
+**2. `resolveRoute` with explicit session**
+
+At `src/consult.ts:250-291`:
+```ts
+if (input.sessionId) {
+  const session = this.runtime.db.getSession(input.sessionId);
+  // ... project mismatch check ...
+  if (session.status === "orphaned" || session.status === "archived") {
+    // builds bootstrap context from old registry view, wasOrphanRecovery = true
+  }
+
+  const exists = await this.runtime.claude.sessionFileExists(session.claude_session_id);
+  if (!exists) {
+    const oldView = this.runtime.db.getSessionView(session.id);
+    this.runtime.db.markSessionOrphaned(session.id);  // <-- marks orphaned in DB
+    return {
+      selectedSession: null,
+      selectedView: null,
+      bootstrapContext: buildBootstrapContext(oldView, "orphaned"),
+      matchScore: 0,
+      matchReason: "Selected session was orphaned; creating replacement...",
+      wasOrphanRecovery: true
+    };
+  }
+  // ... session exists → return it for resume
+}
+```
+
+**3. `sessionFileExists` check**
+
+At `src/claude.ts:104-122` — checks for `~/.claude/sessions/<claude_session_id>.json` or `.jsonl`, or recursively searches `~/.claude/projects` for it.
+
+**4. `markSessionOrphaned`**
+
+At `src/db.ts:518-530`:
+```ts
+markSessionOrphaned(sessionId: string): void {
+  const session = this.getSession(sessionId);
+  this.db.prepare("UPDATE sessions SET status = 'orphaned' WHERE id = ?").run(sessionId);
+  this.logEvent({
+    sessionId,
+    projectId: session.project_id,
+    eventType: "orphan_recovery",
+    error: "claude_session_missing"
+  });
+}
+```
+
+**5. Route resolves to null session with bootstrap context**
+
+`invokeWithRouteLock` at `src/consult.ts:97-115` sees `selectedSession === null`, so it calls `invokeClaude` directly (no `--resume` flag).
+
+**6. `invokeClaude` creates a new Claude session**
+
+At `src/consult.ts:154-162`:
+```ts
+if (!route.selectedSession) {
+  this.runtime.db.createSession({
+    id: createInternalSessionId(),        // new internal ID
+    projectId: input.projectId,
+    claudeSessionId: claudeResponse.sessionId,  // new Claude session ID
+    topic: input.topicHint,
+    dormantAfterDays: ...,
+    archiveAfterDays: ...
+  });
+}
+```
+
+Bootstrap context is built at `src/consult.ts:118` from the old session's registry view (topic, summary, decisions, files, tags, aliases) and injected into the prompt.
+
+**Summary:**
+
+| Step | What happens |
+|------|-------------|
+| File missing | `sessionFileExists` returns false |
+| Orphan marked | DB status set to `orphaned`, event logged |
+| Bootstrap | Compact context from old registry view injected into prompt |
+| New session | Fresh Claude session created (no `--resume`), new `claude_session_id` assigned |
+| `was_orphan_recovery` | Set to `true` in routing metadata and `session_events` |

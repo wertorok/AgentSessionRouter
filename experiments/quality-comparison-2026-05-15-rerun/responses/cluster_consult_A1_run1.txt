@@ -1,0 +1,3 @@
+
+
+NOT IN CONTEXT — the factsheet contains no fact describing the field names in the `clusters` table. The only schema fact present (`sessions-dormant-default`) pertains to the `sessions` table, not the `clusters` table.

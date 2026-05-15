@@ -1,0 +1,28 @@
+
+
+**Likely untested failure mode: `--bare --tools ""` causes a silent session/auth mismatch on the first real invocation after a bare-probe success**
+
+Here's the reasoning:
+
+### What `--bare --tools ""` actually does
+
+`src/profiles.ts:33` — bare profile is `["--bare", "--tools", ""]`. The empty-string argument to `--tools` is supposed to disable tool access. This is the probe profile. But after `detectAvailableProfiles` succeeds for bare, that same flag sequence gets reused for every real prompt run in that session.
+
+### The untested scenario
+
+1. `detectAvailableProfiles` probes bare successfully → `bare.available = true`
+2. A subsequent call (cluster consult, shadow eval judge, etc.) invokes Claude with `--bare --tools ""`
+3. But something about the **session state or auth context** when bare was first probed differs from the state when a real prompt runs — maybe a cookie, token, or connection reuse assumption that held for the single-word probe (`"Return exactly: PROFILE_OK"`) doesn't hold for a full conversation-length prompt
+4. Claude CLI either silently degrades tools, ignores the flag, or emits a non-fatal warning that this router treats as `ok`
+
+### Why the current test doesn't cover it
+
+`tests/tools.test.ts:923` — `FakeClaude.runPromptWithOptions` only throws on bare when `_prompt.includes("PROFILE_OK")`. Real-world prompts won't contain that string, so the throw never fires, and the fake never exercises the actual CLI behavior with `--bare --tools ""`.
+
+### How to detect it
+
+**Signal 1 — token ratio anomaly**: If `--tools ""` is actually filtering tools, token usage should drop sharply on tool-related operations. Compare `tokensIn/tokensOut` on bare-profile sessions vs. focused-profile sessions for the same prompt. A gap indicates tools may be working in one but silently failing in the other.
+
+**Signal 2 — log event mismatch**: The `cluster_events` table doesn't have a `tool_invocation_suppressed` or `bare_mode_tool_warning` event. If Claude CLI logs a warning to stderr (e.g., `"--tools '' is experimental"`) and this router treats non-zero-exit as an error, there would be no event logged for a silent ignore. Adding instrumentation around the `runPromptWithOptions` stderr output (if accessible) would surface this.
+
+**Signal 3 — shadow eval divergence as the detector**: The shadow eval uses `["--tools", ""]` (focused) for the judge, not bare. So if a cluster runs bare and a direct run uses no extra args, and they give different answers to the same question about tool-using behavior, that gap is the signal. The `quality-comparison-2026-05-12` experiment data would show it — check the `cluster_q` vs `direct_q` gap for bare-profile clusters specifically.

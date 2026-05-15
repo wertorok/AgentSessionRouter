@@ -1,0 +1,30 @@
+
+
+## Code Path: Deleted `.jsonl` Session File
+
+Based on the verified factsheet, here is what happens on the next `claude_consult`:
+
+### What Gets Checked
+Before invoking Claude, the router calls `sessionFileExists(session.claude_session_id)` in `src/consult.ts`. If the `.jsonl` file is missing, this triggers orphan recovery.
+
+### Three Code Paths (same outcome)
+Depending on how the session was selected, the logic differs slightly:
+
+**1. Explicit `session_id` passed to `claude_consult`:**
+- Marks the registry session orphaned via `this.runtime.db.markSessionOrphaned(session.id)`
+- Logs: *"Selected session was orphaned; creating replacement from registry context."*
+- Builds replacement route from bootstrap registry context
+- Sets `wasOrphanRecovery: true`
+
+**2. Auto-routed exact topic match:**
+- Marks orphaned via `markSessionOrphaned(selectedSession.id)`
+- Logs: *"Exact normalized topic match was orphaned; creating replacement from registry context."*
+- Builds bootstrap context from the old view via `buildBootstrapContext(oldView, "orphaned")`
+- Sets `wasOrphanRecovery: true`
+
+**3. Auto-routed non-exact match:**
+- Same pattern: mark orphaned, build bootstrap context, create replacement, `wasOrphanRecovery: true`
+- Log: *"Auto-routed session was orphaned; creating replacement from registry context."*
+
+### Output
+The successful response exposes `routing.was_orphan_recovery: true`, and tests assert this for all three cases.

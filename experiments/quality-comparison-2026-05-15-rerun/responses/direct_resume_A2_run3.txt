@@ -1,0 +1,34 @@
+
+
+**Factsheet lifecycle** (via `factsheetEventType` at `src/db.ts:1297`):
+- `factsheet_generated`
+- `factsheet_static_verified`
+- `factsheet_partially_static_verified`
+- `factsheet_llm_verified`
+- `factsheet_partially_llm_verified`
+- `factsheet_rejected`
+
+**Cluster lifecycle:**
+- `cluster_created`
+
+**Consult:**
+- `cluster_consult`
+- `cluster_consult_failed`
+- `cluster_refresh_required`
+
+**Profile:**
+- `tool_profile_downgraded`
+- `bare_probe_failed`
+
+**Evidence/invalidation:**
+- `evidence_revalidated`
+- `evidence_revalidation_failed`
+- `factsheet_stale`
+- `cluster_refresh`
+
+**LLM verifier:**
+- `llm_verifier`
+
+**Fallback:**
+- `cluster_fallback_to_claude_consult`
+- `cluster_fallback_failed`

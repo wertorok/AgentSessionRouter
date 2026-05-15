@@ -1,0 +1,22 @@
+
+
+**Untested failure: multi-turn session state mismatch**
+
+The health probe (`src/claude.ts:79`) runs a single stateless `ping` and passes. But bare mode has different auth semantics than normal Claude Code sessions:
+
+1. **Session was created with `agent`/`focused`** — its `.jsonl` carries tool-call history. Resuming with `--bare --tools ""` may reject the resume, ignore the flag, or hallucinate tool use despite it.
+
+2. **`--bare` uses `ANTHROPIC_API_KEY` auth, not Claude Code session auth** — a machine where Claude Code auth is valid but the env var is unset/unreadable would pass the current probe but fail at first bare consult.
+
+**Detection:**
+
+Add a bare-specific probe at startup that actually uses bare args (`src/claude.ts:70` area):
+
+```ts
+await runCommand(config.claude.command, [
+  "-p", "--bare", "--tools", "", "--output-format", "json",
+  "Return exactly: PROFILE_OK"
+], config.claude.commandTimeoutMs);
+```
+
+Log `bare_probe_succeeded` alongside the existing `bare_probe_failed` (`src/runtime.ts:151`) so the operator can observe both success and failure paths. The current implementation only logs failure — there's no confirmation bare actually works in the target environment before it's used in a live consult.

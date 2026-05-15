@@ -1,0 +1,26 @@
+
+
+The LLM verifier is intentionally scoped to no-tools mode to prevent it from discovering new evidence rather than verifying existing claims.
+
+From `src/cluster.ts:467-495`, the verifier prompt instructs:
+
+```ts
+return [
+  "You are verifying a factsheet for AgentSessionRouter.",
+  "For each fact, decide whether the supplied evidence semantically supports the claim.",
+  "Return VERIFIED only when the claim follows from the evidence.",
+  "Return UNVERIFIED when support is missing or the claim names APIs/config that are not shown.",
+  "Return AMBIGUOUS when the evidence is related but insufficient.",
+  "Do not infer. Do not use tools. Return JSON only.",
+  ...
+].join("\n");
+```
+
+The directive **"Do not use tools"** is embedded in the prompt itself. Using `agent` mode would allow the verifier to run `Agent`/`Glob`/`Read` and potentially hallucinate evidence that wasn't in the original factsheet — defeating the purpose of verification.
+
+Additionally, `bare` mode (`--bare --tools ""`) was measured to be the cheapest and fastest profile in the experiments referenced in `docs/CLUSTER_CACHE_SPEC.md:19-21`:
+
+> - Broad exploration consult: 264.8s, 56,051 input tokens, `Agent` + `Glob` + `Read`
+> - Fresh `--bare --tools ""` with verified factsheet: 36.8s, 1,170 input tokens
+
+The verifier is also called with `profilePromptOptions(toolProfile)` at `src/cluster.ts:369`, which for `bare` produces `["--bare", "--tools", ""]` — a purely no-tools invocation that aligns with the prompt constraint.

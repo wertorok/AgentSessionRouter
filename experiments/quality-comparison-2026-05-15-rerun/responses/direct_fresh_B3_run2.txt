@@ -1,0 +1,38 @@
+
+
+## Trust States
+
+The `ClusterTrustState` type (`src/db.ts:86-92`) has 6 values:
+
+| State | Meaning |
+|-------|---------|
+| `unprepared` | Cluster has no factsheet yet |
+| `static_verified` | Static verification passed with zero rejections |
+| `partial_static` | Static verification had some rejections |
+| `llm_verified` | LLM verification passed with zero rejections |
+| `partial_llm` | LLM verification completed but some facts were rejected or omitted |
+| `untrusted` | No trust established |
+
+## When Each Occurs
+
+**`static_verified`** — `src/cluster.ts:131`
+```ts
+const trustState = verification.rejectedFacts.length === 0 ? "static_verified" : "partial_static";
+```
+Occurs after `prepareStaticCluster()` when the static fact-checker (`verifyFactsheetStatic`) finds zero rejected facts. The factsheet content was verified against file contents without LLM involvement.
+
+**`partial_static`** — same line
+Occurs when static verification has at least one rejected fact (e.g., a claimed fact doesn't match the file on disk).
+
+**`llm_verified`** — `src/cluster.ts:221`
+```ts
+const trustState = rejectedFacts.length === 0 ? "llm_verified" : "partial_llm";
+```
+Occurs after `prepareLlmCluster()` when the LLM verifier passes all facts with zero rejections. This is the highest-trust state — both static checks and LLM checks passed cleanly.
+
+**`partial_llm`** — same line
+Occurs when LLM verification ran but some facts were rejected by the LLM, or facts were omitted from the response. The `clusterRefresh.ts:179` path also reaches `partial_llm` when an `llm_verified` status factsheet has omitted facts.
+
+## Relationship to `ClusterFactsheetStatus`
+
+The factsheet **status** (`src/db.ts:95`) is coarser than trust state — only `"static_verified"` or `"llm_verified"` (or `"draft"`/`"rejected"`/`"stale"`). The trust state adds the `_partial` granularity on top when only some facts passed.

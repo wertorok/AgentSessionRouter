@@ -1,0 +1,30 @@
+
+
+## Answer
+
+The LLM verifier runs in `bare` mode because it is a **read-only classification task** — it evaluates pre-supplied evidence against claims and returns a JSON verdict. It never needs to take actions, navigate files, or use tools.
+
+### Evidence
+
+**`src/profiles.ts:4`** — `bare` is in `VerifierToolProfile`, but `agent` is explicitly excluded:
+```typescript
+export type VerifierToolProfile = "bare" | "focused";  // no "agent"
+```
+
+**`src/tools.ts:526-527`** — agent profile is actively disallowed:
+```typescript
+if (profileSelection.selected === "agent") {
+  throw new Error("LLM verifier cannot use agent profile");
+}
+```
+
+**`src/cluster.ts:481-487`** — the verifier prompt itself is stateless and tool-free:
+```
+You are verifying a cluster factsheet for AgentSessionRouter.
+...
+Do not infer. Do not use tools. Return JSON only.
+```
+
+### Why `bare` over `focused`
+
+The prompt already embeds all evidence as inline snippets, so the verifier doesn't need tool access at all. The `bare` profile (`--bare --tools ""`) strips away all tool invocations for a pure classification call — cheaper and faster than `focused`, and appropriate because the verifier's entire job is done through the prompt content already provided.

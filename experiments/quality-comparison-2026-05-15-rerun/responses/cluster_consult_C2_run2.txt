@@ -1,0 +1,3 @@
+**Untested failure mode:** When the factsheet genuinely lacks a required fact, `--bare --tools ""` may still produce inferred API names, config keys, file paths, or function names rather than properly returning `NOT IN CONTEXT`.
+
+**Detection:** Create cluster consult test cases where the factsheet intentionally omits the queried fact. Assert the response contains `NOT IN CONTEXT` verbatim and contains no fabricated identifiers (e.g., no invented function names or config keys).

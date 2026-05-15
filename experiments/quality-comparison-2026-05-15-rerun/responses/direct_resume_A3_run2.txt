@@ -1,0 +1,46 @@
+
+
+Two separate behaviors depending on which layer you're asking about:
+
+---
+
+**`clusterConsult.ts` (called directly, lines 62–79):**
+
+`findStaleFiles` compares current sha256 hashes + file sizes against `cluster_file_hashes`. If any file changed:
+1. Marks the factsheet `stale` in the DB
+2. Logs `cluster_refresh_required` with the changed file list
+3. **Returns `CLUSTER_FACTSHEET_STALE` error immediately** — does not fall back, does not consult
+
+---
+
+**`tools.ts → consultClusterForCaller` (the caller-facing path, lines 771–817):**
+
+This wraps the above call and decides what the *caller* actually sees:
+
+```
+cluster_consult
+  └─ consultCluster()  ← returns CLUSTER_FACTSHEET_STALE error
+         │
+         ▼
+  shouldReturnClusterErrorToCaller()? ──→ YES: return error to caller
+         │ NO
+         ▼
+  auto_refresh enabled? ──→ NO: fallbackToClaudeConsult()
+         │ YES
+         ▼
+  per-cluster lock acquired
+         │
+         ▼
+  consultCluster() again ──→ still stale?
+         │ YES
+         ▼
+  revalidateClusterEvidence()  ← strict per-selector check
+         │
+         ├─ passes: re-consult with refreshed availability
+         │
+         └─ fails: fallbackToClaudeConsult()
+                   markClusterNeedsPrepare()
+                   return normal consult answer to caller
+```
+
+**Bottom line:** The caller of `cluster_consult` **never sees a stale error** in the current MVP — either auto-refresh proves the factsheet still valid, or it falls back to `claude_consult` internally and returns a normal answer.

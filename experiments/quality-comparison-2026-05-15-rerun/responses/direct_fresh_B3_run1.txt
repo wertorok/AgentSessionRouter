@@ -1,0 +1,26 @@
+
+
+Here's a summary based on the source:
+
+## Trust States
+
+| State | When It Occurs |
+|---|---|
+| `static_verified` | Static validation passed with **zero rejected facts**. `verification_mode` is `"static"` (default) or `"llm"` but static stage had no rejections. |
+| `partial_static` | Static validation had **some rejected facts** (but at least one fact passed). Used in `static` verification mode. |
+| `llm_verified` | LLM verification stage passed with **zero rejected facts** (total across both static + LLM stages). |
+| `partial_llm` | LLM verification stage had **some rejected facts** (total across both stages > 0). |
+
+## Flow
+
+The `prepareCluster` function (src/cluster.ts:156) follows a two-stage pipeline:
+
+1. **Static stage** (`verifyFactsheetStatic`) — checks that facts have valid evidence file paths. Results in a `static_verified` or `partial_static` factsheet.
+
+2. **LLM stage** (if `verification_mode === "llm"`) — calls the LLM verifier to re-validate each fact against evidence content. Combines static + LLM rejections to compute the final trust state:
+   - No rejections at all → `llm_verified`
+   - Any rejections → `partial_llm`
+
+The factsheet `status` field (stored in DB) is either `"static_verified"` or `"llm_verified"` — it records which stage completed. The `trust_state` field (src/cluster.ts:85) is the细化的 sub-state including partial variants.
+
+During revalidation (`src/clusterEvidenceRevalidation.ts:315`), if the LLM verifier marks a previously `llm_verified` factsheet with incomplete verification, the status becomes `partial_llm`.

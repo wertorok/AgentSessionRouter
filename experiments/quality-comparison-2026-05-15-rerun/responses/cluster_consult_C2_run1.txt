@@ -1,0 +1,7 @@
+Based on the factsheet:
+
+**Failure mode not yet tested:** When `--bare --tools ""` encounters a query whose answer isn't in the factsheet, it may **infer or hallucinate API names, config keys, or function signatures** rather than correctly returning `NOT IN CONTEXT`.
+
+**Detection:** Feed cluster consult queries targeting facts deliberately absent from the factsheet and assert the response contains `NOT IN CONTEXT` verbatim — not a plausible-sounding but unverified answer.
+
+This is the documented "known risk" of the bare/no-tools profile per `bare-profile-risk` in the factsheet.

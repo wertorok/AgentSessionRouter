@@ -1,0 +1,32 @@
+
+
+
+The LLM verifier intentionally uses `bare` (no-tools) mode for two reasons:
+
+**1. Prevent evidence fabrication**
+
+The verifier prompt (`src/cluster.ts:481-495`) explicitly instructs:
+> "Do not infer. Do not use tools. Return JSON only."
+
+Running with `agent` mode would allow the verifier Claude process to invoke `Agent`, `Glob`, or `Read` — it could discover evidence that wasn't in the original factsheet and incorrectly mark facts as `VERIFIED`. The verifier would be generating evidence, not checking it.
+
+**2. Measured cost efficiency**
+
+From the experiments in `docs/CLUSTER_CACHE_SPEC.md:19-21`:
+
+| Mode | Duration | Input Tokens |
+|------|----------|-------------|
+| `Agent` + `Glob` + `Read` (exploration) | 264.8s | 56,051 |
+| `--bare --tools ""` (verified factsheet) | 36.8s | 1,170 |
+
+The `bare` profile is ~22x cheaper in tokens and ~7x faster for this use case. Verification only needs to read pre-cited evidence strings — it doesn't need tool access.
+
+**3. Verifier prompt is injected via `profilePromptOptions`**
+
+At `src/cluster.ts:369`:
+
+```ts
+await claude.runPromptWithOptions(prompt, profilePromptOptions(toolProfile))
+```
+
+For `bare`, `profilePromptOptions` produces `extraArgs: ["--bare", "--tools", ""]`. For `focused`, it produces `extraArgs: ["--tools", ""]`. Neither enables `Agent`/`Glob`/`Read`, ensuring the verification verdict is based purely on the submitted evidence strings, not on self-discovered补充内容.

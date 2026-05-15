@@ -1,0 +1,7 @@
+Based on the verified factsheet:
+
+1. **Add `focused_refresh` mode** — Reserved in the spec for scoped-file updates. Unlike verify_only (which only checks hashes), focused_refresh could re-extract facts only from changed files, leaving untouched facts alone. This avoids full regeneration while still capturing incremental source changes.
+
+2. **Improve selector precision (line ranges or AST selectors)** — The spec notes an open question: whether factsheets should store exact line ranges, AST selectors, or both. Storing more precise selectors would make static re-verification more accurate and reduce false stale detections caused by file-shift noise.
+
+3. **Reject facts during verify_only without marking fully stale** — Currently verify_only marks the entire factsheet stale on any rejection. A finer-grained approach would store partial re-verification results, allowing continued use of unchallenged facts while only portions are quarantined.

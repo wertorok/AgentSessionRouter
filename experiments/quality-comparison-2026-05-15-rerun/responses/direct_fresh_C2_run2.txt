@@ -1,0 +1,33 @@
+
+
+A likely untested failure mode of `--bare --tools ""`:
+
+## Silent factsheet ignoring
+
+**The failure:** The bare profile probe only tests `["--bare", "--tools", ""]` with the fixed prompt `"Return exactly: PROFILE_OK"`. It proves the profile *runs*, not that it actually *consults the appended factsheet*.
+
+In `consultCluster`, the factsheet is injected via `--append-system-prompt` (line 96 of `src/clusterConsult.ts`), not via the prompt itself. If the Claude binary's bare profile *silently ignores or truncates `--append-system-prompt`** when `--bare --tools ""` is active, the model would answer from its own knowledge instead of the factsheet — hallucinating while returning a 2xx status and a valid JSON response. The existing probe wouldn't catch it.
+
+**Why it's likely:** This is a real CLI flag interaction risk. `--bare` suppresses tools; `--append-system-prompt` injects content into the system prompt. Whether these compose correctly across Claude versions isn't guaranteed by the availability probe.
+
+**How to detect it:**
+
+1. **Add a "NOT IN CONTEXT" probe** — use a cluster with a factsheet that explicitly *omits* a fact (e.g., don't mention `router_monitor` at all), then ask "What is router_monitor for?" via bare profile. If the model answers anything other than "NOT IN CONTEXT", the factsheet was ignored.
+
+2. **Check the answer content**, not just availability and token count. The existing test at `tests/tools.test.ts:923` only fails the probe on auth errors — it doesn't inspect whether the response is consistent with the factsheet.
+
+```typescript
+// Untested probe variant
+const response = await claude.runPromptWithOptions(
+  "Answer the user's question using the verified cluster factsheet. " +
+  "If the factsheet does not contain the required fact, answer NOT IN CONTEXT.\n\n" +
+  "Question: What specific internal method never mentioned in the factsheet is called by router_monitor?",
+  {
+    extraArgs: ["--bare", "--tools", ""],
+    appendSystemPrompt: "Factsheet JSON: { \"facts\": [] }"
+  }
+);
+// A bare profile that ignores appendSystemPrompt would NOT return "NOT IN CONTEXT"
+```
+
+The stub matrix at `experiments/mcp-workload-2026-05-15/stub-matrix.json` has entries with `--bare --tools ""` combined with factsheet prompts (e.g., lines 1261–1283), but these are matrix *inputs*, not validation checks that assert on the response content for the NOT IN CONTEXT property.

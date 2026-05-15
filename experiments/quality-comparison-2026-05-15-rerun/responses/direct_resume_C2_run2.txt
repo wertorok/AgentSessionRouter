@@ -1,0 +1,23 @@
+
+
+**Multi-turn session state mismatch** — the most likely untested failure.
+
+The health probe (`src/claude.ts:70-102`) runs a single `ping` call. It passes because ping is stateless. But bare mode has different auth behavior than normal Claude Code sessions:
+
+1. **Session was created with `agent` or `focused`** — it carries tool-call history in `.jsonl`. Resuming with `--bare --tools ""` means Claude sees tool history in a no-tools context. It may refuse the resume, ignore the flag, or hallucinate tools.
+
+2. **`--bare` uses API key auth, not Claude Code session auth** — on some machines the health probe passes (Claude Code auth is valid) but `ANTHROPIC_API_KEY` is unset. Bare mode would fail only at consult time.
+
+3. **`result` vs `text` field inconsistency** — `parseClaudeJson` (`src/claude.ts:140-141`) handles both, but if bare emits additional unexpected fields, the parser silently ignores them. A future Claude version might emit `answer` instead of `result` in bare mode and the error would be opaque.
+
+**Detection:** Add a bare-specific health probe at startup after the existing probe:
+
+```ts
+// In healthProbe() after the regular ping succeeds:
+await runCommand(config.claude.command, [
+  "-p", "--bare", "--tools", "", "--output-format", "json",
+  "Return exactly: PROFILE_OK"
+], config.claude.commandTimeoutMs);
+```
+
+Log a new `bare_probe_succeeded` event alongside the existing `bare_probe_failed` (`src/runtime.ts:151`), so the difference is observable before bare is used in a live consult. The current `bare_probe_failed` event only fires if the probe fails — we need confirmation it actually succeeded in the environment.
