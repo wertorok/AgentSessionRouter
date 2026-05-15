@@ -23,6 +23,10 @@ export function parseSessionUpdate(response: string): ParsedSessionUpdate | null
   };
 }
 
+export function cleanCallerAnswer(text: string): string {
+  return stripPseudoToolCalls(text).trim();
+}
+
 function findLastUpdateMarker(response: string): { index: number; end: number } | null {
   let lastMarker: { index: number; end: number } | null = null;
   for (const match of response.matchAll(UPDATE_MARKER_PATTERN)) {
@@ -42,10 +46,17 @@ function findLastUpdateMarker(response: string): { index: number; end: number } 
 }
 
 function cleanAnswerBeforeMarker(text: string): string {
+  return cleanCallerAnswer(text).replace(/\n?```(?:json)?\s*$/i, "").trim();
+}
+
+function stripPseudoToolCalls(text: string): string {
   return text
-    .trim()
-    .replace(/\n?```(?:json)?\s*$/i, "")
-    .trim();
+    .replace(/<minimax:tool_call\b[\s\S]*?<\/minimax:tool_call>/gi, "")
+    .replace(/<tool_call\b[\s\S]*?<\/tool_call>/gi, "")
+    .replace(/<tool-call\b[\s\S]*?<\/tool-call>/gi, "")
+    .replace(/<invoke\b[\s\S]*?<\/invoke>/gi, "")
+    .replace(/\[TOOL_CALL\][\s\S]*?\[\/TOOL_CALL\]/gi, "")
+    .replace(/\n{3,}/g, "\n\n");
 }
 
 function normalizeUpdateJsonText(rawText: string): string {

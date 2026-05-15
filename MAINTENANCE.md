@@ -78,6 +78,47 @@ Do not push cluster/session health handling back to the parent caller. The
 router should answer through the safest available path and expose internal
 route/cache health through monitor telemetry.
 
+## Live Route Sampling
+
+Use `npm run router:sample` when you need a real route-behavior sample across
+fresh clusters, stale clusters, explicit sessions, exact-topic sessions, and
+auto fallback.
+
+The 2026-05-15 route sample produced 64 recent `router_route_decision` rows:
+
+- `cluster_consult_explicit`: 31
+- `claude_consult_explicit_session`: 17
+- `claude_consult_existing_session`: 13
+- `claude_consult_auto`: 3
+
+Observed invariants:
+
+- Fresh `agentsessionrouter-codebase` cluster was the strongest route for
+  covered questions.
+- Stale/needs_prepare clusters still returned caller-visible answers through
+  internal fallback, but they polluted monitor recommendations and should be
+  archived, re-prepared, or explicitly kept as stale fixtures.
+- Direct/session fallback can emit pseudo tool-call markup when Claude tries to
+  search instead of answer. The consult prompt forbids this and
+  `cleanCallerAnswer` strips known pseudo tool-call blocks; keep this as a
+  caller-facing answer hygiene invariant.
+- The hourly cost limiter is expected to stop broad live samples. Treat
+  `COST_LIMIT_EXCEEDED` as a successful safety signal, not as an MCP crash.
+
+When reviewing route samples, inspect both layers:
+
+- `router_monitor.route_health` for path selection and slow/broad routing.
+- `comparison_stats` / `comparison_list` for cluster answer quality.
+
+Do not interpret very low direct shadow scores blindly. If direct answers are
+tool-call plans or search intents, the shadow baseline is measuring fallback
+hygiene, not pure reasoning quality.
+
+For monitor snapshots, keep `sample_limit` conservative. `sample_limit=30`
+worked in the 2026-05-15 route sample; `sample_limit=80` produced an oversized
+or non-JSON MCP error and should be replaced by pagination/truncation before it
+is used routinely.
+
 ## Monitor Signal Filtering Invariants
 
 `NOT IN CONTEXT` is an audit signal, not automatically a coverage failure.

@@ -30,6 +30,10 @@ ${input.question}
 Answer the question directly and practically.
 Do not restate generic background.
 Use the existing decisions when possible.
+This router invocation cannot execute tool calls for you.
+Do not emit XML, JSON, bracketed, or pseudo tool calls such as <tool_call>, <invoke>, [TOOL_CALL], Glob, Read, Grep, or Bash.
+If the registry context is insufficient, answer with the useful context you have and explicitly name what is missing; do not attempt discovery in the response.
+The prose before SESSION_UPDATE_JSON must be the final caller-facing answer, not a plan to inspect files.
 
 At the end of your response, include exactly one machine-readable block:
 

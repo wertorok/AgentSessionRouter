@@ -9,7 +9,7 @@ import { type LockProvider } from "./locks.js";
 import { findBestSessionMatch, normalizeTopicKey } from "./matching.js";
 import { buildBootstrapContext, buildConsultPrompt, buildSessionContext } from "./prompt.js";
 import type { RouterRuntime } from "./runtime.js";
-import { parseSessionUpdate } from "./sessionUpdate.js";
+import { cleanCallerAnswer, parseSessionUpdate } from "./sessionUpdate.js";
 
 export interface ClaudeConsultInput {
   projectId: string;
@@ -485,7 +485,7 @@ export class ConsultService {
         error: message
       });
       return {
-        answer: rawResponse,
+        answer: cleanCallerAnswer(rawResponse) || rawResponse,
         warning: {
           code: ERROR_CODES.SESSION_UPDATE_PARSE_FAILED,
           message: SPEC_ERROR_MESSAGES[ERROR_CODES.SESSION_UPDATE_PARSE_FAILED]

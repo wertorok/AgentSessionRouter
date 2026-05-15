@@ -6,8 +6,9 @@ import { CliClaudeAdapter, parseClaudeJson } from "../src/claude.js";
 import { loadConfig } from "../src/config.js";
 import { MemoryLockProvider } from "../src/locks.js";
 import { findBestSessionMatch, normalizeTokens } from "../src/matching.js";
+import { buildConsultPrompt } from "../src/prompt.js";
 import { resolveProjectId } from "../src/project.js";
-import { parseSessionUpdate } from "../src/sessionUpdate.js";
+import { cleanCallerAnswer, parseSessionUpdate } from "../src/sessionUpdate.js";
 
 describe("core utilities", () => {
   it("loads config paths relative to config file directory", () => {
@@ -128,6 +129,21 @@ describe("core utilities", () => {
 
     expect(match.session?.id).toBe("s1");
     expect(match.score).toBeGreaterThanOrEqual(0.55);
+  });
+
+  it("forbids pseudo tool-call markup in caller-facing consult prompts", () => {
+    const prompt = buildConsultPrompt({
+      projectId: "project",
+      topicHint: "router",
+      trigger: "test",
+      task: "Answer without discovering files.",
+      relevantCode: "",
+      question: "What should the router do?"
+    });
+
+    expect(prompt).toContain("This router invocation cannot execute tool calls for you.");
+    expect(prompt).toContain("Do not emit XML, JSON, bracketed, or pseudo tool calls");
+    expect(prompt).toContain("The prose before SESSION_UPDATE_JSON must be the final caller-facing answer");
   });
 
   it("penalizes stale sessions through recency score", () => {
@@ -254,6 +270,29 @@ SESSION_UPDATE_JSON:
     expect(parsed?.answer).toBe("Answer text.");
     expect(parsed?.update.summary).toBe("Markdown heading marker should parse.");
     expect(parsed?.update.decisions).toEqual(["Accept heading marker"]);
+  });
+
+  it("strips pseudo tool-call blocks from caller-facing answers", () => {
+    const parsed = parseSessionUpdate(`Answer before.
+<minimax:tool_call>
+<invoke name="Grep">
+<parameter name="query">router</parameter>
+</invoke>
+</minimax:tool_call>
+Answer after.
+
+SESSION_UPDATE_JSON:
+{
+  "summary": "Tool calls are stripped.",
+  "decisions": [],
+  "open_questions": [],
+  "files_discussed": [],
+  "tags": [],
+  "aliases": []
+}`);
+
+    expect(parsed?.answer).toBe("Answer before.\n\nAnswer after.");
+    expect(cleanCallerAnswer("[TOOL_CALL]\n{tool => \"Read\"}\n[/TOOL_CALL]\nFinal answer.")).toBe("Final answer.");
   });
 
   it("ignores trailing prose after SESSION_UPDATE_JSON", () => {
