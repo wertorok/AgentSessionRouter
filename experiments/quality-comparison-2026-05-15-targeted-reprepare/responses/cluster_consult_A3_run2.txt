@@ -1,0 +1,7 @@
+
+
+Two layers of behavior are defined:
+
+**Low-level `consultCluster`** (stale-cluster-consult-behavior): When scoped evidence files are stale, it marks the factsheet stale, writes a `cluster_refresh_required` event to `cluster_events` (with `changed_files` in the details), and returns `CLUSTER_FACTSHEET_STALE` internally.
+
+**Caller-facing `cluster_consult` tool** (caller-facing-stale-cluster-consult-behavior): It consumes that internal error — if `autoRefresh` is enabled it revalidates evidence under a per-cluster lock (`cluster-evidence-revalidation:`); if revalidation fails or `autoRefresh` is disabled, it falls back internally to `claude_consult` and returns an answer to the caller.

@@ -1,0 +1,34 @@
+
+
+Here are all the `eventType` values written to `cluster_events` (via `logClusterEvent` calls in `src/`):
+
+**Factsheet events** (from `factsheetEventType` at `src/db.ts:1297`):
+- `factsheet_static_verified`
+- `factsheet_partially_static_verified`
+- `factsheet_llm_verified`
+- `factsheet_partially_llm_verified`
+- `factsheet_generated`
+- `factsheet_rejected`
+
+**Cluster lifecycle / consult:**
+- `cluster_created` (`src/db.ts:688`)
+- `cluster_consult` (`src/clusterConsult.ts:119`)
+- `cluster_consult_failed` (`src/clusterConsult.ts:147`)
+- `cluster_refresh_required` (`src/clusterConsult.ts:68`)
+- `cluster_refresh` (`src/clusterRefresh.ts:97`)
+- `factsheet_stale` (`src/clusterRefresh.ts:80`)
+
+**Fallback / probe:**
+- `cluster_fallback_to_claude_consult` (`src/tools.ts:847`)
+- `cluster_fallback_failed` (`src/tools.ts:847`)
+- `bare_probe_failed` (`src/runtime.ts:151`)
+- `tool_profile_downgraded` (`src/tools.ts:549`, `src/clusterConsult.ts:137`)
+
+**Evidence revalidation:**
+- `evidence_revalidation_failed` (`src/clusterEvidenceRevalidation.ts:100`)
+- `evidence_revalidated` (`src/clusterEvidenceRevalidation.ts:147`)
+
+**LLM verifier:**
+- `llm_verifier` (`src/cluster.ts:235`)
+
+**Note:** `orphan_recovery` is written to `session_events`, not `cluster_events` (`src/db.ts:527`).

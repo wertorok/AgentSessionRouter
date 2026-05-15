@@ -1,0 +1,18 @@
+## Orphan Recovery on Deleted `.jsonl` File
+
+Per the verified factsheet, `claude_consult` detects the missing file via `sessionFileExists(session.claude_session_id)` and handles three distinct paths:
+
+### 1. Explicit `session_id` provided by caller
+`consult.ts` finds the stored session, detects the `.jsonl` is gone, calls `db.markSessionOrphaned(session.id)`, logs `"Selected session was orphaned; creating replacement from registry context."`, and creates a replacement route from bootstrap registry context. (`orphan-explicit-session`)
+
+### 2. Auto-routed exact topic match
+Same detection, calls `db.markSessionOrphaned(selectedSession.id)`, logs `"Exact normalized topic match was orphaned; creating replacement from registry context."`, builds bootstrap context from the old view, creates a replacement route, and sets `wasOrphanRecovery: true`. (`orphan-exact-topic-session`)
+
+### 3. Auto-routed non-exact match
+Same pattern — orphan marking, `"Auto-routed session was orphaned; creating replacement from registry context."`, bootstrap context from `oldView`, replacement route, `wasOrphanRecovery: true`. (`orphan-auto-routed-session`)
+
+### Side effects
+- `markSessionOrphaned` sets the session row status to `'orphaned'` and writes **`orphan_recovery`** to **session_events** (not cluster_events). (`orphan-session-event`)
+- The `claude_consult` output exposes `routing.was_orphan_recovery: true`. (`orphan-routing-output`)
+
+**NOT IN CONTEXT:** The factsheet does not cover whether a new `.jsonl` file is created for the replacement route or how `invokeClaude` behaves when the selected session file is absent at invocation time (only at the orphan-detection point).

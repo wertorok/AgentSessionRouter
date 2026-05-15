@@ -1,0 +1,3 @@
+
+
+The LLM verifier runs in `bare` mode (and `focused` no-tools as fallback) because its purpose is to judge only the supplied evidence — not to discover new facts, infer beyond the evidence, or use tools. The verifier must return VERIFIED only when a claim directly follows from the given evidence, with no inference. Using `agent` mode would allow tool use and new discovery, which would break this semantic-only judgment requirement.

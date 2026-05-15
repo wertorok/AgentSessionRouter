@@ -1,0 +1,5 @@
+
+
+**30**
+
+The sessions schema defines `dormant_after_days INTEGER DEFAULT 30` (src/schema.ts, llm_verified).

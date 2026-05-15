@@ -1,0 +1,30 @@
+
+
+The LLM verifier runs in `bare` mode (and not `agent` mode) for a fundamental reason: **the verifier is a read-only validation pass, not an agentic action**.
+
+This is explicit in several places:
+
+1. **`VerifierToolProfile` type** (`src/profiles.ts:3-4`) explicitly excludes `"agent"`:
+   ```typescript
+   export type ClaudeToolProfile = "bare" | "focused" | "agent";
+   export type VerifierToolProfile = "bare" | "focused";  // agent is not valid
+   ```
+
+2. **The tool description** (`src/tools.ts:504`) describes it as running "no-tools LLM verification":
+   ```javascript
+   "Stores a static_verified factsheet, or runs no-tools LLM verification when verification_mode is llm."
+   ```
+
+3. **The guard in `cluster_prepare`** (`src/tools.ts:526-528`) explicitly blocks `agent` even if requested:
+   ```typescript
+   if (profileSelection.selected === "agent") {
+     throw new Error("LLM verifier cannot use agent profile");
+   }
+   ```
+
+The verifier's job is to re-validate facts already in the factsheet by reviewing the local codebase evidence. It should observe and judge, not act. Running with `agent` profile would give it full tool access (edit files, run commands, etc.), which would:
+- Defeat the purpose of a **verification** step (which should be read-only)
+- Risk the verifier making changes to the codebase during verification
+- Undermine the trust model (we only trust facts verified without tools)
+
+The `bare` profile passes `--bare --tools ""` to disable all tool access.

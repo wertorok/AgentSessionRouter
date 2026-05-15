@@ -1,0 +1,29 @@
+
+
+## Staleness in `cluster_consult`
+
+There are two distinct staleness paths in `src/clusterConsult.ts`:
+
+### 1. Stale at load time — no current factsheet
+
+`loadClusterContext` (lines 173–188) calls `db.getCurrentClusterFactsheet()`. If that returns nothing, it looks for the latest factsheet. If the latest one already has status `"stale"`, it immediately returns an error:
+
+```
+ERROR_CODES.CLUSTER_FACTSHEET_STALE
+```
+
+No further processing happens — the function short-circuits before ever calling the LLM.
+
+### 2. Stale at consult time — files changed on disk
+
+This is the more common path. `consultCluster` (lines 62–79) calls `findStaleFiles`, which re-hashes every tracked file against the stored `ClusterFileHashRecord`. If any file has changed or is missing:
+
+1. **`db.markClusterFactsheetStale(loaded.factsheet.id)`** — updates the factsheet row status to `"stale"` in the DB.
+2. **`db.logClusterEvent({ eventType: "cluster_refresh_required", ... })`** — emits a `cluster_refresh_required` event with the list of changed files.
+3. **Returns error `ERROR_CODES.CLUSTER_FACTSHEET_STALE`** with `details.changed_files` listing the offending paths.
+
+Both paths return the same error code (`CLUSTER_FACTSHEET_STALE`) but with different detail shapes:
+- Load-time stale: includes `factsheet_id` and `factsheet_version`
+- File-change stale: includes `changed_files` array
+
+In both cases the LLM is never invoked — the caller's `direct` tool use falls back to the next agent in the swarm (e.g., `direct_resume`), which can reprepare the factsheet.

@@ -1,0 +1,24 @@
+## Code Path: Missing `.jsonl` Session File on `claude_consult`
+
+Based on `orphan-explicit-session` and related facts in the factsheet, the behavior depends on how the session is selected:
+
+### Explicit `session_id` provided
+1. `consult.ts` calls `sessionFileExists(session.claude_session_id)`
+2. Finds the `.jsonl` is gone → calls `db.markSessionOrphaned(session.id)`
+3. Creates a replacement route from **bootstrap registry context** (the stored session metadata)
+4. Returns output with `routing.was_orphan_recovery: true`
+
+### Auto-routed (exact topic match)
+1. Finds an exact normalized-topic session in registry
+2. Checks `.jsonl` → file missing
+3. Calls `db.markSessionOrphaned(selectedSession.id)`
+4. Builds **bootstrap context from the old view** (`buildBootstrapContext(oldView, "orphaned")`)
+5. Creates replacement route; sets `wasOrphanRecovery: true`
+
+### Auto-routed (non-exact match)
+1. Matches a non-exact session
+2. `.jsonl` missing → same orphan path: mark orphaned, build bootstrap context, create replacement, `wasOrphanRecovery: true`
+
+**Key detail**: The `routing.was_orphan_recovery: true` field is exposed in successful output, and tests assert it for both explicit and auto-routed paths (`orphan-routing-output`, `src/consult.ts` evidence).
+
+No orphan-specific event type is written to `cluster_events` for this path — orphaning is a session-table concern, not a cluster-event concern.

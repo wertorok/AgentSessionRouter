@@ -1,0 +1,19 @@
+
+
+**Low-level `consultCluster` function** (from `stale-cluster-consult-behavior`):
+
+- Marks the factsheet stale
+- Logs `cluster_refresh_required` to `cluster_events` with `changed_files`
+- Returns `CLUSTER_FACTSHEET_STALE` internally
+
+**Caller-facing `cluster_consult` tool** (from `caller-facing-stale-cluster-consult-behavior`):
+
+- Consumes the internal `CLUSTER_FACTSHEET_STALE` error
+- **If autoRefresh is enabled**: revalidates evidence under a per-cluster lock
+- **If revalidation fails or autoRefresh is disabled**: falls back internally to `claude_consult` and returns an answer to the caller
+
+The complete event sequence (from `caller-facing-stale-event-sequence`) is:
+
+1. `cluster_refresh_required`
+2. Then either `evidence_revalidated` (success) or `evidence_revalidation_failed` (strict revalidation failure)
+3. Then `cluster_fallback_to_claude_consult` if the fallback answers the caller

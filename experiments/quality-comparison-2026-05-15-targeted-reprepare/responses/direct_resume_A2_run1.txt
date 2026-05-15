@@ -1,0 +1,18 @@
+
+
+Based on grep results across the codebase, the `cluster_events` table receives these event types:
+
+| Event Type | Source |
+|---|---|
+| `cluster_created` | `src/db.ts:688` |
+| `cluster_refresh` | `src/clusterRefresh.ts:97` |
+| `cluster_refresh_required` | `src/clusterConsult.ts:68` |
+| `cluster_consult` | `src/clusterConsult.ts:119` |
+| `cluster_consult_failed` | `src/clusterConsult.ts:147` |
+| `cluster_fallback_to_claude_consult` | `src/tools.ts:847` |
+| `cluster_fallback_failed` | `src/tools.ts:847` |
+| `factsheet_rejected` | `src/cluster.ts:210, 451` |
+| `llm_verifier` | `src/cluster.ts:235` |
+| `evidence_revalidation_failed` | `src/clusterEvidenceRevalidation.ts:100` |
+
+Note: `cluster_consult_fallback` appears in `src/tools.ts:835` as a **trigger name** (for the `cluster_consult_fallback` tool), not as an event type written to the table.

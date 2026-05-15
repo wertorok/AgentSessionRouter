@@ -1,0 +1,23 @@
+## Code Path: Missing `.jsonl` File on `claude_consult`
+
+The factsheet documents three distinct entry points, all converging on the same recovery behavior:
+
+### Step 1 — Detect missing file
+The `claude_consult` call (via `consult.ts`) checks whether the stored `claude_session_id`'s `.jsonl` file still exists, using `sessionFileExists(session.claude_session_id)`.
+
+### Step 2 — Mark orphaned and recover
+If the file is gone, the session is marked orphaned in the registry via `db.markSessionOrphaned()`. A replacement route is then created by building bootstrap context from the old session view, with `wasOrphanRecovery: true`.
+
+### Step 3 — Three flavors (all identical outcome)
+The factsheet distinguishes three routing contexts that each trigger this same recovery:
+
+| Route type | Factsheet fact |
+|---|---|
+| Explicit `session_id` passed to `claude_consult` | `orphan-explicit-session` |
+| Auto-routing finds an **exact** topic match but file is gone | `orphan-exact-topic-session` |
+| Auto-routing finds a **non-exact** match but file is gone | `orphan-auto-routed-session` |
+
+### Step 4 — Output
+The `claude_consult` result exposes `routing.was_orphan_recovery: true` (confirmed by `orphan-routing-output`).
+
+**Bottom line:** The file deletion is silently recovered. The orphaned session is marked in the DB, a fresh route is bootstrapped from registry context, and the caller gets a response with no indication of the gap — only `was_orphan_recovery: true` in the routing metadata.

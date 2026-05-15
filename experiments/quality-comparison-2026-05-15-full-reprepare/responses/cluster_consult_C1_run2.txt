@@ -1,0 +1,9 @@
+
+
+Based on the verified factsheet, 3 ways to make `cluster_refresh` smarter:
+
+1. **AST selectors instead of line ranges** — The spec explicitly leaves open whether factsheets should store exact line ranges, AST selectors, or both. AST selectors are more resilient to code movement and refactors, making stale detection more precise without changing behavior.
+
+2. **focused_refresh mode** — The spec reserves this future mode for scoped-file updates. Only re-validating facts whose evidence files actually changed would be smarter than full re-verification, while preserving verify_only semantics.
+
+3. **Store both line ranges and AST selectors** — Per the open question in the spec, dual storage lets the system prefer AST selectors for accuracy but fall back to line ranges for backward compatibility, improving robustness without breaking existing caller expectations.

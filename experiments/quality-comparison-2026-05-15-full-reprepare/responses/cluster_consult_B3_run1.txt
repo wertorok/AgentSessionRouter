@@ -1,0 +1,17 @@
+
+
+Based on the verified factsheet:
+
+**`static_verified`**
+Occurs when static verification passes — at least one valid fact is stored and no facts were rejected. (Evidence: `verification.rejectedFacts.length === 0 ? "static_verified" : "partial_static"`)
+
+**`llm_verified`**
+Occurs after LLM verification when all facts are accepted — there are no static or LLM rejected facts. (Evidence: `rejectedFacts.length === 0 ? "llm_verified" : "partial_llm"`)
+
+**`partial_llm`**
+Occurs after LLM verification when at least one fact is rejected (either static or LLM) but at least one LLM-verified fact remains stored. It is the degraded state when `llm_verified` conditions are not met. (Evidence: combines both static and LLM rejected facts; `trustState = ... "partial_llm"` when rejected facts exist)
+
+In summary:
+- `static_verified`: clean static pass, no rejections
+- `llm_verified`: clean after both static and LLM passes, no rejections
+- `partial_llm`: degradation after LLM pass with some rejections, but still at least one accepted LLM fact stored

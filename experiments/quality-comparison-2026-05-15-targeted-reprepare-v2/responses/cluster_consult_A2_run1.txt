@@ -1,0 +1,28 @@
+## All `cluster_events` Event Types
+
+From the verified factsheet, the following event types are written to `cluster_events`:
+
+| # | Event Type | Trigger |
+|---|------------|---------|
+| 1 | `cluster_created` | New cluster created |
+| 2 | `cluster_consult` | Successful cluster consult |
+| 3 | `cluster_consult_failed` | Failed cluster consult |
+| 4 | `cluster_refresh` | Successful verify-only refresh |
+| 5 | `cluster_refresh_required` | Low-level stale factsheet detection in `consultCluster` |
+| 6 | `cluster_fallback_to_claude_consult` | `cluster_consult` falls back internally to `claude_consult` |
+| 7 | `cluster_fallback_failed` | Internal fallback from `cluster_consult` → `claude_consult` fails |
+| 8 | `llm_verifier` | LLM verifier path runs |
+| 9 | `factsheet_generated` | Factsheet generated but not yet verified |
+| 10 | `factsheet_static_verified` | Fully statically verified |
+| 11 | `factsheet_partially_static_verified` | Partially statically verified |
+| 12 | `factsheet_llm_verified` | Fully LLM-verified |
+| 13 | `factsheet_partially_llm_verified` | Partially LLM-verified |
+| 14 | `factsheet_rejected` | Factsheet rejected |
+| 15 | `factsheet_stale` | Stale factsheet found by `cluster_refresh` |
+| 16 | `evidence_revalidated` | Successful strict evidence revalidation |
+| 17 | `evidence_revalidation_failed` | Strict evidence revalidation failure |
+| 18 | `tool_profile_downgraded` | Profile downgrade |
+| 19 | `bare_probe_failed` | Bare profile availability probe failure |
+| 20 | `orphan_recovery` | Session marked orphaned (via `markSessionOrphaned`) |
+
+**Total: 20 event types** covering cluster lifecycle, factsheet lifecycle, evidence revalidation, fallback paths, and orphan recovery.

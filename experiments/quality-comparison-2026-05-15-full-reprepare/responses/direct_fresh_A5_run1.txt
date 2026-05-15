@@ -1,0 +1,3 @@
+
+
+The default value is **30**. This is found in `src/schema.ts` where the column is defined as `dormant_after_days INTEGER DEFAULT 30`.

@@ -1,0 +1,29 @@
+
+
+The experiments already have a strong answer from the model. Let me surface the key points concisely.
+
+---
+
+## Likely untested failure mode of `--bare --tools ""`
+
+**Scenario: Session state / auth context mismatch on the first real (non-probe) invocation**
+
+`detectAvailableProfiles` probes bare with `PROFILE_OK` — a single short prompt. It succeeds and sets `bare.available = true`. Then every subsequent real call in that session reuses `["--bare", "--tools", ""]`.
+
+**Two specific failure variants already identified in the experiments:**
+
+### 1. Multi-turn session mode mismatch
+A session created under `agent` or `focused` carries tool-call history. Resuming it under `--bare --tools ""` means Claude sees tool-call history in a no-tools context. The model may reject this or hallucinate tool use despite the flag. The probe was single-turn; the real calls are multi-turn.
+
+### 2. Auth / API key divergence
+`--bare` may authenticate differently — potentially using `ANTHROPIC_API_KEY` from env rather than Claude Code's session auth. If the probe succeeds (ping succeeds) but real prompts hit a path where auth diverges (e.g., different token scope for bare sessions), the first real call silently gets a degraded response.
+
+### How to detect it
+
+1. **Add a multi-turn probe sequence** — after `detectAvailableProfiles` marks bare available, immediately run 2-3 back-and-forth prompts with bare and verify the session remains coherent. A single `PROFILE_OK` probe is insufficient.
+
+2. **Instrument sessionId continuity** — log the sessionId returned from the bare probe vs. the sessionId on the first real call. A mismatch or reset indicates the auth path diverged.
+
+3. **Track `bare.available` per call-type** — distinguish "bare probe succeeded" from "bare multi-turn works." A flag like `bare.verified_multi_turn = false` initially, set true after one real multi-turn call succeeds, would surface the gap.
+
+4. **Check for `tool_invocation_suppressed` or `bare_mode_tool_warning`** in responses — these are the suspicious identifiers the evaluation already flagged as absent. Finding them in a real (non-probe) bare response would be a direct detection signal.

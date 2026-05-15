@@ -1,0 +1,13 @@
+
+
+From `src/profiles.ts:30-38`, the bare tool profile uses these Claude CLI args:
+
+```ts
+["--bare", "--tools", ""]
+```
+
+So the full flags are `--bare --tools ""` (empty string for tools).
+
+For reference, the other profiles differ:
+- **focused**: `["--tools", ""]` (no `--bare`)
+- **agent**: `[]` (no special flags)

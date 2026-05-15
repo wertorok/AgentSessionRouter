@@ -1,0 +1,12 @@
+{
+  "session_id": "0a98a6ed-25c1-48bd-9e45-4b46fc252c99",
+  "duration_ms": 142028,
+  "tokens_in": 374,
+  "tokens_out": 825,
+  "cache_creation_input_tokens": 49797,
+  "cache_read_input_tokens": 33985,
+  "cost_usd": 0.21043125,
+  "reported_total_cost_usd": 0.84662475,
+  "model": "MiniMax-M2.7",
+  "response_path": "/root/projects/AgentSessionRouter/experiments/quality-comparison-2026-05-15-targeted-reprepare/responses/direct_resume_setup.txt"
+}

@@ -1,0 +1,21 @@
+
+
+When the factsheet is stale, `cluster_consult`:
+
+1. **Detects staleness** via `findStaleFiles()` — it re-hashes every tracked file on disk and compares against the stored hashes. Any mismatch (file changed size, content hash differ, or file unreadable) marks it stale.
+
+2. **Marks the factsheet stale in the DB** — `db.markClusterFactsheetStale(loaded.factsheet.id)`
+
+3. **Logs a `cluster_refresh_required` event** with the factsheet id, version, and list of changed files.
+
+4. **Returns an error response** with code `ERROR_CODES.CLUSTER_FACTSHEET_STALE`, halting the consult. The caller gets back:
+   ```json
+   {
+     "error": "CLUSTER_FACTSHEET_STALE",
+     "details": { "changed_files": [...] }
+   }
+   ```
+
+There's also a second staleness path at `src/clusterConsult.ts:176` — if the factsheet exists but its status is already `"stale"` (e.g., a prior run left it in that state), it also returns the same error rather than proceeding.
+
+The core contract: `cluster_consult` will not answer a question against a cluster whose factsheet doesn't reflect the current on-disk state. The caller must trigger a factsheet rebuild before re-consulting.

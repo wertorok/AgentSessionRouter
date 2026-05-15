@@ -1,0 +1,27 @@
+
+## Orphan Recovery Code Path
+
+When a `.jsonl` session file is deleted and `claude_consult` is called, here's the path:
+
+### 1. Missing session file detected
+`consult.ts` calls `sessionFileExists(session.claude_session_id)` which returns `false`.
+
+### 2. Session marked orphaned
+`this.runtime.db.markSessionOrphaned(session.id)` is called, which:
+- Sets the session's `status = 'orphaned'` in the `sessions` table
+- Inserts an **`orphan_recovery`** event into **`session_events`** (not cluster_events)
+
+### 3. Replacement route created
+If this was an **explicit session_id** call: `"Selected session was orphaned; creating replacement from registry context."`
+
+If this was an **auto-routed** session: `"Auto-routed session was orphaned; creating replacement from registry context."` (plus bootstrap context is built from the old view)
+
+### 4. New registry session created
+`invokeClaude` finds no selected session, so it calls `this.runtime.db.createSession` with the new `claudeResponse.sessionId` from Claude.
+
+### 5. Output exposes recovery flag
+The result includes `routing.was_orphan_recovery: true`, which tests assert as `toBe(true)`.
+
+---
+
+**Summary:** The session is marked orphaned (status update + `orphan_recovery` event in `session_events`), a new session is bootstrapped from registry context, and the caller receives `was_orphan_recovery: true` in the routing output.

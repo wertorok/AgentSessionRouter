@@ -1,0 +1,15 @@
+
+
+## 3 Ways to Make `cluster_refresh` Smarter
+
+Based on the verified factsheet:
+
+1. **AST selector precision** (per `cluster-refresh-selector-improvement-open-question`): Currently the spec leaves open whether factsheets store exact line ranges, AST selectors, or both. Using AST-based selectors instead of loose line-range selectors would make re-verification hit the exact code that was previously verified, reducing false staleness from surrounding edits.
+
+2. **Partial re-verification for changed files** (per `cluster-refresh-future-modes` / `focused_refresh`): The spec already reserves `focused_refresh` for scoped-file updates. Rather than marking the whole factsheet stale when *any* scoped file changes, smart partial re-verification could selectively check only facts tied to changed files and re-verify them in isolation.
+
+3. **Per-fact stale tracking** (per `cluster-refresh-stale-semantics`): Currently a changed scoped file marks the entire factsheet stale. A smarter approach would associate each fact with its scoped evidence files and only mark individual facts stale — allowing stable facts to remain trusted while only the affected claims get flagged for LLM re-verification or rejection.
+
+---
+
+All three are spec-backed improvement areas. None require breaking existing semantics.

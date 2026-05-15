@@ -1,0 +1,31 @@
+
+
+Three concrete improvements to `cluster_refresh` that preserve existing semantics:
+
+---
+
+### 1. Per-fact scoped revalidation (not all-or-nothing staleness)
+
+**Current** (`src/clusterRefresh.ts:50-68`): any changed file marks the entire factsheet stale — even if only 1 of 20 facts depends on it.
+
+**Improvement**: cross-reference `changedFiles` against each fact's evidence paths before marking stale. Only mark the factsheet stale if facts citing those files can't be individually re-verified. This avoids unnecessary `cluster_prepare` churn and lets a changed file in an uncited path keep the cluster active. The `clusterEvidenceRevalidation.ts` selector-level checking already proves this is feasible — the gap is that `cluster_refresh` doesn't use it as a pre-staleness filter.
+
+---
+
+### 2. Incremental hash rotation (make `verify_only` self-healing)
+
+**Current**: when all checks pass, `cluster_file_hashes` rows are unchanged and the cluster stays whatever state it was in. The operator must run a full `cluster_prepare` to get back to `active`.
+
+**Improvement**: after `verifyFactsheetStatic` passes and `changedFiles` is empty, update `cluster_file_hashes` in-place with the new hash+size+timestamp and promote the cluster to `active` in the same transaction. `db.markClusterFactsheetFresh` (`src/db.ts:881`) already handles trust-state promotion — the missing piece is updating the `cluster_file_hashes` rows atomically. A `verify_only` refresh becomes a self-contained healing operation rather than a diagnostic that still requires a separate `cluster_prepare`.
+
+---
+
+### 3. Volatility-adaptive staleness threshold
+
+**Current**: a volatile file that changes daily causes `cluster_consult` to fall back every single time, log `evidence_revalidation_failed` repeatedly, and never stabilize.
+
+**Improvement**: track per-cluster consecutive failure rate in `cluster_events`. When the same file triggers staleness more than N times in a sliding window (e.g., 3 failures in 1 hour), emit a `cluster_evidence_volatile` event with the offending file path and suggest the operator either broaden the factsheet to cover that file's behavior or remove it from evidence citations. This converts a silent degradation loop into an actionable signal — and the cluster can be marked `needs_prepare` to pause `cluster_consult` routing until the operator intervenes.
+
+---
+
+None of these change the `ClusterRefreshResult` shape, the `mode: "verify_only"` contract, or the error code semantics — they only enrich the internal decision logic within the existing code paths.

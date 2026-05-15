@@ -1,0 +1,19 @@
+
+
+Based on the verified factsheet, the following event types are written to `cluster_events`:
+
+1. `cluster_created`
+2. `llm_verifier`
+3. `cluster_consult`
+4. `cluster_consult_failed`
+5. `cluster_refresh_required`
+6. `evidence_revalidation_failed`
+7. `evidence_revalidated`
+8. `cluster_fallback_to_claude_consult`
+9. `cluster_fallback_failed`
+10. `bare_probe_failed`
+11. `tool_profile_downgraded`
+12. `cluster_refresh`
+13. `factsheet_stale`
+
+**Total: 13 event types.**

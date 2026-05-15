@@ -1,0 +1,9 @@
+
+
+## Likely Untested Failure Mode
+
+**Failure:** `--bare --tools ""` silently succeeds on an older Claude version that accepts the args but produces degraded or non-standard output (e.g., missing session IDs, malformed JSON).
+
+**Detection:** Watch for `bare_probe_failed` in cluster_events. Additionally, assert that consult outputs include valid `sessionId` and conform to expected response schema — not just that the call completes without error.
+
+The factsheet documents `bare_probe_failed` as the router's built-in sentinel for this path, but it likely only tests the probe itself, not the downstream output shape when args are accepted by an incompatible version.

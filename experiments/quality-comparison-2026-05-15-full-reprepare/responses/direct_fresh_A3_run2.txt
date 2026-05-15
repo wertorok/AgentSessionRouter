@@ -1,0 +1,23 @@
+
+
+When the factsheet is stale, `cluster_consult` takes **two different failure paths** depending on where staleness is detected:
+
+### 1. At load time — `loadClusterContext` (lines 173–184)
+
+If a cluster has **no current factsheet** but the latest factsheet has `status === "stale"`, it returns an error immediately:
+
+```
+ERROR_CODES.CLUSTER_FACTSHEET_STALE
+```
+
+The error details include the stale factsheet's `id` and `version`.
+
+### 2. At consult time — `consultCluster` (lines 62–79)
+
+If a current factsheet **exists but source files have changed**, `findStaleFiles` detects drift by comparing file hashes and sizes against the stored `ClusterFileHashRecord[]`. When any file is stale (hash mismatch, size mismatch, or file missing):
+
+1. **Marks the factsheet stale** in the DB: `db.markClusterFactsheetStale(loaded.factsheet.id)`
+2. **Logs a `cluster_refresh_required` event** with the list of changed files
+3. **Returns the same `CLUSTER_FACTSHEET_STALE` error** with `changed_files` in the details
+
+In both cases theconsult is aborted — no LLM call is made. The caller must re-run the factsheet preparation pipeline before retrying.

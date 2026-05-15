@@ -1,0 +1,27 @@
+
+
+Here are 3 concrete improvements to `clusterRefresh` that preserve existing behavior while reducing wasted work:
+
+---
+
+**1. File-type-aware change scoring (skip noise-only changes)**
+
+`findChangedFiles` currently treats any byte difference as a meaningful change. Add a lightweight heuristic: classify changes as *structural* vs *incidental* (whitespace, comments, formatting). Only structural changes increment a "change severity" score. If severity is low (e.g., only formatting/comments changed), skip factsheet re-verification entirely and mark fresh immediately — most facts are unaffected.
+
+`src/clusterRefresh.ts:150` — extend `findChangedFiles` to return a severity level alongside the changed file list.
+
+---
+
+**2. Incremental fact-to-file lineage**
+
+Currently if 1 of 50 tracked files changes, `verifyFactsheetStatic` re-checks all 50 facts. Track which facts were derived from which files (stored as a new `fact_dependencies` field in the factsheet content). On refresh, only re-verify facts whose source files actually changed. Facts from unchanged files carry forward with their prior `confidence` tag intact.
+
+`src/db.ts` — add a `fact_dependencies: Record<string, string[]>` map to `ClusterFactsheetRecord`, and filter in `refreshCluster` at line 55 before calling `verifyFactsheetStatic`.
+
+---
+
+**3. Graceful degradation on verify failure**
+
+Currently if `verifyFactsheetStatic` throws, the factsheet is marked stale and an error is returned — even if the file changes are unrelated to the verification failure. Instead, distinguish between *detectable staleness* (changed files + rejected facts) and *unverifiable state* (internal error). Return the success shape with `fresh: false` and a `verification_bypassed: true` flag when verification fails for non-staleness reasons, allowing callers to decide whether to block or proceed.
+
+`src/clusterRefresh.ts:54-66` — catch verification errors and route them to a bypass path that returns a degraded-but-informative success rather than a hard error.

@@ -1,0 +1,20 @@
+
+
+From `src/schema.ts:113-126`:
+
+```sql
+id TEXT PRIMARY KEY,
+project_id TEXT NOT NULL,
+name TEXT NOT NULL,
+description TEXT NOT NULL DEFAULT '',
+tool_profile_default TEXT NOT NULL DEFAULT 'bare',
+static_factsheet_policy TEXT NOT NULL DEFAULT 'deny',
+baseline_session_id TEXT,
+status TEXT NOT NULL DEFAULT 'active',
+trust_state TEXT NOT NULL DEFAULT 'unprepared',
+created_at TEXT NOT NULL,
+last_used TEXT NOT NULL,
+UNIQUE(project_id, id)
+```
+
+**11 fields**: `id`, `project_id`, `name`, `description`, `tool_profile_default`, `static_factsheet_policy`, `baseline_session_id`, `status`, `trust_state`, `created_at`, `last_used`.

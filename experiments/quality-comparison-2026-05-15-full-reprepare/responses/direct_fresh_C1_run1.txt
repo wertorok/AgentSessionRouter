@@ -1,0 +1,46 @@
+
+
+Here are 3 ways to make `cluster_refresh` smarter without breaking existing semantics:
+
+---
+
+**1. Delta-only rehash: skip files whose mtime hasn't changed since last refresh**
+
+In `findChangedFiles` (`src/clusterRefresh.ts:150`), add a fast-path using `mtime` before computing SHA-256 hashes:
+
+```ts
+const stat = statSync(absolutePath);
+if (stat.mtimeMs === file.mtime_ms) continue; // skip unchanged files
+const content = readFileSync(absolutePath);
+// ... hash check
+```
+
+This preserves exact semantics (same output, same trust path) but cuts I/O for large clusters where only a few files changed. The `file.mtime_ms` field needs to be added to `ClusterFileHashRecord` in `src/db.ts` — a non-breaking schema addition.
+
+---
+
+**2. Partial-stale classification: distinguish "files changed" vs "factsheet structurally broken"**
+
+Currently `cluster_refresh` marks the factsheet fully stale on any changed file. Split the signal into two tiers:
+
+- **File drift** (some files changed, facts structure intact) → emit a `factsheet_drift` event with severity `low` and keep the old factsheet usable for `consultCluster` under a `allow_drift` policy flag.
+- **Structural invalidation** (hash mismatch on files named in `file_references`, or `verifyFactsheetStatic` rejects) → full stale blocking as today.
+
+Add a `stale_severity` field to the return type (`"drift"` vs `"invalidated"`). This doesn't change the error code for existing callers, but gives smarter clients a signal to decide between "re-prep needed" vs "advisory refresh".
+
+---
+
+**3. Incremental `verify_only` with per-fact delta tracking**
+
+The current `verify_only` mode re-runs `verifyFactsheetStatic` over the entire factsheet on every call. Instead, cache per-fact `last_verified_at` timestamps and only re-check facts whose referenced file hashes have changed.
+
+```ts
+// In ClusterFileHashRecord: add last_verified_at
+// In refreshCluster: only re-run verifyFactsheetStatic for facts
+// whose referenced files appear in changedFiles
+const affectedFactIds = loaded.factsheetContent.facts
+  .filter(f => fileTouchesFact(f, changedFiles))
+  .map(f => f.id);
+```
+
+Affected callers get the same `ClusterRefreshSuccess` result, but verification cost scales with delta size rather than cluster size. The `verified_facts` count in the return reflects only re-checked facts; unchanged facts retain prior `verified_at` timestamps.

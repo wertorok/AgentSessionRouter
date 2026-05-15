@@ -1,0 +1,34 @@
+## Trust States: `static_verified`, `partial_llm`, and `llm_verified`
+
+These are values of `ClusterTrustState` (defined in `src/db.ts:86-92`).
+
+### `static_verified`
+**All facts verified by static analysis only, none rejected.**
+
+- Occurs in `src/cluster.ts:131` and `src/cluster.ts:175` when `verification_mode` is `"static"` (or absent) and `rejectedFacts.length === 0` after static verification.
+- The factsheet `status` is set to `"static_verified"`.
+- Facts within it carry `confidence: "static_verified"`.
+
+### `llm_verified`
+**All facts passed LLM verification, none rejected.**
+
+- Occurs in `src/cluster.ts:221` when `verification_mode` is `"llm"`, after both static and LLM verification pass, and `rejectedFacts.length === 0`.
+- The factsheet `status` is `"llm_verified"`.
+- Facts within it carry `confidence: "llm_verified"`.
+
+### `partial_llm`
+**LLM verification ran, but some facts were rejected (or omitted).**
+
+- Occurs in `src/cluster.ts:221` when LLM verification completes but `rejectedFacts.length > 0`.
+- Also derived in `src/clusterRefresh.ts:179` from `inferTrustState` when `status === "llm_verified"` but `omitted_facts > 0`.
+- The factsheet status is `"llm_verified"` (the verification *stage*), but the **trust state** is degraded to `partial_llm` because the omitted/rejected count is non-zero.
+
+### Summary of the hierarchy
+
+| Trust State | Verification Stage | Rejected/Omitted Facts |
+|---|---|---|
+| `static_verified` | static only | none |
+| `llm_verified` | static + LLM | none |
+| `partial_llm` | static + LLM | some rejected/omitted |
+
+There are also `partial_static` (static pass with some rejected) and `untrusted`/`unprepared` at the low end, and `untrusted` at the bottom. The `partial_*` states indicate the verification stage *ran* but produced rejections — meaning some facts couldn't be confirmed.

@@ -1,0 +1,11 @@
+
+
+Based on the verified factsheet:
+
+When `cluster_consult` encounters a stale factsheet (internal `CLUSTER_FACTSHEET_STALE` error), it does the following:
+
+1. **If autoRefresh is enabled**: it revalidates evidence under a per-cluster lock (using `runtime.locks.withLock` with the key `cluster-evidence-revalidation:<clusterId>`) by calling `revalidateClusterEvidence()`.
+
+2. **If revalidation fails or autoRefresh is disabled**: it falls back internally to `claude_consult` and returns an answer to the caller.
+
+Additionally, the low-level `consultCluster` function itself marks the factsheet stale, writes `cluster_refresh_required` to `cluster_events`, and returns `CLUSTER_FACTSHEET_STALE` internally when scoped evidence files are stale.

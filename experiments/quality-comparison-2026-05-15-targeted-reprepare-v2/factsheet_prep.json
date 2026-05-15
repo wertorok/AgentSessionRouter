@@ -1,0 +1,711 @@
+{
+  "project_id": "AgentSessionRouter",
+  "profile_selection": {
+    "requested": "bare",
+    "selected": "bare",
+    "downgraded": false
+  },
+  "cluster_id": "agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v2",
+  "factsheet_id": "factsheet_db6b5e08-5d32-45a9-838f-18f8037948c4",
+  "factsheet_version": 1,
+  "verification_stage": "llm",
+  "trust_state": "llm_verified",
+  "verified_facts": 31,
+  "rejected_facts": 0,
+  "rejected_fact_details": [],
+  "factsheet": {
+    "schema_version": 1,
+    "cluster_id": "agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v2",
+    "summary": "Verified AgentSessionRouter codebase facts for schema, cluster events, cluster consult, profiles, verifier rationale, orphan recovery, refresh extension options, and trust states. Scope: A1, A2, A3, A5, B2.",
+    "facts": [
+      {
+        "id": "clusters-table-fields",
+        "claim": "The clusters table fields are id, project_id, name, description, tool_profile_default, static_factsheet_policy, baseline_session_id, status, trust_state, created_at, and last_used.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/schema.ts",
+            "hash": "sha256:bd12a11f5cfb01e9f17277a589862d581d2823cda2a496589b55d3667ea5f104",
+            "selector": "CREATE TABLE IF NOT EXISTS clusters",
+            "snippet_hash": "sha256:0e4660a418731c338de48b29a3edc7763b1b9fbfa14252146fa5827f20f06d87"
+          },
+          {
+            "path": "src/schema.ts",
+            "hash": "sha256:bd12a11f5cfb01e9f17277a589862d581d2823cda2a496589b55d3667ea5f104",
+            "selector": "id TEXT PRIMARY KEY",
+            "snippet_hash": "sha256:06b4b3cecbd0cfcec661f73be096be354e22e6525b2864f255b2140e94d8f8b3"
+          },
+          {
+            "path": "src/schema.ts",
+            "hash": "sha256:bd12a11f5cfb01e9f17277a589862d581d2823cda2a496589b55d3667ea5f104",
+            "selector": "project_id TEXT NOT NULL",
+            "snippet_hash": "sha256:ec99d98d248c52ada72a0efa41732e0ebe68bcebfb5fbcbeebb4260e49f4f386"
+          },
+          {
+            "path": "src/schema.ts",
+            "hash": "sha256:bd12a11f5cfb01e9f17277a589862d581d2823cda2a496589b55d3667ea5f104",
+            "selector": "name TEXT NOT NULL",
+            "snippet_hash": "sha256:d7629cc4437661b088d87a6ee6bc57cfb3c934732abe1f3173165adb411f90c3"
+          },
+          {
+            "path": "src/schema.ts",
+            "hash": "sha256:bd12a11f5cfb01e9f17277a589862d581d2823cda2a496589b55d3667ea5f104",
+            "selector": "description TEXT NOT NULL DEFAULT ''",
+            "snippet_hash": "sha256:25ac8765b70c3ec09ee862f32cc008485b018918c9302ded5a60f38239e93ce2"
+          },
+          {
+            "path": "src/schema.ts",
+            "hash": "sha256:bd12a11f5cfb01e9f17277a589862d581d2823cda2a496589b55d3667ea5f104",
+            "selector": "tool_profile_default TEXT NOT NULL DEFAULT 'bare'",
+            "snippet_hash": "sha256:04aed87f691852dd395a555b54b946670351c91e2c6c6c775534708ef816a45c"
+          },
+          {
+            "path": "src/schema.ts",
+            "hash": "sha256:bd12a11f5cfb01e9f17277a589862d581d2823cda2a496589b55d3667ea5f104",
+            "selector": "static_factsheet_policy TEXT NOT NULL DEFAULT 'deny'",
+            "snippet_hash": "sha256:c94440de58741885e8d93dcb45bcad10da9187978e612ddff465cb143762a02d"
+          },
+          {
+            "path": "src/schema.ts",
+            "hash": "sha256:bd12a11f5cfb01e9f17277a589862d581d2823cda2a496589b55d3667ea5f104",
+            "selector": "baseline_session_id TEXT",
+            "snippet_hash": "sha256:f0a043423b1cb0359c0bfd45a46b683bf30f34ef096140823e7dbaacad3d9128"
+          },
+          {
+            "path": "src/schema.ts",
+            "hash": "sha256:bd12a11f5cfb01e9f17277a589862d581d2823cda2a496589b55d3667ea5f104",
+            "selector": "status TEXT NOT NULL DEFAULT 'active'",
+            "snippet_hash": "sha256:ff91d20fcba0d46eb1a128721c996f12d00c8c8800d183770c080b4ae770d7a7"
+          },
+          {
+            "path": "src/schema.ts",
+            "hash": "sha256:bd12a11f5cfb01e9f17277a589862d581d2823cda2a496589b55d3667ea5f104",
+            "selector": "trust_state TEXT NOT NULL DEFAULT 'unprepared'",
+            "snippet_hash": "sha256:3ed96cd2a4b244517fbce0a4a26d7bcb0216a1bdfbc93b6b53ef12c16cc927c2"
+          },
+          {
+            "path": "src/schema.ts",
+            "hash": "sha256:bd12a11f5cfb01e9f17277a589862d581d2823cda2a496589b55d3667ea5f104",
+            "selector": "created_at TEXT NOT NULL",
+            "snippet_hash": "sha256:c94ab02b3326bd9905bdd85a584487e42b4a43409ed4eab6c543fbc7e456adaf"
+          },
+          {
+            "path": "src/schema.ts",
+            "hash": "sha256:bd12a11f5cfb01e9f17277a589862d581d2823cda2a496589b55d3667ea5f104",
+            "selector": "last_used TEXT NOT NULL",
+            "snippet_hash": "sha256:2677b773b7092c4add6fee00a93e158b85fa7aba703c345fdff58a245746dee4"
+          }
+        ]
+      },
+      {
+        "id": "cluster-events-table-fields",
+        "claim": "The cluster_events table fields are id, cluster_id, project_id, event_type, details_json, duration_ms, tokens_in, tokens_out, cost_usd, and created_at.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/schema.ts",
+            "hash": "sha256:bd12a11f5cfb01e9f17277a589862d581d2823cda2a496589b55d3667ea5f104",
+            "selector": "CREATE TABLE IF NOT EXISTS cluster_events",
+            "snippet_hash": "sha256:5965398ba129e1bd7aae1ee5954956c19236f1df84732719e4d2622c5c714092"
+          },
+          {
+            "path": "src/schema.ts",
+            "hash": "sha256:bd12a11f5cfb01e9f17277a589862d581d2823cda2a496589b55d3667ea5f104",
+            "selector": "cluster_id TEXT NOT NULL",
+            "snippet_hash": "sha256:a5882a27a1fae4f950dead6bce870f99aebfe8e700daef0cc1d33b644d43c7b5"
+          },
+          {
+            "path": "src/schema.ts",
+            "hash": "sha256:bd12a11f5cfb01e9f17277a589862d581d2823cda2a496589b55d3667ea5f104",
+            "selector": "event_type TEXT NOT NULL",
+            "snippet_hash": "sha256:6b03ddf61e1d76e52f435160af1a7bc4b9b97a936d214ed19a33e4119b274741"
+          },
+          {
+            "path": "src/schema.ts",
+            "hash": "sha256:bd12a11f5cfb01e9f17277a589862d581d2823cda2a496589b55d3667ea5f104",
+            "selector": "details_json TEXT",
+            "snippet_hash": "sha256:b55e1489d07174d94991471c610d2b6d29b8ca4a12b367462d600c91d728264b"
+          },
+          {
+            "path": "src/schema.ts",
+            "hash": "sha256:bd12a11f5cfb01e9f17277a589862d581d2823cda2a496589b55d3667ea5f104",
+            "selector": "duration_ms INTEGER",
+            "snippet_hash": "sha256:d59d6b1d7ae7420086f82cfdec6160bdb3cbeb7f24dde85b4eb195f787c83994"
+          },
+          {
+            "path": "src/schema.ts",
+            "hash": "sha256:bd12a11f5cfb01e9f17277a589862d581d2823cda2a496589b55d3667ea5f104",
+            "selector": "tokens_in INTEGER",
+            "snippet_hash": "sha256:cb1b71104f3d351db69f07880bf9bc661954c9ea0536d2055f2a0a41b668b13a"
+          },
+          {
+            "path": "src/schema.ts",
+            "hash": "sha256:bd12a11f5cfb01e9f17277a589862d581d2823cda2a496589b55d3667ea5f104",
+            "selector": "tokens_out INTEGER",
+            "snippet_hash": "sha256:6d760fbee28984756957250891155b8f31e96d56c7260787a092ce3b2eb65e2b"
+          },
+          {
+            "path": "src/schema.ts",
+            "hash": "sha256:bd12a11f5cfb01e9f17277a589862d581d2823cda2a496589b55d3667ea5f104",
+            "selector": "cost_usd REAL",
+            "snippet_hash": "sha256:27620dc06274b027e3999dcd47d9dc35d4f29c69c767ffaddd840635eb400ca9"
+          },
+          {
+            "path": "src/schema.ts",
+            "hash": "sha256:bd12a11f5cfb01e9f17277a589862d581d2823cda2a496589b55d3667ea5f104",
+            "selector": "created_at TEXT NOT NULL",
+            "snippet_hash": "sha256:c94ab02b3326bd9905bdd85a584487e42b4a43409ed4eab6c543fbc7e456adaf"
+          }
+        ]
+      },
+      {
+        "id": "cluster-event-factsheet-static-verified",
+        "claim": "A fully statically verified factsheet writes factsheet_static_verified to cluster_events.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/db.ts",
+            "hash": "sha256:3cb2cbe2830c8de641df41f40978b4870613ae682b9929e4a5b0a0661e362a44",
+            "selector": "function factsheetEventType",
+            "snippet_hash": "sha256:02c476577b9e579bd2a9a1432a3f04f45a7ad0b1aa13bde08ebab1f99189e1ab"
+          },
+          {
+            "path": "src/db.ts",
+            "hash": "sha256:3cb2cbe2830c8de641df41f40978b4870613ae682b9929e4a5b0a0661e362a44",
+            "selector": "return \"factsheet_static_verified\"",
+            "snippet_hash": "sha256:4884ee0597903abea759ff93dcd2ffc2a4710dc221d2a0c9afcd02b69cf7e688"
+          }
+        ]
+      },
+      {
+        "id": "cluster-event-factsheet-partially-static-verified",
+        "claim": "A partially statically verified factsheet writes factsheet_partially_static_verified to cluster_events.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/db.ts",
+            "hash": "sha256:3cb2cbe2830c8de641df41f40978b4870613ae682b9929e4a5b0a0661e362a44",
+            "selector": "function factsheetEventType",
+            "snippet_hash": "sha256:02c476577b9e579bd2a9a1432a3f04f45a7ad0b1aa13bde08ebab1f99189e1ab"
+          },
+          {
+            "path": "src/db.ts",
+            "hash": "sha256:3cb2cbe2830c8de641df41f40978b4870613ae682b9929e4a5b0a0661e362a44",
+            "selector": "return \"factsheet_partially_static_verified\"",
+            "snippet_hash": "sha256:bbf205c64aefe39780421cf2853db78241fb01b9a89acae75666d142bb08d803"
+          }
+        ]
+      },
+      {
+        "id": "cluster-event-factsheet-llm-verified",
+        "claim": "A fully LLM-verified factsheet writes factsheet_llm_verified to cluster_events.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/db.ts",
+            "hash": "sha256:3cb2cbe2830c8de641df41f40978b4870613ae682b9929e4a5b0a0661e362a44",
+            "selector": "function factsheetEventType",
+            "snippet_hash": "sha256:02c476577b9e579bd2a9a1432a3f04f45a7ad0b1aa13bde08ebab1f99189e1ab"
+          },
+          {
+            "path": "src/db.ts",
+            "hash": "sha256:3cb2cbe2830c8de641df41f40978b4870613ae682b9929e4a5b0a0661e362a44",
+            "selector": "return \"factsheet_llm_verified\"",
+            "snippet_hash": "sha256:ae980c7081a47082c3939c8c3fee62e1ce5698d7999b671b75ba0d4012097286"
+          }
+        ]
+      },
+      {
+        "id": "cluster-event-factsheet-partially-llm-verified",
+        "claim": "A partially LLM-verified factsheet writes factsheet_partially_llm_verified to cluster_events.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/db.ts",
+            "hash": "sha256:3cb2cbe2830c8de641df41f40978b4870613ae682b9929e4a5b0a0661e362a44",
+            "selector": "function factsheetEventType",
+            "snippet_hash": "sha256:02c476577b9e579bd2a9a1432a3f04f45a7ad0b1aa13bde08ebab1f99189e1ab"
+          },
+          {
+            "path": "src/db.ts",
+            "hash": "sha256:3cb2cbe2830c8de641df41f40978b4870613ae682b9929e4a5b0a0661e362a44",
+            "selector": "return \"factsheet_partially_llm_verified\"",
+            "snippet_hash": "sha256:10c51eabaaac4999dea2d0af2cc5cf60b50279d311c1cdcc73e613af12214441"
+          }
+        ]
+      },
+      {
+        "id": "cluster-event-factsheet-generated",
+        "claim": "A generated but not verified factsheet writes factsheet_generated to cluster_events.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/db.ts",
+            "hash": "sha256:3cb2cbe2830c8de641df41f40978b4870613ae682b9929e4a5b0a0661e362a44",
+            "selector": "function factsheetEventType",
+            "snippet_hash": "sha256:02c476577b9e579bd2a9a1432a3f04f45a7ad0b1aa13bde08ebab1f99189e1ab"
+          },
+          {
+            "path": "src/db.ts",
+            "hash": "sha256:3cb2cbe2830c8de641df41f40978b4870613ae682b9929e4a5b0a0661e362a44",
+            "selector": "factsheet_generated",
+            "snippet_hash": "sha256:9772af5c070c9c2b55a98ef7544b3ada12bd326ff206378adbd85b4768a135e9"
+          }
+        ]
+      },
+      {
+        "id": "cluster-event-factsheet-rejected",
+        "claim": "A rejected factsheet writes factsheet_rejected to cluster_events.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/db.ts",
+            "hash": "sha256:3cb2cbe2830c8de641df41f40978b4870613ae682b9929e4a5b0a0661e362a44",
+            "selector": "function factsheetEventType",
+            "snippet_hash": "sha256:02c476577b9e579bd2a9a1432a3f04f45a7ad0b1aa13bde08ebab1f99189e1ab"
+          },
+          {
+            "path": "src/db.ts",
+            "hash": "sha256:3cb2cbe2830c8de641df41f40978b4870613ae682b9929e4a5b0a0661e362a44",
+            "selector": "factsheet_rejected",
+            "snippet_hash": "sha256:13cedf09dffa946951beb4aa1e9a0c30313a6f4cfc8e1b059b6e00a55d81d356"
+          },
+          {
+            "path": "src/cluster.ts",
+            "hash": "sha256:34bf83ce040dd4eed6d14944fff1df909a6c8ab8aac9230693b0574361f9f383",
+            "selector": "eventType: \"factsheet_rejected\"",
+            "snippet_hash": "sha256:0bc3055598ca08b4c482e09de2f8dcc34dd120c5323f7252ac8330ac949ec01b"
+          }
+        ]
+      },
+      {
+        "id": "cluster-event-created",
+        "claim": "Creating a new cluster writes cluster_created to cluster_events.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/db.ts",
+            "hash": "sha256:3cb2cbe2830c8de641df41f40978b4870613ae682b9929e4a5b0a0661e362a44",
+            "selector": "eventType: \"cluster_created\"",
+            "snippet_hash": "sha256:7cb90e859da50356f606a5437c6edaf5157211204a5383a3a216b0958c189028"
+          }
+        ]
+      },
+      {
+        "id": "cluster-event-llm-verifier",
+        "claim": "The LLM verifier path writes llm_verifier to cluster_events.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/cluster.ts",
+            "hash": "sha256:34bf83ce040dd4eed6d14944fff1df909a6c8ab8aac9230693b0574361f9f383",
+            "selector": "eventType: \"llm_verifier\"",
+            "snippet_hash": "sha256:74b030c902bf13a4ab9f4f9ef586958fdfe1f5b58abeb2d18cfed7337fc174ec"
+          }
+        ]
+      },
+      {
+        "id": "cluster-event-consult",
+        "claim": "A successful cluster consult writes cluster_consult to cluster_events.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/clusterConsult.ts",
+            "hash": "sha256:89ab59a12c8267421c5663d8a2318c4b09cf42169f77b2a4ad64a33ea2a1deaa",
+            "selector": "eventType: \"cluster_consult\"",
+            "snippet_hash": "sha256:d8f43d023df56df59094715e7f38350ff9f78f3becddcf9996154d850a92ffbc"
+          }
+        ]
+      },
+      {
+        "id": "cluster-event-consult-failed",
+        "claim": "A failed cluster consult writes cluster_consult_failed to cluster_events.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/clusterConsult.ts",
+            "hash": "sha256:89ab59a12c8267421c5663d8a2318c4b09cf42169f77b2a4ad64a33ea2a1deaa",
+            "selector": "eventType: \"cluster_consult_failed\"",
+            "snippet_hash": "sha256:4683e322eb6ea2dc1a7aff055a28f777a3d73c64430759c92f651e15c0431e15"
+          }
+        ]
+      },
+      {
+        "id": "cluster-event-refresh-required",
+        "claim": "The low-level stale factsheet detection in consultCluster writes cluster_refresh_required to cluster_events.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/clusterConsult.ts",
+            "hash": "sha256:89ab59a12c8267421c5663d8a2318c4b09cf42169f77b2a4ad64a33ea2a1deaa",
+            "selector": "eventType: \"cluster_refresh_required\"",
+            "snippet_hash": "sha256:89144092719d6fbe2067fa85275ffa746565909342bc4d15da3a7881da506b9a"
+          }
+        ]
+      },
+      {
+        "id": "cluster-event-evidence-revalidation-failed",
+        "claim": "Strict cluster evidence revalidation failures write evidence_revalidation_failed to cluster_events.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/clusterEvidenceRevalidation.ts",
+            "hash": "sha256:bfd21ccaf422f8383019d16910a61076e2279d2260d4989254b4cc143b4dd6c7",
+            "selector": "eventType: \"evidence_revalidation_failed\"",
+            "snippet_hash": "sha256:7bbb49818e78b836c541c45aeea81c9a6b66a1b3e76e1a0be16bb372d81b9409"
+          }
+        ]
+      },
+      {
+        "id": "cluster-event-evidence-revalidated",
+        "claim": "Successful strict cluster evidence revalidation writes evidence_revalidated to cluster_events.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/clusterEvidenceRevalidation.ts",
+            "hash": "sha256:bfd21ccaf422f8383019d16910a61076e2279d2260d4989254b4cc143b4dd6c7",
+            "selector": "eventType: \"evidence_revalidated\"",
+            "snippet_hash": "sha256:9eb2968113b17d5a09cec9a816990cba32da4ba3097f0b50a541b1b276c6a2b3"
+          }
+        ]
+      },
+      {
+        "id": "cluster-event-fallback-to-claude-consult",
+        "claim": "When cluster_consult falls back internally to normal claude_consult, it writes cluster_fallback_to_claude_consult to cluster_events.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/tools.ts",
+            "hash": "sha256:b0b141e879007f67372b3195fb5c4b192c0c9358ac10a538efe57da78e01cbf0",
+            "selector": "cluster_fallback_to_claude_consult",
+            "snippet_hash": "sha256:41288697337f142891caf8c97c41fd96b7e4f6ac40faf5682d5776eec8f94738"
+          }
+        ]
+      },
+      {
+        "id": "cluster-event-fallback-failed",
+        "claim": "If the internal fallback from cluster_consult to claude_consult fails, it writes cluster_fallback_failed to cluster_events.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/tools.ts",
+            "hash": "sha256:b0b141e879007f67372b3195fb5c4b192c0c9358ac10a538efe57da78e01cbf0",
+            "selector": "cluster_fallback_failed",
+            "snippet_hash": "sha256:41288697337f142891caf8c97c41fd96b7e4f6ac40faf5682d5776eec8f94738"
+          }
+        ]
+      },
+      {
+        "id": "cluster-event-bare-probe-failed",
+        "claim": "If the bare profile availability probe fails, the router writes bare_probe_failed to cluster_events.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/runtime.ts",
+            "hash": "sha256:074b7801243d5671778b2cbeb928a3cedaacd057b724d13d9b1c18ebf70373a2",
+            "selector": "eventType: \"bare_probe_failed\"",
+            "snippet_hash": "sha256:26b9461f4aa4ba08d14892b470ce3b18e02b4cb2797085be72752a7447f7c482"
+          }
+        ]
+      },
+      {
+        "id": "cluster-event-downgraded",
+        "claim": "A profile downgrade writes tool_profile_downgraded to cluster_events.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/tools.ts",
+            "hash": "sha256:b0b141e879007f67372b3195fb5c4b192c0c9358ac10a538efe57da78e01cbf0",
+            "selector": "eventType: \"tool_profile_downgraded\"",
+            "snippet_hash": "sha256:61e4285bbe96407d3b3f0fb430d9c8d701ceddb2ec89c40dea65273a2265135e"
+          }
+        ]
+      },
+      {
+        "id": "cluster-event-refresh",
+        "claim": "A successful verify-only cluster refresh writes cluster_refresh to cluster_events.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/clusterRefresh.ts",
+            "hash": "sha256:2146376796e691e6214b82c871f96c97b5d5ae0c7f60af7a0beca56e19130b6f",
+            "selector": "eventType: \"cluster_refresh\"",
+            "snippet_hash": "sha256:88beff3f43488b100989f795aceca1fe812d00b2454552c133a57a1ed4ceb9d4"
+          }
+        ]
+      },
+      {
+        "id": "cluster-event-factsheet-stale",
+        "claim": "A stale factsheet found by cluster_refresh writes factsheet_stale to cluster_events.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/clusterRefresh.ts",
+            "hash": "sha256:2146376796e691e6214b82c871f96c97b5d5ae0c7f60af7a0beca56e19130b6f",
+            "selector": "eventType: \"factsheet_stale\"",
+            "snippet_hash": "sha256:a2064bebbf9ea05c65b05c27ef3116946f798d74457d108659815f44ecf95551"
+          }
+        ]
+      },
+      {
+        "id": "stale-cluster-consult-behavior",
+        "claim": "The low-level consultCluster function marks the factsheet stale, logs cluster_refresh_required with changed_files, and returns CLUSTER_FACTSHEET_STALE internally when scoped evidence files are stale.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/clusterConsult.ts",
+            "hash": "sha256:89ab59a12c8267421c5663d8a2318c4b09cf42169f77b2a4ad64a33ea2a1deaa",
+            "selector": "db.markClusterFactsheetStale",
+            "snippet_hash": "sha256:f2e3582d7dc6fc57fd5f84aa6502bcaef47237ed882a2de6f1764ac727514154"
+          },
+          {
+            "path": "src/clusterConsult.ts",
+            "hash": "sha256:89ab59a12c8267421c5663d8a2318c4b09cf42169f77b2a4ad64a33ea2a1deaa",
+            "selector": "ERROR_CODES.CLUSTER_FACTSHEET_STALE",
+            "snippet_hash": "sha256:45f5c703b7a1a6acf84c6aa663ffe8c7e00869b06b12a7db83b57ffd171d58ff"
+          },
+          {
+            "path": "tests/clusterConsult.test.ts",
+            "hash": "sha256:9c4581be2cfea33b4a75e00c29ffc24873194549508b1563db407e2762a26a75",
+            "selector": "should not run",
+            "snippet_hash": "sha256:86b7795209979375a2fd17b193b0c7e6c20c1721f162380693abd17c7043fa5b"
+          }
+        ]
+      },
+      {
+        "id": "caller-facing-stale-cluster-consult-behavior",
+        "claim": "The caller-facing cluster_consult tool consumes internal CLUSTER_FACTSHEET_STALE errors: if autoRefresh is enabled it revalidates evidence under a per-cluster lock; if revalidation fails or autoRefresh is disabled, it falls back internally to claude_consult and returns an answer to the caller.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/tools.ts",
+            "hash": "sha256:b0b141e879007f67372b3195fb5c4b192c0c9358ac10a538efe57da78e01cbf0",
+            "selector": "result.error.code !== ERROR_CODES.CLUSTER_FACTSHEET_STALE",
+            "snippet_hash": "sha256:de7c28df566ec244dbad8b9fb14123d98078df8737be0d6b486fdf3158bff038"
+          },
+          {
+            "path": "src/tools.ts",
+            "hash": "sha256:b0b141e879007f67372b3195fb5c4b192c0c9358ac10a538efe57da78e01cbf0",
+            "selector": "runtime.locks.withLock(`cluster-evidence-revalidation:",
+            "snippet_hash": "sha256:fe15445f7f91a5d40ad6f1cbe7a9e9bbd90b1084ce535cc55c6b32c1bec2dc47"
+          },
+          {
+            "path": "src/tools.ts",
+            "hash": "sha256:b0b141e879007f67372b3195fb5c4b192c0c9358ac10a538efe57da78e01cbf0",
+            "selector": "revalidateClusterEvidence(runtime.db, runtime.cwd",
+            "snippet_hash": "sha256:5c2ef7d2bbaf9727c9674314c0954aed2f673d17136bf9c9ce107da3a19a703b"
+          },
+          {
+            "path": "src/tools.ts",
+            "hash": "sha256:b0b141e879007f67372b3195fb5c4b192c0c9358ac10a538efe57da78e01cbf0",
+            "selector": "return fallbackToClaudeConsult(runtime, consultService, input, revalidation)",
+            "snippet_hash": "sha256:f07dfc61ea53079c81f889010658a2bc759bed9ae558e28724f157ebe066456d"
+          }
+        ]
+      },
+      {
+        "id": "caller-facing-stale-event-flow",
+        "claim": "The caller-facing stale cluster_consult path logs cluster_refresh_required at low-level detection, evidence_revalidated on successful strict revalidation, evidence_revalidation_failed when strict revalidation fails, and cluster_fallback_to_claude_consult when it answers by internal claude_consult fallback.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/clusterConsult.ts",
+            "hash": "sha256:89ab59a12c8267421c5663d8a2318c4b09cf42169f77b2a4ad64a33ea2a1deaa",
+            "selector": "eventType: \"cluster_refresh_required\"",
+            "snippet_hash": "sha256:89144092719d6fbe2067fa85275ffa746565909342bc4d15da3a7881da506b9a"
+          },
+          {
+            "path": "src/clusterEvidenceRevalidation.ts",
+            "hash": "sha256:bfd21ccaf422f8383019d16910a61076e2279d2260d4989254b4cc143b4dd6c7",
+            "selector": "eventType: \"evidence_revalidated\"",
+            "snippet_hash": "sha256:9eb2968113b17d5a09cec9a816990cba32da4ba3097f0b50a541b1b276c6a2b3"
+          },
+          {
+            "path": "src/clusterEvidenceRevalidation.ts",
+            "hash": "sha256:bfd21ccaf422f8383019d16910a61076e2279d2260d4989254b4cc143b4dd6c7",
+            "selector": "eventType: \"evidence_revalidation_failed\"",
+            "snippet_hash": "sha256:7bbb49818e78b836c541c45aeea81c9a6b66a1b3e76e1a0be16bb372d81b9409"
+          },
+          {
+            "path": "src/tools.ts",
+            "hash": "sha256:b0b141e879007f67372b3195fb5c4b192c0c9358ac10a538efe57da78e01cbf0",
+            "selector": "cluster_fallback_to_claude_consult",
+            "snippet_hash": "sha256:41288697337f142891caf8c97c41fd96b7e4f6ac40faf5682d5776eec8f94738"
+          }
+        ]
+      },
+      {
+        "id": "sessions-dormant-default",
+        "claim": "The sessions schema default for dormant_after_days is 30.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/schema.ts",
+            "hash": "sha256:bd12a11f5cfb01e9f17277a589862d581d2823cda2a496589b55d3667ea5f104",
+            "selector": "dormant_after_days INTEGER DEFAULT 30",
+            "snippet_hash": "sha256:46b5ec54fc0729e9c2dca0dc6b9e822b0ad04648df23511927cb8e9c4153277f"
+          }
+        ]
+      },
+      {
+        "id": "orphan-explicit-session",
+        "claim": "When claude_consult is given a session_id and the stored Claude session file no longer exists, the router marks the old registry session orphaned and creates a replacement route from bootstrap registry context.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/consult.ts",
+            "hash": "sha256:fc63f2c4cf86c91d0c980699c7fce8eee58a739682d3456df124c9a684ef44dc",
+            "selector": "sessionFileExists(session.claude_session_id)",
+            "snippet_hash": "sha256:618099d5b7760dee1d8070bee079c578e541cb2651d071f5829cbeda2c122699"
+          },
+          {
+            "path": "src/consult.ts",
+            "hash": "sha256:fc63f2c4cf86c91d0c980699c7fce8eee58a739682d3456df124c9a684ef44dc",
+            "selector": "this.runtime.db.markSessionOrphaned(session.id)",
+            "snippet_hash": "sha256:4a710fd9b57ac78c4395c3baeb9ad5861102c4f35cb0d2ba6f1095bcf3adb401"
+          },
+          {
+            "path": "src/consult.ts",
+            "hash": "sha256:fc63f2c4cf86c91d0c980699c7fce8eee58a739682d3456df124c9a684ef44dc",
+            "selector": "Selected session was orphaned; creating replacement from registry context.",
+            "snippet_hash": "sha256:636ddd8e84ef9dd0a226bf12369901fe0de21f6850395abccfa9567e82b9367d"
+          }
+        ]
+      },
+      {
+        "id": "orphan-session-event",
+        "claim": "markSessionOrphaned sets session status to orphaned and writes an orphan_recovery event.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/db.ts",
+            "hash": "sha256:3cb2cbe2830c8de641df41f40978b4870613ae682b9929e4a5b0a0661e362a44",
+            "selector": "markSessionOrphaned(sessionId: string)",
+            "snippet_hash": "sha256:724c7b60f7771dd9a149375548f371d0de54ef04f2430438b8b4a5067e83a71f"
+          },
+          {
+            "path": "src/db.ts",
+            "hash": "sha256:3cb2cbe2830c8de641df41f40978b4870613ae682b9929e4a5b0a0661e362a44",
+            "selector": "UPDATE sessions SET status = 'orphaned'",
+            "snippet_hash": "sha256:15bba02e835d15f6f1f566159384f3b191441e116d6d12cef02ecf1af04fcd4e"
+          },
+          {
+            "path": "src/db.ts",
+            "hash": "sha256:3cb2cbe2830c8de641df41f40978b4870613ae682b9929e4a5b0a0661e362a44",
+            "selector": "eventType: \"orphan_recovery\"",
+            "snippet_hash": "sha256:78819c06666e0475bcabf1a8467df30bf9ee1d99e90c7d3fab3a869029a06928"
+          }
+        ]
+      },
+      {
+        "id": "orphan-exact-topic-session",
+        "claim": "When auto-routing finds an exact topic session but its Claude session file is missing, claude_consult marks it orphaned, builds bootstrap context from the old view, creates a replacement route, and sets wasOrphanRecovery true.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/consult.ts",
+            "hash": "sha256:fc63f2c4cf86c91d0c980699c7fce8eee58a739682d3456df124c9a684ef44dc",
+            "selector": "Exact normalized topic match was orphaned; creating replacement from registry context.",
+            "snippet_hash": "sha256:b3b1156594169f2993b2c391b2c77817f974be1664b374db9ee98f0576132391"
+          },
+          {
+            "path": "src/consult.ts",
+            "hash": "sha256:fc63f2c4cf86c91d0c980699c7fce8eee58a739682d3456df124c9a684ef44dc",
+            "selector": "this.runtime.db.markSessionOrphaned(selectedSession.id)",
+            "snippet_hash": "sha256:7beca759a6542756726a6ae97de9a4d98aa2ccac254cfbac4ab204f6d7874dcf"
+          },
+          {
+            "path": "src/consult.ts",
+            "hash": "sha256:fc63f2c4cf86c91d0c980699c7fce8eee58a739682d3456df124c9a684ef44dc",
+            "selector": "wasOrphanRecovery: true",
+            "snippet_hash": "sha256:24bae0dab9d9cf89ea135473ec51843c59cc80953e33644ad1003aaf62797302"
+          }
+        ]
+      },
+      {
+        "id": "orphan-auto-routed-session",
+        "claim": "When a matched non-exact auto-routed session has no Claude session file, claude_consult marks it orphaned, builds bootstrap context, creates a replacement route, and sets wasOrphanRecovery true.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/consult.ts",
+            "hash": "sha256:fc63f2c4cf86c91d0c980699c7fce8eee58a739682d3456df124c9a684ef44dc",
+            "selector": "Auto-routed session was orphaned; creating replacement from registry context.",
+            "snippet_hash": "sha256:6974f505f5913fc48bb23f0001b29bcb29058a2bbabed8c7a15ebebd4a0919b5"
+          },
+          {
+            "path": "src/consult.ts",
+            "hash": "sha256:fc63f2c4cf86c91d0c980699c7fce8eee58a739682d3456df124c9a684ef44dc",
+            "selector": "bootstrapContext: oldView ? buildBootstrapContext(oldView, \"orphaned\") : undefined",
+            "snippet_hash": "sha256:aa4f2c05293a858847bfad0a5f676c8937b66923abd6bab59e1a5316bc8f9ad4"
+          },
+          {
+            "path": "src/consult.ts",
+            "hash": "sha256:fc63f2c4cf86c91d0c980699c7fce8eee58a739682d3456df124c9a684ef44dc",
+            "selector": "wasOrphanRecovery: true",
+            "snippet_hash": "sha256:24bae0dab9d9cf89ea135473ec51843c59cc80953e33644ad1003aaf62797302"
+          }
+        ]
+      },
+      {
+        "id": "orphan-routing-output",
+        "claim": "Successful claude_consult output exposes routing.was_orphan_recovery, and tests assert it is true for explicit and auto-routed orphan recovery.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/consult.ts",
+            "hash": "sha256:fc63f2c4cf86c91d0c980699c7fce8eee58a739682d3456df124c9a684ef44dc",
+            "selector": "was_orphan_recovery: route.wasOrphanRecovery",
+            "snippet_hash": "sha256:be67b058ba028fa6bc5b0f437745fa5ed3bc5f50e09734200d00ba0b8e0e899a"
+          },
+          {
+            "path": "tests/consult.test.ts",
+            "hash": "sha256:1880dff75d9c2893e16c0de09896a3af246164af632571c2a242179deeed58b1",
+            "selector": "expect(result.routing.was_orphan_recovery).toBe(true)",
+            "snippet_hash": "sha256:1dd4e07987f4ab6dc5594a0c04e3e367e032498fe65c16941478dfde5856bf6b"
+          }
+        ]
+      },
+      {
+        "id": "replacement-session-created",
+        "claim": "When invokeClaude runs with no selected session, it creates a new registry session using the returned Claude session id.",
+        "confidence": "llm_verified",
+        "evidence": [
+          {
+            "path": "src/consult.ts",
+            "hash": "sha256:fc63f2c4cf86c91d0c980699c7fce8eee58a739682d3456df124c9a684ef44dc",
+            "selector": "if (!route.selectedSession)",
+            "snippet_hash": "sha256:478eeb7fb450593b7f3372f320c60d9c045bc9174332456a2abefc6401418fe7"
+          },
+          {
+            "path": "src/consult.ts",
+            "hash": "sha256:fc63f2c4cf86c91d0c980699c7fce8eee58a739682d3456df124c9a684ef44dc",
+            "selector": "this.runtime.db.createSession",
+            "snippet_hash": "sha256:6a30b5be3ec6e86e55a543c7385f878d8a9183fd5c96d5b40d7b73d0285c22a6"
+          },
+          {
+            "path": "src/consult.ts",
+            "hash": "sha256:fc63f2c4cf86c91d0c980699c7fce8eee58a739682d3456df124c9a684ef44dc",
+            "selector": "claudeSessionId: claudeResponse.sessionId",
+            "snippet_hash": "sha256:cde8b1953716fa8eb7dbc4b69816b5517dcd4128eb4b918ad0390416adaf1089"
+          }
+        ]
+      }
+    ],
+    "pitfalls": [],
+    "forbidden_inferences": [
+      "mcp.cwd",
+      "claude.policy",
+      "profileArgs returns any value other than --bare --tools empty for bare"
+    ],
+    "omitted_facts": 0
+  },
+  "verifier_metrics": {
+    "tool_profile": "bare",
+    "duration_ms": 72825,
+    "tokens_in": 12048,
+    "tokens_out": 3030
+  },
+  "duration_ms_observed": 84709,
+  "cost_usd": 0.081594
+}

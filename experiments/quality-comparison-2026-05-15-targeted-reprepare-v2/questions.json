@@ -1,0 +1,27 @@
+[
+  {
+    "id": "A1",
+    "category": "A_factual",
+    "text": "What are the exact field names in the `clusters` table?"
+  },
+  {
+    "id": "A2",
+    "category": "A_factual",
+    "text": "Which event types are written to `cluster_events`? List all."
+  },
+  {
+    "id": "A3",
+    "category": "A_factual",
+    "text": "What happens in `cluster_consult` when the factsheet is stale?"
+  },
+  {
+    "id": "A5",
+    "category": "A_factual",
+    "text": "What is the default value of `dormant_after_days` in the sessions schema?"
+  },
+  {
+    "id": "B2",
+    "category": "B_reasoning",
+    "text": "If I delete a Claude .jsonl file, what happens on the next `claude_consult` to that session? Walk through the code path."
+  }
+]

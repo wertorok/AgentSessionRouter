@@ -1,0 +1,35 @@
+
+
+Here are three concrete improvements to `cluster_refresh` that preserve existing semantics:
+
+---
+
+### 1. Per-fact scoped revalidation (not all-or-nothing staleness)
+
+**Current behavior** (`src/clusterRefresh.ts:50-68`): any changed file in `cluster_file_hashes` marks the entire factsheet stale — even if only 1 of 20 facts depends on the changed file.
+
+**Improvement**: Before marking stale, cross-reference `changedFiles` against each fact's evidence paths. Only mark the factsheet stale if facts covering those files can't be re-verified. This avoids penalizing unrelated facts and reduces unnecessary `cluster_prepare` churn.
+
+The `clusterEvidenceRevalidation.ts` logic already does selector-level checking — the gap is that `cluster_refresh` doesn't use it as a pre-staleness filter; it goes straight to binary stale/unchanged.
+
+---
+
+### 2. Incremental hash rotation instead of full reprepare
+
+**Current behavior**: when evidence passes revalidation, the cluster stays in whatever state it was (active/stale) and the caller must run a full `cluster_prepare` to get back to fresh.
+
+**Improvement**: after `verifyFactsheetStatic` passes and changed files are zero, update `cluster_file_hashes` in-place with new hash+size values and advance `verified_at`. This converts `verify_only` from a diagnostic to a self-healing operation — a cluster that was correctly refreshed becomes `active` again without a new factsheet version or LLM verifier cost.
+
+`db.markClusterFactsheetFresh` (`src/db.ts:881`) already exists and does the trust-state promotion — the missing piece is updating the `cluster_file_hashes` rows in the same transaction.
+
+---
+
+### 3. Staleness oscillation detection
+
+**Current behavior**: a volatile file that changes every day will cause `cluster_consult` to fall back on every change, log `evidence_revalidation_failed` repeatedly, and never stabilize.
+
+**Improvement**: track a per-cluster `consecutive_refresh_failures` counter (or a time-bounded failure rate) in `cluster_events`. When the rate exceeds a threshold (e.g., 3 failures in 1 hour for the same file), emit a `cluster_volatile_evidence` alert event and suggest the operator either: (a) broaden the factsheet to cover the file's behavior, or (b) remove that file from evidence citations if it's inherently unstable. This turns the staleness feedback loop from silent degradation into an actionable signal.
+
+---
+
+None of these change the `ClusterRefreshResult` shape or the `mode: "verify_only"` contract — they only enrich the decision logic and self-healing capability within the existing error/return semantics.

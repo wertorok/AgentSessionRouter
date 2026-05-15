@@ -1,0 +1,15 @@
+
+
+**Likely untested failure mode:** When `--bare --tools ""` is used in cluster consulting, the model may **hallucinate or infer API/config names** (e.g., MCP keys, policy fields, function names) instead of correctly responding **"NOT IN CONTEXT"** for facts absent from the factsheet.
+
+This is the inverse of the documented bare profile risk: the system relies on the bare profile to constrain outputs to only what the factsheet contains, but a plausible failure is the model drifting — especially under partial evidence matches or ambiguous phrasing — and fabricating names that appear plausible.
+
+**How to detect it:**
+
+1. **Structured probe test** — supply a cluster consult question whose answer requires a fact entirely absent from the factsheet (e.g., a non-existent MCP tool or config key), and assert the response body contains the literal string `"NOT IN CONTEXT"` and **does not** contain any free-text identifier resembling an API name or path.
+
+2. **Regression harness on the existing quality-comparison scripts** — the `scripts/quality-comparison.mjs` (currently modified) can be extended with a golden-set of "NOT IN CONTEXT" cases paired with expected safe responses, asserting zero identifier-like tokens outside a small allowlist.
+
+3. **Fuzz the selector boundary** — feed questions whose factsheet evidence exists only at the **selector precision edge** (e.g., a selector that no longer matches due to line-shift). Detection: if the response contains a plausible but unverified name (detected by a deny-list regex or LLM judge), flag as a hallucination event — analogous to how `factsheet_rejected` and `evidence_revalidation_failed` are logged.
+
+The missing fact to fully verify this is: **what deny-list or hallucination-detection heuristic is used in production** (if any) — that is not present in the factsheet.

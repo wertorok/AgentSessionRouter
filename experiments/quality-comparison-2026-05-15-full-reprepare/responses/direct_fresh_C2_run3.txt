@@ -1,0 +1,30 @@
+
+
+Based on my analysis of the code, here's the most likely untested failure mode:
+
+## Silent probe-to-runtime disconnect
+
+**The failure:** `--bare --tools ""` passes the availability probe (via `PROFILE_OK`) but fails silently on actual workloads because the model's willingness to operate with `--bare --tools ""` is prompt-dependent.
+
+In `src/profiles.ts:28`, the probe uses:
+```js
+const PROFILE_PROBE_PROMPT = "Return exactly: PROFILE_OK";
+```
+
+This trivially short prompt succeeds with `--bare --tools ""` because the model accepts it without hitting tool-auth boundaries. But a real verification prompt with policy constraints and multi-step reasoning will hit a different auth surface than `PROFILE_OK`.
+
+**How it manifests:** `detectAvailableProfiles` reports `bare: { available: true }`, but during actual cluster verification (not a probe), the `CliClaudeAdapter` silently uses different behavior — or worse, fails with a non-obvious auth error that gets swallowed.
+
+**The test gap:** `FakeServer` in `tests/tools.test.ts:923` only throws on `--bare` when the prompt **contains** `PROFILE_OK`:
+```ts
+if (this.options.failBareProbe && _prompt.includes("PROFILE_OK") && options.extraArgs?.includes("--bare"))
+```
+
+There's no test that:
+1. Probe passes with `--bare --tools ""` → `available: true`
+2. But a real non-trivial prompt with `--bare --tools ""` → **different failure or behavior**
+
+**Detection path:**
+- Add a test variant where `failBareProbe: true` triggers on **non-**`PROFILE_OK` prompts with `--bare` (i.e., real workload behavior differs from probe behavior)
+- Instrument the test to compare `extraArgs` actually used during `runPromptWithOptions` for probe vs. real calls — they should be the same, but the model response may differ
+- A runtime log or metric capturing `tool_profile_used` vs `tool_profile_probe_result` would surface divergence in production

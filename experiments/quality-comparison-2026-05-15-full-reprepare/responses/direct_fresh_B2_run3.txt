@@ -1,0 +1,85 @@
+
+
+Here's the code path when a `.jsonl` file is deleted before the next `claude_consult`:
+
+## Code Path
+
+**1. `ConsultService.consult()` → `resolveRoute()`**
+
+When `claude_consult` is called, `resolveRoute()` at `src/consult.ts:249` looks up the session in the DB. If `sessionId` is provided or the router auto-selects a session, it calls:
+
+**2. `sessionFileExists()` check — `src/consult.ts:271`, `:300`, `:351`**
+
+```typescript
+const exists = await this.runtime.claude.sessionFileExists(session.claude_session_id);
+```
+
+**3. `CliClaudeAdapter.sessionFileExists()` — `src/claude.ts:104`**
+
+```typescript
+async sessionFileExists(claudeSessionId: string): Promise<boolean> {
+  const home = os.homedir();
+  const candidates = [
+    path.join(home, ".claude", "sessions", `${claudeSessionId}.json`),
+    path.join(home, ".claude", "sessions", `${claudeSessionId}.jsonl`),  // ← checks here
+    path.join(home, ".claude", "projects")
+  ];
+
+  if (existsSync(candidates[0]) || existsSync(candidates[1])) {
+    return true;   // ← deleted .jsonl → both checks fail
+  }
+  // ... searches projects dir recursively up to 3 levels deep
+  return findFile(projectsDir, `${claudeSessionId}.jsonl`, 3);
+}
+```
+
+**4. Orphaning — `src/consult.ts:272–283`**
+
+If `sessionFileExists()` returns `false`:
+
+```typescript
+if (!exists) {
+  const oldView = this.runtime.db.getSessionView(session.id);
+  this.runtime.db.markSessionOrphaned(session.id);   // ← session marked orphaned
+  return {
+    selectedSession: null,
+    bootstrapContext: oldView ? buildBootstrapContext(oldView, "orphaned") : undefined,
+    matchScore: 0,
+    matchReason: "Selected session was orphaned; creating replacement from registry context.",
+    wasOrphanRecovery: true
+  };
+}
+```
+
+**5. Bootstrap context is built — `src/consult.ts:118`**
+
+```typescript
+const context = route.bootstrapContext ?? buildSessionContext(route.selectedView);
+```
+
+When `bootstrapContext` is set (from the orphaned session's view), `buildBootstrapContext()` at `src/prompt.ts` constructs a prompt that seeds the new Claude session with the old session's messages, so conversation history isn't entirely lost.
+
+**6. New session created — `src/consult.ts:154–162`**
+
+Since `selectedSession` is now `null`, a brand-new internal session + Claude session is created:
+
+```typescript
+if (!route.selectedSession) {
+  this.runtime.db.createSession({
+    id: sessionId,
+    projectId: input.projectId,
+    claudeSessionId: claudeResponse.sessionId,
+    topic: input.topicHint,
+    ...
+  });
+}
+```
+
+## Summary
+
+| Step | What happens |
+|---|---|
+| `.jsonl` deleted | `sessionFileExists()` returns `false` |
+| Session state | DB record marked `orphaned` (not deleted) |
+| On consult | Old session is orphaned; a **replacement session is created** |
+| History | Prior conversation context is **preserved via `bootstrapContext`** (builds a system prompt summarizing prior messages) and fed into the new session, so Claude retains recall of the prior conversation |

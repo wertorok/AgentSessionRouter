@@ -1,0 +1,46 @@
+
+
+Here's the full code path when a `.jsonl` file is deleted before a `claude_consult`:
+
+---
+
+**Entry**: `consultService.consult()` (`src/consult.ts:52`)
+↓
+**Lock**: `withLock('cost:' + projectId, ...)` — rate-limit gate (`src/consult.ts:64`)
+↓
+**Route resolution** via `resolveRoute()` (`src/consult.ts:249`)
+
+**Path A — `session_id` explicitly provided:**
+1. Session found in SQLite; project mismatch checked (`src/consult.ts:251-257`)
+2. If already `orphaned`/`archived` → `buildBootstrapContext(oldView, reason)` and `selectedSession = null` (`src/consult.ts:258-268`)
+3. **`sessionFileExists(claude_session_id)`** called (`src/claude.ts:104-122`) — checks `~/.claude/sessions/{id}.json`, `sessions/{id}.jsonl`, and 3-level deep search in `~/.claude/projects`
+4. **File is gone** → `db.markSessionOrphaned(session.id)` (`src/db.ts:518-530`):
+   - Status set to `orphaned`
+   - `orphan_recovery` event logged
+5. Returns `RouteResolution` with `selectedSession = null`, `bootstrapContext = buildBootstrapContext(oldView, "orphaned")`, `wasOrphanRecovery = true`
+↓
+**`invokeWithRouteLock()`** (`src/consult.ts:97-115`): since `selectedSession` is null, it skips the route lock and goes straight to `invokeClaude()`
+↓
+**`invokeClaude()`** (`src/consult.ts:117`):
+1. Context built from `bootstrapContext` (compact registry snapshot — topic, summary, decisions, files, tags, aliases)
+2. Prompt sent to `claude.runPrompt(prompt)` with **no `--resume`** (new session created)
+3. New `claude_session_id` returned from Claude
+4. New registry session created in DB with bootstrap context (`src/consult.ts:155-162`)
+5. Event `new_session` logged with `was_orphan_recovery = true`
+
+**Path B — `session_id` null (auto-route):**
+1. `listMatchCandidates` fetches active+dormant sessions (`src/consult.ts:295`)
+2. For each candidate, `sessionFileExists` checked before considering reuse (`src/consult.ts:300-301`)
+3. Orphaned candidates skipped silently during matching
+4. New session created normally if no good match
+
+---
+
+**Key files**:
+- `src/consult.ts:271-283` — orphan detection for explicit session_id
+- `src/consult.ts:300-311` — orphan detection during auto-route
+- `src/claude.ts:104-122` — `sessionFileExists` filesystem check
+- `src/db.ts:518-530` — `markSessionOrphaned`
+- `src/prompt.ts` — `buildBootstrapContext` format per SPEC.md §20
+
+**Outcome**: The deleted session is marked `orphaned` in SQLite, a new Claude session is created, and the old compact metadata is injected as bootstrap context so no architectural memory is lost.

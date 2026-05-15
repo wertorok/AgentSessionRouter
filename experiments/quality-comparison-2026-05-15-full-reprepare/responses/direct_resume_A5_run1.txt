@@ -1,0 +1,9 @@
+
+
+From `src/schema.ts:16`:
+
+```sql
+dormant_after_days INTEGER DEFAULT 30
+```
+
+The default is **30 days**. This same value appears in the `RouterDatabase` creation path at `src/db.ts:507` where both `dormant_after_days` and `ttl_days` are set to `input.dormantAfterDays`.

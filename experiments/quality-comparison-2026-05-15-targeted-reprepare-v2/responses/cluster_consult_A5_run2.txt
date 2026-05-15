@@ -1,0 +1,5 @@
+From the factsheet:
+
+**30**
+
+The sessions schema default for `dormant_after_days` is 30.

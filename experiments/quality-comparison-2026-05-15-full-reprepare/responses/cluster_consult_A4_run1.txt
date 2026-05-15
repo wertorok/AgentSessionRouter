@@ -1,0 +1,3 @@
+
+
+The bare tool profile uses Claude CLI args: `--bare --tools ""`.

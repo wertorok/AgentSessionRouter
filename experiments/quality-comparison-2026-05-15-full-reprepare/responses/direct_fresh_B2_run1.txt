@@ -1,0 +1,33 @@
+
+
+Here's the code path when you delete a `.jsonl` file and call `claude_consult` to that session:
+
+## Entry: `claude_consult` tool
+
+**`src/tools.ts:227-240`** — the tool handler passes input to `consultService.consult()`.
+
+## Route Resolution: `src/consult.ts:52` → `resolveRoute()`
+
+Two paths depending on whether you pass an explicit `session_id`:
+
+### Explicit session_id path (`consult.ts:250-291`)
+
+1. Session looked up in DB (`this.runtime.db.getSession(input.sessionId)`) — still present in SQLite.
+2. **`consult.ts:271`**: Calls `this.runtime.claude.sessionFileExists(session.claude_session_id)` → **returns `false`** (the `.jsonl` is gone).
+3. **`consult.ts:274`**: Marks session **orphaned** via `this.runtime.db.markSessionOrphaned(session.id)`.
+4. **`consult.ts:275-282`**: Returns a `RouteResolution` with `selectedSession: null`, `bootstrapContext` built from the session's old view (its topic, previous answers stored in the DB), and `wasOrphanRecovery: true`.
+5. **`consult.ts:98-99`**: Since no session selected, goes to **`invokeClaude()` with no resume flag** → Claude creates a **fresh session** with a new `sessionId`.
+6. A **new DB session record** is created for the fresh Claude session (`consult.ts:155-162`), linked to the same internal `session_id` but with a new `claude_session_id`.
+
+### Auto-routed path (no `session_id` provided) (`consult.ts:294-372`)
+
+Same check at **`consult.ts:300`** and **`consult.ts:351`** — when the matched session's `.jsonl` is missing, it's marked orphaned and recovery bootstrap is built.
+
+## What the user sees
+
+- The old session is **orphaned** (status in DB changes, old view preserved for bootstrap).
+- A **new session** is created and used.
+- The response includes `routing.was_orphan_recovery: true` and a `bootstrapContext` prompt snippet was built from the orphaned session's prior answers — so context is partially preserved even though the `.jsonl` is gone.
+- The `session_id` returned by the tool is the **new internal ID** (not the old one), but `claude_session_id` in the response reflects the fresh Claude-level session.
+
+The deletion doesn't cause an error — it's a graceful orphan recovery with partial context replay from the DB-stored session view.

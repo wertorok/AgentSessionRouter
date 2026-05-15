@@ -1,0 +1,7 @@
+
+
+From the verified factsheet, the stale factsheet behavior has two levels:
+
+**Low-level detection** (in `consultCluster`): When scoped evidence files are stale, it marks the factsheet stale, logs `cluster_refresh_required` with `changed_files`, and returns `CLUSTER_FACTSHEET_STALE` internally.
+
+**Caller-facing** (in the `cluster_consult` tool): It consumes the `CLUSTER_FACTSHEET_STALE` error. If `autoRefresh` is enabled, it revalidates evidence under a per-cluster lock. If revalidation fails or `autoRefresh` is disabled, it falls back internally to `claude_consult` and returns an answer to the caller.

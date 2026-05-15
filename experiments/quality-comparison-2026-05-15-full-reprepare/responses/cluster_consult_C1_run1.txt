@@ -1,0 +1,14 @@
+
+
+Based on the verified factsheet, three concrete directions:
+
+1. **AST selectors over line-based selectors**  
+   The spec flag `cluster-refresh-selector-improvement-open-question` names this explicitly as an open question: store AST selectors or exact line ranges (or both) instead of relying solely on file-hash + selector pairs. AST selectors survive non-semantic whitespace or formatting edits, reducing false stale detections without changing verify_only semantics.
+
+2. **partial_lm fallback on static re-verification failure**  
+   Currently verify_only only does static re-verification and marks stale when hashes change or facts are rejected. Adding an LLM pass on remaining stale facts (under a per-cluster lock) would capture semantic drift that pure hash checks miss — preserving the same trust_state escalation logic from `trust-partial-llm`.
+
+3. **cross-file fact dependency tracking**  
+   Nothing in verify_only today checks whether changed files invalidate facts that reference other files. Attaching an optional `depends_on` set to facts would let cluster_refresh detect that updating `src/a.ts` may stale a fact inferred from `src/b.ts`, without needing to invoke the agent or change the event schema.
+
+All three preserve existing verify_only behavior and the cluster_events semantics defined by `cluster-refresh-stale-semantics`.

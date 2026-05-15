@@ -1,0 +1,15 @@
+
+
+From `src/profiles.ts:30-39`, the bare tool profile maps to:
+
+```js
+case "bare":
+  return ["--bare", "--tools", ""];
+```
+
+This produces the CLI invocation: `claude -p --bare --tools "" <prompt>`
+
+- `--bare` — disables Claude Code project auto-discovery
+- `--tools ""` — no tool access (empty string for the allowlist)
+
+The bare profile is verified by a probe at startup; if it fails, `cluster_consult` deterministically downgrades to `focused` (`--tools ""`) before ever escalating to `agent` (no extra args).

@@ -1,0 +1,13 @@
+
+
+From the factsheet, there are two layers:
+
+**Low-level `consultCluster` (internal):**
+- Marks the factsheet stale via `db.markClusterFactsheetStale`
+- Logs `cluster_refresh_required` to cluster_events with `changed_files`
+- Returns `CLUSTER_FACTSHEET_STALE` internally
+
+**Caller-facing `cluster_consult` tool (consumes the above error):**
+- If `autoRefresh` is enabled: revalidates evidence under a per-cluster lock
+- If revalidation succeeds: logs `evidence_revalidated`
+- If revalidation fails or `autoRefresh` is disabled: falls back internally to `claude_consult`, logs `cluster_fallback_to_claude_consult`, and returns an answer to the caller

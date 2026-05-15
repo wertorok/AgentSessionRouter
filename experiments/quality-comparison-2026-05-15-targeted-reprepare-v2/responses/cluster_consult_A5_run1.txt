@@ -1,0 +1,3 @@
+
+
+Based on the verified factsheet, the default value of `dormant_after_days` in the sessions schema is **30**.

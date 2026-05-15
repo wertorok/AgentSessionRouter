@@ -1,0 +1,33 @@
+
+
+From `src/schema.ts:113-126`, the `clusters` table fields are:
+
+```sql
+id TEXT PRIMARY KEY,
+project_id TEXT NOT NULL,
+name TEXT NOT NULL,
+description TEXT NOT NULL DEFAULT '',
+tool_profile_default TEXT NOT NULL DEFAULT 'bare',
+static_factsheet_policy TEXT NOT NULL DEFAULT 'deny',
+baseline_session_id TEXT,
+status TEXT NOT NULL DEFAULT 'active',
+trust_state TEXT NOT NULL DEFAULT 'unprepared',
+created_at TEXT NOT NULL,
+last_used TEXT NOT NULL,
+UNIQUE(project_id, id)
+```
+
+**Summary of fields:**
+- `id` — cluster identifier (primary key)
+- `project_id` — owning project
+- `name` — human-readable name
+- `description` — description text
+- `tool_profile_default` — default tool profile (`bare`/`focused`/`agent`)
+- `static_factsheet_policy` — `allow` or `deny` for trusting static factsheets
+- `baseline_session_id` — optional Claude session used as fork source
+- `status` — `active`/`stale`/`needs_prepare`/`invalidated`/`archived`
+- `trust_state` — `unprepared`/`static_verified`/`llm_verified`/`partial_static`/`partial_llm`/`untrusted`
+- `created_at` — creation timestamp
+- `last_used` — last-access timestamp
+
+The corresponding TypeScript interface `ClusterRecord` is defined in `src/db.ts:97-109`.

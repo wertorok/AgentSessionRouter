@@ -1,0 +1,26 @@
+
+
+When `cluster_consult` detects a stale factsheet, the path is:
+
+**`src/clusterConsult.ts:62-78`** (low-level service):
+1. `findStaleFiles` compares current file hashes to stored `cluster_file_hashes` — any mismatch → stale
+2. Marks factsheet `stale` via `db.markClusterFactsheetStale()` and logs `cluster_refresh_required` event
+3. Returns `CLUSTER_FACTSHEET_STALE` error
+
+**`src/tools.ts:781-817`** (caller-facing MCP layer) — three-tier fallback:
+
+1. **Immediate retry** — re-probe availability and call `consultCluster` again (handles race where another process already refreshed)
+
+2. **Strict evidence revalidation** (if `config.cluster.autoRefresh = true` and error is still `CLUSTER_FACTSHEET_STALE`) — acquires per-cluster lock, runs `revalidateClusterEvidence()` which:
+   - Re-reads every cited evidence file
+   - Re-checks every selector/snippet_hash
+   - Fails if any fact can't be proven valid (`minRetainedRatio` gating)
+   - On success: re-calls `consultCluster`
+   - On failure: falls through to step 3
+
+3. **Fallback to V1** — calls `fallbackToClaudeConsult()` which:
+   - Marks cluster `needs_prepare` via `db.markClusterNeedsPrepare()`
+   - Invokes normal `claude_consult` with a prompt noting the stale factsheet
+   - Logs `cluster_fallback_to_claude_consult` or `cluster_fallback_failed`
+
+The caller never sees `CLUSTER_FACTSHEET_STALE` unless both revalidation fails **and** `autoRefresh` is false — in that case the error is returned directly.

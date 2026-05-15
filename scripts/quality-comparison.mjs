@@ -146,7 +146,16 @@ const FACTSHEET = {
         "The clusters table fields are id, project_id, name, description, tool_profile_default, static_factsheet_policy, baseline_session_id, status, trust_state, created_at, and last_used.",
       evidence: [
         { path: "src/schema.ts", selector: "CREATE TABLE IF NOT EXISTS clusters" },
+        { path: "src/schema.ts", selector: "id TEXT PRIMARY KEY" },
+        { path: "src/schema.ts", selector: "project_id TEXT NOT NULL" },
+        { path: "src/schema.ts", selector: "name TEXT NOT NULL" },
+        { path: "src/schema.ts", selector: "description TEXT NOT NULL DEFAULT ''" },
+        { path: "src/schema.ts", selector: "tool_profile_default TEXT NOT NULL DEFAULT 'bare'" },
         { path: "src/schema.ts", selector: "static_factsheet_policy TEXT NOT NULL DEFAULT 'deny'" },
+        { path: "src/schema.ts", selector: "baseline_session_id TEXT" },
+        { path: "src/schema.ts", selector: "status TEXT NOT NULL DEFAULT 'active'" },
+        { path: "src/schema.ts", selector: "trust_state TEXT NOT NULL DEFAULT 'unprepared'" },
+        { path: "src/schema.ts", selector: "created_at TEXT NOT NULL" },
         { path: "src/schema.ts", selector: "last_used TEXT NOT NULL" }
       ]
     },
@@ -156,7 +165,13 @@ const FACTSHEET = {
         "The cluster_events table fields are id, cluster_id, project_id, event_type, details_json, duration_ms, tokens_in, tokens_out, cost_usd, and created_at.",
       evidence: [
         { path: "src/schema.ts", selector: "CREATE TABLE IF NOT EXISTS cluster_events" },
+        { path: "src/schema.ts", selector: "cluster_id TEXT NOT NULL" },
+        { path: "src/schema.ts", selector: "event_type TEXT NOT NULL" },
+        { path: "src/schema.ts", selector: "details_json TEXT" },
         { path: "src/schema.ts", selector: "duration_ms INTEGER" },
+        { path: "src/schema.ts", selector: "tokens_in INTEGER" },
+        { path: "src/schema.ts", selector: "tokens_out INTEGER" },
+        { path: "src/schema.ts", selector: "cost_usd REAL" },
         { path: "src/schema.ts", selector: "created_at TEXT NOT NULL" }
       ]
     },
@@ -165,6 +180,55 @@ const FACTSHEET = {
       claim:
         "insertClusterFactsheet can write factsheet_static_verified, factsheet_partially_static_verified, factsheet_llm_verified, factsheet_partially_llm_verified, factsheet_rejected, or factsheet_generated to cluster_events.",
       evidence: [{ path: "src/db.ts", selector: "function factsheetEventType" }]
+    },
+    {
+      id: "cluster-event-factsheet-static-verified",
+      claim: "A fully statically verified factsheet writes factsheet_static_verified to cluster_events.",
+      evidence: [
+        { path: "src/db.ts", selector: "function factsheetEventType" },
+        { path: "src/db.ts", selector: "return \"factsheet_static_verified\"" }
+      ]
+    },
+    {
+      id: "cluster-event-factsheet-partially-static-verified",
+      claim: "A partially statically verified factsheet writes factsheet_partially_static_verified to cluster_events.",
+      evidence: [
+        { path: "src/db.ts", selector: "function factsheetEventType" },
+        { path: "src/db.ts", selector: "return \"factsheet_partially_static_verified\"" }
+      ]
+    },
+    {
+      id: "cluster-event-factsheet-llm-verified",
+      claim: "A fully LLM-verified factsheet writes factsheet_llm_verified to cluster_events.",
+      evidence: [
+        { path: "src/db.ts", selector: "function factsheetEventType" },
+        { path: "src/db.ts", selector: "return \"factsheet_llm_verified\"" }
+      ]
+    },
+    {
+      id: "cluster-event-factsheet-partially-llm-verified",
+      claim: "A partially LLM-verified factsheet writes factsheet_partially_llm_verified to cluster_events.",
+      evidence: [
+        { path: "src/db.ts", selector: "function factsheetEventType" },
+        { path: "src/db.ts", selector: "return \"factsheet_partially_llm_verified\"" }
+      ]
+    },
+    {
+      id: "cluster-event-factsheet-generated",
+      claim: "A generated but not verified factsheet writes factsheet_generated to cluster_events.",
+      evidence: [
+        { path: "src/db.ts", selector: "function factsheetEventType" },
+        { path: "src/db.ts", selector: "factsheet_generated" }
+      ]
+    },
+    {
+      id: "cluster-event-factsheet-rejected",
+      claim: "A rejected factsheet writes factsheet_rejected to cluster_events.",
+      evidence: [
+        { path: "src/db.ts", selector: "function factsheetEventType" },
+        { path: "src/db.ts", selector: "factsheet_rejected" },
+        { path: "src/cluster.ts", selector: "eventType: \"factsheet_rejected\"" }
+      ]
     },
     {
       id: "cluster-event-created",
@@ -253,6 +317,28 @@ const FACTSHEET = {
       ]
     },
     {
+      id: "caller-facing-stale-event-flow",
+      claim:
+        "The caller-facing stale cluster_consult path logs cluster_refresh_required at low-level detection, evidence_revalidated on successful strict revalidation, evidence_revalidation_failed when strict revalidation fails, and cluster_fallback_to_claude_consult when it answers by internal claude_consult fallback.",
+      evidence: [
+        { path: "src/clusterConsult.ts", selector: "eventType: \"cluster_refresh_required\"" },
+        { path: "src/clusterEvidenceRevalidation.ts", selector: "eventType: \"evidence_revalidated\"" },
+        { path: "src/clusterEvidenceRevalidation.ts", selector: "eventType: \"evidence_revalidation_failed\"" },
+        { path: "src/tools.ts", selector: "cluster_fallback_to_claude_consult" }
+      ]
+    },
+    {
+      id: "caller-facing-stale-event-sequence",
+      claim:
+        "When answering what happens for a stale cluster_consult factsheet, the complete event sequence is cluster_refresh_required, then either evidence_revalidated on success or evidence_revalidation_failed on strict revalidation failure, then cluster_fallback_to_claude_consult if fallback answers the caller.",
+      evidence: [
+        { path: "src/clusterConsult.ts", selector: "eventType: \"cluster_refresh_required\"" },
+        { path: "src/clusterEvidenceRevalidation.ts", selector: "eventType: \"evidence_revalidated\"" },
+        { path: "src/clusterEvidenceRevalidation.ts", selector: "eventType: \"evidence_revalidation_failed\"" },
+        { path: "src/tools.ts", selector: "cluster_fallback_to_claude_consult" }
+      ]
+    },
+    {
       id: "bare-profile-args",
       claim: "The bare tool profile uses Claude CLI args: --bare --tools \"\".",
       evidence: [{ path: "src/profiles.ts", selector: "case \"bare\"" }]
@@ -308,8 +394,13 @@ const FACTSHEET = {
     },
     {
       id: "orphan-session-event",
-      claim: "markSessionOrphaned sets session status to orphaned and writes an orphan_recovery event.",
-      evidence: [{ path: "src/db.ts", selector: "markSessionOrphaned(sessionId: string)" }]
+      claim: "markSessionOrphaned sets session status to orphaned and writes an orphan_recovery event to session_events, not cluster_events.",
+      evidence: [
+        { path: "src/db.ts", selector: "INSERT INTO session_events" },
+        { path: "src/db.ts", selector: "markSessionOrphaned(sessionId: string)" },
+        { path: "src/db.ts", selector: "UPDATE sessions SET status = 'orphaned'" },
+        { path: "src/db.ts", selector: "eventType: \"orphan_recovery\"" }
+      ]
     },
     {
       id: "orphan-exact-topic-session",
@@ -344,7 +435,11 @@ const FACTSHEET = {
       id: "replacement-session-created",
       claim:
         "When invokeClaude runs with no selected session, it creates a new registry session using the returned Claude session id.",
-      evidence: [{ path: "src/consult.ts", selector: "if (!route.selectedSession)" }]
+      evidence: [
+        { path: "src/consult.ts", selector: "if (!route.selectedSession)" },
+        { path: "src/consult.ts", selector: "this.runtime.db.createSession" },
+        { path: "src/consult.ts", selector: "claudeSessionId: claudeResponse.sessionId" }
+      ]
     },
     {
       id: "trust-static-verified",
@@ -417,14 +512,38 @@ const FACTSHEET = {
         { path: "src/clusterConsult.ts", selector: "If a required fact is absent, write NOT IN CONTEXT." },
         { path: "docs/CLUSTER_CACHE_SPEC.md", selector: "If a fact is not present in the factsheet, write NOT IN CONTEXT." }
       ]
+    },
+    {
+      id: "shadow-eval-purpose",
+      claim:
+        "Shadow eval records cluster_consult and direct baseline answers for telemetry without changing the answer returned to the parent agent.",
+      evidence: [
+        { path: "README.md", selector: "observability only" },
+        { path: "README.md", selector: "without changing the answer returned to the parent agent" }
+      ]
+    },
+    {
+      id: "router-monitor-purpose",
+      claim:
+        "router_monitor combines shadow eval, router status, and cluster events into an operator-facing information monitor for deciding what works, what fails, what to change, and why.",
+      evidence: [
+        { path: "docs/SHADOW_EVAL_SPEC.md", selector: "router_monitor" },
+        { path: "README.md", selector: "operator-facing information monitor" }
+      ]
     }
   ],
-  forbidden_inferences: ["mcp.cwd", "claude.policy", "profileArgs returns any value other than --bare --tools empty for bare"]
+  forbidden_inferences: [
+    "mcp.cwd",
+    "claude.policy",
+    "profileArgs returns any value other than --bare --tools empty for bare",
+    "orphan_recovery is a cluster_events event"
+  ]
 };
 
 const activeQuestions = selectedQuestionIds.length
   ? QUESTIONS.filter((question) => selectedQuestionIds.includes(question.id))
   : QUESTIONS;
+const factsheetScope = args.factsheetScope ?? "full";
 
 await main();
 
@@ -485,8 +604,8 @@ async function prepareClusterFactsheet() {
       description: "Quality comparison factsheet for AgentSessionRouter codebase questions.",
       tool_profile_default: "bare",
       verification_mode: "llm",
-      llm_verifier_profile: "focused",
-      factsheet: FACTSHEET
+      llm_verifier_profile: args.llmVerifierProfile ?? "bare",
+      factsheet: buildFactsheetForRun()
     });
     const metrics = result.verifier_metrics ?? {};
     return {
@@ -498,6 +617,85 @@ async function prepareClusterFactsheet() {
       })
     };
   });
+}
+
+function buildFactsheetForRun() {
+  if (factsheetScope !== "active") {
+    return FACTSHEET;
+  }
+  const ids = new Set();
+  const add = (values) => values.forEach((value) => ids.add(value));
+  for (const question of activeQuestions) {
+    if (question.id === "A1") {
+      add(["clusters-table-fields"]);
+    } else if (question.id === "A2") {
+      add([
+        "cluster-events-table-fields",
+        "cluster-event-factsheet-static-verified",
+        "cluster-event-factsheet-partially-static-verified",
+        "cluster-event-factsheet-llm-verified",
+        "cluster-event-factsheet-partially-llm-verified",
+        "cluster-event-factsheet-generated",
+        "cluster-event-factsheet-rejected",
+        "cluster-event-created",
+        "cluster-event-llm-verifier",
+        "cluster-event-consult",
+        "cluster-event-consult-failed",
+        "cluster-event-refresh-required",
+        "cluster-event-evidence-revalidation-failed",
+        "cluster-event-evidence-revalidated",
+        "cluster-event-fallback-to-claude-consult",
+        "cluster-event-fallback-failed",
+        "cluster-event-bare-probe-failed",
+        "cluster-event-downgraded",
+        "cluster-event-refresh",
+        "cluster-event-factsheet-stale"
+      ]);
+    } else if (question.id === "A3") {
+      add([
+        "stale-cluster-consult-behavior",
+        "caller-facing-stale-cluster-consult-behavior",
+        "caller-facing-stale-event-flow",
+        "caller-facing-stale-event-sequence",
+        "cluster-event-refresh-required",
+        "cluster-event-evidence-revalidation-failed",
+        "cluster-event-evidence-revalidated",
+        "cluster-event-fallback-to-claude-consult"
+      ]);
+    } else if (question.id === "A4") {
+      add(["bare-profile-args"]);
+    } else if (question.id === "A5") {
+      add(["sessions-dormant-default"]);
+    } else if (question.id === "B1") {
+      add(["llm-verifier-profiles", "llm-verifier-purpose", "llm-verifier-no-agent-rationale", "llm-verifier-profile-spec"]);
+    } else if (question.id === "B2") {
+      add([
+        "orphan-explicit-session",
+        "orphan-session-event",
+        "orphan-exact-topic-session",
+        "orphan-auto-routed-session",
+        "orphan-routing-output",
+        "replacement-session-created"
+      ]);
+    } else if (question.id === "B3") {
+      add(["trust-static-verified", "trust-llm-verified", "trust-partial-llm"]);
+    } else if (question.id === "C1") {
+      add([
+        "cluster-refresh-verify-only",
+        "cluster-refresh-stale-semantics",
+        "cluster-refresh-future-modes",
+        "cluster-refresh-policy-options",
+        "cluster-refresh-selector-improvement-open-question"
+      ]);
+    } else if (question.id === "C2") {
+      add(["bare-profile-risk"]);
+    }
+  }
+  return {
+    ...FACTSHEET,
+    summary: `${FACTSHEET.summary} Scope: ${activeQuestions.map((question) => question.id).join(", ")}.`,
+    facts: FACTSHEET.facts.filter((fact) => ids.has(fact.id))
+  };
 }
 
 async function runDirectFreshBlock() {
@@ -916,10 +1114,7 @@ function scoreAnswerContent(questionId, answer) {
     case "B1":
       return scoreB1(answer);
     case "B2":
-      return scoreExpectedTerms(answer, ["sessionfileexists", "marks", "orphaned", "bootstrap", "new session", "was_orphan_recovery"], {
-        full: "walks orphan recovery path",
-        partial: "partial orphan recovery path"
-      });
+      return scoreB2(answer);
     case "B3":
       return scoreExpectedTerms(answer, ["static_verified", "partial_llm", "llm_verified", "rejected"], {
         full: "distinguishes all trust states and rejection condition",
@@ -932,6 +1127,40 @@ function scoreAnswerContent(questionId, answer) {
     default:
       return { score: 0, notes: "unknown question id" };
   }
+}
+
+function scoreB2(answer) {
+  const normalized = answer.toLowerCase().replaceAll("`", "");
+  const wrongClusterEvents =
+    normalized.includes("orphan_recovery") &&
+    (normalized.includes("to cluster_events") || normalized.includes("into cluster_events")) &&
+    !normalized.includes("not cluster_events");
+  const checks = [
+    normalized.includes("sessionfileexists") || normalized.includes("session file"),
+    normalized.includes("orphaned"),
+    normalized.includes("session_events") || normalized.includes("orphan_recovery"),
+    normalized.includes("bootstrap") || normalized.includes("replacement route"),
+    normalized.includes("new session") || normalized.includes("new registry session") || normalized.includes("createsession"),
+    normalized.includes("was_orphan_recovery")
+  ];
+  const hits = checks.filter(Boolean).length;
+  let base;
+  if (hits === checks.length) {
+    base = { score: 3, notes: "walks orphan recovery path" };
+  } else if (hits >= 4) {
+    base = { score: 2, notes: `partial orphan recovery path; matched ${hits}/${checks.length}` };
+  } else if (hits >= 2) {
+    base = { score: 1, notes: `partial orphan recovery path; matched ${hits}/${checks.length}` };
+  } else {
+    base = { score: 0, notes: `wrong or unsupported orphan recovery path; matched ${hits}/${checks.length}` };
+  }
+  if (wrongClusterEvents) {
+    return {
+      score: Math.min(base.score, 2),
+      notes: `${base.notes}; incorrectly places orphan_recovery in cluster_events instead of session_events`
+    };
+  }
+  return base;
 }
 
 function scoreExpectedTerms(answer, expected, labels, extraPredicate = () => true) {
@@ -1154,7 +1383,7 @@ function writeSummary() {
       ? failureRows
           .map(
             (row) =>
-              `- ${row.question_id} ${row.method} run ${row.run_number}: score=${row.quality_score}; ${row.error || row.quality_notes}`
+              `- ${row.question_id} ${row.method} run ${row.run_number}: score=${row.quality_score}; ${compactReportText(row.error || row.quality_notes)}`
           )
           .join("\n")
       : "- No invocation failures or score-0 answers.",
@@ -1165,7 +1394,7 @@ function writeSummary() {
       ? lowScoreRows
           .map((row) => {
             const kind = responseText(row).match(/NOT IN CONTEXT/i) ? "honest_refusal" : "low_quality_or_shallow";
-            return `- ${row.question_id} ${row.method} run ${row.run_number}: score=${row.quality_score}; ${kind}; ${row.quality_notes}`;
+            return `- ${row.question_id} ${row.method} run ${row.run_number}: score=${row.quality_score}; ${kind}; ${compactReportText(row.quality_notes)}`;
           })
           .join("\n")
       : "- None.",
@@ -1201,6 +1430,12 @@ function buildFactsheetCoverage(prep) {
       : "Not covered: clusters-table-fields is absent from the current factsheet.";
   }
   const a2Missing = [
+    ["cluster-event-factsheet-static-verified", "factsheet_static_verified"],
+    ["cluster-event-factsheet-partially-static-verified", "factsheet_partially_static_verified"],
+    ["cluster-event-factsheet-llm-verified", "factsheet_llm_verified"],
+    ["cluster-event-factsheet-partially-llm-verified", "factsheet_partially_llm_verified"],
+    ["cluster-event-factsheet-generated", "factsheet_generated"],
+    ["cluster-event-factsheet-rejected", "factsheet_rejected"],
     ["cluster-event-evidence-revalidation-failed", "evidence_revalidation_failed"],
     ["cluster-event-evidence-revalidated", "evidence_revalidated"],
     ["cluster-event-fallback-to-claude-consult", "cluster_fallback_to_claude_consult"],
@@ -1212,8 +1447,8 @@ function buildFactsheetCoverage(prep) {
   if (a2Missing.length > 0) {
     coverage.A2 = `Partially covered: current factsheet lacks cluster event facts for ${a2Missing.join(", ")}.`;
   }
-  if (!ids.has("caller-facing-stale-cluster-consult-behavior")) {
-    coverage.A3 = "Partially covered: factsheet contains low-level stale behavior, but not caller-facing revalidation/fallback semantics.";
+  if (!ids.has("caller-facing-stale-cluster-consult-behavior") || !ids.has("caller-facing-stale-event-flow")) {
+    coverage.A3 = "Partially covered: factsheet contains low-level stale behavior, but not full caller-facing revalidation/fallback event semantics.";
   }
   return coverage;
 }
@@ -1713,6 +1948,11 @@ function formatMoney(value) {
 
 function oneLine(value) {
   return String(value).replace(/\s+/g, " ").trim();
+}
+
+function compactReportText(value, limit = 260) {
+  const text = oneLine(value);
+  return text.length > limit ? `${text.slice(0, limit)}...` : text;
 }
 
 function readJsonIfExists(filePath) {

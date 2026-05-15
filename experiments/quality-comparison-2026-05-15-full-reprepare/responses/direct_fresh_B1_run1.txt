@@ -1,0 +1,21 @@
+
+
+The **LLM verifier runs in `bare` mode** (when available, otherwise `focused` no-tools mode) for cost and isolation reasons:
+
+**Cost difference is dramatic** (from `docs/CLUSTER_CACHE_SPEC.md`):
+- Broad exploration consult: 264.8s, 56,051 input tokens with `Agent` + `Glob` + `Read`
+- Fresh `--bare --tools ""` with verified factsheet: 36.8s, 1,170 input tokens
+
+**`bare` is the cheapest, most isolated mode** — no tools, no Claude Code project auto-discovery. The verifier only needs to check whether facts are semantically supported by evidence; it does not need to explore files or use tools.
+
+**Why NOT `agent` mode for verification:**
+1. The spec explicitly forbids silent escalation from `bare` or `focused` to `agent` — this is a hard constraint (`src/clusterConsult.ts` and `docs/CLUSTER_CACHE_SPEC.md` both state this)
+2. The verifier is a **read-only judgment call**, not a discovery task — `agent` mode's broad file discovery would defeat the purpose of having a pre-verified factsheet
+3. The downgrade chain is deterministic: `bare -> focused -> focused`; `agent` only when explicitly requested
+
+The `bare` profile CLI shape is:
+```bash
+claude -p --bare --tools "" --output-format json "<prompt>"
+```
+
+The LLM verifier uses this to promote facts from `static_verified` to `llm_verified` only when they are semantically supported — no tool access needed for that judgment.

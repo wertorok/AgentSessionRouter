@@ -1,0 +1,41 @@
+## AgentSessionRouter - Project Map
+
+### Purpose
+An **MCP (Model Context Protocol) server** that routes Claude CLI consultations through durable, project-scoped sessions — eliminating repeated project rediscovery via cached factsheets (v2 cluster cache) and session history (v1).
+
+### Core Components
+
+| File | Role |
+|------|------|
+| `src/tools.ts` | MCP handler dispatcher — all 12+ tool definitions |
+| `src/consult.ts` | v1 session routing & invocation |
+| `src/cluster.ts` | `prepareCluster()` — factsheet verification (static + LLM) |
+| `src/clusterConsult.ts` | `consultCluster()` — factsheet-based consult |
+| `src/clusterRefresh.ts` | `refreshCluster()` — evidence revalidation |
+| `src/profiles.ts` | Tool profile detection (bare/focused/agent) |
+| `src/claude.ts` | CLI spawn/parse adapter |
+| `src/db.ts` | SQLite operations |
+| `src/schema.ts` | Table definitions |
+| `src/runtime.ts` | Runtime state container |
+
+### Data Flow
+
+```
+Parent Agent
+    │ MCP stdio
+    ▼
+tools.ts
+    ├─ v1: consult.ts → db(sessions) → claude.ts → Claude CLI
+    └─ v2: clusterConsult.ts → db(clusters/factsheets) → claude.ts → Claude CLI
+             │                 (with --append-system-prompt factsheet)
+             └─ clusterRefresh.ts → revalidate file hashes
+```
+
+### Key Design
+- **v1**: Session registry with topic matching, decision/tag tracking
+- **v2**: Factsheet cache per cluster with static/LLM verification
+- **Trust states**: `unprepared` → `static_verified` → `llm_verified`
+- **Fallback**: cluster_consult falls back to consult if cache stale
+- **Profiles**: `bare` → `focused` only (never downgrade to `agent`)
+
+Ready for follow-up questions.

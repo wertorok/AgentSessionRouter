@@ -1,0 +1,114 @@
+
+
+Here are three ways to make `cluster_refresh` smarter while preserving its current semantics:
+
+---
+
+**1. Differentiate missing files from changed files**
+
+`findChangedFiles` (line 150) conflates "file was modified" with "file was deleted or inaccessible" — both routes push to `changed` and trigger the same stale path. Separating these lets callers distinguish a genuinely modified file from a deleted one (e.g., intentional removal vs. a broken reference).
+
+```typescript
+// In findChangedFiles, return a structured result:
+interface FileChangeResult {
+  changed: string[];   // content/size differs
+  missing: string[];  // stat() threw — file is gone
+}
+
+function findChangedFiles(...): FileChangeResult {
+  const changed = new Set<string>();
+  const missing = new Set<string>();
+  for (const file of fileHashes) {
+    try {
+      const absolutePath = path.resolve(cwd, file.path);
+      const stat = statSync(absolutePath);
+      const content = readFileSync(absolutePath);
+      const hash = `sha256:${createHash("sha256").update(content).digest("hex")}`;
+      if (hash !== file.hash || stat.size !== file.file_size) {
+        changed.add(file.path);
+      }
+    } catch {
+      missing.add(file.path);           // ← was: changed.add()
+    }
+  }
+  return { changed: [...changed].sort(), missing: [...missing].sort() };
+}
+```
+
+The stale trigger (`changedFiles.length > 0`) remains unchanged, so existing callers are unaffected.
+
+---
+
+**2. Incremental hash — skip re-hashing unchanged files by size first**
+
+`findChangedFiles` reads and hashes every tracked file on every call. A two-pass filter using `stat().size` first (a single syscall) eliminates the vast majority of files before touching content:
+
+```typescript
+function findChangedFiles(cwd: string, fileHashes: ClusterFileHashRecord[]): string[] {
+  const changed = new Set<string>();
+  for (const file of fileHashes) {
+    try {
+      const absolutePath = path.resolve(cwd, file.path);
+      const stat = statSync(absolutePath);
+      // size-only fast-reject (most files will never reach the read)
+      if (stat.size !== file.file_size) {
+        changed.add(file.path);
+        continue;
+      }
+      // only hash when size already matched
+      const content = readFileSync(absolutePath);
+      const hash = `sha256:${createHash("sha256").update(content).digest("hex")}`;
+      if (hash !== file.hash) {
+        changed.add(file.path);
+      }
+    } catch {
+      changed.add(file.path);
+    }
+  }
+  return [...changed].sort();
+}
+```
+
+No change to return type, no change to behavior — just fewer syscalls and reads per invocation.
+
+---
+
+**3. Early-exit on first irrecoverable change**
+
+Currently all changed files are collected before deciding whether to mark stale. If the factsheet has an `evidence` path pointing to a file that no longer exists, the factsheet is already unrevisable — continuing to hash remaining files is wasted work.
+
+```typescript
+// In refreshCluster, pass a callback to findChangedFiles:
+const changedFiles: string[] = [];
+const firstIrrecoverable = findChangedFilesWithBreak(cwd, loaded.fileHashes, (missing) => {
+  // A missing evidence file means the factsheet cannot be re-verified.
+  // Break early rather than continue hashing.
+  changedFiles.push(...missing);
+  return missing.some(p => isEvidencePath(p, loaded.factsheetContent));
+});
+
+function findChangedFilesWithBreak(
+  cwd: string,
+  fileHashes: ClusterFileHashRecord[],
+  onMissing: (missing: string[]) => boolean  // return true to abort early
+): string[] {
+  const changed = new Set<string>();
+  for (const file of fileHashes) {
+    try {
+      const absolutePath = path.resolve(cwd, file.path);
+      const stat = statSync(absolutePath);
+      const content = readFileSync(absolutePath);
+      const hash = `sha256:${createHash("sha256").update(content).digest("hex")}`;
+      if (hash !== file.hash || stat.size !== file.file_size) {
+        changed.add(file.path);
+      }
+    } catch {
+      changed.add(file.path);
+      if (onMissing([...changed])) break;  // abort if evidence file gone
+    }
+  }
+  return [...changed].sort();
+}
+```
+
+The stale path is identical; only the early-exit saves work when an evidence-backed file goes missing.

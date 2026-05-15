@@ -1,0 +1,9 @@
+From the verified factsheet:
+
+- **`static_verified`** — occurs when static verification stores at least one valid fact and no facts were rejected. Evidence: `rejectedFacts.length === 0 ? "static_verified" : "partial_static"` in `src/cluster.ts`.
+
+- **`llm_verified`** — occurs after LLM verification when all facts are accepted and there are no static or LLM rejected facts. Evidence: `rejectedFacts.length === 0 ? "llm_verified" : "partial_llm"` in `src/cluster.ts`.
+
+- **`partial_llm`** — occurs after LLM verification when at least one fact is rejected but at least one LLM-verified fact remains stored. Evidence: both static and LLM rejected facts are combined, and if the combined set is non-empty but some facts are still accepted, `trustState` becomes `"partial_llm"`.
+
+**Summary of the progression:** Static verification is performed first; if any fact is rejected it becomes `partial_static`. LLM verification then runs on remaining facts; if all pass it becomes `llm_verified`, but if any are rejected it becomes `partial_llm`.

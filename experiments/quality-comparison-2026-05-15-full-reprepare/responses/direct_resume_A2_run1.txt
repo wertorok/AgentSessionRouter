@@ -1,0 +1,26 @@
+
+
+All event types written to `cluster_events` (compiled from source):
+
+| Event type | Origin |
+|---|---|
+| `cluster_created` | `db.ts:688` |
+| `factsheet_rejected` | `cluster.ts:210`, `cluster.ts:451` |
+| `factsheet_partially_static_verified` | `db.ts:1299` (via `factsheetEventType`) |
+| `factsheet_partially_llm_verified` | `db.ts:1302` (via `factsheetEventType`) |
+| `factsheet_static_verified` | `db.ts:1305` (via `factsheetEventType`) |
+| `factsheet_llm_verified` | `db.ts:1308` (via `factsheetEventType`) |
+| `llm_verifier` | `cluster.ts:235` |
+| `factsheet_stale` | `clusterRefresh.ts:80` |
+| `cluster_refresh` | `clusterRefresh.ts:97` |
+| `cluster_consult` | `clusterConsult.ts:119` |
+| `cluster_consult_failed` | `clusterConsult.ts:147` |
+| `cluster_refresh_required` | `clusterConsult.ts:68` |
+| `tool_profile_downgraded` | `tools.ts:549`, `clusterConsult.ts:137` |
+| `bare_probe_failed` | `runtime.ts:151` |
+| `cluster_fallback_failed` | `tools.ts:847` |
+| `cluster_fallback_to_claude_consult` | `tools.ts:847` |
+| `evidence_revalidation_failed` | `clusterEvidenceRevalidation.ts:100` |
+| `evidence_revalidated` | `clusterEvidenceRevalidation.ts:147` |
+
+The query at `db.ts:1122-1134` (`getRecentClusterAttentionCounts`) defines the "attention" subset that feeds into monitoring alerts — it filters to: `cluster_consult_failed`, `cluster_fallback_to_claude_consult`, `cluster_fallback_failed`, `cluster_refresh_required`, `factsheet_stale`, `factsheet_rejected`, `evidence_revalidation_failed`, `bare_probe_failed`, `tool_profile_downgraded`.

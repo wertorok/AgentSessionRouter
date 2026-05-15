@@ -1,0 +1,17 @@
+
+
+The LLM verifier runs in `bare` or `focused` mode — never `agent` — for two reasons:
+
+**Purpose fit**: The verifier's job is to judge pre-collected static evidence, not discover new code. The verifier prompt at `src/cluster.ts:467-495` explicitly says: *"Do not infer. Do not use tools. Return JSON only."* Running `agent` would waste tokens on tool-based exploration that contradicts the evaluation task.
+
+**Controlled cost**: `agent` profile allows `Agent`, `Glob`, `Read` etc., which would inflate token use far beyond the measured 1,170 tokens that motivated the cache layer (see `docs/CLUSTER_CACHE_SPEC.md:17-22`). The entire cluster optimization rationale depends on staying low-token.
+
+The downgrade is also deterministic: `clusterPrepareInput.llm_verifier_profile` defaults to `"focused"` (`src/tools.ts:116`), and even if `bare` is requested, `tools.ts:526-528` throws if the selected profile is `agent`:
+
+```ts
+if (profileSelection.selected === "agent") {
+  throw new Error("LLM verifier cannot use agent profile");
+}
+```
+
+This is enforced because `agent` is used only for explicit exploration or refresh — not for any verification or factsheet-gated consult path.

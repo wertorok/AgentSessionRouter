@@ -1,0 +1,28 @@
+
+
+From the codebase (grep compiled from all write sites):
+
+| Event type | File:line |
+|---|---|
+| `cluster_created` | `src/db.ts:688` |
+| `factsheet_partially_static_verified` | `src/db.ts:1299` (via `factsheetEventType`) |
+| `factsheet_partially_llm_verified` | `src/db.ts:1302` (via `factsheetEventType`) |
+| `factsheet_static_verified` | `src/db.ts:1305` (via `factsheetEventType`) |
+| `factsheet_llm_verified` | `src/db.ts:1308` (via `factsheetEventType`) |
+| `factsheet_rejected` | `src/cluster.ts:210`, `src/cluster.ts:451` |
+| `llm_verifier` | `src/cluster.ts:235` |
+| `factsheet_stale` | `src/clusterRefresh.ts:80` |
+| `cluster_refresh` | `src/clusterRefresh.ts:97` |
+| `cluster_consult` | `src/clusterConsult.ts:119` |
+| `cluster_consult_failed` | `src/clusterConsult.ts:147` |
+| `cluster_refresh_required` | `src/clusterConsult.ts:68` |
+| `tool_profile_downgraded` | `src/tools.ts:549`, `src/clusterConsult.ts:137` |
+| `bare_probe_failed` | `src/runtime.ts:151` |
+| `cluster_fallback_failed` | `src/tools.ts:847` |
+| `cluster_fallback_to_claude_consult` | `src/tools.ts:847` |
+| `evidence_revalidation_failed` | `src/clusterEvidenceRevalidation.ts:100` |
+| `evidence_revalidated` | `src/clusterEvidenceRevalidation.ts:147` |
+
+**16 distinct event types total.**
+
+Note that `getRecentClusterAttentionCounts` (`src/db.ts:1115`) and `getRecentClusterAttentionCountsByCluster` (`src/db.ts:1139`) filter to a subset of 9 "attention" event types for monitoring alerts: `cluster_consult_failed`, `cluster_fallback_to_claude_consult`, `cluster_fallback_failed`, `cluster_refresh_required`, `factsheet_stale`, `factsheet_rejected`, `evidence_revalidation_failed`, `bare_probe_failed`, `tool_profile_downgraded`.

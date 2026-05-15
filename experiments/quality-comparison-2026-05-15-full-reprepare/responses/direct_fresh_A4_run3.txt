@@ -1,0 +1,17 @@
+The bare tool profile uses the CLI args:
+
+```
+--bare --tools ""
+```
+
+This is defined in `src/profiles.ts:33` in the `profileArgs()` function:
+
+```typescript
+case "bare":
+  return ["--bare", "--tools", ""];
+```
+
+The three profiles are:
+- **`bare`**: `["--bare", "--tools", ""]` — no tools, no project context
+- **`focused`**: `["--tools", ""]` — no tools, but uses project
+- **`agent`**: `[]` — full agent mode with tools

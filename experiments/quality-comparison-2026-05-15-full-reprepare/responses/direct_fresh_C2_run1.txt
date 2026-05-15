@@ -1,0 +1,24 @@
+
+
+**Likely untested failure: malformed `SESSION_UPDATE_JSON` block in bare mode causes an unhandled parse error**
+
+The code path for bare (`--bare --tools ""`) goes:
+1. `clusterConsult.ts:93` calls `runPromptWithOptions` with `extraArgs: ["--bare", "--tools", ""]`
+2. `consult.ts:448` calls `parseSessionUpdate(rawResponse)` on the result
+3. `sessionUpdate.ts:19` does `JSON.parse(jsonText)` — if the block is present but malformed, this **throws**
+
+The parse call at `consult.ts:448` has no try-catch:
+
+```typescript
+// consult.ts:448 — no error handling around parseSessionUpdate
+const parsed = parseSessionUpdate(rawResponse);
+```
+
+If `--bare --tools ""` causes the model to produce a `SESSION_UPDATE_JSON:` marker but with invalid JSON (e.g., truncated, wrong schema, or markdown artifacts not stripped by `normalizeUpdateJsonText`), the error propagates as an unhandled exception rather than being caught as a parse failure event.
+
+**Existing coverage gap:** The test at `tests/clusterConsult.test.ts:51` only verifies that the *correct CLI args* are constructed (`["--bare", "--tools", ""]`). The actual CLI behavior — what the model returns when invoked with those args and whether that response survives parsing — is not tested. The `ProbeClaude` mock never exercises `parseSessionUpdate` with a bare-mode response.
+
+**How to detect it:**
+1. **Trace the session update parse path end-to-end** with a bare-mode fixture that has a malformed `SESSION_UPDATE_JSON` block (e.g., `SESSION_UPDATE_JSON: { "summary": }` — missing value)
+2. Add a `parse_failed` event assertion — `tests/consult.test.ts:252` already checks this event type exists, but no test feeds it a bare-mode malformed response
+3. Instrument `consult.ts:448` with a try-catch that calls `logEvent` with `event_type: "parse_failed"` and re-throws, so the failure is visible in traces

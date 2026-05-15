@@ -1,0 +1,14 @@
+
+
+When the factsheet is stale in `cluster_consult`, the flow at `src/clusterConsult.ts:62-79` is:
+
+1. **`findStaleFiles()`** compares stored file hashes against current on-disk files (lines 198-214). Any file that changed, was deleted, or can't be read is flagged stale.
+
+2. **If stale files exist** (line 63):
+   - `db.markClusterFactsheetStale()` — marks the factsheet as stale in the DB
+   - `db.logClusterEvent({ eventType: "cluster_refresh_required" })` — logs the event with details on which files changed
+   - Returns an **`ErrorPayload`** with `ERROR_CODES.CLUSTER_FACTSHEET_STALE` — the MCP call fails with an error
+
+3. **The caller** (in `src/tools.ts`) is expected to catch this error and fall back to regular `claude_consult`, re-issuing the question without the factsheet context.
+
+So the stale factsheet causes an **early return with an error**, not a silent fallback — the caller must handle the fallback explicitly. The error message is: `"Cluster factsheet is stale. Run cluster_refresh before consulting."` (from `src/errors.ts:43`).

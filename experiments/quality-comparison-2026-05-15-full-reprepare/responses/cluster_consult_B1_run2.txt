@@ -1,0 +1,3 @@
+
+
+The LLM verifier runs in `bare` mode because it must judge only the supplied evidence, avoid new discovery, avoid inference, and return VERIFIED only when the claim follows from that evidence. Agent mode would allow the verifier to use tools and make inferences, which would defeat the purpose of checking whether stored facts are actually supported by the scoped evidence.

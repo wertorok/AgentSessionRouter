@@ -1,0 +1,52 @@
+
+
+Here's the code path when you delete a Claude `.jsonl` session file and then call `claude_consult`:
+
+**1. `ConsultService.consult()` → `resolveRoute()`** (`src/consult.ts:249`)
+
+When `input.sessionId` is provided (or auto-matched), the first thing `resolveRoute()` does is check if the `.jsonl` file actually exists:
+
+```typescript
+// src/consult.ts:271
+const exists = await this.runtime.claude.sessionFileExists(session.claude_session_id);
+if (!exists) {
+    const oldView = this.runtime.db.getSessionView(session.id);
+    this.runtime.db.markSessionOrphaned(session.id);   // <-- marks DB record orphaned
+    return {
+        selectedSession: null,
+        selectedView: null,
+        bootstrapContext: oldView ? buildBootstrapContext(oldView, "orphaned") : undefined,
+        matchScore: 0,
+        matchReason: "Selected session was orphaned; creating replacement from registry context.",
+        wasOrphanRecovery: true
+    };
+}
+```
+
+**2. `sessionFileExists()`** (`src/claude.ts:104`) checks three locations:
+```typescript
+const candidates = [
+    path.join(home, ".claude", "sessions", `${claudeSessionId}.json`),
+    path.join(home, ".claude", "sessions", `${claudeSessionId}.jsonl`),   // <-- this is gone
+    path.join(home, ".claude", "projects")
+];
+if (existsSync(candidates[0]) || existsSync(candidates[1])) {
+    return true;
+}
+// Also recursively searches ~/.claude/projects/ up to depth 3
+```
+
+Since the `.jsonl` is deleted, all three checks fail → `exists = false`.
+
+**3. Marked orphaned in DB** — the session record in SQLite gets its `status` set to `"orphaned"`.
+
+**4. `invokeWithRouteLock()`** receives `selectedSession: null`, so it calls `invokeClaude()` without a session to resume.
+
+**5. `invokeClaude()`** (`src/consult.ts:117`) detects no `route.selectedSession` and:
+- Builds a bootstrap context from the old orphaned session's view (`buildBootstrapContext(oldView, "orphaned")`)
+- Creates a **brand new session** via `this.runtime.db.createSession({ id: createInternalSessionId(), ... })`
+- Calls `claude.runPrompt(prompt, undefined)` — **no `--resume` flag** → fresh session
+
+**6. A new `claude_session_id` is returned** in the response, and stored in the new DB session record.
+
+**Summary:** The deleted session becomes "orphaned" in the DB. The consult creates a fresh session instead of resuming, and `was_orphan_recovery: true` is returned in the routing metadata so the caller knows it recovered from a missing file.

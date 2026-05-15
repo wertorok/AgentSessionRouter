@@ -1,0 +1,9 @@
+
+
+The README at line 700 explains it:
+
+> LLM verification uses `llm_verifier_profile: "focused"` as the portable default, which invokes Claude with `--tools ""`. `llm_verifier_profile: "bare"` invokes Claude with `--bare --tools ""` when the local Claude auth supports it.
+
+The verifier is run in `bare` mode (no tools, no agent loop) rather than `agent` mode because the LLM verifier's job is to **read-only evaluate** a factsheet — it only needs to invoke Claude to score and comment on each fact claim. It does not need to take actions, run tools, or iterate. `bare` mode provides a pure inference-only invocation, which is faster and cheaper than a full agent loop for this single-purpose evaluation task.
+
+From `scripts/mcp-workload-matrix.mjs:375` and `scripts/quality-comparison.mjs:352`, the profile is configurable between `bare` and `focused` (fallback), but `agent` is intentionally never used for verification.

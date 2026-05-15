@@ -1,0 +1,25 @@
+
+
+All event types written to `cluster_events`:
+
+| Event Type | Location(s) |
+|---|---|
+| `tool_profile_downgraded` | `src/tools.ts:549`, `src/clusterConsult.ts:138` |
+| `cluster_fallback_to_claude_consult` | `src/tools.ts:847` |
+| `cluster_fallback_failed` | `src/tools.ts:847` |
+| `cluster_created` | `src/db.ts:688` |
+| `factsheet_stale` | `src/clusterRefresh.ts:80` |
+| `cluster_refresh` | `src/clusterRefresh.ts:97` |
+| `bare_probe_failed` | `src/runtime.ts:151` |
+| `evidence_revalidation_failed` | `src/clusterEvidenceRevalidation.ts:100` |
+| `evidence_revalidated` | `src/clusterEvidenceRevalidation.ts:147` |
+| `factsheet_rejected` | `src/cluster.ts:210`, `src/cluster.ts:451` |
+| `llm_verifier` | `src/cluster.ts:235` |
+| `cluster_refresh_required` | `src/clusterConsult.ts:68` |
+| `cluster_consult` | `src/clusterConsult.ts:119` |
+| `cluster_consult_failed` | `src/clusterConsult.ts:147` |
+| `factsheet_generated` | `src/db.ts:1310` (dynamic via `factsheetEventType()`) |
+| `factsheet_static_verified` | `src/db.ts:1305` |
+| `factsheet_llm_verified` | `src/db.ts:1308` |
+| `factsheet_partially_static_verified` | `src/db.ts:1299` |
+| `factsheet_partially_llm_verified` | `src/db.ts:1302` |

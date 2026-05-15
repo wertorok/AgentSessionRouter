@@ -1,0 +1,34 @@
+
+
+## Trust State Differences
+
+| Trust State | Meaning | When it occurs |
+|---|---|---|
+| `static_verified` | All facts passed static verification; no LLM check needed or done | `verification_mode = "static"` with zero rejected facts (`src/cluster.ts:131`) |
+| `partial_static` | Some facts rejected by static verifier; LLM verification skipped or not run | `verification_mode = "static"` with ≥1 rejected fact (`src/cluster.ts:131`) |
+| `llm_verified` | All static facts also passed LLM verification (promoted to `llm_verified` confidence) | `verification_mode = "llm"` with zero rejected facts total (`src/cluster.ts:221`) |
+| `partial_llm` | Some facts rejected by LLM verifier; some promoted to `llm_verified` | `verification_mode = "llm"` with ≥1 rejected fact total (`src/cluster.ts:221`) |
+| `unprepared` | No factsheet yet | Cluster created but never prepared |
+| `untrusted` | Factsheet failed or was marked stale/needs_prepare | `markClusterFactsheetStale` or `markClusterNeedsPrepare` (`src/db.ts:867,877`) |
+
+### The `omitted_facts` field
+
+The distinguishing factor between full and partial variants is the `omitted_facts` counter in the stored factsheet content (`src/clusterRefresh.ts:177`):
+
+```ts
+const omittedFacts = typeof content.omitted_facts === "number" ? content.omitted_facts : 0;
+if (status === "llm_verified") {
+  return omittedFacts > 0 ? "partial_llm" : "llm_verified";
+}
+return omittedFacts > 0 ? "partial_static" : "static_verified";
+```
+
+`omitted_facts` is incremented by the static verifier (rejected count) and again by the LLM verifier (LLM-rejected count) — `src/cluster.ts:220`.
+
+### Consult gating
+
+`cluster_consult` at `src/clusterConsult.ts:55` only trusts the factsheet if:
+- `factsheet.status === "llm_verified"`, **or**
+- `cluster.static_factsheet_policy === "allow"` (for `static_verified` factsheets)
+
+So `partial_static` and `partial_llm` clusters are effectively read-only artifacts — they exist for audit but cannot be consulted without operator override.

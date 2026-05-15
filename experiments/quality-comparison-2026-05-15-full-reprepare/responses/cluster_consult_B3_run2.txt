@@ -1,0 +1,9 @@
+**`static_verified`** — Static verification found and stored at least one valid fact, with zero rejected facts.
+
+**`llm_verified`** — LLM verification accepted all facts; there are no static-rejected or LLM-rejected facts anywhere.
+
+**`partial_llm`** — LLM verification ran but rejected at least one fact (from either static or LLM verification layer), while at least one LLM-verified fact still remains stored.
+
+So the progression is: a fully clean run yields `llm_verified`; a clean static-only run yields `static_verified`; if any fact gets rejected by either verification layer, the state degrades to `partial_llm` (or `partial_static` during static-only runs).
+
+*(Source: `src/cluster.ts` trust-state assignments — `static_verified`, `llm_verified`, and `partial_llm` facts in the factsheet.)*

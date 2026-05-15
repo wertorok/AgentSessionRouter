@@ -1,0 +1,25 @@
+## Orphan Recovery Code Path
+
+Based on the verified factsheet, here's the code path when a deleted `.jsonl` file is encountered on `claude_consult`:
+
+### 1. Detection
+`claude_consult` calls `sessionFileExists(session.claude_session_id)` which returns false because the `.jsonl` is gone.
+
+### 2. Mark Orphaned
+The router calls `this.runtime.db.markSessionOrphaned(session.id)` which:
+- Updates the session's status to `'orphaned'` in the `sessions` table
+- Writes an `orphan_recovery` event to `cluster_events`
+
+### 3. Bootstrap Recovery
+The old view (topics, summary, history) is preserved as `oldView`, and a bootstrap context is built: `buildBootstrapContext(oldView, "orphaned")`. A replacement route is created with `wasOrphanRecovery: true`.
+
+### 4. New Session Created
+`invokeClaude` runs with no selected session → `this.runtime.db.createSession({ claudeSessionId: claudeResponse.sessionId })` creates a new registry entry with a fresh `.jsonl` file.
+
+### 5. Output
+The response includes `routing.was_orphan_recovery: true`.
+
+The same recovery path applies whether the session was:
+- **Explicitly selected** (given a `session_id`)
+- **Auto-routed by exact topic match**
+- **Auto-routed by non-exact match**

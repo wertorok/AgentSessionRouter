@@ -1,0 +1,8 @@
+The bare tool profile is defined in `src/profiles.ts:30-33`. The CLI args used are:
+
+```js
+case "bare":
+  return ["--bare", "--tools", ""];
+```
+
+So the bare profile passes two arguments to the Claude CLI: **`--bare`** and **`--tools ""`** (with an empty string for the tools argument).

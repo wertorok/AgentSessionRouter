@@ -1,0 +1,24 @@
+
+## Code Path: Missing Claude `.jsonl` File on `claude_consult`
+
+Based on the verified factsheet:
+
+### What triggers it
+`claude_consult` is given a `session_id` whose associated `.jsonl` file no longer exists on disk.
+
+### Step-by-step
+
+1. **`consult.ts`** calls `sessionFileExists(session.claude_session_id)` — returns `false`.
+2. **`consult.ts`** calls `db.markSessionOrphaned(session.id)`:
+   - Session status in `sessions` table is set to `'orphaned'`.
+   - An **`orphan_recovery`** event is written to **`session_events`** (not cluster_events).
+3. **`consult.ts`** builds bootstrap context from the old registry view (`buildBootstrapContext(oldView, "orphaned")`).
+4. A **replacement route** is created from that bootstrap registry context.
+5. A **new registry session** is created, its `claudeSessionId` recorded from the new Claude invocation.
+6. The caller output exposes `routing.was_orphan_recovery: true`.
+
+### Key facts from the factsheet
+- `orphan-explicit-session` — explicit session_id with missing file triggers orphan mark + replacement route.
+- `orphan-session-event` — writes to **session_events**, not cluster_events.
+- `orphan-routing-output` — `was_orphan_recovery` is exposed in the output and asserted true in tests.
+- `orphan-exact-topic-session` / `orphan-auto-routed-session` — same pattern applies when the missing session was auto-routed by topic.

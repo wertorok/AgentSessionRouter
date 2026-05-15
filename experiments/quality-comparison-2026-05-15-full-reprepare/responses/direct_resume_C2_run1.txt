@@ -1,0 +1,40 @@
+
+
+## Likely Untested Failure Mode: append-system-prompt interaction with `--bare`
+
+The probe at `src/profiles.ts:102-127` sends `"Return exactly: PROFILE_OK"` — a 26-byte string. But the actual `cluster_consult` call at `src/clusterConsult.ts:93-98` uses:
+
+```js
+claude.runPromptWithOptions(buildClusterQuestionPrompt(input.question), {
+  ...profilePromptOptions(profileSelection.selected),
+  appendSystemPrompt: buildClusterSystemPrompt(loaded)  // ← this is the difference
+})
+```
+
+For a factsheet with 10 facts, `buildClusterSystemPrompt` produces a prompt 5–15 KB of JSON. The probe never tests `--bare --tools ""` + `--append-system-prompt` together.
+
+### Specific sub-failures that could occur but are undetected:
+
+1. **`--bare` + `--append-system-prompt` auth path divergence** — `--bare` skips Claude Code project context (no `~/.claude/projects` auto-discovery). The probe succeeds because it uses the same简短 prompt. But when `--append-system-prompt` is combined with `--bare`, some Claude versions may route through a different auth check that fails on longer prompts or different content types. The probe result (`bare.available = true`) remains cached for up to the runtime lifetime (`src/runtime.ts:142-159`), so this would silently affect all subsequent consults.
+
+2. **`--append-system-prompt` contents trigger token-count-based rate limiting** — the probe prompt is 26 tokens of trivial text. A factsheet inject with structured JSON might hit a different rate limit bucket that `--bare` alone doesn't exercise. No token anomaly detection fires because the router estimates 1,700 tokens and gets back a valid response; but if the actual prompt exceeds a hidden threshold, Claude may respond differently than expected.
+
+3. **`--output-format json` behavior under `--bare` with malformed append** — if the factsheet JSON contains characters that confuse the CLI's output parser when `--bare` is active, the response might not be valid JSON but the code at `src/claude.ts:134-163` would throw a parse error as `CLAUDE_INVOCATION_FAILED` rather than revealing the root cause.
+
+### How to detect it
+
+Add a test in `tests/profiles.test.ts` that simulates a long append-system-prompt:
+
+```ts
+it("probe reflects bare availability with realistic append-system-prompt load", async () => {
+  const claude = new ProbeClaude();
+  const availability = await detectAvailableProfiles(claude, () => new Date());
+  // The ProbeClaude mock returns "PROFILE_OK" even for large prompts —
+  // but a real bare call with a 10-fact factsheet injection may behave differently
+  // This test would catch auth divergence on large prompts
+});
+```
+
+More targeted: in the smoke test (`scripts/post-install-smoke.mjs` or a new integration test), run `claude -p --bare --tools "" --append-system-prompt "$(python3 -c 'print(\"{\\"facts\\": [{\\"id\\":\\"test\\"}]*1000})"')" "ping"` to confirm the JSON response shape is correct when the append prompt is large.
+
+The current test at `tests/profiles.test.ts:16-27` only verifies that `detectAvailableProfiles` calls the right args in the right order — it doesn't validate the actual CLI output shape under realistic prompt load.

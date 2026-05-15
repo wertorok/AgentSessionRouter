@@ -1,0 +1,17 @@
+
+
+The `clusters` table fields (from `src/schema.sql:112-125`):
+
+1. `id` (TEXT, PRIMARY KEY)
+2. `project_id` (TEXT, NOT NULL)
+3. `name` (TEXT, NOT NULL)
+4. `description` (TEXT, NOT NULL DEFAULT '')
+5. `tool_profile_default` (TEXT, NOT NULL DEFAULT 'bare')
+6. `static_factsheet_policy` (TEXT, NOT NULL DEFAULT 'deny')
+7. `baseline_session_id` (TEXT)
+8. `status` (TEXT, NOT NULL DEFAULT 'active')
+9. `trust_state` (TEXT, NOT NULL DEFAULT 'unprepared')
+10. `created_at` (TEXT, NOT NULL)
+11. `last_used` (TEXT, NOT NULL)
+
+With a unique constraint on `(project_id, id)`.

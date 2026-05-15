@@ -1,0 +1,24 @@
+
+
+## Code Path: Orphaned Session Recovery
+
+When a `.jsonl` file is deleted, `claude_consult` performs orphan recovery. Here's the walkthrough:
+
+### 1. Session File Check
+In `consult.ts`, the router calls `sessionFileExists(session.claude_session_id)` and finds the file is gone.
+
+### 2. Mark Session Orphaned
+The router calls `this.runtime.db.markSessionOrphaned(session.id)`:
+- Sets the session row's `status = 'orphaned'`
+- Writes `orphan_recovery` to **session_events**, not cluster_events
+
+### 3. Create Replacement Route
+The router builds bootstrap context from the old view using `buildBootstrapContext(oldView, "orphaned")` and creates a replacement route with `wasOrphanRecovery: true`.
+
+### 4. New Session Created
+`invokeClaude` detects no selected session, calls `this.runtime.db.createSession(...)`, and the new `claudeSessionId` from the Claude response is stored.
+
+### 5. Response Output
+The consult result includes `routing.was_orphan_recovery: true` (verified by tests).
+
+**Note:** This covers three scenarios — explicit session_id, exact topic match, and non-exact auto-routed session — all share the same recovery pattern. The key fact absent from the factsheet: the exact internal method names on the Consult class that build the bootstrap context (e.g., `buildBootstrapContext`).

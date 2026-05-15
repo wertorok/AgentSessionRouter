@@ -1,0 +1,19 @@
+
+
+## Stale Factsheet Behavior in `cluster_consult`
+
+**Low-level (consultCluster):**
+- Detects stale scoped evidence files (changed hashes or selectors)
+- Marks the factsheet stale in the database
+- Logs `cluster_refresh_required` to cluster_events (with `changed_files` in details)
+- Returns `CLUSTER_FACTSHEET_STALE` error internally
+
+**Caller-facing (cluster_consult tool):**
+- Consumes the internal `CLUSTER_FACTSHEET_STALE` error
+- If `autoRefresh` is enabled: revalidates evidence under a per-cluster lock via `revalidateClusterEvidence` → logs `evidence_revalidated` or `evidence_revalidation_failed`
+- If revalidation fails OR `autoRefresh` is disabled: falls back internally to `claude_consult` → logs `cluster_fallback_to_claude_consult`
+
+**Complete event sequence for a stale factsheet:**
+1. `cluster_refresh_required` (detection)
+2. `evidence_revalidated` or `evidence_revalidation_failed` (revalidation outcome)
+3. `cluster_fallback_to_claude_consult` (if fallback answers the caller)

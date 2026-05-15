@@ -1,0 +1,16 @@
+
+
+When `cluster_consult` detects a stale factsheet (`src/clusterConsult.ts:62-78`):
+
+1. **Detect**: `findStaleFiles()` compares current SHA-256 hashes + file sizes against stored `cluster_file_hashes` — any mismatch → stale
+2. **Mark**: `db.markClusterFactsheetStale(factsheetId)` sets factsheet and cluster status to `stale`/`untrusted`
+3. **Log**: `cluster_refresh_required` event with `changed_files` list
+4. **Return**: `CLUSTER_FACTSHEET_STALE` error
+
+The caller-facing MCP layer (`src/tools.ts:781-817`) then runs a fallback cascade:
+
+- **Retry once** — re-probe availability and call `consultCluster` again (catches race where another process refreshed)
+- **Strict evidence revalidation** (if `autoRefresh = true`) — per-cluster lock, re-checks every selector/snippet_hash; if all pass, re-calls `consultCluster`; if any fails, falls through
+- **Fallback to V1** `claude_consult` — marks cluster `needs_prepare`, answers via normal session routing, logs `cluster_fallback_to_claude_consult`
+
+The caller only sees `CLUSTER_FACTSHEET_STALE` if `autoRefresh = false` or the error is `CLUSTER_PROJECT_MISMATCH` (a security boundary that must always be surfaced).

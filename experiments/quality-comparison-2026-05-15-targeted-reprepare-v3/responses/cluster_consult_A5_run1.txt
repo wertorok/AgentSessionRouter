@@ -1,0 +1,3 @@
+**30**
+
+The sessions schema defaults `dormant_after_days` to 30, as evidenced by the `dormant_after_days INTEGER DEFAULT 30` column definition in `src/schema.ts`.

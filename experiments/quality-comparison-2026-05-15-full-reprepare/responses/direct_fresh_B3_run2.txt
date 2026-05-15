@@ -1,0 +1,33 @@
+
+
+Here's the breakdown based on the source:
+
+## Trust States
+
+| Trust State | Status | When It Occurs |
+|---|---|---|
+| `static_verified` | `"static_verified"` | All facts pass static verification (file evidence matches selectors). No rejected facts. |
+| `partial_static` | `"static_verified"` | Static verification ran, but some facts were rejected (bad evidence/selectors). |
+| `llm_verified` | `"llm_verified"` | LLM verification completed; **all** facts (both static + LLM) passed with zero rejections. |
+| `partial_llm` | `"llm_verified"` | LLM verification completed, but some facts were rejected (either by static pre-check or LLM). |
+
+## How Each Is Determined
+
+**Static path** (`src/cluster.ts:131`):
+```typescript
+const trustState = verification.rejectedFacts.length === 0 ? "static_verified" : "partial_static";
+```
+
+**LLM path** (`src/cluster.ts:221`):
+```typescript
+const rejectedFacts = [...verification.rejectedFacts, ...llmVerification.rejectedFacts];
+const trustState = rejectedFacts.length === 0 ? "llm_verified" : "partial_llm";
+```
+
+## Key Distinction
+
+`partial_llm` vs `llm_verified` both carry `status: "llm_verified"`, but differ in reliability:
+- **`llm_verified`** — the full factsheet (after static pre-filtering) was sent to LLM and every single fact got a `VERIFIED` verdict
+- **`partial_llm`** — some facts were rejected at any stage (static pre-check or LLM), so the factsheet has omissions
+
+The revalidation logic in `src/clusterEvidenceRevalidation.ts:315-318` follows the same pattern: when `status === "llm_verified"`, a complete revalidation yields `llm_verified`, while an incomplete one yields `partial_llm`.

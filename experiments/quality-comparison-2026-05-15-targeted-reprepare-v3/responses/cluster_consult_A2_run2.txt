@@ -1,0 +1,23 @@
+
+
+The verified factsheet documents the following `cluster_events` event types:
+
+1. `cluster_created`
+2. `cluster_consult`
+3. `cluster_consult_failed`
+4. `cluster_refresh_required`
+5. `cluster_refresh`
+6. `cluster_fallback_to_claude_consult`
+7. `cluster_fallback_failed`
+8. `bare_probe_failed`
+9. `tool_profile_downgraded`
+10. `llm_verifier`
+11. `evidence_revalidated`
+12. `evidence_revalidation_failed`
+13. `factsheet_generated`
+14. `factsheet_rejected`
+15. `factsheet_static_verified`
+16. `factsheet_partially_static_verified`
+17. `factsheet_llm_verified`
+18. `factsheet_partially_llm_verified`
+19. `factsheet_stale`

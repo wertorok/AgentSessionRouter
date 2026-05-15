@@ -1,0 +1,38 @@
+
+
+When the `.jsonl` is deleted, the next `claude_consult` hits the orphan detection path in `src/consult.ts`:
+
+### 1. `resolveRoute()` (`consult.ts:249`)
+A session is found (explicit `sessionId`, topic match, or best-match) and passed to existence check.
+
+### 2. `claude.sessionFileExists()` (`claude.ts:104-122`)
+Checks three locations for the session file:
+```
+~/.claude/sessions/{id}.json
+~/.claude/sessions/{id}.jsonl
+~/.claude/projects/**/{id}.jsonl  (recursive, depth 3)
+```
+All return `false` → the file is gone.
+
+### 3. Session marked orphaned (`consult.ts:272-282`)
+```typescript
+const exists = await this.runtime.claude.sessionFileExists(session.claude_session_id);
+if (!exists) {
+  const oldView = this.runtime.db.getSessionView(session.id);
+  this.runtime.db.markSessionOrphaned(session.id);  // status = 'orphaned'
+  return {
+    selectedSession: null,
+    bootstrapContext: buildBootstrapContext(oldView, "orphaned"),
+    wasOrphanRecovery: true
+  };
+}
+```
+`markSessionOrphaned()` at `db.ts:523` sets `status = 'orphaned'` and logs `eventType: "orphan_recovery"`.
+
+### 4. New session bootstrapped from old view
+The orphaned session's view (summary, decisions, open questions, files, tags) is preserved via `getSessionView()` and passed as `bootstrapContext` — the new session inherits the conversation context without needing the `.jsonl`.
+
+### 5. `was_orphan_recovery: true` in response
+The caller knows a recovery occurred; the old session metadata is intact.
+
+**Summary**: Deleting the `.jsonl` doesn't lose context — it triggers orphan detection, preserves session metadata as bootstrap context, and creates a replacement session that resumes from the old session's state.

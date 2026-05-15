@@ -1,0 +1,31 @@
+
+
+## Trust States
+
+| State | Meaning | When it occurs |
+|---|---|---|
+| `static_verified` | All facts passed static verification only | `verification_mode = "static"`, 0 rejected facts (`src/cluster.ts:131`) |
+| `llm_verified` | All facts passed LLM verification (promoted from static) | `verification_mode = "llm"`, 0 total rejected facts (`src/cluster.ts:221`) |
+| `partial_llm` | LLM verification ran; some facts rejected | `verification_mode = "llm"`, ≥1 rejected fact → `omitted_facts > 0` (`src/cluster.ts:221`, `src/clusterRefresh.ts:179`) |
+
+## What differentiates full vs partial: `omitted_facts`
+
+`src/clusterRefresh.ts:176-182`:
+
+```ts
+const omittedFacts = typeof content.omitted_facts === "number" ? content.omitted_facts : 0;
+if (status === "llm_verified") {
+  return omittedFacts > 0 ? "partial_llm" : "llm_verified";
+}
+return omittedFacts > 0 ? "partial_static" : "static_verified";
+```
+
+`omitted_facts` accumulates from both the static verifier (rejected count) and the LLM verifier (additional rejected count) at `src/cluster.ts:220`.
+
+## Consult gating
+
+`cluster_consult` (`src/clusterConsult.ts:55`) only proceeds if:
+- `factsheet.status === "llm_verified"`, **or**
+- `cluster.static_factsheet_policy === "allow"` (allows `static_verified` too)
+
+So `partial_llm` is consult-blocked — it exists as an audit artifact but cannot serve `cluster_consult` calls without operator intervention.

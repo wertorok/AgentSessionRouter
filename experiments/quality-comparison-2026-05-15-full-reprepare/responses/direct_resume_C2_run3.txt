@@ -1,0 +1,54 @@
+
+
+## Likely Untested Failure: probe-result divergence under realistic prompt load
+
+The bare availability probe at `src/profiles.ts:102-127` sends:
+```
+"Return exactly: PROFILE_OK"   // 26 bytes
+```
+
+But `cluster_consult` at `src/clusterConsult.ts:93-98` does:
+```js
+claude.runPromptWithOptions(buildClusterQuestionPrompt(input.question), {
+  ...profilePromptOptions(profileSelection.selected),
+  appendSystemPrompt: buildClusterSystemPrompt(loaded)  // factsheet JSON — 5–15 KB for 10 facts
+})
+```
+
+The probe never exercises `--append-system-prompt`. 
+
+### Specific failure
+
+**`--bare` + `--append-system-prompt` auth path divergence** — `--bare` skips Claude Code project auto-discovery, routing through a lighter auth path. For short prompts this succeeds. For large structured JSON appended via `--append-system-prompt`, some Claude versions may hit a different rate-limit bucket or auth check. The probe result (`bare.available = true`) is cached for the runtime lifetime (`src/runtime.ts:142-159`), so every subsequent `cluster_consult` silently uses bare mode that may behave differently than the probe predicted.
+
+The SPEC itself flags this at `docs/CLUSTER_CACHE_SPEC.md:282-283`: *"May fail on machines where `--bare` cannot authenticate."* — but the test suite only validates with a trivial prompt.
+
+### How to detect it
+
+Add a smoke test that validates bare behavior with a realistic append prompt:
+
+```ts
+// tests/profiles.test.ts or scripts/post-install-smoke.mjs
+it("bare availability reflects behavior under realistic append-system-prompt", async () => {
+  const realClaude = new CliClaudeAdapter(config);
+  
+  // Probe — what the code currently tests
+  const availability = await detectAvailableProfiles(realClaude, () => new Date());
+  
+  // Realistic append — what cluster_consult actually does
+  const largeAppend = JSON.stringify({ 
+    facts: Array(10).fill({ id: "test", claim: "x", evidence: [] }) 
+  });
+  
+  // If bare probe says available but this throws or returns non-JSON, divergence found
+  const result = await realClaude.runPromptWithOptions("ping", {
+    extraArgs: ["--bare", "--tools", ""],
+    includeConfiguredExtraArgs: false,
+    appendSystemPrompt: largeAppend
+  });
+  
+  expect(() => JSON.parse(result.result)).not.toThrow();
+});
+```
+
+And add a correlation check: log `bare_probe_failed` with `cluster_consult` failure rate by profile in `cluster_events`. If bare-predicted sessions fail significantly more often than focused-predicted ones, there's a divergence to investigate.

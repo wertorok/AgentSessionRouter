@@ -1,0 +1,23 @@
+From the verified factsheet, these event types are written to `cluster_events`:
+
+1. `factsheet_static_verified`
+2. `factsheet_partially_static_verified`
+3. `factsheet_llm_verified`
+4. `factsheet_partially_llm_verified`
+5. `factsheet_generated`
+6. `factsheet_rejected`
+7. `cluster_created`
+8. `llm_verifier`
+9. `cluster_consult`
+10. `cluster_consult_failed`
+11. `cluster_refresh_required`
+12. `evidence_revalidation_failed`
+13. `evidence_revalidated`
+14. `cluster_fallback_to_claude_consult`
+15. `cluster_fallback_failed`
+16. `bare_probe_failed`
+17. `tool_profile_downgraded`
+18. `cluster_refresh`
+19. `factsheet_stale`
+
+**Note:** The factsheet explicitly states that `orphan_recovery` is written to `session_events`, not `cluster_events`. It is not listed above.

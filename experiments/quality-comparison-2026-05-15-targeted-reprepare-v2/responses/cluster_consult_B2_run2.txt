@@ -1,0 +1,62 @@
+## Orphan Recovery Code Path
+
+Based on the verified factsheet, here's the walkthrough when a `.jsonl` file is deleted before a `claude_consult` call:
+
+### Step 1: Session File Check Fails
+
+`claude_consult` checks whether the stored Claude session file still exists:
+
+```ts
+// src/consult.ts
+sessionFileExists(session.claude_session_id)
+```
+
+If it doesn't → **orphan path triggered**.
+
+### Step 2: Session Marked Orphaned
+
+The router marks the old registry session as orphaned:
+
+```ts
+// src/consult.ts
+this.runtime.db.markSessionOrphaned(session.id)
+```
+
+`markSessionOrphaned` in `src/db.ts` does two things:
+1. Sets session `status = 'orphaned'` in the DB
+2. Writes an `orphan_recovery` event to `cluster_events`
+
+### Step 3: Bootstrap Context Built from Old View
+
+The system reads the old session's registry view and builds a bootstrap context from it:
+
+```ts
+// src/consult.ts
+bootstrapContext: oldView ? buildBootstrapContext(oldView, "orphaned") : undefined
+```
+
+### Step 4: Replacement Route Created
+
+A new registry session is created, and `wasOrphanRecovery` is set to `true`:
+
+```ts
+// src/consult.ts
+wasOrphanRecovery: true
+```
+
+### Step 5: New Session Persisted
+
+When `invokeClaude` runs with no selected session, it creates a new registry session using the returned Claude session id:
+
+```ts
+// src/consult.ts
+this.runtime.db.createSession({ claudeSessionId: claudeResponse.sessionId, ... })
+```
+
+### Step 6: Output Exposes Recovery Flag
+
+The caller-facing output exposes `routing.was_orphan_recovery: true`.
+
+---
+
+**Note:** The factsheet covers the `claude_consult` path but does not cover what happens under `cluster_consult` when a session's `.jsonl` is deleted — that is **NOT IN CONTEXT**.

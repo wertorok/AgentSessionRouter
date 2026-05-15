@@ -1,0 +1,42 @@
+
+
+## Trust State Breakdown
+
+`ClusterTrustState` is defined in `src/db.ts:86-92`:
+
+```ts
+export type ClusterTrustState =
+  | "unprepared"   // never had a factsheet
+  | "static_verified"
+  | "llm_verified"
+  | "partial_static"
+  | "partial_llm"
+  | "untrusted";
+```
+
+### `static_verified`
+- **When:** Static (file-hash) verification succeeded with **zero rejected facts**.
+- **How:** After `verifyFactsheetStatic()` runs with no failures, the prepare path (`src/cluster.ts:131`) sets `trustState = "static_verified"` and `status = "static_verified"`.
+- **Meaning:** The factsheet claims are grounded in verified file contents. No LLM involvement.
+
+### `llm_verified`
+- **When:** LLM verification succeeded with **zero rejected facts** (all facts passed the LLM verdict check).
+- **How:** After LLM verification in `src/cluster.ts:221`, `trustState = "llm_verified"` and `status = "llm_verified"`.
+- **Meaning:** Facts were validated by both static hashing **and** an LLM review pass.
+
+### `partial_llm`
+- **When:** LLM verification ran but some facts were **rejected** (`omitted_facts > 0`).
+- **How:** `inferTrustState()` at `src/clusterRefresh.ts:179` detects this: if `status === "llm_verified"` and `omitted_facts > 0` → `"partial_llm"`.
+- **Meaning:** The factsheet is LLM-verified but incomplete — some claims were rejected and omitted from the factsheet.
+
+### `partial_static` (also relevant)
+- Same pattern as `partial_llm` but for the static path: static verification ran but some facts were rejected.
+
+### Summary table
+
+| State | Verification path | Rejected facts | Meaning |
+|---|---|---|---|
+| `static_verified` | static only | 0 | All claims match verified file hashes |
+| `partial_static` | static only | > 0 | Static-verified but some claims failed |
+| `llm_verified` | static → LLM | 0 | All claims pass both static and LLM |
+| `partial_llm` | static → LLM | > 0 | LLM-verified but some claims were rejected |

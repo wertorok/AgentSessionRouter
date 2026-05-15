@@ -1,0 +1,58 @@
+## AgentSessionRouter — Project Map
+
+**Purpose**: MCP server that routes coding-agent questions to the correct persistent Claude session, avoiding full context resend on every call.
+
+---
+
+### Architecture Layers
+
+**V1 — Session Router** (original, SPEC.md §1–23)
+- Routes questions to project-scoped `active`/`dormant` Claude sessions
+- Matching: Jaccard on topic/files/tags/aliases + recency score
+- Session metadata (decisions, files, tags, aliases) stored in SQLite; full history stays in Claude CLI `.jsonl` files
+- Key flows: `consult` → route-or-create → invoke `claude --resume` → parse `SESSION_UPDATE_JSON`
+
+**V2 — Cluster Cache** (CLUSTER_CACHE_SPEC.md, Phases 0–8)
+- Named, project-scoped knowledge clusters with verified factsheets (static-file evidence + optional LLM verification)
+- Tool profiles: `bare` (no tools), `focused` (bounded tools), `agent` (full access)
+- Freshness: scoped file-hash checks → strict selector/snippet revalidation or fallback to V1
+- Shadow eval for quality comparison (cluster vs. direct baseline)
+
+---
+
+### Key Source Files
+
+| File | Role |
+|------|------|
+| `src/consult.ts` | V1 `ConsultService`: routing, lock-gated invocation, orphan recovery, parse failure threshold, token anomaly detection |
+| `src/db.ts` | `RouterDatabase` class: all SQLite ops via `better-sqlite3`, lifecycle state machine, session+cluster CRUD |
+| `src/schema.ts` | `SCHEMA_SQL` constant: full DDL for v1 sessions + v2 clusters + consult_comparisons |
+| `src/claude.ts` | `CliClaudeAdapter`: spawns `claude -p` / `--resume`, parses JSON response, health probe |
+| `src/tools.ts` | MCP tool registration (v1: 5 tools; v2 adds: `cluster_prepare/get/consult/list/refresh`, `comparison_stats/list`, `router_status/monitor`) |
+| `src/cluster.ts` | `prepareCluster` (static verify + optional LLM verify), `verifyFactsheetStatic`, `verifyFactsheetWithLlm`, `parseLlmVerifierResponse` |
+| `src/clusterConsult.ts` | `consultCluster`: factsheet-gated consult, tool-profile selection, stale evidence detection, append-system-prompt injection |
+| `src/clusterRefresh.ts` | `refreshCluster`: `verify_only` mode rechecks file hashes/selectors, marks stale or fresh |
+| `src/profiles.ts` | `detectAvailableProfiles`, `pickProfile`, `profileArgs` for bare/focused/agent CLI shapes |
+
+---
+
+### Data Model
+
+- **`sessions`** — internal session registry (id, claude_session_id, topic, summary, status: active/dormant/archived/orphaned, lifecycle timestamps)
+- **`session_events`** — append-only audit log (consult, new_session, orphan_recovery, parse_failed, cost_limit_exceeded, etc.)
+- **`clusters`** — named knowledge areas (id, project_id, trust_state: unprepared/static_verified/llm_verified/partial_*, tool_profile_default, static_factsheet_policy)
+- **`cluster_factsheets`** — versioned verified artifacts (content_json with facts+evidence, status: draft/static_verified/llm_verified/stale)
+- **`cluster_file_hashes`** — evidence index (path, sha256 hash, file size, last_verified)
+- **`consult_comparisons`** — shadow eval records (cluster vs. direct baseline, judged quality scores)
+
+---
+
+### Concurrency Model
+
+- Per-session locks via `withLock(claude_session_id, ...)` to prevent concurrent writes to same `.jsonl`
+- Topic+project lock for new-session creation
+- Per-cluster evidence-revalidation lock for stale-triggered strict revalidation
+
+---
+
+Ready for follow-up questions.

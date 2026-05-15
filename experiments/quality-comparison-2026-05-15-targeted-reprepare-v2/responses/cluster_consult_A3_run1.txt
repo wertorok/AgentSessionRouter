@@ -1,0 +1,17 @@
+
+
+The factsheet covers two layers:
+
+**Low-level `consultCluster` function:**
+When scoped evidence files are stale, it:
+- Marks the factsheet stale (`db.markClusterFactsheetStale`)
+- Logs `cluster_refresh_required` to cluster_events with `changed_files`
+- Returns `CLUSTER_FACTSHEET_STALE` internally
+
+**Caller-facing `cluster_consult` tool:**
+It consumes the internal `CLUSTER_FACTSHEET_STALE` error:
+- If `autoRefresh` is enabled: revalidates evidence under a per-cluster lock (`locks.withLock`)
+- If revalidation succeeds: writes `evidence_revalidated` to cluster_events
+- If revalidation fails or `autoRefresh` is disabled: falls back internally to `claude_consult`, writes `cluster_fallback_to_claude_consult` to cluster_events, and returns an answer to the caller
+
+The event sequence for the stale path is: `cluster_refresh_required` → `evidence_revalidated` or `evidence_revalidation_failed` → `cluster_fallback_to_claude_consult`.

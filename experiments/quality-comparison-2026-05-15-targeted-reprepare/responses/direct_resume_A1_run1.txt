@@ -1,0 +1,19 @@
+
+
+The `clusters` table fields (from `src/schema.ts:113-126`):
+
+| Field | Type | Default |
+|-------|------|---------|
+| `id` | TEXT | PRIMARY KEY |
+| `project_id` | TEXT | NOT NULL |
+| `name` | TEXT | NOT NULL |
+| `description` | TEXT | `''` |
+| `tool_profile_default` | TEXT | `'bare'` |
+| `static_factsheet_policy` | TEXT | `'deny'` |
+| `baseline_session_id` | TEXT | — |
+| `status` | TEXT | `'active'` |
+| `trust_state` | TEXT | `'unprepared'` |
+| `created_at` | TEXT | NOT NULL |
+| `last_used` | TEXT | NOT NULL |
+
+Unique constraint: `(project_id, id)`

@@ -1,0 +1,25 @@
+
+
+Here are all the event types written to `cluster_events` (via `logClusterEvent`):
+
+| Event Type | Source |
+|---|---|
+| `tool_profile_downgraded` | `src/tools.ts:549`, `src/clusterConsult.ts:134` |
+| `cluster_fallback_failed` / `cluster_fallback_to_claude_consult` | `src/tools.ts:847` (ternary) |
+| `cluster_created` | `src/db.ts:688` |
+| `factsheet_partially_static_verified` | `src/db.ts:807` via `factsheetEventType()` |
+| `factsheet_partially_llm_verified` | `src/db.ts:807` via `factsheetEventType()` |
+| `factsheet_static_verified` | `src/db.ts:807` via `factsheetEventType()` |
+| `factsheet_llm_verified` | `src/db.ts:807` via `factsheetEventType()` |
+| `factsheet_rejected` | `src/db.ts:807` via `factsheetEventType()`, `src/cluster.ts:210,451` |
+| `factsheet_generated` | `src/db.ts:807` via `factsheetEventType()` |
+| `llm_verifier` | `src/cluster.ts:235` |
+| `factsheet_stale` | `src/clusterRefresh.ts:80` |
+| `cluster_refresh` | `src/clusterRefresh.ts:97` |
+| `evidence_revalidation_failed` | `src/clusterEvidenceRevalidation.ts:97` |
+| `evidence_revalidated` | `src/clusterEvidenceRevalidation.ts:144` |
+| `cluster_refresh_required` | `src/clusterConsult.ts:65` |
+| `cluster_consult` | `src/clusterConsult.ts:116` |
+| `cluster_consult_failed` | `src/clusterConsult.ts:144` |
+| `bare_probe_failed` | `src/runtime.ts:151` |
+| `cost_limit_exceeded` | `src/consult.ts:436` |

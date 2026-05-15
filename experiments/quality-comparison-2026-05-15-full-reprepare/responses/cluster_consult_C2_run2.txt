@@ -1,0 +1,5 @@
+
+
+**Likely failure mode:** The bare profile (`--bare --tools ""`) may **hallucinate/invent facts** rather than returning `NOT IN CONTEXT` when a required fact is absent from the factsheet.
+
+**How to detect it:** The factsheet already flags this risk (fact id: `bare-profile-risk`). You would detect it by running cluster consult queries that intentionally ask for facts *not* stored in the factsheet, then asserting the response contains `NOT IN CONTEXT` verbatim rather than a plausible-sounding fabricated name or value.

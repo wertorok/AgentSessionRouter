@@ -1,0 +1,41 @@
+
+
+## Code Path: Orphaned Session on `claude_consult`
+
+The factsheet directly covers this scenario across multiple facts.
+
+### Entry Point
+
+`claude_consult` is called with a `session_id`. The router checks whether the corresponding `.jsonl` session file still exists.
+
+### Detection
+
+The factsheet notes `sessionFileExists(session.claude_session_id)` (from `orphan-explicit-session`) — if the check returns false, the session file is gone.
+
+### Marking Orphaned
+
+The router calls `db.markSessionOrphaned(sessionId)` which:
+- Sets `UPDATE sessions SET status = 'orphaned'`
+- Writes `eventType: "orphan_recovery"` to **session_events**, not cluster_events (per `orphan-session-event`)
+
+### Route Replacement
+
+The router then creates a replacement route. The factsheet describes three cases:
+
+1. **Explicit session given** — "creates a replacement route from bootstrap registry context" (`orphan-explicit-session`)
+2. **Exact topic match** — logs "Exact normalized topic match was orphaned; creating replacement from registry context." (`orphan-exact-topic-session`)
+3. **Auto-routed (non-exact) session** — builds bootstrap context from the old view (`orphan-auto-routed-session`)
+
+All three set `wasOrphanRecovery: true`.
+
+### New Session Creation
+
+`invokeClaude` runs with no selected session, calls `this.runtime.db.createSession`, and stores `claudeResponse.sessionId` as the new `claudeSessionId` (`replacement-session-created`).
+
+### Output
+
+`claude_consult` output exposes `routing.was_orphan_recovery: true` (`orphan-routing-output`).
+
+---
+
+**Summary:** Missing `.jsonl` → session marked `orphaned` + `orphan_recovery` event to session_events → bootstrap context built → new registry session created → `was_orphan_recovery: true` in output.

@@ -1,0 +1,13 @@
+
+
+From `src/profiles.ts:30-39`:
+
+```js
+case "bare":
+  return ["--bare", "--tools", ""];
+```
+
+`claude -p --bare --tools "" <prompt>`
+
+- `--bare` — disables Claude Code project auto-discovery and auth flow
+- `--tools ""` — no tool access (empty allowlist)

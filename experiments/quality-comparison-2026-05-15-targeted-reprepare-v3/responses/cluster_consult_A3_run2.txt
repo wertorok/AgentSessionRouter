@@ -1,0 +1,10 @@
+
+
+**Low-level (`consultCluster`):** When scoped evidence files are stale, the function marks the factsheet stale, logs a `cluster_refresh_required` event (with `changed_files` in details), and returns `CLUSTER_FACTSHEET_STALE` internally. It does **not** answer the caller.
+
+**Caller-facing (`cluster_consult` tool):** The internal `CLUSTER_FACTSHEET_STALE` error is consumed — the tool either:
+
+- Revalidates evidence under a per-cluster lock (if `autoRefresh` is enabled), or
+- Falls back internally to `claude_consult` (if revalidation fails or `autoRefresh` is disabled), and returns an answer to the caller.
+
+The complete event sequence is: `cluster_refresh_required` → `evidence_revalidated` (success) or `evidence_revalidation_failed` (failure) → `cluster_fallback_to_claude_consult` (if fallback answers).
