@@ -15,6 +15,7 @@ import type {
   EventCount,
   ShadowEvalHealth,
   SlowSessionEventCount,
+  SlowSessionEventSample,
   StaleClusterView,
   StatusCount
 } from "./db.js";
@@ -69,6 +70,8 @@ const routerMonitorInput = z.object({
   recent_hours: z.number().int().min(1).max(168).default(24),
   sample_limit: z.number().int().min(1).max(50).default(10)
 });
+
+const SLOW_SESSION_TOKEN_BLOAT_THRESHOLD = 50_000;
 
 const clusterToolProfileInput = z.enum(["bare", "focused", "agent"]);
 const staticFactsheetPolicyInput = z.enum(["allow", "deny"]);
@@ -495,6 +498,11 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
         "invalidated",
         "archived"
       ]);
+      const autoRoutingCandidates = buildAutoRoutingCandidates(
+        comparisonStats,
+        clusterAttentionByCluster,
+        staleClusters
+      );
       const recommendations = buildMonitorRecommendations({
         degradedMode: runtime.degradedMode,
         degradedReason: runtime.degradedReason,
@@ -503,8 +511,10 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
         staleClusters,
         sessionErrors,
         slowSessionEvents,
+        slowSessionSamples,
         clusterAttentionByCluster,
-        comparisonStats
+        comparisonStats,
+        autoRoutingCandidates
       });
 
       return jsonToolResult({
@@ -545,7 +555,8 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
         quality: {
           cluster_stats: comparisonStats,
           direct_win_samples: directWins,
-          not_in_context_samples: notInContextSamples
+          not_in_context_samples: notInContextSamples,
+          auto_routing_candidates: autoRoutingCandidates
         },
         recommendations,
         next_directions: buildMonitorNextDirections(comparisonStats, clusterAttentionByCluster, staleClusters, shadowEval)
@@ -1171,8 +1182,10 @@ function buildMonitorRecommendations(input: {
   staleClusters: StaleClusterView[];
   sessionErrors: EventCount[];
   slowSessionEvents: SlowSessionEventCount[];
+  slowSessionSamples: SlowSessionEventSample[];
   clusterAttentionByCluster: ClusterEventCount[];
   comparisonStats: ConsultComparisonMonitorStats[];
+  autoRoutingCandidates: AutoRoutingCandidate[];
 }): Array<{ priority: "high" | "medium" | "low"; area: string; cluster_id?: string | null; action: string; reason: string }> {
   const recommendations: Array<{
     priority: "high" | "medium" | "low";
@@ -1311,7 +1324,86 @@ function buildMonitorRecommendations(input: {
     });
   }
 
+  for (const sample of input.slowSessionSamples) {
+    if ((sample.tokens_in ?? 0) < SLOW_SESSION_TOKEN_BLOAT_THRESHOLD) {
+      continue;
+    }
+    recommendations.push({
+      priority: "medium",
+      area: "latency",
+      action:
+        "Treat this as direct-discovery/context bloat: reuse an existing session or a covered cluster before repeating a broad new_session consult.",
+      reason:
+        `Slow ${sample.event_type} used ${sample.tokens_in} input tokens over ${sample.duration_ms ?? "unknown"}ms` +
+        ` for topic '${sample.topic ?? "unknown"}'. Raw response: ${sample.raw_response_path ?? "n/a"}.`
+    });
+  }
+
+  for (const candidate of input.autoRoutingCandidates) {
+    recommendations.push({
+      priority: "low",
+      area: "routing",
+      cluster_id: candidate.cluster_id,
+      action: "Keep explicit cluster_consult for now, but treat this cluster as a read-only candidate for future automatic routing suggestions.",
+      reason: candidate.reason
+    });
+  }
+
   return recommendations.slice(0, 25);
+}
+
+interface AutoRoutingCandidate {
+  cluster_id: string;
+  judged: number;
+  cluster_q: number | null;
+  direct_q: number | null;
+  gap: number | null;
+  cluster_wins: number;
+  ties: number;
+  reason: string;
+}
+
+function buildAutoRoutingCandidates(
+  comparisonStats: ConsultComparisonMonitorStats[],
+  clusterAttentionByCluster: ClusterEventCount[],
+  staleClusters: StaleClusterView[]
+): AutoRoutingCandidate[] {
+  const unhealthyClusters = new Set(staleClusters.map((cluster) => cluster.id));
+  for (const event of clusterAttentionByCluster) {
+    if (
+      event.event_type === "cluster_fallback_to_claude_consult" ||
+      event.event_type === "cluster_fallback_failed" ||
+      event.event_type === "evidence_revalidation_failed"
+    ) {
+      unhealthyClusters.add(event.cluster_id);
+    }
+  }
+
+  return comparisonStats
+    .filter((stats) => {
+      if (!stats.cluster_id || unhealthyClusters.has(stats.cluster_id)) {
+        return false;
+      }
+      return (
+        (stats.judged ?? 0) >= 3 &&
+        (stats.failed_shadow ?? 0) === 0 &&
+        (stats.direct_wins ?? 0) === 0 &&
+        (stats.not_in_context ?? 0) === 0 &&
+        (stats.gap ?? 1) <= 0
+      );
+    })
+    .map((stats) => ({
+      cluster_id: stats.cluster_id!,
+      judged: stats.judged,
+      cluster_q: stats.cluster_q,
+      direct_q: stats.direct_q,
+      gap: stats.gap,
+      cluster_wins: stats.cluster_wins,
+      ties: stats.ties,
+      reason:
+        `Cluster has ${stats.judged} judged comparison(s), ${stats.direct_wins} direct win(s), ` +
+        `${stats.not_in_context} low-score NOT IN CONTEXT row(s), and average gap ${stats.gap}.`
+    }));
 }
 
 function buildMonitorNextDirections(

@@ -6,7 +6,7 @@ As of 2026-05-15, the production MCP baseline is:
 
 - code pushed on `master`; use `git log -1 --oneline` for the latest commit
 - public MCP tools: 17
-- tests: `81 passed`
+- tests: `82 passed`
 - build: passing
 - shadow eval: `90/90` judged, `0` pending, `0` failed
 - active benchmark clusters: 3
@@ -26,8 +26,8 @@ inspect next.
 Current follow-up priorities:
 
 1. Keep targeted `SESSION_UPDATE_JSON` coverage separate from answer-quality
-   benchmarks, especially parse-failure threshold and archived-bootstrap
-   recovery behavior.
+   benchmarks. The MCP workload matrix now exercises clean metadata updates,
+   parse-failure threshold archival, and archived-bootstrap replacement.
 2. Inspect slow direct `new_session` events when they recur; prefer
    `cluster_consult` for covered questions when direct discovery approaches the
    caller timeout boundary. Use `router_monitor.latency.slow_session_samples`
@@ -35,6 +35,10 @@ Current follow-up priorities:
    response path.
 3. Use monitor data for the next real decision. Do not add fork/distill work
    until monitor shows latency/cost or coverage as the actual bottleneck.
+
+`router_monitor.quality.auto_routing_candidates` is a read-only research signal.
+It means a cluster is stable enough to study for future routing suggestions; it
+does not mean automatic routing is enabled.
 
 ## Monitor Signal Filtering Invariants
 

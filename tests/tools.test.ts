@@ -790,7 +790,7 @@ describe("cluster MCP tools", () => {
       eventType: "consult",
       question: "Why was this slow?",
       rawResponsePath: "/tmp/raw-slow.txt",
-      tokensIn: 12_345,
+      tokensIn: 60_000,
       tokensOut: 678,
       durationMs: 150_000
     });
@@ -896,7 +896,7 @@ describe("cluster MCP tools", () => {
       eventType: "consult",
       question: "Why was this slow?",
       rawResponsePath: "/tmp/raw-slow.txt",
-      tokensIn: 12_345,
+      tokensIn: 60_000,
       tokensOut: 678,
       durationMs: 150_000
     });
@@ -962,7 +962,7 @@ describe("cluster MCP tools", () => {
       event_type: "consult",
       question: "Why was this slow?",
       raw_response_path: "/tmp/raw-slow.txt",
-      tokens_in: 12_345,
+      tokens_in: 60_000,
       tokens_out: 678,
       duration_ms: 150_000
     });
@@ -983,7 +983,11 @@ describe("cluster MCP tools", () => {
     expect(monitor.recommendations).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ area: "cache", cluster_id: "weak-cluster" }),
-        expect.objectContaining({ area: "quality", cluster_id: "weak-cluster" })
+        expect.objectContaining({ area: "quality", cluster_id: "weak-cluster" }),
+        expect.objectContaining({
+          area: "latency",
+          action: expect.stringContaining("direct-discovery/context bloat")
+        })
       ])
     );
     expect(monitor.next_directions.some((direction: string) => direction.includes("factsheet expansion"))).toBe(true);
@@ -1043,6 +1047,73 @@ describe("cluster MCP tools", () => {
     expect(
       monitor.recommendations.some((recommendation: { area: string }) => recommendation.area === "coverage")
     ).toBe(false);
+    fixture.cleanup();
+  });
+
+  it("surfaces stable clusters as read-only auto-routing candidates", async () => {
+    const fixture = createToolFixture();
+    const server = new FakeServer();
+    registerTools(server as unknown as McpServer, fixture.runtime);
+    fixture.runtime.db.upsertCluster({
+      id: "stable-cluster",
+      projectId: "project",
+      name: "Stable cluster",
+      toolProfileDefault: "bare"
+    });
+
+    for (let index = 0; index < 3; index += 1) {
+      const id = `cmp-stable-${index}`;
+      fixture.runtime.db.insertConsultComparison({
+        id,
+        projectId: "project",
+        clusterId: "stable-cluster",
+        question: `Stable question ${index}`,
+        clusterAnswer: "Cluster answer.",
+        clusterDurationMs: 5
+      });
+      fixture.runtime.db.updateConsultComparisonDirect({
+        id,
+        status: "ok",
+        directAnswer: "Direct answer.",
+        directDurationMs: 10
+      });
+      fixture.runtime.db.updateConsultComparisonJudge({
+        id,
+        clusterScore: 3,
+        directScore: 2,
+        preferred: "cluster",
+        clusterErrors: [],
+        directErrors: [],
+        judgeReasoning: "cluster is better"
+      });
+    }
+
+    const monitor = parseToolJson(
+      await server.call("router_monitor", {
+        project_id: "project",
+        recent_hours: 24,
+        sample_limit: 10
+      })
+    );
+
+    expect(monitor.quality.auto_routing_candidates).toEqual([
+      expect.objectContaining({
+        cluster_id: "stable-cluster",
+        judged: 3,
+        cluster_q: 3,
+        direct_q: 2,
+        gap: -1
+      })
+    ]);
+    expect(monitor.recommendations).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          area: "routing",
+          cluster_id: "stable-cluster",
+          action: expect.stringContaining("read-only candidate")
+        })
+      ])
+    );
     fixture.cleanup();
   });
 

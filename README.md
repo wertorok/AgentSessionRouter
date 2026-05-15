@@ -68,11 +68,12 @@ Optional shadow-eval tools:
 
 Validation performed:
 
-- Unit/integration tests: `81 passed`
+- Unit/integration tests: `82 passed`
 - Live MCP stdio E2E: `LIVE_CONSULT_PASS`
 - Live matrix run: committed as `LIVE_TEST_LOG.md`
 - Post-fix targeted live rerun: `TARGETED_RERUN_PASS`
 - Post-install smoke: stub mode passes and covers v1, v2 cluster tools, `router_status`, and `router_monitor`
+- MCP workload matrix: stub mode passes 21/21 checks, including clean `SESSION_UPDATE_JSON`, parse-failure threshold archival, archived-bootstrap replacement, evidence revalidation, fallback, and shadow telemetry
 
 Research and next-architecture docs:
 
@@ -644,7 +645,7 @@ Output sections:
 - `health`: normal/degraded mode, Claude version, v1/v2 counts, shadow-eval pipeline health.
 - `cache_health`: stale/needs-prepare clusters and recent revalidation/fallback attention events.
 - `latency`: slow consult aggregates plus concrete slow-session samples with topic, question, token counts, duration, and raw response path.
-- `quality`: recent shadow comparison stats, direct-win samples, and `NOT IN CONTEXT` samples.
+- `quality`: recent shadow comparison stats, direct-win samples, `NOT IN CONTEXT` samples, and read-only auto-routing candidates.
 - `recommendations`: prioritized actions with area, cluster id, action, and reason.
 - `next_directions`: higher-level signals such as factsheet expansion, shadow stabilization, or future auto-routing candidates.
 
@@ -1001,6 +1002,11 @@ If parsing fails:
 - a `parse_failed` event is logged
 - compact metadata is not updated
 - the raw response is written under `raw_logs_dir`
+
+If repeated parse failures exceed the threshold for a session, the router archives
+that session with `parse_failure_threshold`. A later same-topic consult creates a
+replacement session bootstrapped from the archived registry context, so the
+caller still receives an answer instead of handling router internals.
 
 Sanitizer caps:
 

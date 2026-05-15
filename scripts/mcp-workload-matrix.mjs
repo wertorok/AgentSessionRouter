@@ -14,6 +14,7 @@ const outDir = path.resolve(args.out ?? path.join(repoRoot, "experiments", `mcp-
 const keepTemp = Boolean(args.keepTemp);
 const projectRoot = mkdtempSync(path.join(os.tmpdir(), `asr-mcp-matrix-${mode}-`));
 const projectDir = path.join(projectRoot, "project");
+const homeDir = path.join(projectRoot, "home");
 const serverEntry = path.join(repoRoot, "dist", "src", "index.js");
 const fakeClaudePath = path.join(projectRoot, "fake-claude.mjs");
 const fakeCallsPath = path.join(projectRoot, "fake-claude-calls.jsonl");
@@ -23,6 +24,7 @@ const matrixPath = path.join(outDir, `${mode}-matrix.json`);
 const summaryPath = path.join(outDir, `${mode}-summary.md`);
 
 mkdirSync(projectDir, { recursive: true });
+mkdirSync(homeDir, { recursive: true });
 mkdirSync(outDir, { recursive: true });
 
 if (!existsSync(serverEntry)) {
@@ -102,6 +104,98 @@ try {
         details: inspect
       };
     });
+
+    if (mode === "stub") {
+      let flakySessionId = null;
+      const sessionUpdateSuccessTopic = "session update success workload";
+      const sessionUpdateThresholdTopic = "session update threshold workload";
+      const thresholdOverrides = {
+        task: "Exercise SESSION_UPDATE_JSON parse-failure threshold and archived-bootstrap recovery.",
+        relevant_code: "src/sessionUpdate.ts\nsrc/consult.ts"
+      };
+
+      await scenario("session_update_success_metadata_path", async () => {
+        const consult = await callTool(
+          client,
+          "claude_consult",
+          consultInput(sessionUpdateSuccessTopic, null, {
+            question: "[MATRIX_CLEAN_SESSION_UPDATE] Create a session with clean metadata."
+          })
+        );
+        const successSessionId = consult.session_id;
+        const inspect = await callTool(client, "claude_session_inspect", {
+          project_id: null,
+          session_id: successSessionId,
+          recent_events_limit: 20
+        });
+        return {
+          pass: Boolean(
+            consult.session_update?.summary === "MCP workload consult completed." &&
+              inspect.session?.summary === "MCP workload consult completed." &&
+              inspect.session?.decisions?.includes("Use router_monitor before deciding what to fix next")
+          ),
+          details: { consult: summarizeConsult(consult), session: inspect.session }
+        };
+      });
+
+      await scenario("session_update_parse_failure_threshold_archives", async () => {
+        const firstFailure = await callTool(
+          client,
+          "claude_consult",
+          consultInput(sessionUpdateThresholdTopic, null, {
+            ...thresholdOverrides,
+            question: "[MATRIX_MALFORMED_SESSION_UPDATE] start malformed metadata threshold session"
+          })
+        );
+        flakySessionId = firstFailure.session_id;
+        for (let index = 0; index < 12; index += 1) {
+          if (sessionById(flakySessionId)?.status === "archived") {
+            break;
+          }
+          await callTool(
+            client,
+            "claude_consult",
+            consultInput(sessionUpdateThresholdTopic, flakySessionId, {
+              ...thresholdOverrides,
+              question: `[MATRIX_MALFORMED_SESSION_UPDATE] malformed metadata run ${index}`
+            })
+          );
+        }
+        const session = sessionById(flakySessionId);
+        const events = sessionEvents(flakySessionId);
+        return {
+          pass: Boolean(
+            session?.status === "archived" &&
+              events.some((event) => event.event_type === "parse_failed_threshold_exceeded") &&
+              events.filter((event) => event.event_type === "parse_failed").length >= 10
+          ),
+          details: { session, events }
+        };
+      });
+
+      await scenario("session_update_archived_bootstrap_replacement", async () => {
+        const replacement = await callTool(
+          client,
+          "claude_consult",
+          consultInput(sessionUpdateThresholdTopic, null, {
+            ...thresholdOverrides,
+            question: "[MATRIX_CLEAN_SESSION_UPDATE] Continue after parse threshold archive."
+          })
+        );
+        const replacementSession = sessionById(replacement.session_id);
+        return {
+          pass: Boolean(
+            replacement.session_id &&
+              replacement.session_id !== flakySessionId &&
+              replacement.routing?.was_new_session === true &&
+              replacement.routing?.match_reason?.includes("Archived session used as bootstrap") &&
+              replacement.routing?.match_reason?.includes("parse_failure_threshold") &&
+              replacementSession?.status === "active"
+          ),
+          details: { replacement: summarizeConsult(replacement), replacement_session: replacementSession }
+        };
+      });
+    }
 
     await prepareMonitorCluster(client, "monitor-static", "allow", "static");
 
@@ -336,6 +430,7 @@ async function withClient(fn) {
     command: process.execPath,
     args: [serverEntry],
     cwd: projectDir,
+    ...(mode === "stub" ? { env: { ...process.env, HOME: homeDir } } : {}),
     stderr: "pipe"
   });
   const stderr = [];
@@ -392,7 +487,7 @@ async function prepareMonitorCluster(client, clusterId, staticPolicy, verificati
   });
 }
 
-function consultInput(topic, sessionId) {
+function consultInput(topic, sessionId, overrides = {}) {
   return {
     project_id: null,
     session_id: sessionId,
@@ -400,7 +495,8 @@ function consultInput(topic, sessionId) {
     trigger: "mcp workload matrix",
     task: "Exercise AgentSessionRouter MCP modes.",
     relevant_code: "README.md\nsrc/tools.ts",
-    question: "Summarize whether router_monitor helps a parent agent track this MCP."
+    question: "Summarize whether router_monitor helps a parent agent track this MCP.",
+    ...overrides
   };
 }
 
@@ -476,12 +572,20 @@ function writeFakeClaude() {
     fakeClaudePath,
     [
       "#!/usr/bin/env node",
-      "import { appendFileSync } from 'node:fs';",
+      "import { appendFileSync, mkdirSync } from 'node:fs';",
+      "import os from 'node:os';",
+      "import path from 'node:path';",
       `const callsPath = ${JSON.stringify(fakeCallsPath)};`,
       "const args = process.argv.slice(2);",
       "const prompt = args.at(-1) ?? '';",
       "appendFileSync(callsPath, JSON.stringify({ cwd: process.cwd(), args, prompt: prompt.slice(0, 200) }) + '\\n');",
       "if (args.includes('--version')) { console.log('2.1.92 (Claude Code)'); process.exit(0); }",
+      "const resumeIndex = args.indexOf('--resume');",
+      "const resumeSessionId = resumeIndex >= 0 ? args[resumeIndex + 1] : null;",
+      "const sessionId = resumeSessionId || `fake-${Date.now()}-${Math.random().toString(16).slice(2)}`;",
+      "const sessionDir = path.join(os.homedir(), '.claude', 'sessions');",
+      "mkdirSync(sessionDir, { recursive: true });",
+      "appendFileSync(path.join(sessionDir, `${sessionId}.jsonl`), '{}\\n');",
       "let result = 'ok';",
       "if (prompt === 'ping') result = 'pong';",
       "else if (prompt.includes('PROFILE_OK')) result = 'PROFILE_OK';",
@@ -492,10 +596,14 @@ function writeFakeClaude() {
       "  result = JSON.stringify({ answer_a_score: 3, answer_a_errors: [], answer_b_score: 3, answer_b_errors: [], preferred: 'tie', reasoning: 'Both answers are sufficient for workload telemetry.' });",
       "} else if (prompt.includes('shadow evaluation baseline')) {",
       "  result = 'Direct baseline: router_monitor combines health, cache, shadow quality, recommendations, and next directions.';",
+      "} else if (prompt.includes('[MATRIX_MALFORMED_SESSION_UPDATE]')) {",
+      "  result = 'Malformed metadata response for workload.\\n\\nSESSION_UPDATE_JSON:\\n{ \"summary\": \"broken\", \"decisions\": [ }';",
+      "} else if (prompt.includes('[MATRIX_CLEAN_SESSION_UPDATE]')) {",
+      "  result = 'router_monitor is an operator-facing monitor for parent agents.\\n\\nSESSION_UPDATE_JSON:\\n{\\n  \"summary\": \"MCP workload consult completed.\",\\n  \"decisions\": [\"Use router_monitor before deciding what to fix next\"],\\n  \"open_questions\": [],\\n  \"files_discussed\": [\"README.md\", \"src/tools.ts\"],\\n  \"tags\": [\"mcp-workload\"],\\n  \"aliases\": [\"router monitor\"]\\n}';",
       "} else if (prompt.includes('Question:') || prompt.includes('Question')) {",
       "  result = 'router_monitor is an operator-facing monitor for parent agents. It shows health, cache decay, quality comparisons, recommendations, and next directions.\\n\\nSESSION_UPDATE_JSON:\\n{\\n  \"summary\": \"MCP workload consult completed.\",\\n  \"decisions\": [\"Use router_monitor before deciding what to fix next\"],\\n  \"open_questions\": [],\\n  \"files_discussed\": [\"README.md\", \"src/tools.ts\"],\\n  \"tags\": [\"mcp-workload\"],\\n  \"aliases\": [\"router monitor\"]\\n}';",
       "}",
-      "console.log(JSON.stringify({ session_id: `fake-${Date.now()}`, result, usage: { input_tokens: Math.ceil(prompt.length / 4), output_tokens: Math.ceil(result.length / 4) } }));"
+      "console.log(JSON.stringify({ session_id: sessionId, result, usage: { input_tokens: Math.ceil(prompt.length / 4), output_tokens: Math.ceil(result.length / 4) } }));"
     ].join("\n"),
     "utf8"
   );
@@ -581,6 +689,47 @@ function clusterById(clusterId) {
   const db = new Database(dbPath, { readonly: true });
   try {
     return db.prepare("SELECT id, status, trust_state, static_factsheet_policy FROM clusters WHERE id = ?").get(clusterId) ?? null;
+  } finally {
+    db.close();
+  }
+}
+
+function sessionById(sessionId) {
+  if (!sessionId || !existsSync(dbPath)) {
+    return null;
+  }
+  const db = new Database(dbPath, { readonly: true });
+  try {
+    return (
+      db
+        .prepare("SELECT id, claude_session_id, topic, summary, status, archived_at FROM sessions WHERE id = ?")
+        .get(sessionId) ?? null
+    );
+  } finally {
+    db.close();
+  }
+}
+
+function sessionEvents(sessionId) {
+  if (!sessionId || !existsSync(dbPath)) {
+    return [];
+  }
+  const db = new Database(dbPath, { readonly: true });
+  try {
+    return db
+      .prepare(
+        `SELECT event_type,
+                error,
+                raw_response_path,
+                match_reason,
+                was_new_session,
+                was_orphan_recovery,
+                created_at
+         FROM session_events
+         WHERE session_id = ?
+         ORDER BY id`
+      )
+      .all(sessionId);
   } finally {
     db.close();
   }

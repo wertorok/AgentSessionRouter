@@ -55,6 +55,9 @@ If a one-off Claude Code integration diagnostic is needed, pass MCP config expli
 | v1 sessions | `claude_consult` new session | `new_session`, registry row, raw log |
 | v1 resume | explicit `session_id` consult | same router session reused |
 | v1 inspect | `claude_session_inspect` | decisions/events visible |
+| Session metadata | clean `SESSION_UPDATE_JSON` through `claude_consult` | summary/decisions visible through `claude_session_inspect` |
+| Session metadata resilience | malformed `SESSION_UPDATE_JSON` repeated to threshold | `parse_failed`, `parse_failed_threshold_exceeded`, archived session |
+| Archived bootstrap | next same-topic consult after threshold archive | new active session bootstrapped from archived registry context |
 | Cluster prepare static | `cluster_prepare` static allow | `factsheet_static_verified` |
 | Cluster fast path | `cluster_consult` with fresh evidence | `cluster_consult`, shadow comparison scheduled |
 | Shadow telemetry | `comparison_stats` / `comparison_list` | at least one judged comparison, wins/ties/gaps |
@@ -76,6 +79,7 @@ Use `router_monitor` first. It combines the important telemetry:
 - `health`: router and Claude state
 - `cache_health`: stale clusters, revalidation failures, fallbacks
 - `quality`: shadow comparison stats and samples
+- `quality.auto_routing_candidates`: read-only candidates for future routing suggestions; this is telemetry, not enabled auto-routing
 - `recommendations`: concrete actions
 - `next_directions`: where to go next
 
@@ -95,3 +99,5 @@ If direct wins grow, inspect direct-win samples. The cluster may need reasoning 
 If shadow pending/failed grows, fix shadow eval before trusting trend data.
 
 If clusters score well and have no fallback/revalidation failures, they become candidates for future auto-routing.
+
+If slow session samples show very high `tokens_in`, treat it as direct-discovery/context bloat first. Prefer an existing session or a covered cluster before repeating a broad `new_session` consult.
