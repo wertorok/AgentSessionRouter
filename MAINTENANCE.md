@@ -11,18 +11,45 @@ Re-prepare affected cluster factsheets after any architectural PR that changes:
 - shadow eval, router monitor, or comparison scoring
 - `SESSION_UPDATE_JSON` parsing or session metadata updates
 
+Also re-prepare or re-check when monitoring shows:
+
+- repeated `NOT IN CONTEXT` on questions that should be covered
+- cluster quality drops more than 0.3 below the last benchmark baseline
+- repeated `cluster_consult` losses against the shadow/direct baseline
+- new suspicious identifiers in trace reports
+- stale/revalidation/fallback events grow for the same cluster over several runs
+
 Use a new cluster id for validation first, then replace or refresh the production
 cluster only after targeted checks pass.
 
 Recommended validation sequence:
 
 1. Run a targeted benchmark for the affected questions/domains.
-2. Confirm factual questions no longer return `NOT IN CONTEXT`.
-3. Confirm caller-facing behavior is described through the MCP tool wrapper, not
+2. Identify whether low scores come from missing facts, stale facts, noisy
+   factsheet scope, or weak scoring.
+3. Add explicit facts and evidence selectors for the missing area.
+4. Re-run `cluster_prepare` with `verification_mode: "llm"` under a new
+   validation cluster id.
+5. Confirm factual questions no longer return `NOT IN CONTEXT`.
+6. Confirm caller-facing behavior is described through the MCP tool wrapper, not
    only through lower-level helper functions.
-4. Run the full quality comparison matrix when targeted checks pass.
-5. Keep `summary.md`, `trace-report.md`, and event dumps under `experiments/`
+7. Run the full quality comparison matrix when targeted checks pass.
+8. Keep `summary.md`, `trace-report.md`, and event dumps under `experiments/`
    so future regressions can be compared to a concrete baseline.
+
+Do not treat a bigger factsheet as automatically better. If targeted checks pass
+but the full matrix regresses, split the cluster or factsheet scope before adding
+more broad facts. Context noise is a real failure mode.
+
+`SESSION_UPDATE_JSON` must be tested separately from answer quality. The quality
+matrix compares answers and only indirectly observes session metadata parsing.
+Use targeted `claude_consult` tests to verify:
+
+- session `summary` updates
+- `session_decisions` append without destructive overwrite
+- `session_files`, `session_tags`, and `session_aliases` update correctly
+- parse failures include `raw_response_path` when a raw response was written
+- malformed update blocks do not corrupt existing registry state
 
 For the AgentSessionRouter codebase cluster, include at least:
 
@@ -37,4 +64,3 @@ For the AgentSessionRouter codebase cluster, include at least:
 - `src/profiles.ts`
 - `docs/CLUSTER_CACHE_SPEC.md`
 - `docs/SHADOW_EVAL_SPEC.md`
-
