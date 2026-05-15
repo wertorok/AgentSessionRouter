@@ -632,6 +632,18 @@ export class RouterDatabase {
     apply();
   }
 
+  applySessionRoutingHints(sessionId: string, input: { filesDiscussed?: string[]; tags?: string[] }): void {
+    const apply = this.db.transaction(() => {
+      for (const file of input.filesDiscussed ?? []) {
+        this.insertUniqueValue("session_files", "path", sessionId, file);
+      }
+      for (const tag of input.tags ?? []) {
+        this.insertUniqueValue("session_tags", "tag", sessionId, tag);
+      }
+    });
+    apply();
+  }
+
   countConsultLikeEvents(projectId: string, sinceIso: string): number {
     const row = this.db
       .prepare(

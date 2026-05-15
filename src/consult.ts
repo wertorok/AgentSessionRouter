@@ -20,6 +20,9 @@ export interface ClaudeConsultInput {
   topicHint: string;
   trigger: string;
   task: string;
+  taskType?: string | null;
+  relatedFiles?: string[];
+  tags?: string[];
   relevantCode: string;
   question: string;
 }
@@ -124,6 +127,9 @@ export class ConsultService {
       topicHint: input.topicHint,
       trigger: input.trigger,
       task: input.task,
+      taskType: input.taskType ?? null,
+      relatedFiles: input.relatedFiles ?? [],
+      tags: input.tags ?? [],
       relevantCode: input.relevantCode,
       question: input.question,
       context
@@ -172,6 +178,10 @@ export class ConsultService {
       if (parsedUpdate.update) {
         this.runtime.db.applySessionUpdate(sessionId, parsedUpdate.update);
       }
+      this.runtime.db.applySessionRoutingHints(sessionId, {
+        filesDiscussed: input.relatedFiles ?? [],
+        tags: normalizeHintTags([...(input.tags ?? []), input.taskType ?? ""])
+      });
       const tokensIn = claudeResponse.tokensIn ?? estimatedTokens;
       const tokensOut = claudeResponse.tokensOut ?? estimateTokens(parsedUpdate.answer);
       const tokenAnomaly = this.detectTokenAnomaly(estimatedTokens, tokensIn);
@@ -329,7 +339,10 @@ export class ConsultService {
         topicHint: input.topicHint,
         task: input.task,
         relevantCode: input.relevantCode,
-        question: input.question
+        question: input.question,
+        relatedFiles: input.relatedFiles ?? [],
+        tags: input.tags ?? [],
+        taskType: input.taskType ?? null
       },
       this.runtime.config.matching.thresholdUse,
       this.runtime.config.matching.thresholdLowConfidence
@@ -418,7 +431,10 @@ export class ConsultService {
         topicHint: input.topicHint,
         task: input.task,
         relevantCode: input.relevantCode,
-        question: input.question
+        question: input.question,
+        relatedFiles: input.relatedFiles ?? [],
+        tags: input.tags ?? [],
+        taskType: input.taskType ?? null
       },
       this.runtime.config.matching.thresholdUse,
       this.runtime.config.matching.thresholdLowConfidence
@@ -587,6 +603,17 @@ export class ConsultService {
 
 const EMPTY_CALLER_ANSWER_MESSAGE =
   "Claude did not produce a caller-facing answer; it emitted only pseudo tool-call markup or an empty response.";
+
+function normalizeHintTags(tags: string[]): string[] {
+  return Array.from(
+    new Set(
+      tags
+        .map((tag) => tag.trim().toLowerCase())
+        .filter(Boolean)
+        .map((tag) => tag.replace(/\s+/g, "-"))
+    )
+  );
+}
 
 interface RouteResolution {
   selectedSession: SessionRecord | null;

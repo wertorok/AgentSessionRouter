@@ -5,6 +5,9 @@ export interface ConsultPromptInput {
   topicHint: string;
   trigger: string;
   task: string;
+  taskType?: string | null;
+  relatedFiles?: string[];
+  tags?: string[];
   relevantCode: string;
   question: string;
   context: string;
@@ -17,6 +20,11 @@ Project: ${input.projectId}
 Topic: ${input.topicHint}
 Trigger: ${input.trigger}
 Task: ${input.task}
+Task type: ${input.taskType ?? "unspecified"}
+Related files:
+${formatList(input.relatedFiles ?? [])}
+Caller tags:
+${formatList(input.tags ?? [])}
 
 Known registry context:
 ${input.context}

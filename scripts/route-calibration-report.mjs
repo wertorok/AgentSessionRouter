@@ -127,6 +127,8 @@ function enrichRouteDecision(row) {
   const topicHint = parsedReason.fields.topic_hint ?? "";
   const topicKey = normalizeTopicKey(topicHint || row.topic || row.question || "");
   const candidateGap = asNumber(parsedReason.fields.candidate_gap);
+  const metadataScore = asNumber(parsedReason.fields.metadata_score);
+  const metadataMissing = parseCsvField(parsedReason.fields.metadata_missing).filter((item) => item !== "none");
   const ambiguousForcedNew =
     row.selected_path === "claude_consult_new_session" &&
     (row.match_reason ?? "").includes("Ambiguous low-confidence session candidates");
@@ -155,10 +157,17 @@ function enrichRouteDecision(row) {
     cluster_id: parsedReason.fields.cluster_id ?? null,
     reason_session_id: parsedReason.fields.session_id ?? null,
     candidate_gap: candidateGap,
+    metadata_score: metadataScore,
+    metadata_missing: metadataMissing,
+    related_files_count: Number(parsedReason.fields.related_files_count ?? 0),
+    tags_count: Number(parsedReason.fields.tags_count ?? 0),
+    generic_tags_count: Number(parsedReason.fields.generic_tags_count ?? 0),
+    task_type: parsedReason.fields.task_type ?? null,
     force_new_session: parseBoolean(parsedReason.fields.force_new_session),
     auto_cluster_routing: parsedReason.fields.auto_cluster_routing ?? null,
     flags: {
       low_gap: candidateGap !== null && candidateGap < gapThreshold,
+      low_metadata: metadataScore !== null && metadataScore < 0.7,
       ambiguous_forced_new: ambiguousForcedNew,
       new_session: row.selected_path === "claude_consult_new_session",
       explicit_cluster: row.selected_path === "cluster_consult_explicit",
@@ -329,6 +338,10 @@ function classifySuspicion(row, context) {
   if (context.candidateGap !== null && context.candidateGap < gapThreshold) {
     flags.push("low_candidate_gap");
   }
+  const metadataScore = asNumber(row.match_reason?.match(/(?:^|; )metadata_score=([^;]+)/)?.[1]);
+  if (metadataScore !== null && metadataScore < 0.7) {
+    flags.push("low_metadata_quality");
+  }
   if (row.selected_path === "claude_consult_new_session") {
     flags.push("new_session");
   }
@@ -383,6 +396,8 @@ function buildCalibrationQueue(decisions) {
       priority: decision.priority,
       match_score: decision.match_score,
       candidate_gap: decision.candidate_gap,
+      metadata_score: decision.metadata_score,
+      metadata_missing: decision.metadata_missing,
       topic_hint: decision.topic_hint,
       topic: decision.topic,
       session_id: decision.session_id,
@@ -399,6 +414,7 @@ function calibrationPriority(decision) {
   let priority = 0;
   if (decision.suspicious.includes("ambiguous_forced_new")) priority += 100;
   if (decision.suspicious.includes("low_candidate_gap")) priority += 80;
+  if (decision.suspicious.includes("low_metadata_quality")) priority += 70;
   if (decision.suspicious.includes("new_session")) priority += 60;
   if (decision.suspicious.includes("expensive_session_after_route")) priority += 50;
   if (decision.suspicious.includes("token_anomaly_after_route")) priority += 45;
@@ -414,6 +430,8 @@ function buildSummary(decisions) {
   const queue = buildCalibrationQueue(decisions);
   const gapRows = decisions.filter((decision) => decision.candidate_gap !== null);
   const lowGapRows = decisions.filter((decision) => decision.flags.low_gap);
+  const knownMetadataRows = decisions.filter((decision) => decision.metadata_score !== null);
+  const lowMetadataRows = decisions.filter((decision) => decision.flags.low_metadata);
   const newSessionRows = decisions.filter((decision) => decision.flags.new_session);
   const expensiveRows = decisions.filter(
     (decision) => decision.outcome.slow || decision.outcome.high_tokens || decision.followup.slow_count_after > 0
@@ -434,7 +452,9 @@ function buildSummary(decisions) {
     `- Route decisions inspected: ${decisions.length}`,
     `- Active/dormant sessions considered for near-topic analysis: ${sessions.length}`,
     `- Decisions with candidate-gap telemetry: ${gapRows.length}`,
+    `- Decisions with metadata-quality telemetry: ${knownMetadataRows.length}`,
     `- Low-gap decisions (< ${gapThreshold}): ${lowGapRows.length}`,
+    `- Low-metadata decisions (< 0.70): ${lowMetadataRows.length}`,
     `- New-session route decisions: ${newSessionRows.length}`,
     `- Expensive/slow outcome signals: ${expensiveRows.length}`,
     `- Near-duplicate topic signals: ${nearDuplicateRows.length}`,
@@ -457,12 +477,13 @@ function buildSummary(decisions) {
     queue.length === 0
       ? "No suspicious route decisions found in this window."
       : table(
-          ["Event", "Path", "Score", "Gap", "Signals", "Topic hint / topic"],
+          ["Event", "Path", "Score", "Gap", "Meta", "Signals", "Topic hint / topic"],
           queue.map((item) => [
             item.event_id,
             item.selected_path,
             formatNullable(item.match_score),
             formatNullable(item.candidate_gap),
+            formatNullable(item.metadata_score),
             item.suspicious.join(", "),
             truncate(item.topic_hint || item.topic || item.question || "", 80)
           ])
@@ -493,6 +514,13 @@ function parseMatchReason(reason) {
     }
   }
   return { fields, notes };
+}
+
+function parseCsvField(value) {
+  if (!value || value === "none") {
+    return [];
+  }
+  return value.split(",").map((item) => item.trim()).filter(Boolean);
 }
 
 function countBy(rows, key) {

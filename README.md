@@ -70,7 +70,7 @@ Optional shadow-eval tools:
 
 Validation performed:
 
-- Unit/integration tests: `91 passed`
+- Unit/integration tests: `97 passed`
 - Live MCP stdio E2E: `LIVE_CONSULT_PASS`
 - Live matrix run: committed as `LIVE_TEST_LOG.md`
 - Post-fix targeted live rerun: `TARGETED_RERUN_PASS`
@@ -487,6 +487,9 @@ Input:
   "topic_hint": "auth design",
   "trigger": "AGENTS.md: auth changes require escalation",
   "task": "Design login flow",
+  "task_type": "architectural",
+  "related_files": ["src/auth/index.ts"],
+  "tags": ["auth", "sessions"],
   "relevant_code": "src/auth/index.ts\nexport const auth = true;",
   "question": "Should auth use sessions or JWT for this small app?"
 }
@@ -498,6 +501,9 @@ Behavior:
 - If `session_id` is `null`, the server auto-routes within the same project before creating a new session.
 - Exact normalized topic matches are reused before weighted scoring.
 - Weighted routing uses topic, files, tags, aliases, and recency.
+- `topic_hint`, `related_files`, `tags`, and `task_type` are caller-side
+  routing hints. They improve matching and are persisted as session file/tag
+  metadata when a consult succeeds. Missing hints are allowed.
 - If no candidate reaches `threshold_low_confidence`, a new Claude session is created.
 - Claude must return a `SESSION_UPDATE_JSON` block; parsed updates are sanitized and stored.
 
@@ -539,6 +545,9 @@ Input:
   "topic_hint": "project roadmap",
   "trigger": "parent agent needs a consult",
   "task": "Plan the next router maintenance step",
+  "task_type": "planning",
+  "related_files": ["MAINTENANCE.md", "src/tools.ts"],
+  "tags": ["routing", "monitor"],
   "relevant_code": "",
   "question": "What should we fix next after the v2.3 monitor work?",
   "tool_profile": null
@@ -553,6 +562,10 @@ Behavior:
 - If a low-confidence candidate is clearly separated from the runner-up, selects that session automatically.
 - If candidates are ambiguous, starts a new durable session instead of guessing.
 - Records `router_route_decision` in `session_events`.
+- Records route metadata quality in `match_reason` and
+  `router_monitor.route_health.metadata_quality`. Missing `topic_hint`,
+  `related_files`, `tags`, or `task_type` never rejects the caller request; it
+  only lowers telemetry quality.
 - Does not automatically select a cluster from monitor candidates yet; `auto_cluster_routing` is `disabled_read_only`.
 
 Output excerpt:
@@ -566,6 +579,15 @@ Output excerpt:
     "session_id": "session_...",
     "match_score": 1,
     "topic_hint": "project roadmap",
+    "metadata_quality": {
+      "score": 1,
+      "topic_hint_source": "caller",
+      "missing": [],
+      "related_files_count": 2,
+      "tags_count": 2,
+      "generic_tags_count": 0,
+      "task_type": "planning"
+    },
     "auto_cluster_routing": "disabled_read_only"
   },
   "session_id": "session_...",
@@ -726,7 +748,7 @@ Output sections:
 - `cache_health`: stale/needs-prepare clusters and recent revalidation/fallback attention events.
 - `latency`: slow consult aggregates plus concrete slow-session samples with topic, question, token counts, duration, and raw response path.
 - `metadata_health`: `SESSION_UPDATE_JSON` parse failures, affected sessions, threshold archives, and raw response paths.
-- `route_health`: recent `router_consult` selected-path counts, ambiguity-forced new-session count, match-score histograms, and concrete route-decision samples.
+- `route_health`: recent `router_consult` selected-path counts, ambiguity-forced new-session count, match-score histograms, caller metadata-quality telemetry, and concrete route-decision samples.
 - `quality`: recent shadow comparison stats, direct-win samples, `NOT IN CONTEXT` samples, and read-only auto-routing candidates.
 - `recommendations`: prioritized actions with area, cluster id, action, and reason.
 - `next_directions`: higher-level signals such as factsheet expansion, shadow stabilization, or future auto-routing candidates.

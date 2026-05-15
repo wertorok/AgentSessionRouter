@@ -131,6 +131,41 @@ describe("core utilities", () => {
     expect(match.score).toBeGreaterThanOrEqual(0.55);
   });
 
+  it("uses explicit related files and tags as routing signals", () => {
+    const match = findBestSessionMatch(
+      [
+        {
+          id: "routing-metadata",
+          claude_session_id: "c1",
+          topic: "durable router metadata",
+          status: "active",
+          recency_score: 1,
+          last_used: "2026-01-01T00:00:00.000Z",
+          summary: "",
+          decisions: [],
+          open_questions: [],
+          files_discussed: ["src/routerMetadata.ts"],
+          tags: ["calibration"],
+          aliases: []
+        }
+      ],
+      {
+        topicHint: "unclear followup",
+        task: "Explain the next step.",
+        relevantCode: "",
+        question: "What should happen next?",
+        relatedFiles: ["src/routerMetadata.ts"],
+        tags: ["calibration"],
+        taskType: "architectural"
+      },
+      0.7,
+      0.55
+    );
+
+    expect(match.session?.id).toBe("routing-metadata");
+    expect(match.score).toBeGreaterThanOrEqual(0.55);
+  });
+
   it("forbids pseudo tool-call markup in caller-facing consult prompts", () => {
     const prompt = buildConsultPrompt({
       projectId: "project",

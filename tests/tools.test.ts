@@ -274,10 +274,24 @@ describe("cluster MCP tools", () => {
     );
 
     expect(consult.route_decision.selected_path).toBe("claude_consult_new_session");
+    expect(consult.route_decision.metadata_quality).toMatchObject({
+      score: 0,
+      topic_hint_source: "inferred",
+      missing: ["topic_hint", "related_files", "tags", "task_type"]
+    });
     expect(consult.routing.was_new_session).toBe(true);
     expect(monitor.route_health.decision_counts).toEqual([
       expect.objectContaining({ selected_path: "claude_consult_new_session", count: 1 })
     ]);
+    expect(monitor.route_health.metadata_quality).toMatchObject({
+      total: 1,
+      known: 1,
+      average_score: 0,
+      missing_topic_hint_count: 1,
+      missing_related_files_count: 1,
+      missing_tags_count: 1,
+      missing_task_type_count: 1
+    });
     expect(monitor.route_health.samples[0]).toMatchObject({
       selected_path: "claude_consult_new_session",
       question: "Broad new topic with no existing session"
@@ -290,6 +304,76 @@ describe("cluster MCP tools", () => {
         })
       ])
     );
+    fixture.cleanup();
+  });
+
+  it("uses rich router_consult metadata as hints without making it required", async () => {
+    const fixture = createToolFixture();
+    const server = new FakeServer();
+    registerTools(server as unknown as McpServer, fixture.runtime);
+    fixture.runtime.db.createSession({
+      id: "metadata-session",
+      projectId: "project",
+      claudeSessionId: "claude-metadata-session",
+      topic: "durable router metadata",
+      dormantAfterDays: 30,
+      archiveAfterDays: 90
+    });
+    fixture.runtime.db.applySessionUpdate("metadata-session", {
+      summary: "Metadata-rich routing session.",
+      decisions: [],
+      open_questions: [],
+      files_discussed: ["src/routerMetadata.ts"],
+      tags: ["calibration"],
+      aliases: []
+    });
+
+    const result = parseToolJson(
+      await server.call("router_consult", {
+        project_id: "project",
+        topic_hint: "unclear followup",
+        related_files: ["src/routerMetadata.ts"],
+        tags: ["calibration"],
+        task_type: "architectural",
+        question: "Should this reuse the metadata-rich routing session?"
+      })
+    );
+
+    expect(result.route_decision).toMatchObject({
+      selected_path: "claude_consult_disambiguated_session",
+      session_id: "metadata-session",
+      metadata_quality: {
+        score: 1,
+        related_files_count: 1,
+        tags_count: 1,
+        task_type: "architectural"
+      }
+    });
+    expect(result.session_id).toBe("metadata-session");
+    expect(result.routing.was_new_session).toBe(false);
+    fixture.cleanup();
+  });
+
+  it("persists caller routing hints on newly created sessions", async () => {
+    const fixture = createToolFixture();
+    const server = new FakeServer();
+    registerTools(server as unknown as McpServer, fixture.runtime);
+
+    const result = parseToolJson(
+      await server.call("router_consult", {
+        project_id: "project",
+        topic_hint: "new metadata rich session",
+        related_files: ["src/newMetadata.ts"],
+        tags: ["routing"],
+        task_type: "planning",
+        question: "Create a new durable session and remember these routing hints."
+      })
+    );
+    const session = fixture.runtime.db.getSessionView(result.session_id);
+
+    expect(result.route_decision.metadata_quality.score).toBe(1);
+    expect(session?.files_discussed).toContain("src/newMetadata.ts");
+    expect(session?.tags).toEqual(expect.arrayContaining(["routing", "planning"]));
     fixture.cleanup();
   });
 

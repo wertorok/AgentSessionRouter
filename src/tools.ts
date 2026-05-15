@@ -49,6 +49,9 @@ const consultInput = z.object({
   topic_hint: z.string(),
   trigger: z.string(),
   task: z.string(),
+  task_type: z.enum(["architectural", "debug", "lookup", "review", "planning"]).nullable().optional(),
+  related_files: z.array(z.string()).nullable().optional(),
+  tags: z.array(z.string()).nullable().optional(),
   relevant_code: z.string(),
   question: z.string()
 });
@@ -60,6 +63,9 @@ const routerConsultInput = z.object({
   topic_hint: z.string().nullable().optional(),
   trigger: z.string().nullable().optional(),
   task: z.string().nullable().optional(),
+  task_type: z.enum(["architectural", "debug", "lookup", "review", "planning"]).nullable().optional(),
+  related_files: z.array(z.string()).nullable().optional(),
+  tags: z.array(z.string()).nullable().optional(),
   relevant_code: z.string().nullable().optional(),
   question: z.string().min(1),
   tool_profile: z.enum(["bare", "focused", "agent"]).nullable().optional()
@@ -262,7 +268,8 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
     "claude_consult",
     {
       title: "Consult Claude",
-      description: "Calls Claude in an auto-routed or selected persistent session.",
+      description:
+        "Calls Claude in an auto-routed or selected persistent session. For better routing, provide topic_hint, related_files, tags, and task_type when the parent agent knows them. Missing metadata is allowed; the router records low metadata quality and still returns an answer.",
       inputSchema: consultInput
     },
     async (input) => {
@@ -273,6 +280,9 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
         topicHint: input.topic_hint,
         trigger: input.trigger,
         task: input.task,
+        taskType: input.task_type ?? null,
+        relatedFiles: normalizeStringArray(input.related_files ?? []),
+        tags: normalizeStringArray(input.tags ?? []),
         relevantCode: input.relevant_code,
         question: input.question
       });
@@ -286,7 +296,7 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
     {
       title: "Conservative router consult",
       description:
-        "Recommended parent-agent entry point. Chooses explicit cluster_consult, explicit/exact/high-confidence session reuse, router-disambiguated low-confidence reuse, or a new durable session, and records the route decision.",
+        "Recommended parent-agent entry point. Chooses explicit cluster_consult, explicit/exact/high-confidence session reuse, router-disambiguated low-confidence reuse, or a new durable session, and records the route decision. Strongly recommended routing hints: topic_hint (3-10 word domain phrase), related_files (paths currently relevant to the question), tags (stable domain tags), and task_type. These hints improve matching but are not required; missing hints become route_health metadata telemetry, not caller-facing errors.",
       inputSchema: routerConsultInput
     },
     async (input) => {
@@ -330,6 +340,9 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
         topicHint: normalizedInput.topic_hint,
         trigger: normalizedInput.trigger,
         task: normalizedInput.task,
+        taskType: normalizedInput.task_type,
+        relatedFiles: normalizedInput.related_files,
+        tags: normalizedInput.tags,
         relevantCode: normalizedInput.relevant_code,
         question: normalizedInput.question
       });
@@ -667,6 +680,7 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
           forced_new_due_to_ambiguity_count_last_24h: forcedNewDueToAmbiguityCount,
           score_histogram_by_selected_path: buildRouteScoreHistogramBySelectedPath(routeDecisionScores),
           score_histogram_by_cluster: buildRouteScoreHistogramByCluster(routeDecisionScores),
+          metadata_quality: buildRouteMetadataQualitySummary(routeDecisionScores),
           samples: routeDecisionSamples
         },
         quality: {
@@ -1128,9 +1142,13 @@ interface RouterConsultNormalizedInput {
   topic_hint: string;
   trigger: string;
   task: string;
+  task_type: "architectural" | "debug" | "lookup" | "review" | "planning" | null;
+  related_files: string[];
+  tags: string[];
   relevant_code: string;
   question: string;
   tool_profile?: "bare" | "focused" | "agent" | null;
+  metadata_quality: RouteMetadataQuality;
 }
 
 type RouterConsultSelectedPath =
@@ -1150,19 +1168,40 @@ interface RouterConsultDecision {
   candidate_gap?: number | null;
   force_new_session?: boolean;
   topic_hint: string;
+  metadata_quality: RouteMetadataQuality;
   auto_cluster_routing: "disabled_read_only";
 }
 
+interface RouteMetadataQuality {
+  score: number;
+  topic_hint_source: "caller" | "inferred";
+  missing: string[];
+  related_files_count: number;
+  tags_count: number;
+  generic_tags_count: number;
+  task_type: string | null;
+}
+
 function normalizeRouterConsultInput(input: z.infer<typeof routerConsultInput>): RouterConsultNormalizedInput {
+  const callerTopicHint = cleanOptionalString(input.topic_hint);
   return {
     cluster_id: cleanOptionalString(input.cluster_id),
     session_id: cleanOptionalString(input.session_id),
-    topic_hint: cleanOptionalString(input.topic_hint) ?? inferTopicHint(input.question),
+    topic_hint: callerTopicHint ?? inferTopicHint(input.question),
     trigger: cleanOptionalString(input.trigger) ?? "router_consult",
     task: cleanOptionalString(input.task) ?? "Answer the parent agent's question through AgentSessionRouter.",
+    task_type: input.task_type ?? null,
+    related_files: normalizeStringArray(input.related_files ?? []),
+    tags: normalizeStringArray(input.tags ?? []),
     relevant_code: cleanOptionalString(input.relevant_code) ?? "",
     question: input.question,
-    tool_profile: input.tool_profile ?? null
+    tool_profile: input.tool_profile ?? null,
+    metadata_quality: buildRouteMetadataQuality({
+      topicHintSource: callerTopicHint ? "caller" : "inferred",
+      relatedFiles: normalizeStringArray(input.related_files ?? []),
+      tags: normalizeStringArray(input.tags ?? []),
+      taskType: input.task_type ?? null
+    })
   };
 }
 
@@ -1180,6 +1219,7 @@ function resolveRouterConsultDecision(
       cluster_id: input.cluster_id,
       match_score: 1,
       topic_hint: input.topic_hint,
+      metadata_quality: input.metadata_quality,
       auto_cluster_routing: "disabled_read_only"
     };
   }
@@ -1191,6 +1231,7 @@ function resolveRouterConsultDecision(
       session_id: input.session_id,
       match_score: 1,
       topic_hint: input.topic_hint,
+      metadata_quality: input.metadata_quality,
       auto_cluster_routing: "disabled_read_only"
     };
   }
@@ -1204,6 +1245,7 @@ function resolveRouterConsultDecision(
       session_id: exactTopicSession.id,
       match_score: 1,
       topic_hint: input.topic_hint,
+      metadata_quality: input.metadata_quality,
       auto_cluster_routing: "disabled_read_only"
     };
   }
@@ -1212,7 +1254,10 @@ function resolveRouterConsultDecision(
     topicHint: input.topic_hint,
     task: input.task,
     relevantCode: input.relevant_code,
-    question: input.question
+    question: input.question,
+    relatedFiles: input.related_files,
+    tags: input.tags,
+    taskType: input.task_type
   };
   const match = findBestSessionMatch(
     sessions,
@@ -1232,6 +1277,7 @@ function resolveRouterConsultDecision(
       match_score: match.score,
       candidate_gap: candidateGap,
       topic_hint: input.topic_hint,
+      metadata_quality: input.metadata_quality,
       auto_cluster_routing: "disabled_read_only"
     };
   }
@@ -1248,6 +1294,7 @@ function resolveRouterConsultDecision(
         match_score: match.score,
         candidate_gap: Number.isFinite(gap) ? round2(gap) : null,
         topic_hint: input.topic_hint,
+        metadata_quality: input.metadata_quality,
         auto_cluster_routing: "disabled_read_only"
       };
     }
@@ -1261,6 +1308,7 @@ function resolveRouterConsultDecision(
       candidate_gap: round2(gap),
       force_new_session: true,
       topic_hint: input.topic_hint,
+      metadata_quality: input.metadata_quality,
       auto_cluster_routing: "disabled_read_only"
     };
   }
@@ -1272,6 +1320,7 @@ function resolveRouterConsultDecision(
     candidate_gap: candidateGap,
     force_new_session: true,
     topic_hint: input.topic_hint,
+    metadata_quality: input.metadata_quality,
     auto_cluster_routing: "disabled_read_only"
   };
 }
@@ -1293,6 +1342,13 @@ function logRouterRouteDecision(
       decision.reason,
       `topic_hint=${decision.topic_hint}`,
       `auto_cluster_routing=${decision.auto_cluster_routing}`,
+      `metadata_score=${decision.metadata_quality.score}`,
+      `metadata_topic_hint_source=${decision.metadata_quality.topic_hint_source}`,
+      `metadata_missing=${decision.metadata_quality.missing.length ? decision.metadata_quality.missing.join(",") : "none"}`,
+      `related_files_count=${decision.metadata_quality.related_files_count}`,
+      `tags_count=${decision.metadata_quality.tags_count}`,
+      `generic_tags_count=${decision.metadata_quality.generic_tags_count}`,
+      decision.metadata_quality.task_type ? `task_type=${decision.metadata_quality.task_type}` : null,
       decision.cluster_id ? `cluster_id=${decision.cluster_id}` : null,
       decision.session_id ? `session_id=${decision.session_id}` : null,
       decision.candidate_gap === undefined || decision.candidate_gap === null
@@ -1308,6 +1364,56 @@ function logRouterRouteDecision(
 function cleanOptionalString(value: string | null | undefined): string | null {
   const trimmed = value?.trim();
   return trimmed ? trimmed : null;
+}
+
+const GENERIC_ROUTE_TAGS = new Set(["code", "general", "misc", "project", "system", "task", "thing", "work"]);
+
+function normalizeStringArray(values: Array<string | null | undefined> | null | undefined): string[] {
+  return Array.from(
+    new Set(
+      (values ?? [])
+        .map((value) => value?.trim())
+        .filter((value): value is string => Boolean(value))
+    )
+  );
+}
+
+function buildRouteMetadataQuality(input: {
+  topicHintSource: "caller" | "inferred";
+  relatedFiles: string[];
+  tags: string[];
+  taskType: string | null;
+}): RouteMetadataQuality {
+  const missing: string[] = [];
+  if (input.topicHintSource !== "caller") {
+    missing.push("topic_hint");
+  }
+  if (input.relatedFiles.length === 0) {
+    missing.push("related_files");
+  }
+  const genericTagsCount = input.tags.filter((tag) => GENERIC_ROUTE_TAGS.has(tag.toLowerCase())).length;
+  if (input.tags.length === 0) {
+    missing.push("tags");
+  }
+  if (!input.taskType) {
+    missing.push("task_type");
+  }
+
+  const score =
+    (input.topicHintSource === "caller" ? 0.35 : 0) +
+    (input.relatedFiles.length > 0 ? 0.35 : 0) +
+    (input.tags.length > 0 ? 0.2 : 0) +
+    (input.taskType ? 0.1 : 0);
+
+  return {
+    score: round2(score),
+    topic_hint_source: input.topicHintSource,
+    missing,
+    related_files_count: input.relatedFiles.length,
+    tags_count: input.tags.length,
+    generic_tags_count: genericTagsCount,
+    task_type: input.taskType
+  };
 }
 
 function inferTopicHint(question: string): string {
@@ -1500,6 +1606,107 @@ function serializeBucketMap(bucketMap: Map<string, number>): Array<{ bucket: str
 function extractRouteClusterId(matchReason: string | null): string | null {
   const match = matchReason?.match(/(?:^|; )cluster_id=([^;]+)/);
   return match?.[1] ?? null;
+}
+
+function buildRouteMetadataQualitySummary(rows: RouteDecisionScoreRow[]): {
+  total: number;
+  known: number;
+  unknown_schema_count: number;
+  average_score: number | null;
+  full_metadata_count: number;
+  missing_topic_hint_count: number;
+  missing_related_files_count: number;
+  missing_tags_count: number;
+  missing_task_type_count: number;
+  generic_tags_count: number;
+  score_buckets: Array<{ bucket: string; count: number }>;
+} {
+  const buckets = new Map<string, number>();
+  let known = 0;
+  let totalScore = 0;
+  let fullMetadataCount = 0;
+  let missingTopicHintCount = 0;
+  let missingRelatedFilesCount = 0;
+  let missingTagsCount = 0;
+  let missingTaskTypeCount = 0;
+  let genericTagsCount = 0;
+
+  for (const row of rows) {
+    const fields = extractRouteMetadataFields(row.match_reason);
+    if (fields.metadata_score === null) {
+      continue;
+    }
+    known += 1;
+    totalScore += fields.metadata_score;
+    const bucket = routeMetadataScoreBucket(fields.metadata_score);
+    buckets.set(bucket, (buckets.get(bucket) ?? 0) + 1);
+    if (fields.metadata_score >= 1) {
+      fullMetadataCount += 1;
+    }
+    if (fields.metadata_missing.includes("topic_hint")) {
+      missingTopicHintCount += 1;
+    }
+    if (fields.metadata_missing.includes("related_files")) {
+      missingRelatedFilesCount += 1;
+    }
+    if (fields.metadata_missing.includes("tags")) {
+      missingTagsCount += 1;
+    }
+    if (fields.metadata_missing.includes("task_type")) {
+      missingTaskTypeCount += 1;
+    }
+    genericTagsCount += fields.generic_tags_count;
+  }
+
+  return {
+    total: rows.length,
+    known,
+    unknown_schema_count: rows.length - known,
+    average_score: known > 0 ? round2(totalScore / known) : null,
+    full_metadata_count: fullMetadataCount,
+    missing_topic_hint_count: missingTopicHintCount,
+    missing_related_files_count: missingRelatedFilesCount,
+    missing_tags_count: missingTagsCount,
+    missing_task_type_count: missingTaskTypeCount,
+    generic_tags_count: genericTagsCount,
+    score_buckets: serializeMetadataBucketMap(buckets)
+  };
+}
+
+function extractRouteMetadataFields(matchReason: string | null): {
+  metadata_score: number | null;
+  metadata_missing: string[];
+  generic_tags_count: number;
+} {
+  const metadataScoreMatch = matchReason?.match(/(?:^|; )metadata_score=([^;]+)/);
+  const missingMatch = matchReason?.match(/(?:^|; )metadata_missing=([^;]+)/);
+  const genericTagsMatch = matchReason?.match(/(?:^|; )generic_tags_count=([^;]+)/);
+  return {
+    metadata_score: metadataScoreMatch ? Number(metadataScoreMatch[1]) : null,
+    metadata_missing:
+      missingMatch && missingMatch[1] !== "none" ? missingMatch[1].split(",").map((item) => item.trim()).filter(Boolean) : [],
+    generic_tags_count: genericTagsMatch ? Number(genericTagsMatch[1]) : 0
+  };
+}
+
+function routeMetadataScoreBucket(score: number): string {
+  if (score >= 1) {
+    return "1.00";
+  }
+  if (score >= 0.7) {
+    return "0.70-0.99";
+  }
+  if (score >= 0.35) {
+    return "0.35-0.69";
+  }
+  return "0.00-0.34";
+}
+
+function serializeMetadataBucketMap(bucketMap: Map<string, number>): Array<{ bucket: string; count: number }> {
+  const order = ["1.00", "0.70-0.99", "0.35-0.69", "0.00-0.34"];
+  return [...bucketMap.entries()]
+    .sort(([left], [right]) => order.indexOf(left) - order.indexOf(right))
+    .map(([bucket, count]) => ({ bucket, count }));
 }
 
 function round2(value: number): number {

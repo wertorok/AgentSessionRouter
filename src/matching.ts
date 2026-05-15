@@ -22,6 +22,9 @@ export interface MatchInput {
   task: string;
   relevantCode: string;
   question: string;
+  relatedFiles?: string[];
+  tags?: string[];
+  taskType?: string | null;
 }
 
 export interface MatchResult {
@@ -94,7 +97,10 @@ export function normalizeTopicKey(topic: string): string {
 function scoreSession(session: SessionMatchCandidate, input: MatchInput): CandidateScore {
   const topicSimilarity = jaccard(normalizeTokens(session.topic), normalizeTokens(input.topicHint));
   const filesOverlap = scoreFilesOverlap(extractPathCandidates(input), session.files_discussed);
-  const tagsOverlap = jaccard(normalizeTokens(input.task), session.tags.flatMap(normalizeTokens));
+  const sessionTagTokens = session.tags.flatMap(normalizeTokens);
+  const explicitTagsOverlap = jaccard((input.tags ?? []).flatMap(normalizeTokens), sessionTagTokens);
+  const taskTagsOverlap = jaccard([...normalizeTokens(input.task), ...normalizeTokens(input.taskType ?? "")], sessionTagTokens);
+  const tagsOverlap = Math.max(explicitTagsOverlap, taskTagsOverlap);
   const aliasesOverlap = scoreAliasOverlap(input, session.aliases);
   const recencyScore = session.recency_score;
 
@@ -156,7 +162,7 @@ function scoreAliasOverlap(input: MatchInput, aliases: string[]): number {
 function extractPathCandidates(input: MatchInput): string[] {
   const text = `${input.task} ${input.relevantCode} ${input.question}`;
   const matches = text.match(/[A-Za-z0-9_.-]+\/[A-Za-z0-9_./-]+/g) ?? [];
-  return Array.from(new Set(matches.map((item) => item.trim())));
+  return Array.from(new Set([...matches.map((item) => item.trim()), ...(input.relatedFiles ?? [])]));
 }
 
 function stripPlural(token: string): string {

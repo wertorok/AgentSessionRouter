@@ -6,7 +6,7 @@ As of 2026-05-15, the production MCP baseline is:
 
 - code pushed on `master`; use `git log -1 --oneline` for the latest commit
 - public MCP tools: 18
-- tests: `91 passed`
+- tests: `97 passed`
 - build: passing
 - shadow eval: `118/118` judged, `0` pending, `0` failed
 - active benchmark clusters: 1 (`agentsessionrouter-codebase`)
@@ -98,6 +98,11 @@ Operational rule:
 - Every `router_consult` writes `router_route_decision`. Use
   `router_monitor.route_health.samples` to inspect accidental broad
   `claude_consult_new_session` decisions before adding new routing logic.
+- Caller-side routing hints (`topic_hint`, `related_files`, `tags`,
+  `task_type`) are optional but strongly preferred. Missing hints must never
+  block the caller; they should lower
+  `router_monitor.route_health.metadata_quality` and appear in calibration
+  reports instead.
 
 Do not push cluster/session health handling back to the parent caller. The
 router should answer through the safest available path and expose internal
@@ -246,6 +251,9 @@ Current scoring provenance:
   metadata heuristic found overlap. Correctness must be checked through
   `route_health`, follow-up behavior, collision reports, and eventually a
   labeled routing calibration set.
+- Before changing weights, first check whether poor routes had poor caller
+  metadata. If `metadata_quality.average_score` is low, improve caller hints
+  before tuning thresholds.
 - Calibration should wait for real usage: collect route decisions, inspect cases
   with `candidate_gap < 0.15`, label whether the chosen session was actually
   correct, then compare alternative weights. Do not tune weights on synthetic

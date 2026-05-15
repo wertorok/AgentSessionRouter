@@ -106,6 +106,9 @@ Use `router_monitor` first. It combines the important telemetry:
 - `route_health`: `router_consult` selected-path counts and route-decision samples
 - `route_health.forced_new_due_to_ambiguity_count_last_24h`: ambiguous low-confidence calls where the router created a new durable session instead of guessing
 - `route_health.score_histogram_by_selected_path` and `score_histogram_by_cluster`: match-score drift signals for routing decisions
+- `route_health.metadata_quality`: whether parent callers supplied useful
+  routing hints (`topic_hint`, `related_files`, `tags`, `task_type`) or forced
+  the router to work from weak question-only metadata
 - `quality`: shadow comparison stats and samples
 - `quality.auto_routing_candidates`: read-only candidates for future routing suggestions; this is telemetry, not enabled auto-routing
 - `recommendations`: concrete actions
@@ -131,6 +134,10 @@ If clusters score well and have no fallback/revalidation failures, they become c
 If slow session samples show very high `tokens_in`, treat it as direct-discovery/context bloat first. Prefer an existing session or a covered cluster before repeating a broad `new_session` consult.
 
 If `route_health` shows repeated `claude_consult_new_session` decisions, inspect the samples. Either pass an explicit `cluster_id`/`session_id`, improve topic aliases/tags/file evidence, or accept that the router correctly created a new durable context.
+
+If `route_health.metadata_quality` is low, improve caller-side hints before
+tuning router weights. Hints are optional and never block the caller response,
+but they make fuzzy session matching substantially less noisy.
 
 If session-memory quality is under discussion, run `npm run session:continuity`
 instead of relying on shadow eval. Shadow eval intentionally compares clusters
