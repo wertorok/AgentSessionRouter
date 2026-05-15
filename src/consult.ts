@@ -14,6 +14,9 @@ import { cleanCallerAnswer, parseSessionUpdate } from "./sessionUpdate.js";
 export interface ClaudeConsultInput {
   projectId: string;
   sessionId?: string | null;
+  forceNewSession?: boolean;
+  forceNewSessionReason?: string;
+  forceNewSessionScore?: number;
   topicHint: string;
   trigger: string;
   task: string;
@@ -72,7 +75,7 @@ export class ConsultService {
         if (costLimit) {
           return costLimit;
         }
-        const route = await this.resolveRoute(input);
+        const route = input.forceNewSession ? this.forcedNewSessionRoute(input) : await this.resolveRoute(input);
         if ("error" in route) {
           return route;
         }
@@ -86,7 +89,7 @@ export class ConsultService {
       if (costLimit) {
         return costLimit;
       }
-      const route = await this.resolveRoute(input);
+      const route = input.forceNewSession ? this.forcedNewSessionRoute(input) : await this.resolveRoute(input);
       if ("error" in route) {
         return route;
       }
@@ -367,6 +370,18 @@ export class ConsultService {
       selectedView: selectedSession ? this.runtime.db.getSessionView(selectedSession.id) : null,
       matchScore: match.score,
       matchReason: match.lowConfidence ? `Low confidence auto-route. ${match.reason}` : match.reason,
+      wasOrphanRecovery: false
+    };
+  }
+
+  private forcedNewSessionRoute(input: ClaudeConsultInput): RouteResolution {
+    return {
+      selectedSession: null,
+      selectedView: null,
+      matchScore: input.forceNewSessionScore ?? 0,
+      matchReason:
+        input.forceNewSessionReason ??
+        "Router forced a new durable session instead of allowing lower-level auto-routing.",
       wasOrphanRecovery: false
     };
   }

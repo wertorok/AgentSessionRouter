@@ -13,6 +13,7 @@ const date = args.date ?? new Date().toISOString().slice(0, 10);
 const outDir = path.resolve(args.out ?? path.join(repoRoot, "experiments", `session-routing-collision-${date}`));
 const thresholdUse = Number(args.threshold_use ?? 0.7);
 const thresholdLowConfidence = Number(args.threshold_low_confidence ?? 0.55);
+const disambiguationGap = Number(args.disambiguation_gap ?? 0.1);
 
 if (!existsSync(matchingModulePath)) {
   fail(`Built matching module is missing at ${matchingModulePath}. Run npm run build first.`);
@@ -37,7 +38,8 @@ const report = {
   db_path: dbPath,
   thresholds: {
     threshold_use: thresholdUse,
-    threshold_low_confidence: thresholdLowConfidence
+    threshold_low_confidence: thresholdLowConfidence,
+    disambiguation_gap: disambiguationGap
   },
   active_candidate_count: candidates.length,
   exact_key_collisions: exactKeyCollisions,
@@ -57,7 +59,8 @@ console.log(
       project_id: projectId,
       active_candidate_count: candidates.length,
       exact_key_collisions: exactKeyCollisions.length,
-      high_confidence_probe_routes: probeResults.filter((probe) => probe.router_consult_would_reuse).length,
+      high_confidence_probe_routes: probeResults.filter((probe) => probe.risk === "high_confidence_route").length,
+      disambiguated_probe_routes: probeResults.filter((probe) => probe.risk === "router_disambiguated_reuse").length,
       low_confidence_probe_routes: probeResults.filter((probe) => probe.claude_consult_would_reuse).length,
       ambiguous_low_confidence_probe_routes: probeResults.filter((probe) => probe.risk === "low_confidence_ambiguous").length,
       exact_topic_probe_routes: probeResults.filter((probe) => probe.exact_topic_matches.length > 0).length
@@ -189,7 +192,10 @@ function analyzeProbe(probe) {
     best_low_confidence: best.lowConfidence,
     best_reason: best.reason,
     exact_topic_matches: exactTopicMatches,
-    router_consult_would_reuse: exactTopicMatches.length > 0 || Boolean(best.session && !best.lowConfidence),
+    router_consult_would_reuse:
+      exactTopicMatches.length > 0 ||
+      top?.score >= thresholdUse ||
+      (top?.score >= thresholdLowConfidence && (!second || top.score - second.score >= disambiguationGap)),
     claude_consult_would_reuse: exactTopicMatches.length > 0 || Boolean(best.session),
     ambiguity_gap: top && second ? round(top.score - second.score) : null,
     risk: classifyProbeRisk(top, second, exactTopicMatches),
@@ -237,17 +243,17 @@ function classifyProbeRisk(top, second, exactTopicMatches) {
   if (!top) {
     return "no_candidate";
   }
-  if (top.score >= thresholdUse && second && top.score - second.score < 0.1) {
+  if (top.score >= thresholdUse && second && top.score - second.score < disambiguationGap) {
     return "high_collision_risk";
   }
   if (top.score >= thresholdUse) {
     return "high_confidence_route";
   }
-  if (top.score >= thresholdLowConfidence && second && top.score - second.score < 0.1) {
+  if (top.score >= thresholdLowConfidence && second && top.score - second.score < disambiguationGap) {
     return "low_confidence_ambiguous";
   }
   if (top.score >= thresholdLowConfidence) {
-    return "low_confidence_reuse_possible";
+    return "router_disambiguated_reuse";
   }
   return "conservative_no_reuse";
 }
@@ -258,7 +264,7 @@ function buildSummary() {
   const highRisk = probeResults.filter((probe) => probe.risk === "high_collision_risk");
   const highRoutes = probeResults.filter((probe) => probe.risk === "high_confidence_route");
   const lowAmbiguous = probeResults.filter((probe) => probe.risk === "low_confidence_ambiguous");
-  const lowRoutes = probeResults.filter((probe) => probe.risk === "low_confidence_reuse_possible");
+  const disambiguatedRoutes = probeResults.filter((probe) => probe.risk === "router_disambiguated_reuse");
   const noReuse = probeResults.filter((probe) => !probe.claude_consult_would_reuse);
   const pairRows = pairwise
     .slice(0, 10)
@@ -278,7 +284,7 @@ function buildSummary() {
     "",
     `Project id: ${projectId}`,
     `Active candidates: ${candidates.length}`,
-    `Thresholds: use=${thresholdUse}, low_confidence=${thresholdLowConfidence}`,
+    `Thresholds: use=${thresholdUse}, low_confidence=${thresholdLowConfidence}, disambiguation_gap=${disambiguationGap}`,
     "",
     "## Executive Result",
     "",
@@ -287,11 +293,11 @@ function buildSummary() {
     `- Probe exact-topic collisions: ${exactCollisionRoutes.length}`,
     `- High collision risk probes: ${highRisk.length}`,
     `- router_consult high-confidence fuzzy reuses: ${highRoutes.length}`,
-    `- lower-level claude_consult ambiguous low-confidence reuses: ${lowAmbiguous.length}`,
-    `- lower-level claude_consult low-confidence possible reuses: ${lowRoutes.length}`,
+    `- router_consult disambiguated low-confidence reuses: ${disambiguatedRoutes.length}`,
+    `- ambiguous low-confidence probes forced to new session: ${lowAmbiguous.length}`,
     `- conservative no-reuse probes: ${noReuse.length}`,
     "",
-    "Interpretation: exact-topic reuse is proven by the continuity benchmark, but it is the easy case. This report separates exact-topic reuse from fuzzy matching. With the current active sessions and thresholds, similar topic names mostly do not cross the router-consult fuzzy reuse threshold. The main router_consult risk is missed reuse/new sessions; the remaining confusion risk is lower-level low-confidence reuse when two candidates have close scores.",
+    "Interpretation: exact-topic reuse is proven by the continuity benchmark, but it is the easy case. This report separates exact-topic reuse from fuzzy matching. With the current active sessions and thresholds, router_consult now handles three internal outcomes: reuse high-confidence matches, reuse low-confidence matches only when the gap is clear, or force a new durable session when low-confidence candidates are close.",
     "",
     "## Closest Active Topic Pairs",
     "",
@@ -308,8 +314,8 @@ function buildSummary() {
     "## Operational Conclusion",
     "",
     "- The previous `router_exact_topic` continuity score should be read as exact-topic reuse, not fuzzy semantic routing.",
-    "- Current top-level fuzzy matching is safe but under-reuses sessions unless topic, tags, aliases, or file paths strongly overlap.",
-    "- Ambiguous low-confidence cases should be inspected before relying on auto `claude_consult` reuse.",
+    "- Current top-level fuzzy matching is safe: ambiguous low-confidence cases are no longer delegated to lower-level auto reuse.",
+    "- Ambiguous low-confidence cases should still be inspected because they show where aliases/tags/file evidence or session cleanup would improve reuse.",
     "- To improve non-exact reuse later, collect route-health samples first and then add ambiguity-aware matching rather than lowering thresholds blindly.",
     ""
   ].join("\n");

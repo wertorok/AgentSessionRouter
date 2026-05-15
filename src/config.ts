@@ -24,6 +24,7 @@ export interface RouterConfig {
     useEmbeddings: boolean;
     thresholdUse: number;
     thresholdLowConfidence: number;
+    disambiguationGap: number;
   };
   claude: {
     command: string;
@@ -102,7 +103,8 @@ export function loadConfig(options: LoadConfigOptions): RouterConfig {
         matching,
         "threshold_low_confidence",
         DEFAULT_CONFIG.matching.thresholdLowConfidence
-      )
+      ),
+      disambiguationGap: numberAt(matching, "disambiguation_gap", DEFAULT_CONFIG.matching.disambiguationGap)
     },
     claude: {
       command: stringAt(claude, "command", DEFAULT_CONFIG.claude.command),

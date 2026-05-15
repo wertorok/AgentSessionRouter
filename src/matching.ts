@@ -37,13 +37,19 @@ interface CandidateScore {
   reason: string;
 }
 
+export interface RankedSessionMatch {
+  session: SessionMatchCandidate;
+  score: number;
+  reason: string;
+}
+
 export function findBestSessionMatch(
   sessions: SessionMatchCandidate[],
   input: MatchInput,
   thresholdUse: number,
   thresholdLowConfidence: number
 ): MatchResult {
-  const scores = sessions.map((session) => scoreSession(session, input)).sort((a, b) => b.score - a.score);
+  const scores = rankSessionMatches(sessions, input);
   const best = scores[0];
   if (!best || roundScore(best.score) < thresholdLowConfidence) {
     return {
@@ -60,6 +66,10 @@ export function findBestSessionMatch(
     reason: best.reason,
     lowConfidence: best.score < thresholdUse
   };
+}
+
+export function rankSessionMatches(sessions: SessionMatchCandidate[], input: MatchInput): RankedSessionMatch[] {
+  return sessions.map((session) => scoreSession(session, input)).sort((a, b) => b.score - a.score);
 }
 
 export function normalizeTokens(text: string): string[] {

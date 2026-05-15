@@ -229,7 +229,7 @@ Use the comparison tools to inspect accumulated results:
 
 ## Consultation Method Selection
 
-Use `router_consult` as the recommended parent-agent entry point when the caller wants an answer and does not need to exercise a specific lower-level path for debugging. Pass `cluster_id` when the domain is known to be covered by a cluster, or `session_id` when a specific durable session must be used. If neither is provided, `router_consult` reuses exact/high-confidence v1 sessions and otherwise delegates to normal `claude_consult` auto-routing while recording the decision in `router_monitor.route_health`.
+Use `router_consult` as the recommended parent-agent entry point when the caller wants an answer and does not need to exercise a specific lower-level path for debugging. Pass `cluster_id` when the domain is known to be covered by a cluster, or `session_id` when a specific durable session must be used. If neither is provided, `router_consult` reuses exact/high-confidence v1 sessions, reuses low-confidence sessions only when the best candidate is clearly separated from the runner-up, or starts a new durable session when candidates are ambiguous. Every decision is recorded in `router_monitor.route_health`.
 
 Automatic cluster selection is intentionally disabled in the current conservative router. Stable clusters appear as monitor signals, not as automatic routing targets.
 
@@ -537,7 +537,8 @@ Behavior:
 - If `cluster_id` is provided, calls `cluster_consult` explicitly.
 - If `session_id` is provided, calls `claude_consult` with that session explicitly.
 - If no explicit target is provided, reuses exact or high-confidence v1 sessions.
-- If no reusable session is found, delegates to normal `claude_consult` auto-routing.
+- If a low-confidence candidate is clearly separated from the runner-up, selects that session automatically.
+- If candidates are ambiguous, starts a new durable session instead of guessing.
 - Records `router_route_decision` in `session_events`.
 - Does not automatically select a cluster from monitor candidates yet; `auto_cluster_routing` is `disabled_read_only`.
 
@@ -1001,9 +1002,10 @@ score =
 Thresholds:
 
 ```txt
-score >= 0.70  -> reuse session
-0.55 - 0.69   -> reuse session, mark low confidence in match_reason
-score < 0.55  -> create new session
+score >= 0.70                         -> reuse session
+0.55 - 0.69 and gap_to_second >= 0.10 -> router-disambiguated reuse
+0.55 - 0.69 and gap_to_second < 0.10  -> create new session instead of guessing
+score < 0.55                          -> create new session
 ```
 
 Additional hardening:

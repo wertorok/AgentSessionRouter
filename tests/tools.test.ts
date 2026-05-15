@@ -273,12 +273,13 @@ describe("cluster MCP tools", () => {
       })
     );
 
-    expect(consult.route_decision.selected_path).toBe("claude_consult_auto");
+    expect(consult.route_decision.selected_path).toBe("claude_consult_new_session");
+    expect(consult.routing.was_new_session).toBe(true);
     expect(monitor.route_health.decision_counts).toEqual([
-      expect.objectContaining({ selected_path: "claude_consult_auto", count: 1 })
+      expect.objectContaining({ selected_path: "claude_consult_new_session", count: 1 })
     ]);
     expect(monitor.route_health.samples[0]).toMatchObject({
-      selected_path: "claude_consult_auto",
+      selected_path: "claude_consult_new_session",
       question: "Broad new topic with no existing session"
     });
     expect(monitor.recommendations).toEqual(
@@ -289,6 +290,96 @@ describe("cluster MCP tools", () => {
         })
       ])
     );
+    fixture.cleanup();
+  });
+
+  it("disambiguates an unambiguous low-confidence session without caller input", async () => {
+    const fixture = createToolFixture();
+    const server = new FakeServer();
+    registerTools(server as unknown as McpServer, fixture.runtime);
+    fixture.runtime.db.createSession({
+      id: "cache-session",
+      projectId: "project",
+      claudeSessionId: "claude-cache-session",
+      topic: "router consult cache maintenance sample",
+      dormantAfterDays: 30,
+      archiveAfterDays: 90
+    });
+    fixture.runtime.db.applySessionUpdate("cache-session", {
+      summary: "Cache maintenance route sample.",
+      decisions: [],
+      open_questions: [],
+      files_discussed: ["scripts/router-route-sample.mjs"],
+      tags: [],
+      aliases: []
+    });
+
+    const result = parseToolJson(
+      await server.call("router_consult", {
+        project_id: "project",
+        topic_hint: "router consult cache maintenance",
+        relevant_code: "scripts/router-route-sample.mjs",
+        question: "Should this continue the cache maintenance session?"
+      })
+    );
+
+    expect(result.route_decision).toMatchObject({
+      selected_path: "claude_consult_disambiguated_session",
+      session_id: "cache-session",
+      match_score: 0.59
+    });
+    expect(result.session_id).toBe("cache-session");
+    expect(result.routing.was_new_session).toBe(false);
+    fixture.cleanup();
+  });
+
+  it("starts a new session for ambiguous low-confidence matches instead of guessing", async () => {
+    const fixture = createToolFixture();
+    fixture.runtime.config.matching.disambiguationGap = 0.5;
+    const server = new FakeServer();
+    registerTools(server as unknown as McpServer, fixture.runtime);
+    fixture.runtime.db.createSession({
+      id: "fallback-full",
+      projectId: "project",
+      claudeSessionId: "claude-fallback-full",
+      topic: "cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-full",
+      dormantAfterDays: 30,
+      archiveAfterDays: 90
+    });
+    fixture.runtime.db.createSession({
+      id: "fallback-targeted",
+      projectId: "project",
+      claudeSessionId: "claude-fallback-targeted",
+      topic: "cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3",
+      dormantAfterDays: 30,
+      archiveAfterDays: 90
+    });
+    for (const sessionId of ["fallback-full", "fallback-targeted"]) {
+      fixture.runtime.db.applySessionUpdate(sessionId, {
+        summary: "Cluster fallback benchmark session.",
+        decisions: [],
+        open_questions: [],
+        files_discussed: ["src/prompt.ts"],
+        tags: [],
+        aliases: []
+      });
+    }
+
+    const result = parseToolJson(
+      await server.call("router_consult", {
+        project_id: "project",
+        topic_hint: "cluster fallback agentsessionrouter codebase reprepared 2026 05 15",
+        relevant_code: "src/prompt.ts",
+        question: "Should this continue one of the fallback sessions?"
+      })
+    );
+
+    expect(result.route_decision.selected_path).toBe("claude_consult_new_session");
+    expect(result.route_decision.reason).toContain("Ambiguous low-confidence session candidates");
+    expect(result.route_decision.force_new_session).toBe(true);
+    expect(result.routing.was_new_session).toBe(true);
+    expect(result.session_id).not.toBe("fallback-full");
+    expect(result.session_id).not.toBe("fallback-targeted");
     fixture.cleanup();
   });
 

@@ -66,7 +66,8 @@ export const DEFAULT_CONFIG = {
     useAliases: true,
     useEmbeddings: false,
     thresholdUse: 0.7,
-    thresholdLowConfidence: 0.55
+    thresholdLowConfidence: 0.55,
+    disambiguationGap: 0.1
   },
   claude: {
     command: "claude",

@@ -20,8 +20,9 @@ remember prior benchmark decisions better than fresh-each-turn calls.
 
 `session:collision` is an offline routing-risk benchmark. It does not invoke
 Claude. It inspects the router DB and asks whether similar active session topics
-would be exact-topic reused, high-confidence fuzzy reused, low-confidence reused
-by lower-level `claude_consult`, or conservatively routed to a new/auto path.
+would be exact-topic reused, high-confidence fuzzy reused, low-confidence
+disambiguated by the router, forced into a new session as ambiguous, or
+conservatively routed to a new path.
 
 Artifacts are written under:
 
@@ -86,7 +87,7 @@ If a one-off Claude Code integration diagnostic is needed, pass MCP config expli
 | LLM verifier | `verification_mode=llm` | `factsheet_llm_verified`, `llm_verifier` |
 | Monitor diagnosis | final `router_monitor` | cache/quality recommendations |
 | Session continuity | `npm run session:continuity` | fresh-each-turn loses memory, same-session/router reuse preserves memory |
-| Session collision risk | `npm run session:collision` | similar topics are classified as exact reuse, fuzzy reuse, ambiguous low-confidence reuse, or conservative no-reuse |
+| Session collision risk | `npm run session:collision` | similar topics are classified as exact reuse, fuzzy reuse, router-disambiguated reuse, ambiguous new-session fallback, or conservative no-reuse |
 
 ## What To Watch
 
@@ -120,7 +121,7 @@ If clusters score well and have no fallback/revalidation failures, they become c
 
 If slow session samples show very high `tokens_in`, treat it as direct-discovery/context bloat first. Prefer an existing session or a covered cluster before repeating a broad `new_session` consult.
 
-If `route_health` shows repeated `claude_consult_auto` decisions, inspect the samples. Either pass an explicit `cluster_id`/`session_id`, improve the topic hint, or collect enough evidence before implementing code-level automatic cluster selection.
+If `route_health` shows repeated `claude_consult_new_session` decisions, inspect the samples. Either pass an explicit `cluster_id`/`session_id`, improve topic aliases/tags/file evidence, or accept that the router correctly created a new durable context.
 
 If session-memory quality is under discussion, run `npm run session:continuity`
 instead of relying on shadow eval. Shadow eval intentionally compares clusters

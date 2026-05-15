@@ -66,8 +66,9 @@ Current follow-up priorities:
    baseline by design.
 8. Use `npm run session:collision` when evaluating whether similar topics can
    confuse the router. Exact-topic continuity is the easy case; collision
-   analysis separates exact reuse from fuzzy high-confidence reuse,
-   low-confidence reuse, and conservative no-reuse.
+   analysis separates exact reuse, high-confidence reuse, router-disambiguated
+   low-confidence reuse, ambiguous new-session fallback, and conservative
+   no-reuse.
 
 `router_monitor.quality.auto_routing_candidates` is a read-only research signal.
 It means a cluster is stable enough to study for future routing suggestions; it
@@ -84,8 +85,10 @@ Operational rule:
 - If the caller knows the durable session, pass `session_id`; the router uses
   `claude_consult` with that session and records
   `selected_path=claude_consult_explicit_session`.
-- If neither is provided, the router may reuse an exact or high-confidence v1
-  session; otherwise it delegates to normal `claude_consult` auto-routing.
+- If neither is provided, the router may reuse an exact/high-confidence v1
+  session, reuse a low-confidence session only when the best candidate is
+  clearly separated from the runner-up, or create a new durable session when
+  candidates are ambiguous.
 - Automatic cluster selection is not enabled. Stable cluster candidates from
   `router_monitor.quality.auto_routing_candidates` are telemetry only.
 - Exact normalized topic reuse is intentionally strong, but it only proves the
@@ -94,7 +97,7 @@ Operational rule:
   can disambiguate similar sessions.
 - Every `router_consult` writes `router_route_decision`. Use
   `router_monitor.route_health.samples` to inspect accidental broad
-  `claude_consult_auto` decisions before adding new routing logic.
+  `claude_consult_new_session` decisions before adding new routing logic.
 
 Do not push cluster/session health handling back to the parent caller. The
 router should answer through the safest available path and expose internal
@@ -188,11 +191,11 @@ Read the output this way:
   rename/archive one before trusting exact routing.
 - `high_confidence_route`: fuzzy score crosses the router-consult reuse
   threshold.
-- `low_confidence_reuse_possible`: lower-level `claude_consult` may reuse the
-  session, but `router_consult` delegates rather than claiming confidence.
-- `low_confidence_ambiguous`: lower-level `claude_consult` may reuse one of two
-  close candidates; inspect or pass an explicit session before trusting auto
-  reuse.
+- `router_disambiguated_reuse`: fuzzy score is below high-confidence, but the
+  best candidate is far enough from the runner-up; `router_consult` selects that
+  session automatically.
+- `low_confidence_ambiguous`: two low-confidence candidates are too close;
+  `router_consult` starts a new durable session instead of guessing.
 - `conservative_no_reuse`: the router is unlikely to confuse sessions; the risk
   is under-reuse/new-session creation, not wrong-session reuse.
 

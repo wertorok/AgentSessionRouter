@@ -22,7 +22,7 @@ import type {
   StatusCount
 } from "./db.js";
 import { diagnoseClaudeFailure, errorPayload, SPEC_ERROR_MESSAGES } from "./errors.js";
-import { findBestSessionMatch, normalizeTopicKey } from "./matching.js";
+import { findBestSessionMatch, normalizeTopicKey, rankSessionMatches } from "./matching.js";
 import { pickProfile, type ProfileSelection } from "./profiles.js";
 import { resolveProjectId } from "./project.js";
 import type { RouterRuntime } from "./runtime.js";
@@ -285,7 +285,7 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
     {
       title: "Conservative router consult",
       description:
-        "Recommended parent-agent entry point. Conservatively chooses explicit cluster_consult, explicit/exact/high-confidence session reuse, or claude_consult fallback, and records the route decision.",
+        "Recommended parent-agent entry point. Chooses explicit cluster_consult, explicit/exact/high-confidence session reuse, router-disambiguated low-confidence reuse, or a new durable session, and records the route decision.",
       inputSchema: routerConsultInput
     },
     async (input) => {
@@ -323,6 +323,9 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
       const result = await consultService.consult({
         projectId,
         sessionId: decision.session_id ?? null,
+        forceNewSession: decision.force_new_session ?? false,
+        forceNewSessionReason: decision.force_new_session ? decision.reason : undefined,
+        forceNewSessionScore: decision.force_new_session ? decision.match_score : undefined,
         topicHint: normalizedInput.topic_hint,
         trigger: normalizedInput.trigger,
         task: normalizedInput.task,
@@ -1125,6 +1128,8 @@ type RouterConsultSelectedPath =
   | "cluster_consult_explicit"
   | "claude_consult_explicit_session"
   | "claude_consult_existing_session"
+  | "claude_consult_disambiguated_session"
+  | "claude_consult_new_session"
   | "claude_consult_auto";
 
 interface RouterConsultDecision {
@@ -1133,6 +1138,8 @@ interface RouterConsultDecision {
   session_id?: string | null;
   cluster_id?: string | null;
   match_score: number;
+  candidate_gap?: number | null;
+  force_new_session?: boolean;
   topic_hint: string;
   auto_cluster_routing: "disabled_read_only";
 }
@@ -1192,35 +1199,69 @@ function resolveRouterConsultDecision(
     };
   }
 
+  const matchInput = {
+    topicHint: input.topic_hint,
+    task: input.task,
+    relevantCode: input.relevant_code,
+    question: input.question
+  };
   const match = findBestSessionMatch(
     sessions,
-    {
-      topicHint: input.topic_hint,
-      task: input.task,
-      relevantCode: input.relevant_code,
-      question: input.question
-    },
+    matchInput,
     runtime.config.matching.thresholdUse,
     runtime.config.matching.thresholdLowConfidence
   );
+  const ranked = rankSessionMatches(sessions, matchInput);
+  const best = ranked[0] ?? null;
+  const second = ranked[1] ?? null;
+  const candidateGap = best && second ? round2(best.score - second.score) : null;
   if (match.session && !match.lowConfidence) {
     return {
       selected_path: "claude_consult_existing_session",
       reason: `High-confidence existing session match. ${match.reason}`,
       session_id: match.session.id,
       match_score: match.score,
+      candidate_gap: candidateGap,
+      topic_hint: input.topic_hint,
+      auto_cluster_routing: "disabled_read_only"
+    };
+  }
+
+  if (match.session && best && best.score >= runtime.config.matching.thresholdLowConfidence) {
+    const gap = second ? best.score - second.score : Number.POSITIVE_INFINITY;
+    if (gap >= runtime.config.matching.disambiguationGap) {
+      return {
+        selected_path: "claude_consult_disambiguated_session",
+        reason:
+          `Low-confidence session match was unambiguous enough for router-level disambiguation. ` +
+          `${match.reason} gap_to_second=${Number.isFinite(gap) ? round2(gap) : "n/a"}.`,
+        session_id: match.session.id,
+        match_score: match.score,
+        candidate_gap: Number.isFinite(gap) ? round2(gap) : null,
+        topic_hint: input.topic_hint,
+        auto_cluster_routing: "disabled_read_only"
+      };
+    }
+
+    return {
+      selected_path: "claude_consult_new_session",
+      reason:
+        `Ambiguous low-confidence session candidates; router starts a new durable session instead of guessing. ` +
+        `${match.reason} gap_to_second=${round2(gap)} threshold_gap=${runtime.config.matching.disambiguationGap}.`,
+      match_score: match.score,
+      candidate_gap: round2(gap),
+      force_new_session: true,
       topic_hint: input.topic_hint,
       auto_cluster_routing: "disabled_read_only"
     };
   }
 
   return {
-    selected_path: "claude_consult_auto",
-    reason:
-      match.session
-        ? `Only low-confidence session match was available; delegating final session/new-session decision to claude_consult. ${match.reason}`
-        : `No exact or high-confidence existing session; delegating to claude_consult. ${match.reason}`,
+    selected_path: "claude_consult_new_session",
+    reason: `No exact or usable existing session match; router starts a new durable session. ${match.reason}`,
     match_score: match.score,
+    candidate_gap: candidateGap,
+    force_new_session: true,
     topic_hint: input.topic_hint,
     auto_cluster_routing: "disabled_read_only"
   };
@@ -1244,7 +1285,11 @@ function logRouterRouteDecision(
       `topic_hint=${decision.topic_hint}`,
       `auto_cluster_routing=${decision.auto_cluster_routing}`,
       decision.cluster_id ? `cluster_id=${decision.cluster_id}` : null,
-      decision.session_id ? `session_id=${decision.session_id}` : null
+      decision.session_id ? `session_id=${decision.session_id}` : null,
+      decision.candidate_gap === undefined || decision.candidate_gap === null
+        ? null
+        : `candidate_gap=${decision.candidate_gap}`,
+      decision.force_new_session ? "force_new_session=true" : null
     ]
       .filter(Boolean)
       .join("; ")
@@ -1621,6 +1666,18 @@ function buildMonitorRecommendations(input: {
       area: "routing",
       action: "Inspect route_health.samples for claude_consult_auto decisions; add explicit cluster_id/session_id or improve topic hints if these become slow.",
       reason: `${autoRouteCount} router_consult call(s) delegated to claude_consult auto-routing in the recent window.`
+    });
+  }
+
+  const newSessionRouteCount =
+    input.routeDecisionCounts.find((decision) => decision.selected_path === "claude_consult_new_session")?.count ?? 0;
+  if (newSessionRouteCount > 0) {
+    recommendations.push({
+      priority: "low",
+      area: "routing",
+      action:
+        "Inspect route_health.samples for claude_consult_new_session decisions; add aliases/tags/file evidence or pass an explicit session if these should have reused context.",
+      reason: `${newSessionRouteCount} router_consult call(s) started a new durable session after automatic routing checks.`
     });
   }
 
