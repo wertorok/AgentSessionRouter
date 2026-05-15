@@ -1,0 +1,505 @@
+{
+  "captured_at": "2026-05-15T16:28:31.116Z",
+  "project_id": null,
+  "recent_hours": 24,
+  "sample_limit": 20,
+  "status": {
+    "project_id": "AgentSessionRouter",
+    "checked_at": "2026-05-15T16:28:31.110Z",
+    "mode": "normal",
+    "degraded_reason": null,
+    "uptime_hours": 0,
+    "claude": {
+      "detected_version": "2.1.92 (Claude Code)",
+      "tested_versions": [
+        "\"2.1.138 (Claude Code)\"",
+        "\"2.1.92 (Claude Code)\""
+      ]
+    },
+    "v1_sessions": {
+      "active": 2,
+      "dormant": 0,
+      "archived": 0,
+      "orphaned": 0,
+      "total": 2
+    },
+    "v2_clusters": {
+      "active": 0,
+      "stale": 3,
+      "needs_prepare": 0,
+      "invalidated": 0,
+      "archived": 8,
+      "total": 11,
+      "fallback_count_last_24h": 0,
+      "stale_clusters": [
+        {
+          "id": "agentsessionrouter-codebase-reprepared-2026-05-15-full",
+          "name": "AgentSessionRouter codebase",
+          "status": "stale",
+          "trust_state": "untrusted",
+          "last_used": "2026-05-15T16:27:09.656Z",
+          "factsheet_id": "factsheet_d27eb28a-7fdc-4ef3-bf24-50501b8dbecd",
+          "factsheet_version": 1,
+          "factsheet_status": "stale",
+          "verified_at": "2026-05-15T08:59:49.158Z"
+        },
+        {
+          "id": "claude-code-live-workload",
+          "name": "Claude Code Live Workload",
+          "status": "stale",
+          "trust_state": "untrusted",
+          "last_used": "2026-05-15T16:27:09.641Z",
+          "factsheet_id": "factsheet_03616a74-e8b6-488b-9395-64e5af913314",
+          "factsheet_version": 1,
+          "factsheet_status": "stale",
+          "verified_at": "2026-05-14T23:14:37.282Z"
+        },
+        {
+          "id": "agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3",
+          "name": "AgentSessionRouter codebase",
+          "status": "stale",
+          "trust_state": "untrusted",
+          "last_used": "2026-05-15T16:27:09.632Z",
+          "factsheet_id": "factsheet_462264ce-f355-4b3d-bbc6-785a6c518d8f",
+          "factsheet_version": 1,
+          "factsheet_status": "stale",
+          "verified_at": "2026-05-15T08:54:41.094Z"
+        }
+      ]
+    },
+    "recent_window_hours": 24,
+    "recent_errors": {
+      "session_events": [
+        {
+          "event_type": "health_check_failed",
+          "count": 1,
+          "latest_created_at": "2026-05-15T16:25:19.448Z"
+        },
+        {
+          "event_type": "parse_failed",
+          "count": 1,
+          "latest_created_at": "2026-05-15T16:25:22.926Z"
+        },
+        {
+          "event_type": "token_anomaly",
+          "count": 1,
+          "latest_created_at": "2026-05-15T16:25:22.928Z"
+        }
+      ],
+      "slow_session_events": [
+        {
+          "event_type": "new_session",
+          "count": 1,
+          "max_duration_ms": 302712,
+          "latest_created_at": "2026-05-15T12:08:08.351Z"
+        }
+      ],
+      "cluster_events": [
+        {
+          "event_type": "factsheet_stale",
+          "count": 3,
+          "latest_created_at": "2026-05-15T16:27:09.659Z"
+        },
+        {
+          "event_type": "cluster_fallback_failed",
+          "count": 1,
+          "latest_created_at": "2026-05-15T16:25:19.451Z"
+        },
+        {
+          "event_type": "cluster_refresh_required",
+          "count": 1,
+          "latest_created_at": "2026-05-15T16:22:19.367Z"
+        },
+        {
+          "event_type": "evidence_revalidation_failed",
+          "count": 1,
+          "latest_created_at": "2026-05-15T16:22:19.384Z"
+        }
+      ]
+    },
+    "shadow_eval": {
+      "enabled": true,
+      "total": 90,
+      "judged": 90,
+      "pending": 0,
+      "ok_unjudged": 0,
+      "failed_auth": 0,
+      "failed_timeout": 0,
+      "failed_other": 0,
+      "last_created_at": "2026-05-15T09:57:00.404Z",
+      "last_judged_at": "2026-05-15T15:18:55.099Z"
+    },
+    "warnings": [
+      "Cluster 'agentsessionrouter-codebase-reprepared-2026-05-15-full' is stale; latest factsheet factsheet_d27eb28a-7fdc-4ef3-bf24-50501b8dbecd version 1 needs refresh or re-prepare.",
+      "Cluster 'claude-code-live-workload' is stale; latest factsheet factsheet_03616a74-e8b6-488b-9395-64e5af913314 version 1 needs refresh or re-prepare.",
+      "Cluster 'agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3' is stale; latest factsheet factsheet_462264ce-f355-4b3d-bbc6-785a6c518d8f version 1 needs refresh or re-prepare.",
+      "Cluster event 'factsheet_stale' occurred 3 time(s) in the recent window.",
+      "Cluster event 'cluster_fallback_failed' occurred 1 time(s) in the recent window.",
+      "Cluster event 'cluster_refresh_required' occurred 1 time(s) in the recent window.",
+      "Cluster event 'evidence_revalidation_failed' occurred 1 time(s) in the recent window.",
+      "Session event 'health_check_failed' has 1 error row(s) in the recent window.",
+      "Session event 'parse_failed' has 1 error row(s) in the recent window.",
+      "Session event 'token_anomaly' has 1 error row(s) in the recent window.",
+      "Session event 'new_session' exceeded the slow-call threshold 1 time(s); max duration 302712ms."
+    ]
+  },
+  "monitor": {
+    "project_id": "AgentSessionRouter",
+    "checked_at": "2026-05-15T16:28:31.113Z",
+    "recent_window_hours": 24,
+    "health": {
+      "mode": "normal",
+      "degraded_reason": null,
+      "claude": {
+        "detected_version": "2.1.92 (Claude Code)",
+        "tested_versions": [
+          "\"2.1.138 (Claude Code)\"",
+          "\"2.1.92 (Claude Code)\""
+        ]
+      },
+      "v1_sessions": {
+        "active": 2,
+        "dormant": 0,
+        "archived": 0,
+        "orphaned": 0,
+        "total": 2
+      },
+      "v2_clusters": {
+        "active": 0,
+        "stale": 3,
+        "needs_prepare": 0,
+        "invalidated": 0,
+        "archived": 8,
+        "total": 11,
+        "fallback_count_last_24h": 0
+      },
+      "shadow_eval": {
+        "enabled": true,
+        "total": 90,
+        "judged": 90,
+        "pending": 0,
+        "ok_unjudged": 0,
+        "failed_auth": 0,
+        "failed_timeout": 0,
+        "failed_other": 0,
+        "last_created_at": "2026-05-15T09:57:00.404Z",
+        "last_judged_at": "2026-05-15T15:18:55.099Z"
+      }
+    },
+    "cache_health": {
+      "stale_or_needs_prepare": [
+        {
+          "id": "agentsessionrouter-codebase-reprepared-2026-05-15-full",
+          "name": "AgentSessionRouter codebase",
+          "status": "stale",
+          "trust_state": "untrusted",
+          "last_used": "2026-05-15T16:27:09.656Z",
+          "factsheet_id": "factsheet_d27eb28a-7fdc-4ef3-bf24-50501b8dbecd",
+          "factsheet_version": 1,
+          "factsheet_status": "stale",
+          "verified_at": "2026-05-15T08:59:49.158Z"
+        },
+        {
+          "id": "claude-code-live-workload",
+          "name": "Claude Code Live Workload",
+          "status": "stale",
+          "trust_state": "untrusted",
+          "last_used": "2026-05-15T16:27:09.641Z",
+          "factsheet_id": "factsheet_03616a74-e8b6-488b-9395-64e5af913314",
+          "factsheet_version": 1,
+          "factsheet_status": "stale",
+          "verified_at": "2026-05-14T23:14:37.282Z"
+        },
+        {
+          "id": "agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3",
+          "name": "AgentSessionRouter codebase",
+          "status": "stale",
+          "trust_state": "untrusted",
+          "last_used": "2026-05-15T16:27:09.632Z",
+          "factsheet_id": "factsheet_462264ce-f355-4b3d-bbc6-785a6c518d8f",
+          "factsheet_version": 1,
+          "factsheet_status": "stale",
+          "verified_at": "2026-05-15T08:54:41.094Z"
+        }
+      ],
+      "attention_by_event": [
+        {
+          "event_type": "factsheet_stale",
+          "count": 3,
+          "latest_created_at": "2026-05-15T16:27:09.659Z"
+        },
+        {
+          "event_type": "cluster_fallback_failed",
+          "count": 1,
+          "latest_created_at": "2026-05-15T16:25:19.451Z"
+        },
+        {
+          "event_type": "cluster_refresh_required",
+          "count": 1,
+          "latest_created_at": "2026-05-15T16:22:19.367Z"
+        },
+        {
+          "event_type": "evidence_revalidation_failed",
+          "count": 1,
+          "latest_created_at": "2026-05-15T16:22:19.384Z"
+        }
+      ],
+      "attention_by_cluster": [
+        {
+          "cluster_id": "agentsessionrouter-codebase-reprepared-2026-05-15-full",
+          "event_type": "cluster_fallback_failed",
+          "count": 1,
+          "latest_created_at": "2026-05-15T16:25:19.451Z"
+        },
+        {
+          "cluster_id": "agentsessionrouter-codebase-reprepared-2026-05-15-full",
+          "event_type": "cluster_refresh_required",
+          "count": 1,
+          "latest_created_at": "2026-05-15T16:22:19.367Z"
+        },
+        {
+          "cluster_id": "agentsessionrouter-codebase-reprepared-2026-05-15-full",
+          "event_type": "evidence_revalidation_failed",
+          "count": 1,
+          "latest_created_at": "2026-05-15T16:22:19.384Z"
+        },
+        {
+          "cluster_id": "agentsessionrouter-codebase-reprepared-2026-05-15-full",
+          "event_type": "factsheet_stale",
+          "count": 1,
+          "latest_created_at": "2026-05-15T16:27:09.659Z"
+        },
+        {
+          "cluster_id": "agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3",
+          "event_type": "factsheet_stale",
+          "count": 1,
+          "latest_created_at": "2026-05-15T16:27:09.637Z"
+        },
+        {
+          "cluster_id": "claude-code-live-workload",
+          "event_type": "factsheet_stale",
+          "count": 1,
+          "latest_created_at": "2026-05-15T16:27:09.645Z"
+        }
+      ]
+    },
+    "latency": {
+      "slow_session_threshold_ms": 100000,
+      "slow_session_events": [
+        {
+          "event_type": "new_session",
+          "count": 1,
+          "max_duration_ms": 302712,
+          "latest_created_at": "2026-05-15T12:08:08.351Z"
+        }
+      ],
+      "slow_session_samples": [
+        {
+          "event_id": 63,
+          "session_id": "session_e65145e0-1911-4a87-ad7d-8477254bdbb2",
+          "topic": "project roadmap after v2.3.1",
+          "event_type": "new_session",
+          "question": "Given this state, what should we do next? Please prioritize 3-5 concrete next steps, and distinguish must-do production hardening from optional research. Be direct and call out anything you think we are over-optimizing.",
+          "raw_response_path": "/root/projects/AgentSessionRouter/.claude-session-router/raw/session_e65145e0-1911-4a87-ad7d-8477254bdbb2-1778846888340.txt",
+          "tokens_in": 78258,
+          "tokens_out": 3048,
+          "duration_ms": 302712,
+          "created_at": "2026-05-15T12:08:08.351Z"
+        }
+      ]
+    },
+    "metadata_health": {
+      "event_counts": [
+        {
+          "event_type": "parse_failed",
+          "count": 1,
+          "latest_created_at": "2026-05-15T16:25:22.926Z"
+        }
+      ],
+      "affected_sessions": [
+        {
+          "session_id": "session_11d18ee8-3799-443f-8f5f-ecd866db9e57",
+          "topic": "v2.1 shadow eval architecture",
+          "session_status": "active",
+          "parse_failed_count": 1,
+          "threshold_exceeded_count": 0,
+          "latest_created_at": "2026-05-15T16:25:22.926Z",
+          "latest_error": "SESSION_UPDATE_JSON block missing",
+          "latest_raw_response_path": "/root/projects/AgentSessionRouter/.claude-session-router/raw/session_11d18ee8-3799-443f-8f5f-ecd866db9e57-1778862322925.txt"
+        }
+      ],
+      "samples": [
+        {
+          "event_id": 102,
+          "session_id": "session_11d18ee8-3799-443f-8f5f-ecd866db9e57",
+          "topic": "v2.1 shadow eval architecture",
+          "session_status": "active",
+          "event_type": "parse_failed",
+          "question": null,
+          "raw_response_path": "/root/projects/AgentSessionRouter/.claude-session-router/raw/session_11d18ee8-3799-443f-8f5f-ecd866db9e57-1778862322925.txt",
+          "error": "SESSION_UPDATE_JSON block missing",
+          "created_at": "2026-05-15T16:25:22.926Z"
+        }
+      ]
+    },
+    "route_health": {
+      "decision_counts": [
+        {
+          "selected_path": "claude_consult_explicit_session",
+          "count": 2,
+          "latest_created_at": "2026-05-15T16:27:09.672Z"
+        },
+        {
+          "selected_path": "cluster_consult_explicit",
+          "count": 1,
+          "latest_created_at": "2026-05-15T16:22:09.951Z"
+        }
+      ],
+      "samples": [
+        {
+          "event_id": 106,
+          "selected_path": "claude_consult_explicit_session",
+          "session_id": "session_11d18ee8-3799-443f-8f5f-ecd866db9e57",
+          "topic": "v2.1 shadow eval architecture",
+          "question": "Sanity check: answer from durable session context only. Do not read files, do not emit XML/tool-call markup. In two sentences, which current AgentSessionRouter maintenance rule should a parent agent remember?",
+          "match_score": 1,
+          "match_reason": "Explicit session_id provided by caller.; topic_hint=v2.1 shadow eval architecture; auto_cluster_routing=disabled_read_only; session_id=session_11d18ee8-3799-443f-8f5f-ecd866db9e57",
+          "created_at": "2026-05-15T16:27:09.672Z"
+        },
+        {
+          "event_id": 101,
+          "selected_path": "claude_consult_explicit_session",
+          "session_id": "session_11d18ee8-3799-443f-8f5f-ecd866db9e57",
+          "topic": "v2.1 shadow eval architecture",
+          "question": "Sanity check: answer briefly. Which current AgentSessionRouter maintenance rule should a parent agent remember?",
+          "match_score": 1,
+          "match_reason": "Explicit session_id provided by caller.; topic_hint=v2.1 shadow eval architecture; auto_cluster_routing=disabled_read_only; session_id=session_11d18ee8-3799-443f-8f5f-ecd866db9e57",
+          "created_at": "2026-05-15T16:25:19.456Z"
+        },
+        {
+          "event_id": 99,
+          "selected_path": "cluster_consult_explicit",
+          "session_id": null,
+          "topic": null,
+          "question": "Sanity check: answer briefly from the router cluster context. What operational purpose does router_monitor serve?",
+          "match_score": 1,
+          "match_reason": "Explicit cluster_id provided by caller.; topic_hint=Sanity check: answer briefly from the router cluster context; auto_cluster_routing=disabled_read_only; cluster_id=agentsessionrouter-codebase-reprepared-2026-05-15-full",
+          "created_at": "2026-05-15T16:22:09.951Z"
+        }
+      ]
+    },
+    "quality": {
+      "cluster_stats": [
+        {
+          "cluster_id": "agentsessionrouter-codebase-reprepared-2026-05-15-full",
+          "total": 30,
+          "judged": 30,
+          "not_in_context": 0,
+          "failed_shadow": 0,
+          "n": 30,
+          "cluster_q": 1.63,
+          "direct_q": 0.13,
+          "gap": -1.5,
+          "cluster_wins": 19,
+          "direct_wins": 0,
+          "ties": 11
+        },
+        {
+          "cluster_id": "agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3",
+          "total": 10,
+          "judged": 10,
+          "not_in_context": 0,
+          "failed_shadow": 0,
+          "n": 10,
+          "cluster_q": 1.7,
+          "direct_q": 0.3,
+          "gap": -1.4,
+          "cluster_wins": 9,
+          "direct_wins": 0,
+          "ties": 1
+        }
+      ],
+      "direct_win_samples": [],
+      "not_in_context_samples": [],
+      "auto_routing_candidates": []
+    },
+    "recommendations": [
+      {
+        "priority": "high",
+        "area": "cache",
+        "cluster_id": "agentsessionrouter-codebase-reprepared-2026-05-15-full",
+        "action": "Run cluster_prepare or expand/rebuild this factsheet.",
+        "reason": "Cluster is stale; factsheet factsheet_d27eb28a-7fdc-4ef3-bf24-50501b8dbecd cannot be trusted as current cache."
+      },
+      {
+        "priority": "high",
+        "area": "cache",
+        "cluster_id": "claude-code-live-workload",
+        "action": "Run cluster_prepare or expand/rebuild this factsheet.",
+        "reason": "Cluster is stale; factsheet factsheet_03616a74-e8b6-488b-9395-64e5af913314 cannot be trusted as current cache."
+      },
+      {
+        "priority": "high",
+        "area": "cache",
+        "cluster_id": "agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3",
+        "action": "Run cluster_prepare or expand/rebuild this factsheet.",
+        "reason": "Cluster is stale; factsheet factsheet_462264ce-f355-4b3d-bbc6-785a6c518d8f cannot be trusted as current cache."
+      },
+      {
+        "priority": "high",
+        "area": "fallback",
+        "cluster_id": "agentsessionrouter-codebase-reprepared-2026-05-15-full",
+        "action": "Investigate Claude availability and fallback path immediately.",
+        "reason": "Fallback failed 1 time(s) in the recent window."
+      },
+      {
+        "priority": "medium",
+        "area": "cache",
+        "cluster_id": "agentsessionrouter-codebase-reprepared-2026-05-15-full",
+        "action": "Refresh factsheet evidence; selectors or snippets changed.",
+        "reason": "Strict evidence revalidation failed 1 time(s)."
+      },
+      {
+        "priority": "medium",
+        "area": "sessions",
+        "action": "Inspect recent session_events and raw responses.",
+        "reason": "Session event 'health_check_failed' has 1 error row(s)."
+      },
+      {
+        "priority": "medium",
+        "area": "sessions",
+        "action": "Inspect recent session_events and raw responses.",
+        "reason": "Session event 'parse_failed' has 1 error row(s)."
+      },
+      {
+        "priority": "medium",
+        "area": "sessions",
+        "action": "Inspect recent session_events and raw responses.",
+        "reason": "Session event 'token_anomaly' has 1 error row(s)."
+      },
+      {
+        "priority": "medium",
+        "area": "metadata",
+        "action": "Inspect metadata_health.samples raw responses and tighten SESSION_UPDATE_JSON prompting if failures repeat.",
+        "reason": "1 SESSION_UPDATE_JSON parse failure(s) occurred in the recent window."
+      },
+      {
+        "priority": "medium",
+        "area": "latency",
+        "action": "Prefer cluster_consult for covered questions, or inspect the raw Claude response when direct consults approach the caller timeout boundary.",
+        "reason": "Session event 'new_session' exceeded the slow-call threshold 1 time(s); max duration 302712ms."
+      },
+      {
+        "priority": "medium",
+        "area": "latency",
+        "action": "Treat this as direct-discovery/context bloat: reuse an existing session or a covered cluster before repeating a broad new_session consult.",
+        "reason": "Slow new_session used 78258 input tokens over 302712ms for topic 'project roadmap after v2.3.1'. Raw response: /root/projects/AgentSessionRouter/.claude-session-router/raw/session_e65145e0-1911-4a87-ad7d-8477254bdbb2-1778846888340.txt."
+      }
+    ],
+    "next_directions": [
+      "Re-prepare decayed clusters before using their data to judge routing quality.",
+      "Fork baselines are still low priority unless monitor data shows latency/cost, not quality, is the bottleneck."
+    ]
+  },
+  "server_stderr": ""
+}

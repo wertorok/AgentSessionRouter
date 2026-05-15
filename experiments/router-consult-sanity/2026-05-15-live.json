@@ -1,0 +1,772 @@
+{
+  "captured_at": "2026-05-15T16:27:07.423Z",
+  "project_id": null,
+  "cwd": "/root/projects/AgentSessionRouter",
+  "checks": [
+    {
+      "name": "tool_discovery_router_consult",
+      "pass": true,
+      "skipped": false,
+      "details": {
+        "tool_count": 18,
+        "tools": [
+          "claude_sessions_list",
+          "claude_session_inspect",
+          "claude_consult",
+          "router_consult",
+          "claude_session_archive",
+          "claude_router_reset",
+          "router_status",
+          "router_monitor",
+          "cluster_prepare",
+          "cluster_get",
+          "cluster_consult",
+          "comparison_stats",
+          "comparison_list",
+          "comparison_process_pending",
+          "comparison_rejudge",
+          "cluster_refresh",
+          "cluster_list",
+          "cluster_archive"
+        ]
+      }
+    },
+    {
+      "name": "cluster_preflight_agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3",
+      "pass": false,
+      "skipped": true,
+      "details": {
+        "reason": "cluster_refresh verify_only did not return fresh=true; skipping this cluster for router sanity.",
+        "refresh": {
+          "ok": false,
+          "payload": {
+            "project_id": "AgentSessionRouter",
+            "error": {
+              "code": "CLUSTER_FACTSHEET_STALE",
+              "message": "Cluster factsheet is stale. Run cluster_refresh before consulting.",
+              "cluster_id": "agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3",
+              "details": {
+                "mode": "verify_only",
+                "factsheet_id": "factsheet_462264ce-f355-4b3d-bbc6-785a6c518d8f",
+                "factsheet_version": 1,
+                "changed_files": [
+                  "src/cluster.ts",
+                  "src/clusterConsult.ts",
+                  "src/consult.ts",
+                  "src/db.ts",
+                  "src/tools.ts",
+                  "tests/clusterConsult.test.ts",
+                  "tests/consult.test.ts"
+                ],
+                "rejected_facts": [
+                  {
+                    "id": "cluster-event-factsheet-static-verified",
+                    "claim": "A fully statically verified factsheet writes factsheet_static_verified to cluster_events.",
+                    "reason": "hash mismatch for src/db.ts; hash mismatch for src/db.ts"
+                  },
+                  {
+                    "id": "cluster-event-factsheet-partially-static-verified",
+                    "claim": "A partially statically verified factsheet writes factsheet_partially_static_verified to cluster_events.",
+                    "reason": "hash mismatch for src/db.ts; hash mismatch for src/db.ts"
+                  },
+                  {
+                    "id": "cluster-event-factsheet-llm-verified",
+                    "claim": "A fully LLM-verified factsheet writes factsheet_llm_verified to cluster_events.",
+                    "reason": "hash mismatch for src/db.ts; hash mismatch for src/db.ts"
+                  },
+                  {
+                    "id": "cluster-event-factsheet-partially-llm-verified",
+                    "claim": "A partially LLM-verified factsheet writes factsheet_partially_llm_verified to cluster_events.",
+                    "reason": "hash mismatch for src/db.ts; hash mismatch for src/db.ts"
+                  },
+                  {
+                    "id": "cluster-event-factsheet-generated",
+                    "claim": "A generated but not verified factsheet writes factsheet_generated to cluster_events.",
+                    "reason": "hash mismatch for src/db.ts; hash mismatch for src/db.ts"
+                  },
+                  {
+                    "id": "cluster-event-factsheet-rejected",
+                    "claim": "A rejected factsheet writes factsheet_rejected to cluster_events.",
+                    "reason": "hash mismatch for src/db.ts; hash mismatch for src/db.ts; hash mismatch for src/cluster.ts"
+                  },
+                  {
+                    "id": "cluster-event-created",
+                    "claim": "Creating a new cluster writes cluster_created to cluster_events.",
+                    "reason": "hash mismatch for src/db.ts"
+                  },
+                  {
+                    "id": "cluster-event-llm-verifier",
+                    "claim": "The LLM verifier path writes llm_verifier to cluster_events.",
+                    "reason": "hash mismatch for src/cluster.ts"
+                  },
+                  {
+                    "id": "cluster-event-consult",
+                    "claim": "A successful cluster consult writes cluster_consult to cluster_events.",
+                    "reason": "hash mismatch for src/clusterConsult.ts"
+                  },
+                  {
+                    "id": "cluster-event-consult-failed",
+                    "claim": "A failed cluster consult writes cluster_consult_failed to cluster_events.",
+                    "reason": "hash mismatch for src/clusterConsult.ts"
+                  },
+                  {
+                    "id": "cluster-event-refresh-required",
+                    "claim": "The low-level stale factsheet detection in consultCluster writes cluster_refresh_required to cluster_events.",
+                    "reason": "hash mismatch for src/clusterConsult.ts"
+                  },
+                  {
+                    "id": "cluster-event-fallback-to-claude-consult",
+                    "claim": "When cluster_consult falls back internally to normal claude_consult, it writes cluster_fallback_to_claude_consult to cluster_events.",
+                    "reason": "hash mismatch for src/tools.ts"
+                  },
+                  {
+                    "id": "cluster-event-fallback-failed",
+                    "claim": "If the internal fallback from cluster_consult to claude_consult fails, it writes cluster_fallback_failed to cluster_events.",
+                    "reason": "hash mismatch for src/tools.ts"
+                  },
+                  {
+                    "id": "cluster-event-downgraded",
+                    "claim": "A profile downgrade writes tool_profile_downgraded to cluster_events.",
+                    "reason": "hash mismatch for src/tools.ts"
+                  },
+                  {
+                    "id": "stale-cluster-consult-behavior",
+                    "claim": "The low-level consultCluster function marks the factsheet stale, logs cluster_refresh_required with changed_files, and returns CLUSTER_FACTSHEET_STALE internally when scoped evidence files are stale.",
+                    "reason": "hash mismatch for src/clusterConsult.ts; hash mismatch for src/clusterConsult.ts; hash mismatch for tests/clusterConsult.test.ts"
+                  },
+                  {
+                    "id": "caller-facing-stale-cluster-consult-behavior",
+                    "claim": "The caller-facing cluster_consult tool consumes internal CLUSTER_FACTSHEET_STALE errors: if autoRefresh is enabled it revalidates evidence under a per-cluster lock; if revalidation fails or autoRefresh is disabled, it falls back internally to claude_consult and returns an answer to the caller.",
+                    "reason": "hash mismatch for src/tools.ts; hash mismatch for src/tools.ts; hash mismatch for src/tools.ts; hash mismatch for src/tools.ts"
+                  },
+                  {
+                    "id": "caller-facing-stale-event-flow",
+                    "claim": "The caller-facing stale cluster_consult path logs cluster_refresh_required at low-level detection, evidence_revalidated on successful strict revalidation, evidence_revalidation_failed when strict revalidation fails, and cluster_fallback_to_claude_consult when it answers by internal claude_consult fallback.",
+                    "reason": "hash mismatch for src/clusterConsult.ts; hash mismatch for src/tools.ts"
+                  },
+                  {
+                    "id": "caller-facing-stale-event-sequence",
+                    "claim": "When answering what happens for a stale cluster_consult factsheet, the complete event sequence is cluster_refresh_required, then either evidence_revalidated on success or evidence_revalidation_failed on strict revalidation failure, then cluster_fallback_to_claude_consult if fallback answers the caller.",
+                    "reason": "hash mismatch for src/clusterConsult.ts; hash mismatch for src/tools.ts"
+                  },
+                  {
+                    "id": "orphan-explicit-session",
+                    "claim": "When claude_consult is given a session_id and the stored Claude session file no longer exists, the router marks the old registry session orphaned and creates a replacement route from bootstrap registry context.",
+                    "reason": "hash mismatch for src/consult.ts; hash mismatch for src/consult.ts; hash mismatch for src/consult.ts"
+                  },
+                  {
+                    "id": "orphan-session-event",
+                    "claim": "markSessionOrphaned sets session status to orphaned and writes an orphan_recovery event to session_events, not cluster_events.",
+                    "reason": "hash mismatch for src/db.ts; hash mismatch for src/db.ts; hash mismatch for src/db.ts; hash mismatch for src/db.ts"
+                  },
+                  {
+                    "id": "orphan-exact-topic-session",
+                    "claim": "When auto-routing finds an exact topic session but its Claude session file is missing, claude_consult marks it orphaned, builds bootstrap context from the old view, creates a replacement route, and sets wasOrphanRecovery true.",
+                    "reason": "hash mismatch for src/consult.ts; hash mismatch for src/consult.ts; hash mismatch for src/consult.ts"
+                  },
+                  {
+                    "id": "orphan-auto-routed-session",
+                    "claim": "When a matched non-exact auto-routed session has no Claude session file, claude_consult marks it orphaned, builds bootstrap context, creates a replacement route, and sets wasOrphanRecovery true.",
+                    "reason": "hash mismatch for src/consult.ts; hash mismatch for src/consult.ts; hash mismatch for src/consult.ts"
+                  },
+                  {
+                    "id": "orphan-routing-output",
+                    "claim": "Successful claude_consult output exposes routing.was_orphan_recovery, and tests assert it is true for explicit and auto-routed orphan recovery.",
+                    "reason": "hash mismatch for src/consult.ts; hash mismatch for tests/consult.test.ts"
+                  },
+                  {
+                    "id": "replacement-session-created",
+                    "claim": "When invokeClaude runs with no selected session, it creates a new registry session using the returned Claude session id.",
+                    "reason": "hash mismatch for src/consult.ts; hash mismatch for src/consult.ts; hash mismatch for src/consult.ts"
+                  }
+                ]
+              }
+            }
+          },
+          "duration_ms": 15
+        }
+      }
+    },
+    {
+      "name": "cluster_preflight_claude-code-live-workload",
+      "pass": false,
+      "skipped": true,
+      "details": {
+        "reason": "cluster_refresh verify_only did not return fresh=true; skipping this cluster for router sanity.",
+        "refresh": {
+          "ok": false,
+          "payload": {
+            "project_id": "AgentSessionRouter",
+            "error": {
+              "code": "CLUSTER_FACTSHEET_STALE",
+              "message": "Cluster factsheet is stale. Run cluster_refresh before consulting.",
+              "cluster_id": "claude-code-live-workload",
+              "details": {
+                "mode": "verify_only",
+                "factsheet_id": "factsheet_03616a74-e8b6-488b-9395-64e5af913314",
+                "factsheet_version": 1,
+                "changed_files": [
+                  "README.md",
+                  "src/tools.ts"
+                ],
+                "rejected_facts": [
+                  {
+                    "id": "router-monitor-purpose",
+                    "claim": "router_monitor is an operator-facing information monitor that returns health, cache_health, quality, recommendations, and next_directions.",
+                    "reason": "hash mismatch for README.md; hash mismatch for src/tools.ts"
+                  },
+                  {
+                    "id": "router-monitor-parent-use",
+                    "claim": "A parent agent should use router_monitor when deciding what to fix next, what is working, and what is failing.",
+                    "reason": "hash mismatch for README.md"
+                  }
+                ]
+              }
+            }
+          },
+          "duration_ms": 8
+        }
+      }
+    },
+    {
+      "name": "cluster_preflight_agentsessionrouter-codebase-reprepared-2026-05-15-full",
+      "pass": false,
+      "skipped": true,
+      "details": {
+        "reason": "cluster_refresh verify_only did not return fresh=true; skipping this cluster for router sanity.",
+        "refresh": {
+          "ok": false,
+          "payload": {
+            "project_id": "AgentSessionRouter",
+            "error": {
+              "code": "CLUSTER_FACTSHEET_STALE",
+              "message": "Cluster factsheet is stale. Run cluster_refresh before consulting.",
+              "cluster_id": "agentsessionrouter-codebase-reprepared-2026-05-15-full",
+              "details": {
+                "mode": "verify_only",
+                "factsheet_id": "factsheet_d27eb28a-7fdc-4ef3-bf24-50501b8dbecd",
+                "factsheet_version": 1,
+                "changed_files": [
+                  "src/cluster.ts",
+                  "src/clusterConsult.ts",
+                  "src/consult.ts",
+                  "src/db.ts",
+                  "src/tools.ts",
+                  "tests/clusterConsult.test.ts",
+                  "tests/consult.test.ts"
+                ],
+                "rejected_facts": [
+                  {
+                    "id": "cluster-event-factsheet-static-verified",
+                    "claim": "A fully statically verified factsheet writes factsheet_static_verified to cluster_events.",
+                    "reason": "hash mismatch for src/db.ts; hash mismatch for src/db.ts"
+                  },
+                  {
+                    "id": "cluster-event-factsheet-partially-static-verified",
+                    "claim": "A partially statically verified factsheet writes factsheet_partially_static_verified to cluster_events.",
+                    "reason": "hash mismatch for src/db.ts; hash mismatch for src/db.ts"
+                  },
+                  {
+                    "id": "cluster-event-factsheet-llm-verified",
+                    "claim": "A fully LLM-verified factsheet writes factsheet_llm_verified to cluster_events.",
+                    "reason": "hash mismatch for src/db.ts; hash mismatch for src/db.ts"
+                  },
+                  {
+                    "id": "cluster-event-factsheet-partially-llm-verified",
+                    "claim": "A partially LLM-verified factsheet writes factsheet_partially_llm_verified to cluster_events.",
+                    "reason": "hash mismatch for src/db.ts; hash mismatch for src/db.ts"
+                  },
+                  {
+                    "id": "cluster-event-factsheet-generated",
+                    "claim": "A generated but not verified factsheet writes factsheet_generated to cluster_events.",
+                    "reason": "hash mismatch for src/db.ts; hash mismatch for src/db.ts"
+                  },
+                  {
+                    "id": "cluster-event-factsheet-rejected",
+                    "claim": "A rejected factsheet writes factsheet_rejected to cluster_events.",
+                    "reason": "hash mismatch for src/db.ts; hash mismatch for src/db.ts; hash mismatch for src/cluster.ts"
+                  },
+                  {
+                    "id": "cluster-event-created",
+                    "claim": "Creating a new cluster writes cluster_created to cluster_events.",
+                    "reason": "hash mismatch for src/db.ts"
+                  },
+                  {
+                    "id": "cluster-event-llm-verifier",
+                    "claim": "The LLM verifier path writes llm_verifier to cluster_events.",
+                    "reason": "hash mismatch for src/cluster.ts"
+                  },
+                  {
+                    "id": "cluster-event-consult",
+                    "claim": "A successful cluster consult writes cluster_consult to cluster_events.",
+                    "reason": "hash mismatch for src/clusterConsult.ts"
+                  },
+                  {
+                    "id": "cluster-event-consult-failed",
+                    "claim": "A failed cluster consult writes cluster_consult_failed to cluster_events.",
+                    "reason": "hash mismatch for src/clusterConsult.ts"
+                  },
+                  {
+                    "id": "cluster-event-refresh-required",
+                    "claim": "The low-level stale factsheet detection in consultCluster writes cluster_refresh_required to cluster_events.",
+                    "reason": "hash mismatch for src/clusterConsult.ts"
+                  },
+                  {
+                    "id": "cluster-event-fallback-to-claude-consult",
+                    "claim": "When cluster_consult falls back internally to normal claude_consult, it writes cluster_fallback_to_claude_consult to cluster_events.",
+                    "reason": "hash mismatch for src/tools.ts"
+                  },
+                  {
+                    "id": "cluster-event-fallback-failed",
+                    "claim": "If the internal fallback from cluster_consult to claude_consult fails, it writes cluster_fallback_failed to cluster_events.",
+                    "reason": "hash mismatch for src/tools.ts"
+                  },
+                  {
+                    "id": "cluster-event-downgraded",
+                    "claim": "A profile downgrade writes tool_profile_downgraded to cluster_events.",
+                    "reason": "hash mismatch for src/tools.ts"
+                  },
+                  {
+                    "id": "stale-cluster-consult-behavior",
+                    "claim": "The low-level consultCluster function marks the factsheet stale, logs cluster_refresh_required with changed_files, and returns CLUSTER_FACTSHEET_STALE internally when scoped evidence files are stale.",
+                    "reason": "hash mismatch for src/clusterConsult.ts; hash mismatch for src/clusterConsult.ts; hash mismatch for tests/clusterConsult.test.ts"
+                  },
+                  {
+                    "id": "caller-facing-stale-cluster-consult-behavior",
+                    "claim": "The caller-facing cluster_consult tool consumes internal CLUSTER_FACTSHEET_STALE errors: if autoRefresh is enabled it revalidates evidence under a per-cluster lock; if revalidation fails or autoRefresh is disabled, it falls back internally to claude_consult and returns an answer to the caller.",
+                    "reason": "hash mismatch for src/tools.ts; hash mismatch for src/tools.ts; hash mismatch for src/tools.ts; hash mismatch for src/tools.ts"
+                  },
+                  {
+                    "id": "caller-facing-stale-event-flow",
+                    "claim": "The caller-facing stale cluster_consult path logs cluster_refresh_required at low-level detection, evidence_revalidated on successful strict revalidation, evidence_revalidation_failed when strict revalidation fails, and cluster_fallback_to_claude_consult when it answers by internal claude_consult fallback.",
+                    "reason": "hash mismatch for src/clusterConsult.ts; hash mismatch for src/tools.ts"
+                  },
+                  {
+                    "id": "caller-facing-stale-event-sequence",
+                    "claim": "When answering what happens for a stale cluster_consult factsheet, the complete event sequence is cluster_refresh_required, then either evidence_revalidated on success or evidence_revalidation_failed on strict revalidation failure, then cluster_fallback_to_claude_consult if fallback answers the caller.",
+                    "reason": "hash mismatch for src/clusterConsult.ts; hash mismatch for src/tools.ts"
+                  },
+                  {
+                    "id": "llm-verifier-profiles",
+                    "claim": "The LLM verifier is restricted to bare or focused profiles and cannot use the agent profile.",
+                    "reason": "hash mismatch for src/tools.ts"
+                  },
+                  {
+                    "id": "llm-verifier-purpose",
+                    "claim": "The verifier prompt tells Claude to verify supplied evidence semantically, return VERIFIED only when the claim follows from evidence, not infer, not use tools, and return JSON only.",
+                    "reason": "hash mismatch for src/cluster.ts"
+                  },
+                  {
+                    "id": "llm-verifier-no-agent-rationale",
+                    "claim": "The LLM verifier is run without agent tools because it must judge only the supplied evidence, avoid new discovery, avoid inference, and return VERIFIED only when the claim follows from that evidence.",
+                    "reason": "hash mismatch for src/cluster.ts; hash mismatch for src/cluster.ts; hash mismatch for src/cluster.ts"
+                  },
+                  {
+                    "id": "orphan-explicit-session",
+                    "claim": "When claude_consult is given a session_id and the stored Claude session file no longer exists, the router marks the old registry session orphaned and creates a replacement route from bootstrap registry context.",
+                    "reason": "hash mismatch for src/consult.ts; hash mismatch for src/consult.ts; hash mismatch for src/consult.ts"
+                  },
+                  {
+                    "id": "orphan-session-event",
+                    "claim": "markSessionOrphaned sets session status to orphaned and writes an orphan_recovery event to session_events, not cluster_events.",
+                    "reason": "hash mismatch for src/db.ts; hash mismatch for src/db.ts; hash mismatch for src/db.ts; hash mismatch for src/db.ts"
+                  },
+                  {
+                    "id": "orphan-exact-topic-session",
+                    "claim": "When auto-routing finds an exact topic session but its Claude session file is missing, claude_consult marks it orphaned, builds bootstrap context from the old view, creates a replacement route, and sets wasOrphanRecovery true.",
+                    "reason": "hash mismatch for src/consult.ts; hash mismatch for src/consult.ts; hash mismatch for src/consult.ts"
+                  },
+                  {
+                    "id": "orphan-auto-routed-session",
+                    "claim": "When a matched non-exact auto-routed session has no Claude session file, claude_consult marks it orphaned, builds bootstrap context, creates a replacement route, and sets wasOrphanRecovery true.",
+                    "reason": "hash mismatch for src/consult.ts; hash mismatch for src/consult.ts; hash mismatch for src/consult.ts"
+                  },
+                  {
+                    "id": "orphan-routing-output",
+                    "claim": "Successful claude_consult output exposes routing.was_orphan_recovery, and tests assert it is true for explicit and auto-routed orphan recovery.",
+                    "reason": "hash mismatch for src/consult.ts; hash mismatch for tests/consult.test.ts"
+                  },
+                  {
+                    "id": "replacement-session-created",
+                    "claim": "When invokeClaude runs with no selected session, it creates a new registry session using the returned Claude session id.",
+                    "reason": "hash mismatch for src/consult.ts; hash mismatch for src/consult.ts; hash mismatch for src/consult.ts"
+                  },
+                  {
+                    "id": "trust-static-verified",
+                    "claim": "static_verified trust_state occurs when static verification stores at least one valid fact and no facts were rejected.",
+                    "reason": "hash mismatch for src/cluster.ts"
+                  },
+                  {
+                    "id": "trust-llm-verified",
+                    "claim": "llm_verified trust_state occurs when LLM verification accepts all facts and there are no static or LLM rejected facts.",
+                    "reason": "hash mismatch for src/cluster.ts"
+                  },
+                  {
+                    "id": "trust-partial-llm",
+                    "claim": "partial_llm trust_state occurs after LLM verification when at least one fact is rejected but at least one LLM verified fact remains stored.",
+                    "reason": "hash mismatch for src/cluster.ts; hash mismatch for src/cluster.ts"
+                  },
+                  {
+                    "id": "cluster-refresh-verify-only",
+                    "claim": "cluster_refresh verify_only revalidates the latest factsheet by checking scoped evidence file hashes and selectors without invoking Claude.",
+                    "reason": "hash mismatch for src/tools.ts"
+                  },
+                  {
+                    "id": "bare-profile-risk",
+                    "claim": "A known risk of bare/no-tools cluster consulting is that missing facts should produce NOT IN CONTEXT rather than inferred API/config names.",
+                    "reason": "hash mismatch for src/clusterConsult.ts"
+                  }
+                ]
+              }
+            }
+          },
+          "duration_ms": 15
+        }
+      }
+    },
+    {
+      "name": "router_consult_explicit_cluster",
+      "pass": false,
+      "skipped": true,
+      "details": {
+        "skipped": true,
+        "reason": "No active cluster found. Pass --cluster-id to force this scenario."
+      }
+    },
+    {
+      "name": "router_consult_existing_session",
+      "pass": true,
+      "skipped": false,
+      "details": {
+        "ok": true,
+        "duration_ms": 5110,
+        "route_decision": {
+          "selected_path": "claude_consult_explicit_session",
+          "reason": "Explicit session_id provided by caller.",
+          "session_id": "session_11d18ee8-3799-443f-8f5f-ecd866db9e57",
+          "match_score": 1,
+          "topic_hint": "v2.1 shadow eval architecture",
+          "auto_cluster_routing": "disabled_read_only"
+        },
+        "session_id": "session_11d18ee8-3799-443f-8f5f-ecd866db9e57",
+        "routing": {
+          "match_score": 1,
+          "match_reason": "Direct session_id provided and project/Claude session health checks passed.",
+          "was_new_session": false,
+          "was_orphan_recovery": false
+        },
+        "metrics": null,
+        "answer_preview": "The key rule: when `claude_consult` returns a `SESSION_UPDATE_JSON` with `\"error\"` or when the answer signals `NOT IN CONTEXT`, the parent agent must not escalate to a direct Claude call in the same session — it should continue without retry and log the decision. Shadow eval data is fire-and-forget and never blocks the caller.",
+        "error": null
+      }
+    },
+    {
+      "name": "router_status",
+      "pass": true,
+      "skipped": false,
+      "details": {
+        "project_id": "AgentSessionRouter",
+        "checked_at": "2026-05-15T16:27:14.782Z",
+        "mode": "normal",
+        "degraded_reason": null,
+        "uptime_hours": 0,
+        "claude": {
+          "detected_version": "2.1.92 (Claude Code)",
+          "tested_versions": [
+            "\"2.1.138 (Claude Code)\"",
+            "\"2.1.92 (Claude Code)\""
+          ]
+        },
+        "v1_sessions": {
+          "active": 2,
+          "dormant": 0,
+          "archived": 0,
+          "orphaned": 0,
+          "total": 2
+        },
+        "v2_clusters": {
+          "active": 0,
+          "stale": 3,
+          "needs_prepare": 0,
+          "invalidated": 0,
+          "archived": 8,
+          "total": 11,
+          "fallback_count_last_24h": 0,
+          "stale_clusters": [
+            {
+              "id": "agentsessionrouter-codebase-reprepared-2026-05-15-full",
+              "name": "AgentSessionRouter codebase",
+              "status": "stale",
+              "trust_state": "untrusted",
+              "last_used": "2026-05-15T16:27:09.656Z",
+              "factsheet_id": "factsheet_d27eb28a-7fdc-4ef3-bf24-50501b8dbecd",
+              "factsheet_version": 1,
+              "factsheet_status": "stale",
+              "verified_at": "2026-05-15T08:59:49.158Z"
+            },
+            {
+              "id": "claude-code-live-workload",
+              "name": "Claude Code Live Workload",
+              "status": "stale",
+              "trust_state": "untrusted",
+              "last_used": "2026-05-15T16:27:09.641Z",
+              "factsheet_id": "factsheet_03616a74-e8b6-488b-9395-64e5af913314",
+              "factsheet_version": 1,
+              "factsheet_status": "stale",
+              "verified_at": "2026-05-14T23:14:37.282Z"
+            },
+            {
+              "id": "agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3",
+              "name": "AgentSessionRouter codebase",
+              "status": "stale",
+              "trust_state": "untrusted",
+              "last_used": "2026-05-15T16:27:09.632Z",
+              "factsheet_id": "factsheet_462264ce-f355-4b3d-bbc6-785a6c518d8f",
+              "factsheet_version": 1,
+              "factsheet_status": "stale",
+              "verified_at": "2026-05-15T08:54:41.094Z"
+            }
+          ]
+        },
+        "recent_window_hours": 24,
+        "recent_errors": {
+          "session_events": [
+            {
+              "event_type": "health_check_failed",
+              "count": 1,
+              "latest_created_at": "2026-05-15T16:25:19.448Z"
+            },
+            {
+              "event_type": "parse_failed",
+              "count": 1,
+              "latest_created_at": "2026-05-15T16:25:22.926Z"
+            },
+            {
+              "event_type": "token_anomaly",
+              "count": 1,
+              "latest_created_at": "2026-05-15T16:25:22.928Z"
+            }
+          ],
+          "slow_session_events": [
+            {
+              "event_type": "new_session",
+              "count": 1,
+              "max_duration_ms": 302712,
+              "latest_created_at": "2026-05-15T12:08:08.351Z"
+            }
+          ],
+          "cluster_events": [
+            {
+              "event_type": "factsheet_stale",
+              "count": 3,
+              "latest_created_at": "2026-05-15T16:27:09.659Z"
+            },
+            {
+              "event_type": "cluster_fallback_failed",
+              "count": 1,
+              "latest_created_at": "2026-05-15T16:25:19.451Z"
+            },
+            {
+              "event_type": "cluster_refresh_required",
+              "count": 1,
+              "latest_created_at": "2026-05-15T16:22:19.367Z"
+            },
+            {
+              "event_type": "evidence_revalidation_failed",
+              "count": 1,
+              "latest_created_at": "2026-05-15T16:22:19.384Z"
+            }
+          ]
+        },
+        "shadow_eval": {
+          "enabled": true,
+          "total": 90,
+          "judged": 90,
+          "pending": 0,
+          "ok_unjudged": 0,
+          "failed_auth": 0,
+          "failed_timeout": 0,
+          "failed_other": 0,
+          "last_created_at": "2026-05-15T09:57:00.404Z",
+          "last_judged_at": "2026-05-15T15:18:55.099Z"
+        },
+        "warnings": [
+          "Cluster 'agentsessionrouter-codebase-reprepared-2026-05-15-full' is stale; latest factsheet factsheet_d27eb28a-7fdc-4ef3-bf24-50501b8dbecd version 1 needs refresh or re-prepare.",
+          "Cluster 'claude-code-live-workload' is stale; latest factsheet factsheet_03616a74-e8b6-488b-9395-64e5af913314 version 1 needs refresh or re-prepare.",
+          "Cluster 'agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3' is stale; latest factsheet factsheet_462264ce-f355-4b3d-bbc6-785a6c518d8f version 1 needs refresh or re-prepare.",
+          "Cluster event 'factsheet_stale' occurred 3 time(s) in the recent window.",
+          "Cluster event 'cluster_fallback_failed' occurred 1 time(s) in the recent window.",
+          "Cluster event 'cluster_refresh_required' occurred 1 time(s) in the recent window.",
+          "Cluster event 'evidence_revalidation_failed' occurred 1 time(s) in the recent window.",
+          "Session event 'health_check_failed' has 1 error row(s) in the recent window.",
+          "Session event 'parse_failed' has 1 error row(s) in the recent window.",
+          "Session event 'token_anomaly' has 1 error row(s) in the recent window.",
+          "Session event 'new_session' exceeded the slow-call threshold 1 time(s); max duration 302712ms."
+        ]
+      }
+    },
+    {
+      "name": "router_monitor_route_health",
+      "pass": true,
+      "skipped": false,
+      "details": {
+        "route_health": {
+          "decision_counts": [
+            {
+              "selected_path": "claude_consult_explicit_session",
+              "count": 2,
+              "latest_created_at": "2026-05-15T16:27:09.672Z"
+            },
+            {
+              "selected_path": "cluster_consult_explicit",
+              "count": 1,
+              "latest_created_at": "2026-05-15T16:22:09.951Z"
+            }
+          ],
+          "samples": [
+            {
+              "event_id": 106,
+              "selected_path": "claude_consult_explicit_session",
+              "session_id": "session_11d18ee8-3799-443f-8f5f-ecd866db9e57",
+              "topic": "v2.1 shadow eval architecture",
+              "question": "Sanity check: answer from durable session context only. Do not read files, do not emit XML/tool-call markup. In two sentences, which current AgentSessionRouter maintenance rule should a parent agent remember?",
+              "match_score": 1,
+              "match_reason": "Explicit session_id provided by caller.; topic_hint=v2.1 shadow eval architecture; auto_cluster_routing=disabled_read_only; session_id=session_11d18ee8-3799-443f-8f5f-ecd866db9e57",
+              "created_at": "2026-05-15T16:27:09.672Z"
+            },
+            {
+              "event_id": 101,
+              "selected_path": "claude_consult_explicit_session",
+              "session_id": "session_11d18ee8-3799-443f-8f5f-ecd866db9e57",
+              "topic": "v2.1 shadow eval architecture",
+              "question": "Sanity check: answer briefly. Which current AgentSessionRouter maintenance rule should a parent agent remember?",
+              "match_score": 1,
+              "match_reason": "Explicit session_id provided by caller.; topic_hint=v2.1 shadow eval architecture; auto_cluster_routing=disabled_read_only; session_id=session_11d18ee8-3799-443f-8f5f-ecd866db9e57",
+              "created_at": "2026-05-15T16:25:19.456Z"
+            },
+            {
+              "event_id": 99,
+              "selected_path": "cluster_consult_explicit",
+              "session_id": null,
+              "topic": null,
+              "question": "Sanity check: answer briefly from the router cluster context. What operational purpose does router_monitor serve?",
+              "match_score": 1,
+              "match_reason": "Explicit cluster_id provided by caller.; topic_hint=Sanity check: answer briefly from the router cluster context; auto_cluster_routing=disabled_read_only; cluster_id=agentsessionrouter-codebase-reprepared-2026-05-15-full",
+              "created_at": "2026-05-15T16:22:09.951Z"
+            }
+          ]
+        },
+        "latency": {
+          "slow_session_threshold_ms": 100000,
+          "slow_session_events": [
+            {
+              "event_type": "new_session",
+              "count": 1,
+              "max_duration_ms": 302712,
+              "latest_created_at": "2026-05-15T12:08:08.351Z"
+            }
+          ],
+          "slow_session_samples": [
+            {
+              "event_id": 63,
+              "session_id": "session_e65145e0-1911-4a87-ad7d-8477254bdbb2",
+              "topic": "project roadmap after v2.3.1",
+              "event_type": "new_session",
+              "question": "Given this state, what should we do next? Please prioritize 3-5 concrete next steps, and distinguish must-do production hardening from optional research. Be direct and call out anything you think we are over-optimizing.",
+              "raw_response_path": "/root/projects/AgentSessionRouter/.claude-session-router/raw/session_e65145e0-1911-4a87-ad7d-8477254bdbb2-1778846888340.txt",
+              "tokens_in": 78258,
+              "tokens_out": 3048,
+              "duration_ms": 302712,
+              "created_at": "2026-05-15T12:08:08.351Z"
+            }
+          ]
+        },
+        "recommendations": [
+          {
+            "priority": "high",
+            "area": "cache",
+            "cluster_id": "agentsessionrouter-codebase-reprepared-2026-05-15-full",
+            "action": "Run cluster_prepare or expand/rebuild this factsheet.",
+            "reason": "Cluster is stale; factsheet factsheet_d27eb28a-7fdc-4ef3-bf24-50501b8dbecd cannot be trusted as current cache."
+          },
+          {
+            "priority": "high",
+            "area": "cache",
+            "cluster_id": "claude-code-live-workload",
+            "action": "Run cluster_prepare or expand/rebuild this factsheet.",
+            "reason": "Cluster is stale; factsheet factsheet_03616a74-e8b6-488b-9395-64e5af913314 cannot be trusted as current cache."
+          },
+          {
+            "priority": "high",
+            "area": "cache",
+            "cluster_id": "agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3",
+            "action": "Run cluster_prepare or expand/rebuild this factsheet.",
+            "reason": "Cluster is stale; factsheet factsheet_462264ce-f355-4b3d-bbc6-785a6c518d8f cannot be trusted as current cache."
+          },
+          {
+            "priority": "high",
+            "area": "fallback",
+            "cluster_id": "agentsessionrouter-codebase-reprepared-2026-05-15-full",
+            "action": "Investigate Claude availability and fallback path immediately.",
+            "reason": "Fallback failed 1 time(s) in the recent window."
+          },
+          {
+            "priority": "medium",
+            "area": "cache",
+            "cluster_id": "agentsessionrouter-codebase-reprepared-2026-05-15-full",
+            "action": "Refresh factsheet evidence; selectors or snippets changed.",
+            "reason": "Strict evidence revalidation failed 1 time(s)."
+          },
+          {
+            "priority": "medium",
+            "area": "sessions",
+            "action": "Inspect recent session_events and raw responses.",
+            "reason": "Session event 'health_check_failed' has 1 error row(s)."
+          },
+          {
+            "priority": "medium",
+            "area": "sessions",
+            "action": "Inspect recent session_events and raw responses.",
+            "reason": "Session event 'parse_failed' has 1 error row(s)."
+          },
+          {
+            "priority": "medium",
+            "area": "sessions",
+            "action": "Inspect recent session_events and raw responses.",
+            "reason": "Session event 'token_anomaly' has 1 error row(s)."
+          },
+          {
+            "priority": "medium",
+            "area": "metadata",
+            "action": "Inspect metadata_health.samples raw responses and tighten SESSION_UPDATE_JSON prompting if failures repeat.",
+            "reason": "1 SESSION_UPDATE_JSON parse failure(s) occurred in the recent window."
+          },
+          {
+            "priority": "medium",
+            "area": "latency",
+            "action": "Prefer cluster_consult for covered questions, or inspect the raw Claude response when direct consults approach the caller timeout boundary.",
+            "reason": "Session event 'new_session' exceeded the slow-call threshold 1 time(s); max duration 302712ms."
+          },
+          {
+            "priority": "medium",
+            "area": "latency",
+            "action": "Treat this as direct-discovery/context bloat: reuse an existing session or a covered cluster before repeating a broad new_session consult.",
+            "reason": "Slow new_session used 78258 input tokens over 302712ms for topic 'project roadmap after v2.3.1'. Raw response: /root/projects/AgentSessionRouter/.claude-session-router/raw/session_e65145e0-1911-4a87-ad7d-8477254bdbb2-1778846888340.txt."
+          }
+        ]
+      }
+    }
+  ],
+  "selected": {
+    "cluster": null,
+    "session": {
+      "id": "session_11d18ee8-3799-443f-8f5f-ecd866db9e57",
+      "topic": "v2.1 shadow eval architecture",
+      "status": "active",
+      "last_used": "2026-05-15T16:25:22.922Z",
+      "source": "registry"
+    }
+  },
+  "server_stderr": "",
+  "ok": true
+}

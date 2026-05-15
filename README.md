@@ -711,8 +711,11 @@ To save a point-in-time monitor snapshot for trend comparison:
 
 ```bash
 npm run build
+npm run router:sanity -- --out experiments/router-consult-sanity/<label>.json
 npm run monitor:snapshot -- --recent-hours 24 --sample-limit 20
 ```
+
+`router:sanity` runs a small live MCP route check against this repository: it selects an active cluster and active session when available, calls `router_consult`, then saves the resulting route decisions and monitor state. Use it after route changes or before deciding whether a slow direct consult was a one-off or a routing problem.
 
 ### `cluster_prepare`
 
