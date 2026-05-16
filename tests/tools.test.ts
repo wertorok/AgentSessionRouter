@@ -1,4 +1,4 @@
-import { mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, rmSync, unlinkSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
@@ -1413,8 +1413,58 @@ describe("cluster MCP tools", () => {
       pending: 1,
       failed_auth: 1
     });
+    expect(status.storage).toMatchObject({
+      ok: true,
+      database: {
+        exists: true,
+        schema_ok: true,
+        quick_check_ok: true,
+        write_check_ok: true
+      },
+      raw_logs: {
+        exists: true,
+        is_directory: true,
+        writable: true
+      }
+    });
     expect(status.warnings.some((warning: string) => warning.includes("router-ops"))).toBe(true);
     expect(status.warnings.some((warning: string) => warning.includes("Shadow eval"))).toBe(true);
+    fixture.cleanup();
+  });
+
+  it("warns when the configured sqlite file disappears while the handle is still open", async () => {
+    const fixture = createToolFixture();
+    const server = new FakeServer();
+    registerTools(server as unknown as McpServer, fixture.runtime);
+    unlinkSync(fixture.runtime.config.storage.dbPath);
+
+    const status = parseToolJson(
+      await server.call("router_status", {
+        project_id: "project",
+        recent_hours: 24,
+        warnings_limit: 10
+      })
+    );
+    const monitor = parseToolJson(
+      await server.call("router_monitor", {
+        project_id: "project",
+        recent_hours: 24,
+        sample_limit: 5
+      })
+    );
+
+    expect(status.storage.ok).toBe(false);
+    expect(status.storage.database.exists).toBe(false);
+    expect(status.warnings).toEqual(expect.arrayContaining([expect.stringContaining("Storage health warning")]));
+    expect(monitor.health.storage.ok).toBe(false);
+    expect(monitor.recommendations).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          area: "storage",
+          action: expect.stringContaining("SQLite/raw-log storage")
+        })
+      ])
+    );
     fixture.cleanup();
   });
 
@@ -1513,6 +1563,7 @@ describe("cluster MCP tools", () => {
     );
 
     expect(monitor.health.v2_clusters.fallback_count_last_24h).toBe(1);
+    expect(monitor.health.storage.ok).toBe(true);
     expect(monitor.cache_health.stale_or_needs_prepare[0].id).toBe("weak-cluster");
     expect(monitor.cache_health.decayed_cluster_cost_signals[0]).toMatchObject({
       cluster_id: "weak-cluster",
@@ -2245,6 +2296,7 @@ function createToolFixture(
   mkdirSync(dir, { recursive: true });
   const clock = new FakeClock();
   const config = loadConfig({ cwd: dir });
+  mkdirSync(config.storage.rawLogsDir, { recursive: true });
   const db = RouterDatabase.open(config.storage.dbPath, clock);
   const runtime = new RouterRuntime(dir, config, db, claude, locks, clock, new NoopLogger());
 

@@ -45,6 +45,34 @@ Use `router_monitor` as the first diagnostic entry point. Treat its output as
 the information monitor for what works, what fails, why it failed, and what to
 inspect next.
 
+## Storage Health Diagnostics
+
+As of v2.8, `router_status.storage` and `router_monitor.health.storage` expose
+local persistence health without invoking Claude. The check covers:
+
+- configured SQLite path exists, is readable, and is writable
+- schema query against `schema_migrations` succeeds
+- SQLite `PRAGMA quick_check` returns `ok`
+- a rolled-back `BEGIN IMMEDIATE` write check succeeds, catching read-only or
+  locked storage before persistent memory silently stops updating
+- configured raw logs directory exists, is a directory, and is readable/writable
+
+If any storage check fails, `router_status.warnings` includes a storage health
+warning and `router_monitor.recommendations` emits a high-priority `storage`
+action. Treat this as infrastructure health: fix storage before trusting route
+quality, session memory, shadow comparisons, or long-term monitor trends.
+
+Verification on 2026-05-16:
+
+- `npm run build`: passed
+- `npm test`: 106 passed
+- `npm run smoke:postinstall`: passed and surfaced healthy `storage` blocks
+  in both `router_status` and `router_monitor`
+- `npm run mcp:workload`: passed in stub mode
+- `agentsessionrouter-codebase` `cluster_reprepare` via MCP stdio produced
+  factsheet version 25, `llm_verified`, 21/21 facts retained, 0 rejected, and
+  `cluster_refresh` confirmed `fresh=true`
+
 ## Post-v2.7 Hash-Clearing Patch
 
 Verified on 2026-05-16:
