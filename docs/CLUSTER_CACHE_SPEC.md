@@ -1398,6 +1398,44 @@ Gate 8 non-goals:
 - no promotion eligibility change
 - no human curation loop
 
+#### Lead Field Review (Gate 9)
+
+Status: review artifact implemented, not promoted. Gate 9 asks the durable
+Claude lead session to review the field-populated Gate 8 draft. It validates
+the shape and quality of populated fields only; it does not activate memory.
+
+Gate 9 outputs:
+
+- `experiments/architectural-memory-dry-run-2026-05-16/field-review-request.md`
+- `experiments/architectural-memory-dry-run-2026-05-16/field-review-raw.md`
+- `experiments/architectural-memory-dry-run-2026-05-16/field-review.json`
+- `experiments/architectural-memory-dry-run-2026-05-16/field-review.md`
+
+Gate 9 review statuses:
+
+- `APPROVED_FIELDS`: the populated fields are specific enough for future
+  promotion consideration.
+- `REQUEST_CHANGES`: the candidate may be valid, but fields or wording must be
+  corrected before future promotion consideration.
+- `SUSPEND`: the candidate must not advance without additional source context
+  or current-code validation.
+
+Gate 9 result for the 2026-05-16 dry run:
+
+- 93 entries reviewed across 12 bounded lead-session batches.
+- 87 entries received `APPROVED_FIELDS`.
+- 6 entries received `REQUEST_CHANGES`.
+- 0 entries received `SUSPEND`.
+
+Gate 9 non-goals:
+
+- no status changes in the scaffold docs
+- no active entries
+- no cluster writes
+- no runtime import or serving path
+- no promotion approval
+- no automatic correction of `REQUEST_CHANGES` entries
+
 Non-goals:
 
 - no implementation in this decision step
@@ -1424,9 +1462,11 @@ Implementation gates:
    for active project-architecture and engineering-principle records.
 8. Closed: populate draft `applies_when`, `revisit_when`, `rationale`, and
    `project_scope` fields into a non-authoritative draft artifact.
-9. Future: add bounded lead-session promotion approval and durable writes.
-10. Future: add explicit import/serving for `engineering-principles`.
-11. Future: add `router_monitor` visibility: staged count, promoted count,
+9. Closed: run bounded lead-session field review of the populated draft.
+10. Future: resolve or exclude `REQUEST_CHANGES` entries before promotion.
+11. Future: add bounded lead-session promotion approval and durable writes.
+12. Future: add explicit import/serving for `engineering-principles`.
+13. Future: add `router_monitor` visibility: staged count, promoted count,
     suspended count, stale/superseded count, and recent counter-evidence.
 
 Do not implement this pipeline if real usage shows that durable lead sessions
