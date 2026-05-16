@@ -44,7 +44,7 @@ Current implementation status:
 - Implemented: Phase 6 `cluster_refresh` in `verify_only` mode and stale factsheet state.
 - Implemented early for observability: read-only `cluster_get` and `cluster_list`.
 - Implemented separately: v2.1-lite optional shadow comparison telemetry. See `docs/SHADOW_EVAL_SPEC.md`.
-- Deferred post-MVP: fork baseline, distillation from existing sessions, and automatic cluster routing.
+- Deferred post-MVP: fork baseline, architectural-memory distillation from existing sessions, and automatic cluster routing.
 
 The current `cluster_prepare` accepts direct factsheet JSON and stores only facts whose evidence passes deterministic local checks. By default these factsheets are marked `static_verified`, not `llm_verified`, because static checks prove evidence existence but not full semantic correctness. When `verification_mode` is `llm`, Claude is invoked with a no-tools verifier prompt and only `VERIFIED` facts are promoted to `llm_verified`.
 
@@ -829,25 +829,127 @@ This phase avoids building auto-distillation before storage and verification are
 - Implemented: caller-facing `cluster_consult` performs strict selector/snippet evidence revalidation under a per-cluster lock when changed file hashes are detected.
 - Implemented: caller-facing `cluster_consult` falls back to normal `claude_consult` when strict revalidation fails, while marking the cluster `needs_prepare`.
 
-### Phase 7: Inspect Tools
+### Inspect Tools (Implemented Early)
 
 - Add `cluster_list`.
 - Add `cluster_get`.
 - Keep these read-only and independent from Claude invocation.
 
-### Phase 8: Distill From Existing Session (Post-MVP)
+### Phase 7: Architectural Memory Distill (Post-MVP)
 
 - Add draft factsheet generation from session registry metadata and raw response paths.
 - Feed draft through static verifier and LLM verifier.
 - Promote verified facts only.
 
-### Phase 9: Live Experiment Matrix
+#### Decision: Architectural Memory Pipeline (Proposed, Not Implemented)
+
+Status: proposed. This section records the architectural decision only; it does
+not authorize implementation yet.
+
+Phase 7 is no longer treated as a narrow "turn v1 sessions into factsheets"
+task. The proposed scope is an architectural-memory pipeline:
+
+```txt
+SQLite session_decisions table / phase summaries / existing specs
+  -> distill
+  -> classify as project-scoped or transferable
+  -> verify
+  -> seed future lead sessions and cluster factsheets
+```
+
+The pipeline has two memory products:
+
+- `project-architecture`: project-scoped decisions and rationale. These remain
+  under the current `project_id` / MCP `cwd` boundary and may be served through a
+  normal project cluster.
+- `engineering-principles`: transferable engineering invariants. These are not
+  a hidden mutable global cluster. Their source of truth must be a transparent
+  document or importable template first, and only later may be served through a
+  cluster for low-token consults.
+
+Classification policy:
+
+- Codex may run the first classification pass automatically.
+- Project-specific signals such as repository names, file paths, issue ids,
+  local schema names, or one-off workflow constraints default to
+  `project-architecture`.
+- Transferable candidates must go through a staging state before promotion to
+  `engineering-principles`.
+- The durable Claude lead session reviews staged transferable candidates through
+  `router_consult`. The human owner is not a manual curator; they only receive
+  the phase-end summary.
+
+Principles must be advisory and scoped, not dogma. Each transferable principle
+must carry at least:
+
+- stable id
+- statement
+- `applies_when`
+- `revisit_when`
+- provenance: source session/doc/phase/date
+- status: `proposed`, `active`, `suspended`, or `superseded`
+- optional counter-evidence / suspension note
+
+Using a principle means "check this applies in the current context", not "always
+do this". A lead session may reject or suspend a principle in a new context when
+it records counter-evidence and the scope condition that failed.
+
+Project isolation rule:
+
+- Normal router storage remains project-scoped by MCP process `cwd` and
+  `project_id`.
+- Transferable principles are shared only by explicit import from a canonical
+  document/template or a future per-user global store. They must not silently
+  mutate every project.
+- A future `engineering-principles` cluster is a serving/index layer over that
+  explicit source of truth, not the authority itself.
+
+Bootstrap policy:
+
+- No required human-written seed file.
+- Codex may derive the first seed from existing project docs and
+  the SQLite `session_decisions` table, then ask the durable Claude lead session
+  to review the distilled candidates.
+- The human owner receives a phase-end summary of what was seeded and why, but
+  does not hand-curate the initial list.
+
+Non-goals:
+
+- no implementation in this decision step
+- no automatic cross-project mutation
+- no unverified principle promotion
+- no replacement for factsheet evidence verification
+- no hidden model-memory authority; every active memory item must have a
+  diffable artifact or explicit provenance record
+
+Implementation gates, when this is resumed:
+
+1. Write the data/model spec for project decisions, transferable principles,
+   staging, provenance, and suspension.
+2. Add a dry-run distill report that reads the SQLite `session_decisions` table,
+   `session_events.raw_response_path` files where available, and existing docs,
+   but writes no durable memory.
+3. Add scorer/reviewer rules for project-vs-transferable classification.
+4. Add staging and lead-session review.
+5. Add verified project-architecture factsheet generation.
+6. Add explicit import/serving for `engineering-principles`.
+7. Add `router_monitor` visibility: staged count, promoted count, suspended
+   count, stale/superseded count, and recent counter-evidence.
+
+Do not implement this pipeline if real usage shows that durable lead sessions
+already preserve enough architectural continuity, if `session_decisions` remain
+too noisy to distill reliably, or if no explicit source-of-truth document/import
+path exists for transferable principles. The durable Claude lead session should
+make that stop/go call from concrete dry-run distill samples and
+`router_monitor` evidence, not from intuition alone.
+
+### Phase 8: Live Experiment Matrix
 
 - Repeat the measured scenarios from `docs/EXPERIMENTS.md` through MCP tools.
 - Verify no-tools/fork metrics are logged in `cluster_events`.
 - Verify changed factsheet evidence never consults from stale facts; it either proves every cited fact still valid or falls back to normal `claude_consult`.
 
-### Phase 10: Optional Auto-Routing
+### Phase 9: Optional Auto-Routing
 
 Out of MVP. Consider only after explicit cluster id flow is stable.
 
