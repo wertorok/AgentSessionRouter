@@ -55,6 +55,17 @@ Verified on 2026-05-16:
 - tests: `98 passed`
 - build: passing
 - workload matrix: `23/23` stub checks
+- live router sanity initially found `agentsessionrouter-codebase` stale after
+  the v2.7 file changes; the cluster was re-prepared to factsheet version 7
+  with `llm_verified`, 16 verified facts, and 0 rejected facts
+- audit artifact:
+  `experiments/router-reprepare-2026-05-16-v27/summary.md`
+
+Maintenance invariant:
+
+- Treat factsheet evidence `hash` and `snippet_hash` fields as generated
+  outputs. When re-preparing a cluster from an existing factsheet, strip those
+  fields first so `cluster_prepare` recalculates them from current files.
 
 ## v2.6 Metadata-Rich Routing Snapshot
 
