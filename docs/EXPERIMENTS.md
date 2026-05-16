@@ -271,6 +271,46 @@ Established baseline for `router_exact_topic` after the latest pre-refactor cont
 
 Operational rule: compare future `router_exact_topic` synthesis runs against `3/3/2` as the current correct baseline unless the T5 scorer rubric is deliberately changed. Do not treat `3/3/2` as a regression by itself and do not try to restore a `3/3/3` baseline by changing router behavior. Treat it as a regression only if memory probes fall below `3/3`, route reuse stops using one session, or T5 loses the substantive `ALPHA-17`/`BETA-29` reasoning rather than just the exact `session-benchmark` wording.
 
+### Architectural Memory Distill Dry-Run Template
+
+This is a placeholder report shape for Phase 7 Gate 1. It documents what a
+future dry-run output should look like; it is not the output of a real distill
+run and does not imply that extraction logic exists.
+
+```markdown
+# Architectural Memory Distill Dry-Run Report
+
+Generated: 2026-05-16T00:00:00Z
+Project: AgentSessionRouter
+Source rows reviewed: 0
+Source docs reviewed: 0
+Skipped as non-distillable: 0
+
+## Project-Architecture Candidates
+
+| id | topic | decision | provenance.source_type | provenance.source_ref | status |
+| --- | --- | --- | --- | --- | --- |
+| PA-0001 | placeholder topic | placeholder decision | session_decision | session:<id> | proposed |
+
+## Engineering-Principle Candidates
+
+| id | statement | applies_when | provenance.source_type | provenance.source_ref | status |
+| --- | --- | --- | --- | --- | --- |
+| EP-0001 | placeholder advisory principle | placeholder scope condition | spec | docs:<path> | proposed |
+
+## Rejected Candidates
+
+| source_ref | rejection_code | reason |
+| --- | --- | --- |
+| session:<id> | rejected_project_noise | placeholder reason |
+
+## Notes
+
+- signal_quality: placeholder
+- duplicate_candidates: 0
+- reviewer_observations: placeholder
+```
+
 ## Decisions
 
 - Use verified factsheet cache as source of truth. Do not use opaque Claude session state as the only source of truth.

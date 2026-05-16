@@ -952,6 +952,163 @@ Distill mechanism boundary:
   decision. It must therefore have explicit evidence/provenance and lead-session
   review before promotion.
 
+#### Data/Model Spec (Gate 1)
+
+This subsection defines the source-of-truth data shapes and dry-run report
+shape. It does not define extraction prompts, storage tables, runtime
+evaluation, or cluster serving behavior.
+
+##### A. `project-architecture` Record
+
+Project-architecture records capture decisions that are useful inside one
+project but should not automatically travel to other projects.
+
+```yaml
+- id: PA-0001
+  topic: "short project-specific topic"
+  decision: "what was decided"
+  rationale: "why this decision was chosen, including relevant alternatives"
+  project_scope:
+    project_id: "AgentSessionRouter"
+    boundary_ref: "stable repository/project boundary this applies to"
+  provenance:
+    source_type: phase_summary
+    source_ref: "docs:<path> / experiment:<path> / session:<id>"
+    source_date: "YYYY-MM-DD"
+  status: active
+  superseded_by: null
+```
+
+Required fields:
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `id` | string | Stable project-scoped id, prefixed `PA-`. |
+| `topic` | string | Short descriptor for lookup and review. |
+| `decision` | string | The project-specific decision. |
+| `rationale` | string | Why the decision was made and what alternatives mattered. |
+| `project_scope.project_id` | string | Project identity the record belongs to. |
+| `project_scope.boundary_ref` | string | Stable repository/project boundary, such as a git remote, configured project id, or documented project root identity. Do not rely on a transient process cwd string alone. |
+| `provenance.source_type` | enum | `phase_summary`, `experiment`, `spec`, or `session_decision`. |
+| `provenance.source_ref` | string | Diffable doc path, experiment path, or session id. |
+| `provenance.source_date` | date | Date of the source decision or evidence. |
+| `status` | enum | `active` or `superseded`. |
+| `superseded_by` | string/null | Replacement `PA-*` id when status is `superseded`. |
+
+##### B. `engineering-principles` Record
+
+Engineering-principle records capture transferable guidance. They are advisory
+and scoped. They are not unconditional rules.
+
+```yaml
+- id: EP-0001
+  status: proposed
+  statement: "Caller-facing router tools should return an answer whenever any safe internal recovery path exists."
+  applies_when:
+    - "caller is another automated agent"
+    - "router can recover internally without credentials, destructive actions, or product-scope approval"
+  revisit_when:
+    - "the caller contract changes to require explicit cache-health errors"
+    - "internal fallback creates unacceptable cost or latency in router_monitor"
+  provenance:
+    source_type: session_decision
+    source_ref: "session:<id> / docs:<path> / experiment:<path>"
+    derived_at: "YYYY-MM-DD"
+    derived_by: "codex"
+    reviewed_by: "claude-lead-session"
+  suspensions: []
+  superseded_by: null
+```
+
+Required fields:
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `id` | string | Stable transferable id, prefixed `EP-`. |
+| `status` | enum | `proposed`, `active`, `suspended`, or `superseded`. |
+| `statement` | string | Advisory principle text. |
+| `applies_when` | string[] | Scope conditions that must be checked before applying the principle. |
+| `revisit_when` | string[] | Trigger conditions for re-review. |
+| `provenance.source_type` | enum | `phase_summary`, `experiment`, `spec`, or `session_decision`. |
+| `provenance.source_ref` | string | Diffable doc path, experiment path, or session id. |
+| `provenance.derived_at` | date | Date the candidate was derived. |
+| `provenance.derived_by` | enum | `codex` or `claude-lead-session`, depending on who originated the candidate. |
+| `provenance.reviewed_by` | string/null | Lead-session review identity, or null while still staged. |
+| `suspensions` | suspension[] | Counter-evidence log for suspended applicability. |
+| `superseded_by` | string/null | Replacement `EP-*` id when status is `superseded`. |
+
+Suspension entries use this shape:
+
+```yaml
+- suspended_at: "YYYY-MM-DD"
+  reason: "why the principle should not apply in this context"
+  counter_evidence: "specific evidence that narrowed or invalidated applicability"
+  lead_session_ref: "session:<id>"
+  resolved_at: null
+  resolution: null
+```
+
+##### C. Staging State Machine
+
+Staging is the review state before a candidate becomes authoritative. Rejected
+candidates may appear in a dry-run report, but they do not become durable memory.
+
+Valid transitions:
+
+| From | To | Meaning |
+| --- | --- | --- |
+| `proposed` | `active` | Candidate passed Codex review and durable lead-session review. |
+| `proposed` | `rejected` | Candidate failed review and is discarded after the dry-run/report. |
+| `active` | `suspended` | Lead session recorded counter-evidence or failed applicability. |
+| `active` | `superseded` | A newer record replaces this one. |
+| `suspended` | `active` | Lead session revokes suspension after scope/rationale update. |
+
+Rejection paths:
+
+- `rejected_project_noise`: candidate was too project-specific for
+  `engineering-principles`.
+- `rejected_unsupported`: candidate was not sufficiently supported by
+  provenance.
+
+##### D. Dry-Run Report Shape
+
+A future Gate 2 dry run should produce a report shaped like this and should not
+write durable memory.
+
+```markdown
+# Architectural Memory Distill Dry-Run Report
+
+Generated: YYYY-MM-DDTHH:mm:ssZ
+Project: <project_id>
+Source rows reviewed: <N>
+Source docs reviewed: <N>
+Skipped as non-distillable: <N>
+
+## Project-Architecture Candidates
+
+| id | topic | decision | provenance.source_type | provenance.source_ref | status |
+| --- | --- | --- | --- | --- | --- |
+| PA-0001 | ... | ... | session_decision | session:<id> | proposed |
+
+## Engineering-Principle Candidates
+
+| id | statement | applies_when | provenance.source_type | provenance.source_ref | status |
+| --- | --- | --- | --- | --- | --- |
+| EP-0001 | ... | ... | spec | docs:<path> | proposed |
+
+## Rejected Candidates
+
+| source_ref | rejection_code | reason |
+| --- | --- | --- |
+| session:<id> | rejected_project_noise | ... |
+
+## Notes
+
+- signal_quality: <high|medium|low>
+- duplicate_candidates: <N>
+- reviewer_observations: ...
+```
+
 Non-goals:
 
 - no implementation in this decision step
