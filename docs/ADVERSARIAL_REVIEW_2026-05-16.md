@@ -84,3 +84,27 @@ N concurrent consults
 ```
 
 Fix priority: P0 stale burst control before new feature work.
+
+## Proof Run
+
+Concrete evidence was captured in
+`experiments/adversarial-proof-2026-05-16/summary.md` and raw `proof.json`.
+
+Key results:
+
+- 100k-character `router_consult` input returned `INPUT_INVALID` before any
+  Claude invocation.
+- 10 parallel consults against one stale cluster produced one failed
+  revalidation, one fallback consult, 9 suppressed revalidations, and 9
+  coalesced fallbacks.
+- 30 always-stale identical questions produced one fallback consult total.
+- 30 always-stale unique questions produced 30 fallback consults, which is
+  linear rather than recursive or exponential.
+- 20 fresh cluster consults with `shadow_mode=true` produced 20 cluster calls,
+  20 direct baseline calls, and 20 judge calls.
+- A low-limit run with `max_consults_per_hour=5` capped fallback spend after
+  five consults and returned `COST_LIMIT_EXCEEDED` for the remaining attempts.
+
+The proof run also exposed repeated profile availability probes under burst
+load. Runtime profile availability detection now coalesces concurrent probes so
+the same 10-call stale race requires 2 profile probes instead of 20.

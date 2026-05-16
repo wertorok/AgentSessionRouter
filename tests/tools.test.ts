@@ -928,6 +928,7 @@ describe("cluster MCP tools", () => {
 
     expect(calls.every((result) => !result.isError)).toBe(true);
     expect(claude.runPromptCalls).toBe(1);
+    expect(claude.runPromptWithOptionsCalls).toBe(2);
     expect(events.filter((event) => event === "evidence_revalidation_failed")).toHaveLength(1);
     expect(events.filter((event) => event === "evidence_revalidation_suppressed")).toHaveLength(9);
     expect(events.filter((event) => event === "cluster_fallback_to_claude_consult")).toHaveLength(1);

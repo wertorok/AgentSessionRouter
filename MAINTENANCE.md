@@ -141,6 +141,44 @@ Operational meaning:
 - `router_monitor.cache_health.attention_by_event` now includes suppressed
   revalidation and coalesced fallback events as cost/decay signals.
 
+## Adversarial Proof Matrix
+
+Recorded on 2026-05-16 in
+`experiments/adversarial-proof-2026-05-16/summary.md` and raw
+`proof.json`.
+
+Evidence from real MCP stdio calls:
+
+- Zone 1 input garbage held: a 100k-character `router_consult` returned
+  `INPUT_INVALID` with `0` Claude calls, malformed metadata returned a
+  structured validation failure, and unsafe `related_files` were dropped before
+  session metadata storage.
+- Zone 2 stale race held: 10 parallel calls against one stale cluster produced
+  one strict revalidation failure, one fallback consult, 9 suppressed
+  revalidation events, and 9 coalesced fallback events.
+- Zone 3 scale held: 200 seeded sessions plus existing fixture sessions routed
+  exact-topic probes to the intended sessions and unrelated probes to new
+  sessions; measured router latency was 4ms before scale and 63ms after scale.
+- Zone 4 revalidation held: selector movement revalidated successfully; deleted
+  evidence file marked the cluster `needs_prepare` and answered via internal
+  `claude_consult` fallback.
+- Zone 5 tier misuse held: direct calls to `[MAINTAIN] cluster_reprepare` and
+  `[EVAL DEBUG] comparison_rejudge` returned maintenance/eval payloads and did
+  not masquerade as normal answer paths.
+- Zone 6 cost/loop held: 30 always-stale identical questions caused one fallback
+  consult total; 30 always-stale unique questions caused 30 linear fallback
+  consults, one failed revalidation, and 29 suppressed revalidations; a
+  20-call shadow burst produced exactly 20 cluster answers, 20 direct baselines,
+  and 20 judge calls.
+- A separate low-limit rate test held: with `max_consults_per_hour=5`, 12 unique
+  stale fallback attempts produced 5 consults and 7 `COST_LIMIT_EXCEEDED`
+  responses.
+
+The proof run initially exposed a small burst-cost leak: parallel calls shared
+fallback work but each could start its own profile availability probe. Runtime
+profile availability detection is now coalesced through a shared in-flight
+promise, reducing the 10-call stale race from 20 profile probes to 2.
+
 ## Factsheet Recovery Current State
 
 Factsheet recovery is semi-manual by design.

@@ -30,6 +30,7 @@ export class RouterRuntime {
   degradedReason: string | undefined;
   readonly startedAt: string;
   private profileAvailability: ProfileAvailability | null = null;
+  private profileAvailabilityPromise: Promise<ProfileAvailability> | null = null;
   private maintenanceTimer: NodeJS.Timeout | null = null;
 
   constructor(
@@ -143,20 +144,35 @@ export class RouterRuntime {
     if (!force && this.profileAvailability) {
       return this.profileAvailability;
     }
-    this.profileAvailability = await detectAvailableProfiles(this.claude, this.clock.now.bind(this.clock));
-    if (!this.profileAvailability.bare.available) {
-      this.db.logClusterEvent({
-        clusterId: "router",
-        projectId: "router",
-        eventType: "bare_probe_failed",
-        details: {
-          error: this.profileAvailability.bare.error,
-          focused_available: this.profileAvailability.focused.available
-        },
-        durationMs: this.profileAvailability.bare.duration_ms
-      });
+    if (!force && this.profileAvailabilityPromise) {
+      return this.profileAvailabilityPromise;
     }
-    return this.profileAvailability;
+
+    const promise = detectAvailableProfiles(this.claude, this.clock.now.bind(this.clock))
+      .then((availability) => {
+        this.profileAvailability = availability;
+        if (!availability.bare.available) {
+          this.db.logClusterEvent({
+            clusterId: "router",
+            projectId: "router",
+            eventType: "bare_probe_failed",
+            details: {
+              error: availability.bare.error,
+              focused_available: availability.focused.available
+            },
+            durationMs: availability.bare.duration_ms
+          });
+        }
+        return availability;
+      })
+      .finally(() => {
+        if (this.profileAvailabilityPromise === promise) {
+          this.profileAvailabilityPromise = null;
+        }
+      });
+
+    this.profileAvailabilityPromise = promise;
+    return promise;
   }
 }
 
