@@ -58,7 +58,9 @@ Gate 5 dry-run factsheet:
 - Gate 5 is explicitly non-authoritative.
 - No cluster writes, no durable principle store, and no runtime serving path were
   added.
-- No candidate is promoted to project memory or global engineering memory.
+- Through Gate 5, no candidate was promoted to project memory or global
+  engineering memory. Later resumed gates changed only the diffable
+  source-of-truth status after explicit lead-session approval.
 
 ## Verification
 
@@ -99,6 +101,7 @@ Additional closed gates:
 | Gate 9: Lead field review | closed | `field-review.md`, `field-review.json`, `gate-9-summary.md` |
 | Gate 10: Request-changes resolution | closed | `request-changes-resolution.md`, `request-changes-resolution.json`, `gate-10-summary.md` |
 | Gate 11: Proposed record materialization | closed | `docs/ENGINEERING_PRINCIPLES.md`, `docs/PROJECT_ARCHITECTURE.md`, `materialized-proposed-records.md`, `materialized-proposed-records.json`, `gate-11-summary.md` |
+| Gate 12: Active source-of-truth promotion | closed | `docs/ENGINEERING_PRINCIPLES.md`, `docs/PROJECT_ARCHITECTURE.md`, `active-promotion.md`, `active-promotion.json`, `gate-12-summary.md` |
 
 Gate 6 added a deterministic verifier report. Gate 7 named the future
 diffable source-of-truth files and documented field-population semantics. Gate
@@ -108,8 +111,14 @@ field draft. Gate 9 reviewed those fields with the durable Claude lead session:
 suspended. Gate 10 resolved those changes: 1 entry was corrected and approved
 for future promotion consideration, while 5 were excluded from promotion.
 Gate 11 materialized 88 field-approved records as `status: proposed` in the
-diffable source-of-truth docs. These gates do not create active memory, write
-clusters, or add a runtime serving path.
+diffable source-of-truth docs. Gate 12 then used a bounded compact lead-session
+review to promote those 88 records to active source-of-truth documentation
+records. Gate 12 does not write clusters, add runtime import/serving, or change
+router behavior.
+
+Gate 12 post-write compact review returned `APPROVE_SCOPE` and closed the gate.
+Gate 13 remains future runtime import/serving design and requires a separate
+decision on the canonical URL/import boundary before any router use.
 
 Operational finding: broad artifact-paste review prompts can hit
 `COST_LIMIT_EXCEEDED`. Compact proof-style review prompts work and received

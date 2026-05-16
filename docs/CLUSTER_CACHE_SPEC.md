@@ -1500,6 +1500,41 @@ Gate 11 non-goals:
 - no cluster writes
 - no router behavior changes
 
+#### Active Source-of-Truth Promotion (Gate 12)
+
+Status: active source-of-truth records promoted, not runtime-served. Gate 12
+adds bounded durable lead-session promotion approval and updates the diffable
+source-of-truth documents from proposed records to active records.
+
+Gate 12 outputs:
+
+- `docs/ENGINEERING_PRINCIPLES.md`
+- `docs/PROJECT_ARCHITECTURE.md`
+- `experiments/architectural-memory-dry-run-2026-05-16/active-promotion.json`
+- `experiments/architectural-memory-dry-run-2026-05-16/active-promotion.md`
+- `experiments/architectural-memory-dry-run-2026-05-16/gate-12-summary.md`
+
+Gate 12 result:
+
+- The durable Claude lead session returned `APPROVE_SCOPE` for promotion of 88
+  field-approved records.
+- The same lead session clarified that Gate 12 itself is the bounded
+  lead-session promotion approval. Gate 9 was field review only and Gate 10 was
+  request-changes resolution only.
+- Post-write compact review returned `APPROVE_SCOPE` and closed Gate 12.
+- 13 engineering-principle records are now `status: active` with
+  `active_date: 2026-05-17`.
+- 75 project-architecture records are now `status: active` with
+  `active_date: 2026-05-17`.
+- 0 proposed records remain in the source-of-truth docs.
+
+Gate 12 non-goals:
+
+- no runtime import or serving path
+- no cluster writes
+- no router behavior changes
+- no hidden model-memory authority
+
 Non-goals:
 
 - no implementation in this decision step
@@ -1529,8 +1564,10 @@ Implementation gates:
 9. Closed: run bounded lead-session field review of the populated draft.
 10. Closed: resolve or exclude `REQUEST_CHANGES` entries before promotion.
 11. Closed: materialize field-approved records as proposed source-of-truth docs.
-12. Future: add bounded lead-session promotion approval and active writes.
+12. Closed: add bounded lead-session promotion approval and active writes.
 13. Future: add explicit import/serving for `engineering-principles`.
+    Runtime import/serving requires a separate design gate and human sign-off on
+    the canonical URL/import boundary before router use.
 14. Future: add `router_monitor` visibility: staged count, promoted count,
     suspended count, stale/superseded count, and recent counter-evidence.
 

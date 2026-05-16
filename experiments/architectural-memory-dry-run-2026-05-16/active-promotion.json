@@ -1,0 +1,29 @@
+{
+  "generated_at": "2026-05-16T22:36:23.547Z",
+  "status": "active_source_of_truth_promoted",
+  "active_date": "2026-05-17",
+  "scope": {
+    "runtime_import_serving": false,
+    "cluster_writes": false,
+    "router_behavior_changes": false
+  },
+  "counts": {
+    "active_records": 88,
+    "proposed_records": 0,
+    "docs": 2
+  },
+  "docs": [
+    {
+      "path": "/root/projects/AgentSessionRouter/docs/ENGINEERING_PRINCIPLES.md",
+      "memory_product": "engineering-principles",
+      "activeRecords": 13,
+      "proposedRecords": 0
+    },
+    {
+      "path": "/root/projects/AgentSessionRouter/docs/PROJECT_ARCHITECTURE.md",
+      "memory_product": "project-architecture",
+      "activeRecords": 75,
+      "proposedRecords": 0
+    }
+  ]
+}
