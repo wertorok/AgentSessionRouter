@@ -1,0 +1,8 @@
+**Benchmark Decision Established:**
+
+- **Codeword ALPHA-17:** Router answers the caller when Claude is available.
+- **Rule:** Monitor telemetry exists for operator visibility and debugging; it is not caller-facing recovery logic.
+
+This establishes that session continuity routing prioritizes direct router-to-caller response when the agent is available, separating operational observability (monitoring) from caller experience mechanisms.
+
+---

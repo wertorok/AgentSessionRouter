@@ -1,0 +1,11 @@
+**Benchmark decisions carried forward:**
+
+- **ALPHA-17**: Router answers caller directly when Claude is available; monitor telemetry is operator-only, not caller recovery.
+
+**New this turn:**
+
+- **BETA-29**: Factsheet evidence must be revalidated before use. If revalidation cannot prove the facts are current, the router falls back internally — it does NOT ask the caller to recover.
+
+**Operational meaning**: Caller-facing responses depend on facts that can be verified as current. Unverifiable state triggers an internal fallback path. The caller is never put in the position of having to re-prove or recover what the router should already know.
+
+---

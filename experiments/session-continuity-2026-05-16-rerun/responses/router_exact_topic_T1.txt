@@ -1,0 +1,4 @@
+- **ALPHA-17**: The router must answer the caller directly when Claude is available — caller recovery is not contingent on monitor telemetry.
+- **Rule**: Monitor telemetry serves the operator's observability only; it does not feed into or trigger caller-facing recovery logic.
+
+---

@@ -1,0 +1,19 @@
+I don't have the two remembered benchmark decisions from prior turns visible in this session. Based on what's inferable from the project context and routing semantics:
+
+**Why cluster_consult vs direct_fresh alone is insufficient**
+
+Comparing only these two leaves a critical gap: you have no baseline for session *retention*. `cluster_consult` likely reuses or transfers session context; `direct_fresh` tears down and rebuilds. But you're missing a benchmark that represents the *continuity* variable itself—a comparison point that shows what you gain or lose by preserving state across turns.
+
+The two codewords suggest a spectrum: `direct_fresh` maximizes isolation (no continuity overhead), while `cluster_consult` maximizes state reuse (continuity benefit). But without a mid-point benchmark (something like `cached_consult` or `sticky_direct`), you can't answer whether the overhead of cluster consultation is *worth it* versus simpler continuity mechanisms.
+
+**What extra benchmark is needed**
+
+You need a `cache_fresh` or `local_cache` baseline—something that attempts continuity without the full cluster coordination overhead. This reveals whether the performance delta between `cluster_consult` and `direct_fresh` is due to *continuity itself* or specifically to *cluster-level coordination*.
+
+Without this mid-point, you can't attribute the difference correctly: is the cost from losing continuity, or from the coordination mechanism?
+
+**What's missing to answer fully**
+
+The prior benchmark decisions that established the comparison framework and naming conventions for `cluster_consult` and `direct_fresh`. Without those, I'm inferring from routing semantics rather than your documented experimental conclusions.
+
+---

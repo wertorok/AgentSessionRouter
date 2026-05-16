@@ -1,0 +1,6 @@
+**From prior turn memory:**
+
+- **Codeword:** ALPHA-17
+- **Rule:** Router must answer the caller when Claude is available; monitor telemetry is for operator observability, not caller recovery.
+
+---

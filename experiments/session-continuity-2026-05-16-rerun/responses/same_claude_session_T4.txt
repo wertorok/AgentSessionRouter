@@ -1,0 +1,4 @@
+From session memory:
+
+- **ALPHA-17**: Router answers the caller directly when Claude is available. Monitor telemetry is operator instrumentation only — it does NOT feed into caller recovery.
+- **BETA-29**: Factsheet evidence must be revalidated before use. If revalidation cannot prove current facts, the router falls back internally — it does NOT ask the caller to recover.

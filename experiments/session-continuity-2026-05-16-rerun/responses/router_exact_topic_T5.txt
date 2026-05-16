@@ -1,0 +1,18 @@
+**Why `cluster_consult` vs `direct_fresh` alone is insufficient:**
+
+Comparing only these two leaves both benchmark rules untested in the critical dimension.
+
+- **ALPHA-17** is not tested: `cluster_consult` may route through monitor-observed paths; `direct_fresh` bypasses clustering entirely. Neither validates whether the router can answer the caller when the *only* available path is monitor-adjacent, nor whether monitor telemetry accidentally bleeds into the caller-facing response. You need a benchmark that forces the router to answer without any monitor telemetry contribution.
+
+- **BETA-29** is not tested: Both `cluster_consult` and `direct_fresh` assume factsheet evidence is present and current. Neither provokes the internal fallback path when revalidation fails. You need a benchmark that presents stale or unverifiable factsheet evidence and verifies the router falls back *internally*, never prompting the caller to recover.
+
+**Extra benchmark needed (minimum):**
+
+`internal_fallback_stale_factsheet` — a test that loads the router with a factsheet whose current-proof cannot be established (e.g., timestamp age, checksum mismatch, missing lineage), and verifies:
+1. The router does not ask the caller to re-prove anything
+2. The router falls back to its internal fallback path
+3. The response to the caller is served from the fallback, not from the stale evidence
+
+A secondary useful benchmark: `monitor_telemetry_caller_blocked` — verify that disabling or isolating monitor telemetry does not degrade the router's ability to answer the caller.
+
+---

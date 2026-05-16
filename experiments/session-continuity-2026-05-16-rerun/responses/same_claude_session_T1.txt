@@ -1,0 +1,2 @@
+- **ALPHA-17**: The router must answer the caller directly when Claude is available. Monitor telemetry exists for operator visibility and debugging—it does NOT feed into caller recovery or fallback logic.
+- **Rule**: Monitor data is operator instrumentation, not a recovery path for the caller. The router's job is to connect the caller to Claude when Claude is available; what the monitor sees is read-only context for the human running the system.

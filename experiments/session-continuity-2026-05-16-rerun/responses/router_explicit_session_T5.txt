@@ -1,0 +1,11 @@
+**Why `cluster_consult` vs `direct_fresh` is insufficient:**
+
+The two-codeword benchmark establishes that session continuity has **two independent failure planes**:
+
+1. **ALPHA-17** covers caller-facing availability: router must answer when Claude is available. `cluster_consult vs direct_fresh` partially addresses this — it shows whether routing through cluster attention introduces availability gaps versus going direct. But it does **not** test the monitor telemetry path (operator-only semantics), which means we cannot verify that monitor data is not being used to recover the caller.
+
+2. **BETA-29** covers factsheet staleness: router must revalidate evidence before use, and self-fallback internally rather than asking the caller. `cluster_consult vs direct_fresh` tests neither revalidation behavior nor fallback behavior — it only tests a "fresh facts" happy path.
+
+**The missing benchmark:** We need a `cluster_consult with stale factsheet` baseline that demonstrates the router detects stale evidence, performs an internal self-fallback (not caller-prompted), and still produces a valid answer. This validates BETA-29 directly and confirms ALPHA-17 by showing monitor telemetry is not part of the recovery chain.
+
+---

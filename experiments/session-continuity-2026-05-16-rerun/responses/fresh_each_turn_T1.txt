@@ -1,0 +1,10 @@
+## Benchmark Decision Established
+
+- **ALPHA-17**: The router must answer the caller directly when Claude is available — the caller expects a routing decision, not telemetry data.
+- **ALPHA-17 corrolary**: Monitor telemetry serves operator visibility and debugging; it is not a recovery path for the caller and must not block or replace the router's response.
+
+---
+
+**Practical interpretation**: In session continuity scenarios, if Claude is available to handle the request, the router routes to Claude and returns that decision to the caller. Observability/monitoring events may fire independently but do not participate in the caller's response path. The caller-facing answer is the routing decision, not metrics.
+
+**What's missing for deeper context**: This benchmark turn would benefit from the specific session continuity scenario being tested (e.g., mid-session reconnection, context carryover, or fallback behavior). The decision above holds regardless — monitor telemetry is operator instrumentation, not caller recovery semantics.

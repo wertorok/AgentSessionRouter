@@ -1,0 +1,4 @@
+- **ALPHA-17** (carried): Router answers the caller when Claude is available; monitor telemetry is operator instrumentation only, not caller recovery.
+- **BETA-29** (new): Factsheet evidence must be revalidated before use. If revalidation cannot prove the facts are current, the router falls back internally — it does NOT ask the caller to recover.
+
+**Operational meaning**: The router must actively confirm that its factsheet data is still valid before acting on it. When revalidation fails, the router self-handles the fallback rather than surfacing the gap to the caller.

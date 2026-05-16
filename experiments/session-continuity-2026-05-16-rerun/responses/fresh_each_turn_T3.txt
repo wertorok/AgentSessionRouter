@@ -1,0 +1,9 @@
+## Benchmark Decision: BETA-29
+
+**Codeword:** BETA-29
+
+**Operational Meaning:** When factsheet evidence is used for routing decisions, the router must revalidate that evidence before each use. If revalidation fails to confirm current facts, the router performs an internal fallback rather than surfacing the failure to the caller. The caller receives a valid response; recovery logic is handled silently within the router's own retry or degrade path.
+
+**How it differs from prior decisions:** This extends the self-healing principle established in earlier turns—instead of asking the caller to recover when facts become stale, the router absorbs that responsibility and falls back internally.
+
+---

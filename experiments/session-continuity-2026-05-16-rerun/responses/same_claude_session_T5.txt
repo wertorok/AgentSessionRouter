@@ -1,0 +1,7 @@
+Comparing `cluster_consult` only against `direct_fresh` is insufficient because it elides both benchmark rules:
+
+1. **ALPHA-17 gap**: `direct_fresh` tests a path where monitor telemetry is irrelevant by design. `cluster_consult` inherently involves cluster-level coordination signals — possibly monitor-derived. Comparing only these two does not tell you whether cluster telemetry leaks into the caller path. You cannot validate operator-only semantics without a benchmark that holds cluster telemetry visible but restricted.
+
+2. **BETA-29 gap**: `direct_fresh` implicitly validates fresh facts because it goes direct. `cluster_consult` may aggregate cluster-state facts that are stale relative to the factsheet. A `direct_fresh` baseline does not exercise revalidation behavior under cluster conditions — it masks whether `cluster_consult` falls back internally on stale facts or silently propagates them to the caller.
+
+**Extra benchmark needed**: A `cluster_consult_stale_facts` scenario — one where cluster-level factsheet data is deliberately stale — to verify that `cluster_consult` detects the staleness (BETA-29 revalidation) and falls back internally rather than surfacing the gap to the caller, while still respecting that cluster monitor signals remain operator-only (ALPHA-17).

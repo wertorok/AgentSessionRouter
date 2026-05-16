@@ -1,0 +1,4 @@
+From session memory (turn 1):
+
+- **Codeword**: ALPHA-17
+- **Rule**: The router must answer the caller when Claude is available; monitor telemetry is operator instrumentation only — it does NOT feed into caller recovery.

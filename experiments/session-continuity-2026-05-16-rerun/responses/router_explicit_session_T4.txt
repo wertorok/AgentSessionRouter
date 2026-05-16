@@ -1,0 +1,6 @@
+**Benchmark Codewords Summary (from session memory):**
+
+- **ALPHA-17:** Router answers the caller when Claude is available; monitor telemetry is operator-only, not caller recovery logic.
+- **BETA-29:** Factsheet evidence must be revalidated before use; if revalidation fails, the router falls back internally rather than asking the caller to recover.
+
+---

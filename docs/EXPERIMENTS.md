@@ -242,6 +242,35 @@ Per-question quality:
 
 Finding: factsheet expansion removed all low-score rows in the targeted set and stabilized B2/C1 at 3/3/3. B1 still has one score-2 answer, so any further improvement should target clearer derived rationale facts or prompt wording rather than fork optimization.
 
+### Session Continuity Scorer Calibration
+
+Continuity artifacts:
+
+- `experiments/session-continuity-2026-05-15/`
+- `experiments/session-continuity-2026-05-15-v5/`
+- `experiments/session-continuity-2026-05-16/`
+- `experiments/session-continuity-2026-05-16-rerun/`
+
+Known scorer artifact: the T5 synthesis row can score `2` even when the answer is substantively correct. This is the third known scorer-calibration class after `NOT IN CONTEXT` caveats and honest-refusal handling: the scorer narrowly matches wording instead of the full semantic answer. The T5 scorer requires the final synthesis answer to match one of these wording patterns for the `session-benchmark` requirement:
+
+- `same session`
+- `durable session`
+- `multi-turn`
+- `continuity`
+
+Some correct answers instead propose a stale-factsheet/fallback benchmark. That answers the architectural question and references `ALPHA-17`, `BETA-29`, and why `cluster_consult` vs `direct_fresh` is insufficient, but misses the narrow wording pattern. This is a wording-match limit in the benchmark scorer, not a system-quality failure.
+
+Established baseline for `router_exact_topic` after the latest pre-refactor continuity run:
+
+| Run | `router_exact_topic` T2/T4/T5 | Interpretation |
+| --- | --- | --- |
+| `2026-05-15` | `3/3/3` | One run where T5 used the expected continuity/session wording. |
+| `2026-05-15-v5` | `3/3/2` | Pre-refactor baseline; T5 missed only `session-benchmark` wording. |
+| `2026-05-16` | `3/3/2` | Post-refactor proof; same T5 scorer artifact, memory probes intact. |
+| `2026-05-16-rerun` | `3/3/2` | Isolated rerun confirmed this is stable scorer behavior, not extract-regression variance. |
+
+Operational rule: compare future `router_exact_topic` synthesis runs against `3/3/2` as the current correct baseline unless the T5 scorer rubric is deliberately changed. Do not treat `3/3/2` as a regression by itself and do not try to restore a `3/3/3` baseline by changing router behavior. Treat it as a regression only if memory probes fall below `3/3`, route reuse stops using one session, or T5 loses the substantive `ALPHA-17`/`BETA-29` reasoning rather than just the exact `session-benchmark` wording.
+
 ## Decisions
 
 - Use verified factsheet cache as source of truth. Do not use opaque Claude session state as the only source of truth.
