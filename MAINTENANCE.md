@@ -752,6 +752,141 @@ For the AgentSessionRouter codebase cluster, include at least:
 - `docs/CLUSTER_CACHE_SPEC.md`
 - `docs/SHADOW_EVAL_SPEC.md`
 
+## Operatorless Engineering Workflow
+
+The default workflow is agent-led. The human owner is not the dispatcher for
+normal engineering decisions, not the retry loop, and not the arbiter between
+technical options during a phase.
+
+Roles:
+
+- Codex is the chief engineer and executor. Codex reads code, edits files,
+  runs tests, integrates worker output, and owns the final technical decision.
+- A durable Claude lead session is the persistent architecture/team-lead memory.
+  Codex consults it through `router_consult` for continuity, design review, and
+  phase-gate critique.
+- Workers and subagents are narrow contributors. They may explore, implement,
+  review, or benchmark bounded slices, but Codex arbitrates their output.
+- The human owner receives phase-end summaries and is asked only for true
+  product/scope/risk decisions that cannot be resolved technically.
+
+Primary rule:
+
+`router_consult` is the default consult entry point. Lower-level tools
+(`claude_consult`, `cluster_consult`, `cluster_reprepare`, `cluster_prepare`) are
+used directly only for explicit debugging, maintenance, or validation. Normal
+caller workflow should not require the caller or the human to know router
+internals.
+
+### Phase Loop
+
+Codex runs each phase as a closed loop:
+
+1. Define the phase goal and expected proof artifacts.
+2. After reading the affected files, use `router_status` / `router_monitor` for
+   current health when the work intersects routing, sessions, clusters, monitor
+   logic, or scorer calibration.
+3. Consult the durable Claude lead session with `router_consult` when the phase
+   changes architecture, contracts, monitor semantics, or known baselines.
+4. Execute locally: edit code/docs, coordinate workers when useful, and keep
+   unrelated work out of the diff.
+5. Verify with the smallest proof that covers the risk, then broaden to the
+   relevant established matrix:
+   - `npm run build`
+   - `npm test`
+   - `node scripts/adversarial-proof-matrix.mjs` for API/routing safety changes
+   - `npm run session:continuity` for durable-session or routing changes
+   - `npm run route:calibration` / `npm run monitor:snapshot` for routing or
+     monitor changes
+6. Re-consult the Claude lead session only if verification exposes a real design
+   conflict, a baseline interpretation question, or a phase-gate ambiguity.
+7. Finish the phase with a concise human-facing summary: what changed, what was
+   proven, what remains, and which artifacts/commits contain the evidence.
+
+If the lead session asks for more work, Codex loops inside the phase. The human
+is not asked to choose between implementation options unless the choice is
+product scope, external risk acceptance, credentials/billing, or a destructive
+operation outside the repository.
+
+### When Codex Proceeds Alone
+
+Proceed without consulting the lead session when all are true:
+
+- The change does not alter caller-facing tool contracts.
+- The change does not alter `routeDecision.ts`, cluster evidence semantics,
+  `SESSION_UPDATE_JSON`, scorer calibration, or monitor recommendations.
+- Existing tests and relevant smoke/proof scripts define the expected behavior.
+- The choice is reversible and does not require product/risk acceptance.
+
+Examples: typo/docs updates, mechanical extracts already covered by tests,
+targeted test additions, benchmark artifact recording, and small fixes inside an
+approved design.
+
+### When Codex Consults The Claude Lead Session
+
+Consult through `router_consult` when any are true:
+
+- There are two or more defensible architecture paths.
+- A change affects routing decisions, durable session reuse, cluster fallback,
+  evidence revalidation, scorer baselines, or monitor recommendation semantics.
+- A benchmark/proof result is ambiguous and could be mistaken for a regression.
+- Worker/reviewer outputs conflict on a contract or risk, not just style.
+- A prior documented decision may need to be reversed.
+
+Use a stable `topic_hint` for the lead role, for example:
+
+```json
+{
+  "topic_hint": "claude lead operatorless engineering workflow",
+  "task_type": "architectural",
+  "tags": ["operatorless", "router-consult", "persistent-session", "workflow"]
+}
+```
+
+The question should be bounded: state Codex's proposed path, evidence observed,
+and the specific decision needed. Do not ask open-ended "what should I do?"
+questions when Codex can propose a default.
+
+### Phase-End Bundle
+
+Every completed phase should leave a compact evidence bundle in the repo or
+final response:
+
+- commit(s) or changed files
+- proof commands and outcomes
+- relevant monitor snapshot or benchmark artifact path when behavior changed
+- known residual risks or deferred work
+- lead-session conclusion when one was consulted
+
+For documentation-only phases, `git diff --check` is enough unless the docs
+change operational instructions that tests depend on.
+
+Decision and phase continuity should use existing project artifacts, not a new
+state system. Durable decisions live in the nearest relevant spec or maintenance
+document (`MAINTENANCE.md`, `docs/CLUSTER_CACHE_SPEC.md`,
+`docs/SHADOW_EVAL_SPEC.md`, `docs/EXPERIMENTS.md`). If work must pause across
+Codex sessions, record the current phase, chosen path, proof status, and next
+step in the phase-end summary or the relevant experiment/maintenance section
+before stopping.
+
+### Human Touchpoint
+
+The human touchpoint is the phase-end summary. Mid-phase human interruption is
+not part of the default workflow.
+
+Ask the human only when:
+
+- credentials, billing, external accounts, or destructive operations are needed
+- a product/scope decision cannot be inferred from existing docs and goals
+- a risk must be accepted rather than technically reduced
+- a security patch requires human risk acceptance or coordination outside the
+  repository
+- the user explicitly interrupts and changes priority
+
+If the human comments on an already running phase without explicitly stopping
+it, treat that comment as input for the next phase or backlog unless it conflicts
+with safety.
+
 ## Post-Refactor Proof: 2026-05-16
 
 The mechanical refactor that split `src/tools.ts` into domain modules was
