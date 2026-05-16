@@ -1,0 +1,2036 @@
+{
+  "started_at": "2026-05-16T18:25:52.370Z",
+  "project_id": "AgentSessionRouter-continuity-2026-05-16",
+  "cwd": "/root/projects/AgentSessionRouter",
+  "methods": [
+    "fresh_each_turn",
+    "same_claude_session",
+    "router_exact_topic",
+    "router_explicit_session"
+  ],
+  "turns": [
+    {
+      "id": "T1",
+      "kind": "seed",
+      "question": "Session continuity benchmark turn 1. Establish and remember this benchmark decision: codeword ALPHA-17 means 'the router must answer the caller when Claude is available; monitor telemetry is for the operator, not for caller recovery'. Reply with the codeword and rule in two bullets.",
+      "requirements": [
+        {
+          "id": "alpha",
+          "patterns": [
+            {}
+          ]
+        },
+        {
+          "id": "caller-answer",
+          "patterns": [
+            {},
+            {}
+          ]
+        },
+        {
+          "id": "operator-monitor",
+          "patterns": [
+            {},
+            {}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "T2",
+      "kind": "memory_probe",
+      "question": "Session continuity benchmark turn 2. Without inventing, what codeword and caller/operator rule did we establish in the previous turn? Do not search files; answer from session memory.",
+      "requirements": [
+        {
+          "id": "alpha",
+          "patterns": [
+            {}
+          ]
+        },
+        {
+          "id": "caller-answer",
+          "patterns": [
+            {},
+            {}
+          ]
+        },
+        {
+          "id": "operator-monitor",
+          "patterns": [
+            {},
+            {}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "T3",
+      "kind": "seed",
+      "question": "Session continuity benchmark turn 3. Add and remember a second benchmark decision: codeword BETA-29 means 'factsheet evidence must be revalidated before use; if revalidation cannot prove current facts, the router falls back internally instead of asking the caller to recover'. Reply with both the new codeword and the operational meaning.",
+      "requirements": [
+        {
+          "id": "beta",
+          "patterns": [
+            {}
+          ]
+        },
+        {
+          "id": "revalidation",
+          "patterns": [
+            {}
+          ]
+        },
+        {
+          "id": "internal-fallback",
+          "patterns": [
+            {},
+            {}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "T4",
+      "kind": "memory_probe",
+      "question": "Session continuity benchmark turn 4. Summarize both benchmark codewords and their meanings from earlier turns. Do not infer from this prompt; use session memory.",
+      "requirements": [
+        {
+          "id": "alpha",
+          "patterns": [
+            {}
+          ]
+        },
+        {
+          "id": "beta",
+          "patterns": [
+            {}
+          ]
+        },
+        {
+          "id": "caller-answer",
+          "patterns": [
+            {},
+            {}
+          ]
+        },
+        {
+          "id": "revalidation-fallback",
+          "patterns": [
+            {},
+            {}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "T5",
+      "kind": "synthesis",
+      "question": "Session continuity benchmark turn 5. Based on the two remembered benchmark decisions, explain why comparing cluster_consult only against direct_fresh is insufficient for this project. The answer must reference both codewords and say what extra benchmark is needed.",
+      "requirements": [
+        {
+          "id": "alpha",
+          "patterns": [
+            {}
+          ]
+        },
+        {
+          "id": "beta",
+          "patterns": [
+            {}
+          ]
+        },
+        {
+          "id": "direct-fresh-insufficient",
+          "patterns": [
+            {},
+            {}
+          ]
+        },
+        {
+          "id": "session-benchmark",
+          "patterns": [
+            {},
+            {},
+            {},
+            {}
+          ]
+        }
+      ]
+    }
+  ],
+  "calls": [
+    {
+      "method": "fresh_each_turn",
+      "turn_id": "T1",
+      "turn_kind": "seed",
+      "tool": "claude_consult",
+      "ok": true,
+      "duration_ms": 8865,
+      "session_id": "session_70fc720d-ed88-499f-8d21-2d96a67a8aa2",
+      "selected_path": null,
+      "route_decision": null,
+      "routing": {
+        "match_score": 0,
+        "match_reason": "No eligible active or dormant sessions in project.",
+        "was_new_session": true,
+        "was_orphan_recovery": false
+      },
+      "warning": null,
+      "answer_chars": 410,
+      "response_path": "experiments/session-continuity-2026-05-16/responses/fresh_each_turn_T1.txt",
+      "answer_preview": "**Established benchmark decision ALPHA-17:**\n\n- **Router answerability**: When Claude is available, the router must answer the caller directly — caller-facing continuity is the router's responsibility, not a delegation to be deferred.\n- **Telemetry scope**: Monitor telemetry is operator-facing only. It supports observability and debugging but is not a recovery mechanism for callers experiencing issues.\n\n---",
+      "score": 3,
+      "matched_requirements": [
+        "alpha",
+        "caller-answer",
+        "operator-monitor"
+      ],
+      "missing_requirements": [],
+      "diagnostics": {
+        "has_not_in_context": false,
+        "has_tool_markup": false,
+        "admits_missing_memory": false
+      },
+      "error": null
+    },
+    {
+      "method": "fresh_each_turn",
+      "turn_id": "T2",
+      "turn_kind": "memory_probe",
+      "tool": "claude_consult",
+      "ok": true,
+      "duration_ms": 7726,
+      "session_id": "session_c22f46b2-b688-42d1-89f9-a03e3b9eaf4a",
+      "selected_path": null,
+      "route_decision": null,
+      "routing": {
+        "match_score": 0.32508361170577166,
+        "match_reason": "Matched topic=0.69, files=0, tags=0.09, aliases=0, recency=1.",
+        "was_new_session": true,
+        "was_orphan_recovery": false
+      },
+      "warning": null,
+      "answer_chars": 655,
+      "response_path": "experiments/session-continuity-2026-05-16/responses/fresh_each_turn_T2.txt",
+      "answer_preview": "I don't have access to prior benchmark turns' content or established decisions from this session continuity benchmark series. This appears to be turn 2, but I have no stored memory of turn 1's codeword or caller/operator rule.\n\nTo proceed accurately, I would need:\n- The codeword and rule established in turn 1 of this benchmark\n- Any prior summary/decisions from the session-continuity-2026-05-16 experiment\n\nIf you can share what was established in turn 1, I can continue from there and build on it",
+      "score": 1,
+      "matched_requirements": [
+        "operator-monitor"
+      ],
+      "missing_requirements": [
+        "alpha",
+        "caller-answer"
+      ],
+      "diagnostics": {
+        "has_not_in_context": false,
+        "has_tool_markup": false,
+        "admits_missing_memory": true
+      },
+      "error": null
+    },
+    {
+      "method": "fresh_each_turn",
+      "turn_id": "T3",
+      "turn_kind": "seed",
+      "tool": "claude_consult",
+      "ok": true,
+      "duration_ms": 15217,
+      "session_id": "session_583c8f09-0eac-4073-8748-32375e86c549",
+      "selected_path": null,
+      "route_decision": null,
+      "routing": {
+        "match_score": 0.3273912046564681,
+        "match_reason": "Matched topic=0.69, files=0, tags=0.09, aliases=0.02, recency=1.",
+        "was_new_session": true,
+        "was_orphan_recovery": false
+      },
+      "warning": null,
+      "answer_chars": 855,
+      "response_path": "experiments/session-continuity-2026-05-16/responses/fresh_each_turn_T3.txt",
+      "answer_preview": "## Benchmark Decision: BETA-29\n\n**Codeword:** BETA-29\n\n**Operational Meaning:**\nWhen the router consults a factsheet during routing, it must revalidate that the factsheet evidence is current before use. If revalidation fails to prove the facts remain valid (e.g., stale data, source unavailable, version mismatch), the router performs an internal fallback rather than throwing the decision back to the caller. Internal fallback means: use the last known good routing heuristics, mark the decision wit",
+      "score": 3,
+      "matched_requirements": [
+        "beta",
+        "revalidation",
+        "internal-fallback"
+      ],
+      "missing_requirements": [],
+      "diagnostics": {
+        "has_not_in_context": false,
+        "has_tool_markup": false,
+        "admits_missing_memory": false
+      },
+      "error": null
+    },
+    {
+      "method": "fresh_each_turn",
+      "turn_id": "T4",
+      "turn_kind": "memory_probe",
+      "tool": "claude_consult",
+      "ok": true,
+      "duration_ms": 3322,
+      "session_id": "session_6d9e9350-faac-44e4-89f5-8d4b8aeb069c",
+      "selected_path": null,
+      "route_decision": null,
+      "routing": {
+        "match_score": 0.3284167494629733,
+        "match_reason": "Matched topic=0.69, files=0, tags=0.09, aliases=0.02, recency=1.",
+        "was_new_session": true,
+        "was_orphan_recovery": false
+      },
+      "warning": {
+        "code": "SESSION_UPDATE_PARSE_FAILED",
+        "message": "Claude answered, but SESSION_UPDATE_JSON could not be parsed. Metadata was not updated."
+      },
+      "answer_chars": 56,
+      "response_path": "experiments/session-continuity-2026-05-16/responses/fresh_each_turn_T4.txt",
+      "answer_preview": "I'll check the session memory for prior benchmark turns.",
+      "score": 0,
+      "matched_requirements": [],
+      "missing_requirements": [
+        "alpha",
+        "beta",
+        "caller-answer",
+        "revalidation-fallback"
+      ],
+      "diagnostics": {
+        "has_not_in_context": false,
+        "has_tool_markup": false,
+        "admits_missing_memory": false
+      },
+      "error": null
+    },
+    {
+      "method": "fresh_each_turn",
+      "turn_id": "T5",
+      "turn_kind": "synthesis",
+      "tool": "claude_consult",
+      "ok": true,
+      "duration_ms": 10544,
+      "session_id": "session_5b1790d5-5515-4f2e-a4f9-7596dcf2e666",
+      "selected_path": null,
+      "route_decision": null,
+      "routing": {
+        "match_score": 0.3277149523429549,
+        "match_reason": "Matched topic=0.69, files=0, tags=0.09, aliases=0.02, recency=1.",
+        "was_new_session": true,
+        "was_orphan_recovery": false
+      },
+      "warning": null,
+      "answer_chars": 1543,
+      "response_path": "experiments/session-continuity-2026-05-16/responses/fresh_each_turn_T5.txt",
+      "answer_preview": "# Why `cluster_consult` vs `direct_fresh` Is an Incomplete Comparison\n\nThe two previously remembered benchmark decisions established baseline metrics for **session-persistent routing** (`cluster_consult`) and **fresh-session routing** (`direct_fresh`). Each was benchmarked independently as a standalone strategy. This comparison is insufficient for this project for two reasons:\n\n1. **It tests strategies, not session modes.** Both `cluster_consult` and `direct_fresh` are routing *strategies* that ",
+      "score": 1,
+      "matched_requirements": [
+        "direct-fresh-insufficient",
+        "session-benchmark"
+      ],
+      "missing_requirements": [
+        "alpha",
+        "beta"
+      ],
+      "diagnostics": {
+        "has_not_in_context": false,
+        "has_tool_markup": false,
+        "admits_missing_memory": false
+      },
+      "error": null
+    },
+    {
+      "method": "same_claude_session",
+      "turn_id": "T1",
+      "turn_kind": "seed",
+      "tool": "claude_consult",
+      "ok": true,
+      "duration_ms": 10499,
+      "session_id": "session_52f3657d-1c5c-4e0f-946a-e229fe20d144",
+      "selected_path": null,
+      "route_decision": null,
+      "routing": {
+        "match_score": 0.26542683716761906,
+        "match_reason": "Matched topic=0.46, files=0, tags=0.09, aliases=0.06, recency=1.",
+        "was_new_session": true,
+        "was_orphan_recovery": false
+      },
+      "warning": null,
+      "answer_chars": 407,
+      "response_path": "experiments/session-continuity-2026-05-16/responses/same_claude_session_T1.txt",
+      "answer_preview": "## Benchmark Decision Established\n\n- **ALPHA-17**: The router must answer the caller when Claude is available; monitor telemetry is for the operator, not for caller recovery.\n\n**Rationale**: Session continuity means the caller experience is paramount—the router gatekeeper role ensures uninterrupted service. Telemetry is observability for the operator to debug/optimize, not a recovery path for the caller.",
+      "score": 3,
+      "matched_requirements": [
+        "alpha",
+        "caller-answer",
+        "operator-monitor"
+      ],
+      "missing_requirements": [],
+      "diagnostics": {
+        "has_not_in_context": false,
+        "has_tool_markup": false,
+        "admits_missing_memory": false
+      },
+      "error": null
+    },
+    {
+      "method": "same_claude_session",
+      "turn_id": "T2",
+      "turn_kind": "memory_probe",
+      "tool": "claude_consult",
+      "ok": true,
+      "duration_ms": 6089,
+      "session_id": "session_52f3657d-1c5c-4e0f-946a-e229fe20d144",
+      "selected_path": null,
+      "route_decision": null,
+      "routing": {
+        "match_score": 1,
+        "match_reason": "Direct session_id provided and project/Claude session health checks passed.",
+        "was_new_session": false,
+        "was_orphan_recovery": false
+      },
+      "warning": null,
+      "answer_chars": 183,
+      "response_path": "experiments/session-continuity-2026-05-16/responses/same_claude_session_T2.txt",
+      "answer_preview": "## Recall from Turn 1\n\n- **Codeword**: ALPHA-17\n- **Rule**: The router must answer the caller when Claude is available; monitor telemetry is for the operator, not for caller recovery.",
+      "score": 3,
+      "matched_requirements": [
+        "alpha",
+        "caller-answer",
+        "operator-monitor"
+      ],
+      "missing_requirements": [],
+      "diagnostics": {
+        "has_not_in_context": false,
+        "has_tool_markup": false,
+        "admits_missing_memory": false
+      },
+      "error": null
+    },
+    {
+      "method": "same_claude_session",
+      "turn_id": "T3",
+      "turn_kind": "seed",
+      "tool": "claude_consult",
+      "ok": true,
+      "duration_ms": 7687,
+      "session_id": "session_52f3657d-1c5c-4e0f-946a-e229fe20d144",
+      "selected_path": null,
+      "route_decision": null,
+      "routing": {
+        "match_score": 1,
+        "match_reason": "Direct session_id provided and project/Claude session health checks passed.",
+        "was_new_session": false,
+        "was_orphan_recovery": false
+      },
+      "warning": null,
+      "answer_chars": 745,
+      "response_path": "experiments/session-continuity-2026-05-16/responses/same_claude_session_T3.txt",
+      "answer_preview": "## New Benchmark Decision Added\n\n- **BETA-29**: Factsheet evidence must be revalidated before use; if revalidation cannot prove current facts, the router falls back internally instead of asking the caller to recover.\n\n**Operational meaning**: The router does not trust stale factsheets blindly. Before acting on any cached fact, it re-validates. If revalidation fails, it performs an internal fallback—caller experience remains seamless; the caller is never put in the position of having to recover o",
+      "score": 3,
+      "matched_requirements": [
+        "beta",
+        "revalidation",
+        "internal-fallback"
+      ],
+      "missing_requirements": [],
+      "diagnostics": {
+        "has_not_in_context": false,
+        "has_tool_markup": false,
+        "admits_missing_memory": false
+      },
+      "error": null
+    },
+    {
+      "method": "same_claude_session",
+      "turn_id": "T4",
+      "turn_kind": "memory_probe",
+      "tool": "claude_consult",
+      "ok": true,
+      "duration_ms": 8384,
+      "session_id": "session_52f3657d-1c5c-4e0f-946a-e229fe20d144",
+      "selected_path": null,
+      "route_decision": null,
+      "routing": {
+        "match_score": 1,
+        "match_reason": "Direct session_id provided and project/Claude session health checks passed.",
+        "was_new_session": false,
+        "was_orphan_recovery": false
+      },
+      "warning": null,
+      "answer_chars": 354,
+      "response_path": "experiments/session-continuity-2026-05-16/responses/same_claude_session_T4.txt",
+      "answer_preview": "## Benchmark Summary — Both Codewords\n\n- **ALPHA-17**: Router must answer the caller when Claude is available; monitor telemetry is for the operator, not caller recovery.\n- **BETA-29**: Factsheet evidence must be revalidated before use; if revalidation cannot prove current facts, the router falls back internally instead of asking the caller to recover.",
+      "score": 3,
+      "matched_requirements": [
+        "alpha",
+        "beta",
+        "caller-answer",
+        "revalidation-fallback"
+      ],
+      "missing_requirements": [],
+      "diagnostics": {
+        "has_not_in_context": false,
+        "has_tool_markup": false,
+        "admits_missing_memory": false
+      },
+      "error": null
+    },
+    {
+      "method": "same_claude_session",
+      "turn_id": "T5",
+      "turn_kind": "synthesis",
+      "tool": "claude_consult",
+      "ok": true,
+      "duration_ms": 15779,
+      "session_id": "session_52f3657d-1c5c-4e0f-946a-e229fe20d144",
+      "selected_path": null,
+      "route_decision": null,
+      "routing": {
+        "match_score": 1,
+        "match_reason": "Direct session_id provided and project/Claude session health checks passed.",
+        "was_new_session": false,
+        "was_orphan_recovery": false
+      },
+      "warning": null,
+      "answer_chars": 1033,
+      "response_path": "experiments/session-continuity-2026-05-16/responses/same_claude_session_T5.txt",
+      "answer_preview": "## Why Two-Way Comparison Is Insufficient\n\nComparing `cluster_consult` against `direct_fresh` only tests the direct path with freshly retrieved facts. It misses the router's actual responsibilities under our benchmark rules.\n\n**ALPHA-17 gap**: The comparison does not measure whether the router actively answers the caller when Claude is available. `direct_fresh` bypasses the router entirely—it tests a standalone call path, not the router-as-gatekeeper behavior.\n\n**BETA-29 gap**: The comparison do",
+      "score": 3,
+      "matched_requirements": [
+        "alpha",
+        "beta",
+        "direct-fresh-insufficient",
+        "session-benchmark"
+      ],
+      "missing_requirements": [],
+      "diagnostics": {
+        "has_not_in_context": false,
+        "has_tool_markup": false,
+        "admits_missing_memory": false
+      },
+      "error": null
+    },
+    {
+      "method": "router_exact_topic",
+      "turn_id": "T1",
+      "turn_kind": "seed",
+      "tool": "router_consult",
+      "ok": true,
+      "duration_ms": 5274,
+      "session_id": "session_ced6c095-35fe-458b-afa0-6f363e8b834e",
+      "selected_path": "claude_consult_new_session",
+      "route_decision": {
+        "selected_path": "claude_consult_new_session",
+        "reason": "No exact or usable existing session match; router starts a new durable session. Matched topic=0.55, files=0, tags=0.08, aliases=1, recency=1.",
+        "match_score": 0.4290209787637773,
+        "candidate_gap": 0.17,
+        "force_new_session": true,
+        "topic_hint": "session continuity benchmark 2026-05-16 router_exact_topic",
+        "metadata_quality": {
+          "score": 0.35,
+          "topic_hint_source": "caller",
+          "missing": [
+            "related_files",
+            "tags",
+            "task_type"
+          ],
+          "related_files_count": 0,
+          "tags_count": 0,
+          "generic_tags_count": 0,
+          "task_type": null
+        },
+        "auto_cluster_routing": "disabled_read_only"
+      },
+      "routing": {
+        "match_score": 0.4290209787637773,
+        "match_reason": "No exact or usable existing session match; router starts a new durable session. Matched topic=0.55, files=0, tags=0.08, aliases=1, recency=1.",
+        "was_new_session": true,
+        "was_orphan_recovery": false
+      },
+      "warning": null,
+      "answer_chars": 572,
+      "response_path": "experiments/session-continuity-2026-05-16/responses/router_exact_topic_T1.txt",
+      "answer_preview": "**Benchmark decision established:**\n\n- **ALPHA-17**: The router must answer the caller when Claude is available; monitor telemetry is for the operator, not for caller recovery.\n\n**Practical context:**\n\nThe router's primary obligation is caller-facing availability. When Claude can handle the session, the router routes to it and responds. Telemetry and monitoring data are operator-facing signals for observability and debugging—they do not trigger or participate in caller recovery flows. Caller rec",
+      "score": 3,
+      "matched_requirements": [
+        "alpha",
+        "caller-answer",
+        "operator-monitor"
+      ],
+      "missing_requirements": [],
+      "diagnostics": {
+        "has_not_in_context": false,
+        "has_tool_markup": false,
+        "admits_missing_memory": false
+      },
+      "error": null
+    },
+    {
+      "method": "router_exact_topic",
+      "turn_id": "T2",
+      "turn_kind": "memory_probe",
+      "tool": "router_consult",
+      "ok": true,
+      "duration_ms": 3133,
+      "session_id": "session_ced6c095-35fe-458b-afa0-6f363e8b834e",
+      "selected_path": "claude_consult_existing_session",
+      "route_decision": {
+        "selected_path": "claude_consult_existing_session",
+        "reason": "Exact normalized topic match; routing to existing session before allowing a new session.",
+        "session_id": "session_ced6c095-35fe-458b-afa0-6f363e8b834e",
+        "match_score": 1,
+        "topic_hint": "session continuity benchmark 2026-05-16 router_exact_topic",
+        "metadata_quality": {
+          "score": 0.35,
+          "topic_hint_source": "caller",
+          "missing": [
+            "related_files",
+            "tags",
+            "task_type"
+          ],
+          "related_files_count": 0,
+          "tags_count": 0,
+          "generic_tags_count": 0,
+          "task_type": null
+        },
+        "auto_cluster_routing": "disabled_read_only"
+      },
+      "routing": {
+        "match_score": 1,
+        "match_reason": "Direct session_id provided and project/Claude session health checks passed.",
+        "was_new_session": false,
+        "was_orphan_recovery": false
+      },
+      "warning": null,
+      "answer_chars": 275,
+      "response_path": "experiments/session-continuity-2026-05-16/responses/router_exact_topic_T2.txt",
+      "answer_preview": "**Recall from session memory:**\n\n- **Codeword**: ALPHA-17\n- **Caller/Operator rule**: The router must answer the caller when Claude is available; monitor telemetry is for the operator, not for caller recovery.\n\nNo new files were discussed; no open questions were raised.\n\n---",
+      "score": 3,
+      "matched_requirements": [
+        "alpha",
+        "caller-answer",
+        "operator-monitor"
+      ],
+      "missing_requirements": [],
+      "diagnostics": {
+        "has_not_in_context": false,
+        "has_tool_markup": false,
+        "admits_missing_memory": false
+      },
+      "error": null
+    },
+    {
+      "method": "router_exact_topic",
+      "turn_id": "T3",
+      "turn_kind": "seed",
+      "tool": "router_consult",
+      "ok": true,
+      "duration_ms": 3665,
+      "session_id": "session_ced6c095-35fe-458b-afa0-6f363e8b834e",
+      "selected_path": "claude_consult_existing_session",
+      "route_decision": {
+        "selected_path": "claude_consult_existing_session",
+        "reason": "Exact normalized topic match; routing to existing session before allowing a new session.",
+        "session_id": "session_ced6c095-35fe-458b-afa0-6f363e8b834e",
+        "match_score": 1,
+        "topic_hint": "session continuity benchmark 2026-05-16 router_exact_topic",
+        "metadata_quality": {
+          "score": 0.35,
+          "topic_hint_source": "caller",
+          "missing": [
+            "related_files",
+            "tags",
+            "task_type"
+          ],
+          "related_files_count": 0,
+          "tags_count": 0,
+          "generic_tags_count": 0,
+          "task_type": null
+        },
+        "auto_cluster_routing": "disabled_read_only"
+      },
+      "routing": {
+        "match_score": 1,
+        "match_reason": "Direct session_id provided and project/Claude session health checks passed.",
+        "was_new_session": false,
+        "was_orphan_recovery": false
+      },
+      "warning": null,
+      "answer_chars": 522,
+      "response_path": "experiments/session-continuity-2026-05-16/responses/router_exact_topic_T3.txt",
+      "answer_preview": "**New benchmark decision added:**\n\n- **BETA-29**: Factsheet evidence must be revalidated before use; if revalidation cannot prove current facts, the router falls back internally instead of asking the caller to recover.\n\n**Operational meaning:** When routing with factsheet-backed evidence, the router must revalidate the evidence's currency. If revalidation fails to confirm the facts are current, the router performs an internal fallback—it does not surface the failure to the caller or request call",
+      "score": 3,
+      "matched_requirements": [
+        "beta",
+        "revalidation",
+        "internal-fallback"
+      ],
+      "missing_requirements": [],
+      "diagnostics": {
+        "has_not_in_context": false,
+        "has_tool_markup": false,
+        "admits_missing_memory": false
+      },
+      "error": null
+    },
+    {
+      "method": "router_exact_topic",
+      "turn_id": "T4",
+      "turn_kind": "memory_probe",
+      "tool": "router_consult",
+      "ok": true,
+      "duration_ms": 4056,
+      "session_id": "session_ced6c095-35fe-458b-afa0-6f363e8b834e",
+      "selected_path": "claude_consult_existing_session",
+      "route_decision": {
+        "selected_path": "claude_consult_existing_session",
+        "reason": "Exact normalized topic match; routing to existing session before allowing a new session.",
+        "session_id": "session_ced6c095-35fe-458b-afa0-6f363e8b834e",
+        "match_score": 1,
+        "topic_hint": "session continuity benchmark 2026-05-16 router_exact_topic",
+        "metadata_quality": {
+          "score": 0.35,
+          "topic_hint_source": "caller",
+          "missing": [
+            "related_files",
+            "tags",
+            "task_type"
+          ],
+          "related_files_count": 0,
+          "tags_count": 0,
+          "generic_tags_count": 0,
+          "task_type": null
+        },
+        "auto_cluster_routing": "disabled_read_only"
+      },
+      "routing": {
+        "match_score": 1,
+        "match_reason": "Direct session_id provided and project/Claude session health checks passed.",
+        "was_new_session": false,
+        "was_orphan_recovery": false
+      },
+      "warning": null,
+      "answer_chars": 390,
+      "response_path": "experiments/session-continuity-2026-05-16/responses/router_exact_topic_T4.txt",
+      "answer_preview": "**Both benchmark codewords from session memory:**\n\n- **ALPHA-17**: Router must answer the caller when Claude is available; monitor telemetry is operator-facing only, not used for caller recovery.\n\n- **BETA-29**: Factsheet evidence must be revalidated before use; if revalidation cannot prove facts are current, the router falls back internally rather than asking the caller to recover.\n\n---",
+      "score": 3,
+      "matched_requirements": [
+        "alpha",
+        "beta",
+        "caller-answer",
+        "revalidation-fallback"
+      ],
+      "missing_requirements": [],
+      "diagnostics": {
+        "has_not_in_context": false,
+        "has_tool_markup": false,
+        "admits_missing_memory": false
+      },
+      "error": null
+    },
+    {
+      "method": "router_exact_topic",
+      "turn_id": "T5",
+      "turn_kind": "synthesis",
+      "tool": "router_consult",
+      "ok": true,
+      "duration_ms": 7508,
+      "session_id": "session_ced6c095-35fe-458b-afa0-6f363e8b834e",
+      "selected_path": "claude_consult_existing_session",
+      "route_decision": {
+        "selected_path": "claude_consult_existing_session",
+        "reason": "Exact normalized topic match; routing to existing session before allowing a new session.",
+        "session_id": "session_ced6c095-35fe-458b-afa0-6f363e8b834e",
+        "match_score": 1,
+        "topic_hint": "session continuity benchmark 2026-05-16 router_exact_topic",
+        "metadata_quality": {
+          "score": 0.35,
+          "topic_hint_source": "caller",
+          "missing": [
+            "related_files",
+            "tags",
+            "task_type"
+          ],
+          "related_files_count": 0,
+          "tags_count": 0,
+          "generic_tags_count": 0,
+          "task_type": null
+        },
+        "auto_cluster_routing": "disabled_read_only"
+      },
+      "routing": {
+        "match_score": 1,
+        "match_reason": "Direct session_id provided and project/Claude session health checks passed.",
+        "was_new_session": false,
+        "was_orphan_recovery": false
+      },
+      "warning": null,
+      "answer_chars": 1198,
+      "response_path": "experiments/session-continuity-2026-05-16/responses/router_exact_topic_T5.txt",
+      "answer_preview": "**Why cluster_consult vs. direct_fresh alone is insufficient:**\n\nComparing only these two paths misses the territory covered by both ALPHA-17 and BETA-29:\n\n- **ALPHA-17** requires the router to gate on Claude availability before answering the caller. A direct cluster_consult vs. direct_fresh comparison exercises two routing paths but does not test whether the router correctly answers (or degrades gracefully) when Claude availability state changes. Both paths could route identically while violati",
+      "score": 2,
+      "matched_requirements": [
+        "alpha",
+        "beta",
+        "direct-fresh-insufficient"
+      ],
+      "missing_requirements": [
+        "session-benchmark"
+      ],
+      "diagnostics": {
+        "has_not_in_context": false,
+        "has_tool_markup": false,
+        "admits_missing_memory": false
+      },
+      "error": null
+    },
+    {
+      "method": "router_explicit_session",
+      "turn_id": "T1",
+      "turn_kind": "seed",
+      "tool": "router_consult",
+      "ok": true,
+      "duration_ms": 8095,
+      "session_id": "session_3c96aee2-ac2d-4aa7-b876-5bf4e18c04e6",
+      "selected_path": "claude_consult_new_session",
+      "route_decision": {
+        "selected_path": "claude_consult_new_session",
+        "reason": "No exact or usable existing session match; router starts a new durable session. Matched topic=0.6, files=0, tags=0.08, aliases=1, recency=1.",
+        "match_score": 0.44538431115364835,
+        "candidate_gap": 0.12,
+        "force_new_session": true,
+        "topic_hint": "session continuity benchmark 2026-05-16 router_explicit_session",
+        "metadata_quality": {
+          "score": 0.35,
+          "topic_hint_source": "caller",
+          "missing": [
+            "related_files",
+            "tags",
+            "task_type"
+          ],
+          "related_files_count": 0,
+          "tags_count": 0,
+          "generic_tags_count": 0,
+          "task_type": null
+        },
+        "auto_cluster_routing": "disabled_read_only"
+      },
+      "routing": {
+        "match_score": 0.44538431115364835,
+        "match_reason": "No exact or usable existing session match; router starts a new durable session. Matched topic=0.6, files=0, tags=0.08, aliases=1, recency=1.",
+        "was_new_session": true,
+        "was_orphan_recovery": false
+      },
+      "warning": null,
+      "answer_chars": 440,
+      "response_path": "experiments/session-continuity-2026-05-16/responses/router_explicit_session_T1.txt",
+      "answer_preview": "**Benchmark Decision Established:**\n\n- **ALPHA-17**: The router must answer the caller when Claude is available; monitor telemetry is for the operator, not for caller recovery.\n\n**Rationale**: Caller-facing availability is the router's responsibility. Monitor telemetry serves operator observability and debugging, not the caller's recovery path. The router handles session continuity directly with the caller, independent of monitor state.",
+      "score": 3,
+      "matched_requirements": [
+        "alpha",
+        "caller-answer",
+        "operator-monitor"
+      ],
+      "missing_requirements": [],
+      "diagnostics": {
+        "has_not_in_context": false,
+        "has_tool_markup": false,
+        "admits_missing_memory": false
+      },
+      "error": null
+    },
+    {
+      "method": "router_explicit_session",
+      "turn_id": "T2",
+      "turn_kind": "memory_probe",
+      "tool": "router_consult",
+      "ok": true,
+      "duration_ms": 5775,
+      "session_id": "session_3c96aee2-ac2d-4aa7-b876-5bf4e18c04e6",
+      "selected_path": "claude_consult_explicit_session",
+      "route_decision": {
+        "selected_path": "claude_consult_explicit_session",
+        "reason": "Explicit session_id provided by caller.",
+        "session_id": "session_3c96aee2-ac2d-4aa7-b876-5bf4e18c04e6",
+        "match_score": 1,
+        "topic_hint": "session continuity benchmark 2026-05-16 router_explicit_session",
+        "metadata_quality": {
+          "score": 0.35,
+          "topic_hint_source": "caller",
+          "missing": [
+            "related_files",
+            "tags",
+            "task_type"
+          ],
+          "related_files_count": 0,
+          "tags_count": 0,
+          "generic_tags_count": 0,
+          "task_type": null
+        },
+        "auto_cluster_routing": "disabled_read_only"
+      },
+      "routing": {
+        "match_score": 1,
+        "match_reason": "Direct session_id provided and project/Claude session health checks passed.",
+        "was_new_session": false,
+        "was_orphan_recovery": false
+      },
+      "warning": null,
+      "answer_chars": 195,
+      "response_path": "experiments/session-continuity-2026-05-16/responses/router_explicit_session_T2.txt",
+      "answer_preview": "**From session memory (Turn 1):**\n\n- **Codeword**: ALPHA-17\n- **Rule**: The router must answer the caller when Claude is available; monitor telemetry is for the operator, not for caller recovery.",
+      "score": 3,
+      "matched_requirements": [
+        "alpha",
+        "caller-answer",
+        "operator-monitor"
+      ],
+      "missing_requirements": [],
+      "diagnostics": {
+        "has_not_in_context": false,
+        "has_tool_markup": false,
+        "admits_missing_memory": false
+      },
+      "error": null
+    },
+    {
+      "method": "router_explicit_session",
+      "turn_id": "T3",
+      "turn_kind": "seed",
+      "tool": "router_consult",
+      "ok": true,
+      "duration_ms": 9180,
+      "session_id": "session_3c96aee2-ac2d-4aa7-b876-5bf4e18c04e6",
+      "selected_path": "claude_consult_explicit_session",
+      "route_decision": {
+        "selected_path": "claude_consult_explicit_session",
+        "reason": "Explicit session_id provided by caller.",
+        "session_id": "session_3c96aee2-ac2d-4aa7-b876-5bf4e18c04e6",
+        "match_score": 1,
+        "topic_hint": "session continuity benchmark 2026-05-16 router_explicit_session",
+        "metadata_quality": {
+          "score": 0.35,
+          "topic_hint_source": "caller",
+          "missing": [
+            "related_files",
+            "tags",
+            "task_type"
+          ],
+          "related_files_count": 0,
+          "tags_count": 0,
+          "generic_tags_count": 0,
+          "task_type": null
+        },
+        "auto_cluster_routing": "disabled_read_only"
+      },
+      "routing": {
+        "match_score": 1,
+        "match_reason": "Direct session_id provided and project/Claude session health checks passed.",
+        "was_new_session": false,
+        "was_orphan_recovery": false
+      },
+      "warning": null,
+      "answer_chars": 654,
+      "response_path": "experiments/session-continuity-2026-05-16/responses/router_explicit_session_T3.txt",
+      "answer_preview": "**Benchmark decisions from this session:**\n\n- **ALPHA-17**: The router must answer the caller when Claude is available; monitor telemetry is for the operator, not for caller recovery.\n- **BETA-29**: Factsheet evidence must be revalidated before use; if revalidation cannot prove current facts, the router falls back internally instead of asking the caller to recover.\n\n**Operational meaning**: The router self-heals on fact drift. When factsheet data cannot be confirmed current, the router uses its ",
+      "score": 3,
+      "matched_requirements": [
+        "beta",
+        "revalidation",
+        "internal-fallback"
+      ],
+      "missing_requirements": [],
+      "diagnostics": {
+        "has_not_in_context": false,
+        "has_tool_markup": false,
+        "admits_missing_memory": false
+      },
+      "error": null
+    },
+    {
+      "method": "router_explicit_session",
+      "turn_id": "T4",
+      "turn_kind": "memory_probe",
+      "tool": "router_consult",
+      "ok": true,
+      "duration_ms": 6300,
+      "session_id": "session_3c96aee2-ac2d-4aa7-b876-5bf4e18c04e6",
+      "selected_path": "claude_consult_explicit_session",
+      "route_decision": {
+        "selected_path": "claude_consult_explicit_session",
+        "reason": "Explicit session_id provided by caller.",
+        "session_id": "session_3c96aee2-ac2d-4aa7-b876-5bf4e18c04e6",
+        "match_score": 1,
+        "topic_hint": "session continuity benchmark 2026-05-16 router_explicit_session",
+        "metadata_quality": {
+          "score": 0.35,
+          "topic_hint_source": "caller",
+          "missing": [
+            "related_files",
+            "tags",
+            "task_type"
+          ],
+          "related_files_count": 0,
+          "tags_count": 0,
+          "generic_tags_count": 0,
+          "task_type": null
+        },
+        "auto_cluster_routing": "disabled_read_only"
+      },
+      "routing": {
+        "match_score": 1,
+        "match_reason": "Direct session_id provided and project/Claude session health checks passed.",
+        "was_new_session": false,
+        "was_orphan_recovery": false
+      },
+      "warning": null,
+      "answer_chars": 369,
+      "response_path": "experiments/session-continuity-2026-05-16/responses/router_explicit_session_T4.txt",
+      "answer_preview": "**Benchmark codewords from session memory:**\n\n- **ALPHA-17**: The router must answer the caller when Claude is available; monitor telemetry is for the operator, not for caller recovery.\n- **BETA-29**: Factsheet evidence must be revalidated before use; if revalidation cannot prove current facts, the router falls back internally instead of asking the caller to recover.",
+      "score": 3,
+      "matched_requirements": [
+        "alpha",
+        "beta",
+        "caller-answer",
+        "revalidation-fallback"
+      ],
+      "missing_requirements": [],
+      "diagnostics": {
+        "has_not_in_context": false,
+        "has_tool_markup": false,
+        "admits_missing_memory": false
+      },
+      "error": null
+    },
+    {
+      "method": "router_explicit_session",
+      "turn_id": "T5",
+      "turn_kind": "synthesis",
+      "tool": "router_consult",
+      "ok": true,
+      "duration_ms": 15254,
+      "session_id": "session_3c96aee2-ac2d-4aa7-b876-5bf4e18c04e6",
+      "selected_path": "claude_consult_explicit_session",
+      "route_decision": {
+        "selected_path": "claude_consult_explicit_session",
+        "reason": "Explicit session_id provided by caller.",
+        "session_id": "session_3c96aee2-ac2d-4aa7-b876-5bf4e18c04e6",
+        "match_score": 1,
+        "topic_hint": "session continuity benchmark 2026-05-16 router_explicit_session",
+        "metadata_quality": {
+          "score": 0.35,
+          "topic_hint_source": "caller",
+          "missing": [
+            "related_files",
+            "tags",
+            "task_type"
+          ],
+          "related_files_count": 0,
+          "tags_count": 0,
+          "generic_tags_count": 0,
+          "task_type": null
+        },
+        "auto_cluster_routing": "disabled_read_only"
+      },
+      "routing": {
+        "match_score": 1,
+        "match_reason": "Direct session_id provided and project/Claude session health checks passed.",
+        "was_new_session": false,
+        "was_orphan_recovery": false
+      },
+      "warning": null,
+      "answer_chars": 1120,
+      "response_path": "experiments/session-continuity-2026-05-16/responses/router_explicit_session_T5.txt",
+      "answer_preview": "**Why cluster_consult vs direct_fresh is insufficient:**\n\nALPHA-17 and BETA-29 establish router responsibilities that this comparison ignores:\n\n- **ALPHA-17** divides telemetry into operator-only (monitor) vs caller-facing (router answer). The direct_fresh path tests fresh state but not how the router behaves when monitor telemetry diverges from actual availability. A router that tunnels through cluster_consult must still answer the caller regardless of what the monitor shows.\n\n- **BETA-29** req",
+      "score": 2,
+      "matched_requirements": [
+        "alpha",
+        "beta",
+        "direct-fresh-insufficient"
+      ],
+      "missing_requirements": [
+        "session-benchmark"
+      ],
+      "diagnostics": {
+        "has_not_in_context": false,
+        "has_tool_markup": false,
+        "admits_missing_memory": false
+      },
+      "error": null
+    }
+  ],
+  "inspections": [
+    {
+      "session_id": "session_70fc720d-ed88-499f-8d21-2d96a67a8aa2",
+      "ok": true,
+      "duration_ms": 2,
+      "payload": {
+        "session": {
+          "id": "session_70fc720d-ed88-499f-8d21-2d96a67a8aa2",
+          "claude_session_id": "a2487cdc-f0e5-43f9-82b7-7abc8a177641",
+          "topic": "session continuity benchmark 2026-05-16 fresh_each_turn T1 4sns6c",
+          "status": "active",
+          "last_used": "2026-05-16T18:26:04.798Z",
+          "summary": "Established codeword ALPHA-17: router answers caller when Claude available; monitor telemetry is operator-only, not caller recovery path.",
+          "decisions": [
+            "ALPHA-17: router must answer caller when Claude available; monitor telemetry is for operator observability, not caller recovery"
+          ],
+          "open_questions": [],
+          "files_discussed": [],
+          "tags": [
+            "session_continuity",
+            "benchmark",
+            "alpha-17"
+          ],
+          "aliases": [
+            "router-answerability",
+            "monitor-telemetry-scope"
+          ],
+          "project_id": "AgentSessionRouter-continuity-2026-05-16",
+          "created_at": "2026-05-16T18:26:04.798Z"
+        },
+        "recent_events": [
+          {
+            "event_type": "new_session",
+            "created_at": "2026-05-16T18:26:04.808Z",
+            "match_score": 0,
+            "match_reason": "No eligible active or dormant sessions in project.",
+            "tokens_in": 0,
+            "tokens_out": 381,
+            "duration_ms": 8839,
+            "error": null
+          }
+        ],
+        "recent_events_note": "truncated; default returns up to 10 events, hard max 50"
+      },
+      "error": null
+    },
+    {
+      "session_id": "session_c22f46b2-b688-42d1-89f9-a03e3b9eaf4a",
+      "ok": true,
+      "duration_ms": 1,
+      "payload": {
+        "session": {
+          "id": "session_c22f46b2-b688-42d1-89f9-a03e3b9eaf4a",
+          "claude_session_id": "96ab2144-7fed-4a2b-8f05-caecb4e8144f",
+          "topic": "session continuity benchmark 2026-05-16 fresh_each_turn T2 pzi453",
+          "status": "active",
+          "last_used": "2026-05-16T18:26:12.533Z",
+          "summary": "Cannot answer turn 2 question without turn 1 memory; no prior benchmark context accessible",
+          "decisions": [],
+          "open_questions": [
+            "What codeword was established in session continuity benchmark turn 1?",
+            "What caller/operator rule was set in turn 1?"
+          ],
+          "files_discussed": [],
+          "tags": [
+            "session-continuity",
+            "benchmark",
+            "memory-gap"
+          ],
+          "aliases": [
+            "turn 2 question impossible without turn 1 context"
+          ],
+          "project_id": "AgentSessionRouter-continuity-2026-05-16",
+          "created_at": "2026-05-16T18:26:12.533Z"
+        },
+        "recent_events": [
+          {
+            "event_type": "new_session",
+            "created_at": "2026-05-16T18:26:12.542Z",
+            "match_score": 0.32508361170577166,
+            "match_reason": "Matched topic=0.69, files=0, tags=0.09, aliases=0, recency=1.",
+            "tokens_in": 8899,
+            "tokens_out": 708,
+            "duration_ms": 7708,
+            "error": null
+          }
+        ],
+        "recent_events_note": "truncated; default returns up to 10 events, hard max 50"
+      },
+      "error": null
+    },
+    {
+      "session_id": "session_583c8f09-0eac-4073-8748-32375e86c549",
+      "ok": true,
+      "duration_ms": 1,
+      "payload": {
+        "session": {
+          "id": "session_583c8f09-0eac-4073-8748-32375e86c549",
+          "claude_session_id": "d2f915a2-8116-44f7-9b89-588994bc9559",
+          "topic": "session continuity benchmark 2026-05-16 fresh_each_turn T3 8jc8z7",
+          "status": "active",
+          "last_used": "2026-05-16T18:26:27.758Z",
+          "summary": "Added BETA-29: router revalidates factsheet evidence before use; on failure, falls back internally instead of caller recovery",
+          "decisions": [
+            "BETA-29: factsheet evidence revalidation required; internal fallback on failure, no caller recovery request"
+          ],
+          "open_questions": [
+            "What constitutes adequate revalidation latency budget before internal fallback triggers?"
+          ],
+          "files_discussed": [],
+          "tags": [
+            "benchmark",
+            "session-continuity",
+            "factsheet",
+            "fallback-strategy"
+          ],
+          "aliases": [
+            "factsheet-staleness-handling",
+            "internal-fallback-on-evidence-stale"
+          ],
+          "project_id": "AgentSessionRouter-continuity-2026-05-16",
+          "created_at": "2026-05-16T18:26:27.758Z"
+        },
+        "recent_events": [
+          {
+            "event_type": "new_session",
+            "created_at": "2026-05-16T18:26:27.762Z",
+            "match_score": 0.3273912046564681,
+            "match_reason": "Matched topic=0.69, files=0, tags=0.09, aliases=0.02, recency=1.",
+            "tokens_in": 8165,
+            "tokens_out": 739,
+            "duration_ms": 15207,
+            "error": null
+          }
+        ],
+        "recent_events_note": "truncated; default returns up to 10 events, hard max 50"
+      },
+      "error": null
+    },
+    {
+      "session_id": "session_6d9e9350-faac-44e4-89f5-8d4b8aeb069c",
+      "ok": true,
+      "duration_ms": 1,
+      "payload": {
+        "session": {
+          "id": "session_6d9e9350-faac-44e4-89f5-8d4b8aeb069c",
+          "claude_session_id": "b27658c8-24b8-4fed-aa1b-790f3a90c0b1",
+          "topic": "session continuity benchmark 2026-05-16 fresh_each_turn T4 ygqe3q",
+          "status": "active",
+          "last_used": "2026-05-16T18:26:31.064Z",
+          "summary": "",
+          "decisions": [],
+          "open_questions": [],
+          "files_discussed": [],
+          "tags": [],
+          "aliases": [],
+          "project_id": "AgentSessionRouter-continuity-2026-05-16",
+          "created_at": "2026-05-16T18:26:31.064Z"
+        },
+        "recent_events": [
+          {
+            "event_type": "new_session",
+            "created_at": "2026-05-16T18:26:31.083Z",
+            "match_score": 0.3284167494629733,
+            "match_reason": "Matched topic=0.69, files=0, tags=0.09, aliases=0.02, recency=1.",
+            "tokens_in": 8864,
+            "tokens_out": 255,
+            "duration_ms": 3295,
+            "error": null
+          },
+          {
+            "event_type": "parse_failed",
+            "created_at": "2026-05-16T18:26:31.075Z",
+            "match_score": null,
+            "match_reason": null,
+            "tokens_in": null,
+            "tokens_out": null,
+            "duration_ms": null,
+            "error": "SESSION_UPDATE_JSON block missing"
+          }
+        ],
+        "recent_events_note": "truncated; default returns up to 10 events, hard max 50"
+      },
+      "error": null
+    },
+    {
+      "session_id": "session_5b1790d5-5515-4f2e-a4f9-7596dcf2e666",
+      "ok": true,
+      "duration_ms": 1,
+      "payload": {
+        "session": {
+          "id": "session_5b1790d5-5515-4f2e-a4f9-7596dcf2e666",
+          "claude_session_id": "d51a9f21-6fbd-43c3-9e2b-1be09c54f5c1",
+          "topic": "session continuity benchmark 2026-05-16 fresh_each_turn T5 h5xke1",
+          "status": "active",
+          "last_used": "2026-05-16T18:26:41.617Z",
+          "summary": "Comparing cluster_consult vs direct_fresh only tests standalone strategies; need hybrid cluster_fresh benchmark with fresh_each_turn to test session continuity properly",
+          "decisions": [
+            "benchmark hybrid cluster_fresh mode alongside direct_fresh and cluster_consult"
+          ],
+          "open_questions": [
+            "does cluster infrastructure provide continuity benefit when agent state resets each turn?"
+          ],
+          "files_discussed": [
+            "experiments/session-continuity-2026-05-16/"
+          ],
+          "tags": [
+            "benchmark",
+            "session-continuity",
+            "routing-strategy"
+          ],
+          "aliases": [
+            "cluster_fresh",
+            "fresh_each_turn benchmark"
+          ],
+          "project_id": "AgentSessionRouter-continuity-2026-05-16",
+          "created_at": "2026-05-16T18:26:41.617Z"
+        },
+        "recent_events": [
+          {
+            "event_type": "new_session",
+            "created_at": "2026-05-16T18:26:41.626Z",
+            "match_score": 0.3277149523429549,
+            "match_reason": "Matched topic=0.69, files=0, tags=0.09, aliases=0.02, recency=1.",
+            "tokens_in": 8881,
+            "tokens_out": 892,
+            "duration_ms": 10525,
+            "error": null
+          }
+        ],
+        "recent_events_note": "truncated; default returns up to 10 events, hard max 50"
+      },
+      "error": null
+    },
+    {
+      "session_id": "session_52f3657d-1c5c-4e0f-946a-e229fe20d144",
+      "ok": true,
+      "duration_ms": 0,
+      "payload": {
+        "session": {
+          "id": "session_52f3657d-1c5c-4e0f-946a-e229fe20d144",
+          "claude_session_id": "10af3aa3-28a4-4127-aab5-eb124a35228e",
+          "topic": "session continuity benchmark 2026-05-16 same_claude_session",
+          "status": "active",
+          "last_used": "2026-05-16T18:27:30.054Z",
+          "summary": "cluster_consult vs direct_fresh misses ALPHA-17 router-answering duty and BETA-29 revalidation-with-fallback; needs third router_under_contention benchmark",
+          "decisions": [
+            "ALPHA-17: router must answer caller when Claude available; monitor telemetry is for operator, not caller recovery",
+            "BETA-29: factsheet evidence must be revalidated before use; if revalidation cannot prove current facts, router falls back internally instead of asking caller to recover"
+          ],
+          "open_questions": [
+            "what failure modes should router_under_contention simulate: revalidation timeout, stale factsheet, cluster partition?"
+          ],
+          "files_discussed": [],
+          "tags": [
+            "session-continuity-benchmark",
+            "benchmark-2026-05-16",
+            "router-behavior"
+          ],
+          "aliases": [
+            "alpha-17",
+            "beta-29"
+          ],
+          "project_id": "AgentSessionRouter-continuity-2026-05-16",
+          "created_at": "2026-05-16T18:26:52.119Z"
+        },
+        "recent_events": [
+          {
+            "event_type": "consult",
+            "created_at": "2026-05-16T18:27:30.065Z",
+            "match_score": 1,
+            "match_reason": "Direct session_id provided and project/Claude session health checks passed.",
+            "tokens_in": 1431,
+            "tokens_out": 560,
+            "duration_ms": 15755,
+            "error": null
+          },
+          {
+            "event_type": "consult",
+            "created_at": "2026-05-16T18:27:14.288Z",
+            "match_score": 1,
+            "match_reason": "Direct session_id provided and project/Claude session health checks passed.",
+            "tokens_in": 11720,
+            "tokens_out": 260,
+            "duration_ms": 8369,
+            "error": null
+          },
+          {
+            "event_type": "consult",
+            "created_at": "2026-05-16T18:27:05.905Z",
+            "match_score": 1,
+            "match_reason": "Direct session_id provided and project/Claude session health checks passed.",
+            "tokens_in": 0,
+            "tokens_out": 341,
+            "duration_ms": 7673,
+            "error": null
+          },
+          {
+            "event_type": "consult",
+            "created_at": "2026-05-16T18:26:58.217Z",
+            "match_score": 1,
+            "match_reason": "Direct session_id provided and project/Claude session health checks passed.",
+            "tokens_in": 0,
+            "tokens_out": 232,
+            "duration_ms": 6058,
+            "error": null
+          },
+          {
+            "event_type": "new_session",
+            "created_at": "2026-05-16T18:26:52.127Z",
+            "match_score": 0.26542683716761906,
+            "match_reason": "Matched topic=0.46, files=0, tags=0.09, aliases=0.06, recency=1.",
+            "tokens_in": 0,
+            "tokens_out": 370,
+            "duration_ms": 10482,
+            "error": null
+          }
+        ],
+        "recent_events_note": "truncated; default returns up to 10 events, hard max 50"
+      },
+      "error": null
+    },
+    {
+      "session_id": "session_ced6c095-35fe-458b-afa0-6f363e8b834e",
+      "ok": true,
+      "duration_ms": 1,
+      "payload": {
+        "session": {
+          "id": "session_ced6c095-35fe-458b-afa0-6f363e8b834e",
+          "claude_session_id": "e37530e4-c5a3-4df1-9f6e-561e13f5a6f6",
+          "topic": "session continuity benchmark 2026-05-16 router_exact_topic",
+          "status": "active",
+          "last_used": "2026-05-16T18:27:53.702Z",
+          "summary": "cluster_consult vs direct_fresh misses ALPHA-17 availability gating and BETA-29 revalidation/fallback; need a third factsheet-stale path",
+          "decisions": [
+            "ALPHA-17: router must answer caller when Claude is available; monitor telemetry is for operator, not caller recovery",
+            "ALPHA-17: router must answer caller when Claude available; monitor telemetry is for operator, not caller recovery",
+            "BETA-29: factsheet evidence must be revalidated before use; if revalidation cannot prove current facts, router falls back internally instead of asking caller to recover",
+            "need factsheet_stale benchmark path to test revalidation-and-fallback semantics per BETA-29"
+          ],
+          "open_questions": [
+            "what is the router's safe internal fallback state when factsheet revalidation fails?"
+          ],
+          "files_discussed": [],
+          "tags": [
+            "session-continuity-benchmark",
+            "router-exact-topic"
+          ],
+          "aliases": [
+            "factsheet_fallback path"
+          ],
+          "project_id": "AgentSessionRouter-continuity-2026-05-16",
+          "created_at": "2026-05-16T18:27:35.337Z"
+        },
+        "recent_events": [
+          {
+            "event_type": "consult",
+            "created_at": "2026-05-16T18:27:53.707Z",
+            "match_score": 1,
+            "match_reason": "Direct session_id provided and project/Claude session health checks passed.",
+            "tokens_in": 1416,
+            "tokens_out": 684,
+            "duration_ms": 7492,
+            "error": null
+          },
+          {
+            "event_type": "router_route_decision",
+            "created_at": "2026-05-16T18:27:46.203Z",
+            "match_score": 1,
+            "match_reason": "Exact normalized topic match; routing to existing session before allowing a new session.; topic_hint=session continuity benchmark 2026-05-16 router_exact_topic; auto_cluster_routing=disabled_read_only; metadata_score=0.35; metadata_topic_hint_source=caller; metadata_missing=related_files,tags,task_type; related_files_count=0; tags_count=0; generic_tags_count=0; session_id=session_ced6c095-35fe-458b-afa0-6f363e8b834e",
+            "tokens_in": null,
+            "tokens_out": null,
+            "duration_ms": null,
+            "error": null
+          },
+          {
+            "event_type": "consult",
+            "created_at": "2026-05-16T18:27:46.197Z",
+            "match_score": 1,
+            "match_reason": "Direct session_id provided and project/Claude session health checks passed.",
+            "tokens_in": 1392,
+            "tokens_out": 318,
+            "duration_ms": 4039,
+            "error": null
+          },
+          {
+            "event_type": "router_route_decision",
+            "created_at": "2026-05-16T18:27:42.147Z",
+            "match_score": 1,
+            "match_reason": "Exact normalized topic match; routing to existing session before allowing a new session.; topic_hint=session continuity benchmark 2026-05-16 router_exact_topic; auto_cluster_routing=disabled_read_only; metadata_score=0.35; metadata_topic_hint_source=caller; metadata_missing=related_files,tags,task_type; related_files_count=0; tags_count=0; generic_tags_count=0; session_id=session_ced6c095-35fe-458b-afa0-6f363e8b834e",
+            "tokens_in": null,
+            "tokens_out": null,
+            "duration_ms": null,
+            "error": null
+          },
+          {
+            "event_type": "consult",
+            "created_at": "2026-05-16T18:27:42.141Z",
+            "match_score": 1,
+            "match_reason": "Direct session_id provided and project/Claude session health checks passed.",
+            "tokens_in": 1276,
+            "tokens_out": 313,
+            "duration_ms": 3649,
+            "error": null
+          },
+          {
+            "event_type": "router_route_decision",
+            "created_at": "2026-05-16T18:27:38.481Z",
+            "match_score": 1,
+            "match_reason": "Exact normalized topic match; routing to existing session before allowing a new session.; topic_hint=session continuity benchmark 2026-05-16 router_exact_topic; auto_cluster_routing=disabled_read_only; metadata_score=0.35; metadata_topic_hint_source=caller; metadata_missing=related_files,tags,task_type; related_files_count=0; tags_count=0; generic_tags_count=0; session_id=session_ced6c095-35fe-458b-afa0-6f363e8b834e",
+            "tokens_in": null,
+            "tokens_out": null,
+            "duration_ms": null,
+            "error": null
+          },
+          {
+            "event_type": "consult",
+            "created_at": "2026-05-16T18:27:38.477Z",
+            "match_score": 1,
+            "match_reason": "Direct session_id provided and project/Claude session health checks passed.",
+            "tokens_in": 10711,
+            "tokens_out": 228,
+            "duration_ms": 3110,
+            "error": null
+          },
+          {
+            "event_type": "router_route_decision",
+            "created_at": "2026-05-16T18:27:35.348Z",
+            "match_score": 1,
+            "match_reason": "Exact normalized topic match; routing to existing session before allowing a new session.; topic_hint=session continuity benchmark 2026-05-16 router_exact_topic; auto_cluster_routing=disabled_read_only; metadata_score=0.35; metadata_topic_hint_source=caller; metadata_missing=related_files,tags,task_type; related_files_count=0; tags_count=0; generic_tags_count=0; session_id=session_ced6c095-35fe-458b-afa0-6f363e8b834e",
+            "tokens_in": null,
+            "tokens_out": null,
+            "duration_ms": null,
+            "error": null
+          },
+          {
+            "event_type": "new_session",
+            "created_at": "2026-05-16T18:27:35.343Z",
+            "match_score": 0.4290209787637773,
+            "match_reason": "No exact or usable existing session match; router starts a new durable session. Matched topic=0.55, files=0, tags=0.08, aliases=1, recency=1.",
+            "tokens_in": 9843,
+            "tokens_out": 422,
+            "duration_ms": 5254,
+            "error": null
+          }
+        ],
+        "recent_events_note": "truncated; default returns up to 10 events, hard max 50"
+      },
+      "error": null
+    },
+    {
+      "session_id": "session_3c96aee2-ac2d-4aa7-b876-5bf4e18c04e6",
+      "ok": true,
+      "duration_ms": 1,
+      "payload": {
+        "session": {
+          "id": "session_3c96aee2-ac2d-4aa7-b876-5bf4e18c04e6",
+          "claude_session_id": "793e1da9-7f6a-4c85-88c9-edb593b1e704",
+          "topic": "session continuity benchmark 2026-05-16 router_explicit_session",
+          "status": "active",
+          "last_used": "2026-05-16T18:28:38.307Z",
+          "summary": "cluster_consult vs direct_fresh misses stale-factsheet fallback testing needed by BETA-29 and availability handling per ALPHA-17.",
+          "decisions": [
+            "ALPHA-17: router must answer caller when Claude is available; monitor telemetry serves operator observability, not caller recovery",
+            "BETA-29: factsheet evidence must be revalidated before use; router falls back internally on staleness, does not ask caller to recover"
+          ],
+          "open_questions": [
+            "What does stale_factsheet benchmark look like in practice?"
+          ],
+          "files_discussed": [],
+          "tags": [
+            "session-continuity-benchmark",
+            "benchmark-decision"
+          ],
+          "aliases": [
+            "router-answers-caller",
+            "monitor-telemetry-operator-only",
+            "factsheet-revalidation-internal-fallback",
+            "stale-factsheet-benchmark-needed"
+          ],
+          "project_id": "AgentSessionRouter-continuity-2026-05-16",
+          "created_at": "2026-05-16T18:28:01.778Z"
+        },
+        "recent_events": [
+          {
+            "event_type": "consult",
+            "created_at": "2026-05-16T18:28:38.312Z",
+            "match_score": 1,
+            "match_reason": "Direct session_id provided and project/Claude session health checks passed.",
+            "tokens_in": 1513,
+            "tokens_out": 767,
+            "duration_ms": 15233,
+            "error": null
+          },
+          {
+            "event_type": "router_route_decision",
+            "created_at": "2026-05-16T18:28:23.062Z",
+            "match_score": 1,
+            "match_reason": "Explicit session_id provided by caller.; topic_hint=session continuity benchmark 2026-05-16 router_explicit_session; auto_cluster_routing=disabled_read_only; metadata_score=0.35; metadata_topic_hint_source=caller; metadata_missing=related_files,tags,task_type; related_files_count=0; tags_count=0; generic_tags_count=0; session_id=session_3c96aee2-ac2d-4aa7-b876-5bf4e18c04e6",
+            "tokens_in": null,
+            "tokens_out": null,
+            "duration_ms": null,
+            "error": null
+          },
+          {
+            "event_type": "consult",
+            "created_at": "2026-05-16T18:28:23.055Z",
+            "match_score": 1,
+            "match_reason": "Direct session_id provided and project/Claude session health checks passed.",
+            "tokens_in": 1473,
+            "tokens_out": 265,
+            "duration_ms": 6282,
+            "error": null
+          },
+          {
+            "event_type": "router_route_decision",
+            "created_at": "2026-05-16T18:28:16.762Z",
+            "match_score": 1,
+            "match_reason": "Explicit session_id provided by caller.; topic_hint=session continuity benchmark 2026-05-16 router_explicit_session; auto_cluster_routing=disabled_read_only; metadata_score=0.35; metadata_topic_hint_source=caller; metadata_missing=related_files,tags,task_type; related_files_count=0; tags_count=0; generic_tags_count=0; session_id=session_3c96aee2-ac2d-4aa7-b876-5bf4e18c04e6",
+            "tokens_in": null,
+            "tokens_out": null,
+            "duration_ms": null,
+            "error": null
+          },
+          {
+            "event_type": "consult",
+            "created_at": "2026-05-16T18:28:16.758Z",
+            "match_score": 1,
+            "match_reason": "Direct session_id provided and project/Claude session health checks passed.",
+            "tokens_in": 1351,
+            "tokens_out": 344,
+            "duration_ms": 9163,
+            "error": null
+          },
+          {
+            "event_type": "router_route_decision",
+            "created_at": "2026-05-16T18:28:07.581Z",
+            "match_score": 1,
+            "match_reason": "Explicit session_id provided by caller.; topic_hint=session continuity benchmark 2026-05-16 router_explicit_session; auto_cluster_routing=disabled_read_only; metadata_score=0.35; metadata_topic_hint_source=caller; metadata_missing=related_files,tags,task_type; related_files_count=0; tags_count=0; generic_tags_count=0; session_id=session_3c96aee2-ac2d-4aa7-b876-5bf4e18c04e6",
+            "tokens_in": null,
+            "tokens_out": null,
+            "duration_ms": null,
+            "error": null
+          },
+          {
+            "event_type": "consult",
+            "created_at": "2026-05-16T18:28:07.577Z",
+            "match_score": 1,
+            "match_reason": "Direct session_id provided and project/Claude session health checks passed.",
+            "tokens_in": 10187,
+            "tokens_out": 251,
+            "duration_ms": 5757,
+            "error": null
+          },
+          {
+            "event_type": "router_route_decision",
+            "created_at": "2026-05-16T18:28:01.806Z",
+            "match_score": 1,
+            "match_reason": "Explicit session_id provided by caller.; topic_hint=session continuity benchmark 2026-05-16 router_explicit_session; auto_cluster_routing=disabled_read_only; metadata_score=0.35; metadata_topic_hint_source=caller; metadata_missing=related_files,tags,task_type; related_files_count=0; tags_count=0; generic_tags_count=0; session_id=session_3c96aee2-ac2d-4aa7-b876-5bf4e18c04e6",
+            "tokens_in": null,
+            "tokens_out": null,
+            "duration_ms": null,
+            "error": null
+          },
+          {
+            "event_type": "new_session",
+            "created_at": "2026-05-16T18:28:01.800Z",
+            "match_score": 0.44538431115364835,
+            "match_reason": "No exact or usable existing session match; router starts a new durable session. Matched topic=0.6, files=0, tags=0.08, aliases=1, recency=1.",
+            "tokens_in": 0,
+            "tokens_out": 359,
+            "duration_ms": 8063,
+            "error": null
+          }
+        ],
+        "recent_events_note": "truncated; default returns up to 10 events, hard max 50"
+      },
+      "error": null
+    }
+  ],
+  "final_status": {
+    "project_id": "AgentSessionRouter-continuity-2026-05-16",
+    "checked_at": "2026-05-16T18:28:38.340Z",
+    "mode": "normal",
+    "degraded_reason": null,
+    "uptime_hours": 0.05,
+    "claude": {
+      "detected_version": "2.1.92 (Claude Code)",
+      "tested_versions": [
+        "\"2.1.138 (Claude Code)\"",
+        "\"2.1.92 (Claude Code)\""
+      ]
+    },
+    "v1_sessions": {
+      "active": 8,
+      "dormant": 0,
+      "archived": 0,
+      "orphaned": 0,
+      "total": 8
+    },
+    "v2_clusters": {
+      "active": 0,
+      "stale": 0,
+      "needs_prepare": 0,
+      "invalidated": 0,
+      "archived": 0,
+      "total": 0,
+      "fallback_count_last_24h": 0,
+      "stale_clusters": []
+    },
+    "recent_window_hours": 24,
+    "recent_errors": {
+      "session_events": [
+        {
+          "event_type": "parse_failed",
+          "count": 1,
+          "latest_created_at": "2026-05-16T18:26:31.075Z"
+        }
+      ],
+      "slow_session_events": [],
+      "cluster_events": []
+    },
+    "shadow_eval": {
+      "enabled": true,
+      "total": 0,
+      "judged": 0,
+      "pending": 0,
+      "ok_unjudged": 0,
+      "failed_auth": 0,
+      "failed_timeout": 0,
+      "failed_other": 0,
+      "last_created_at": null,
+      "last_judged_at": null
+    },
+    "storage": {
+      "ok": true,
+      "database": {
+        "path": "/root/projects/AgentSessionRouter/.claude-session-router/sessions.sqlite",
+        "exists": true,
+        "readable": true,
+        "writable": true,
+        "schema_ok": true,
+        "quick_check_ok": true,
+        "write_check_ok": true,
+        "errors": []
+      },
+      "raw_logs": {
+        "path": "/root/projects/AgentSessionRouter/.claude-session-router/raw",
+        "exists": true,
+        "is_directory": true,
+        "readable": true,
+        "writable": true,
+        "errors": []
+      }
+    },
+    "warnings": [
+      "Session event 'parse_failed' has 1 error row(s) in the recent window."
+    ]
+  },
+  "final_monitor": {
+    "project_id": "AgentSessionRouter-continuity-2026-05-16",
+    "checked_at": "2026-05-16T18:28:38.344Z",
+    "recent_window_hours": 24,
+    "output_limits": {
+      "requested_sample_limit": 20,
+      "effective_sample_limit": 20,
+      "truncated": false
+    },
+    "health": {
+      "mode": "normal",
+      "degraded_reason": null,
+      "claude": {
+        "detected_version": "2.1.92 (Claude Code)",
+        "tested_versions": [
+          "\"2.1.138 (Claude Code)\"",
+          "\"2.1.92 (Claude Code)\""
+        ]
+      },
+      "v1_sessions": {
+        "active": 8,
+        "dormant": 0,
+        "archived": 0,
+        "orphaned": 0,
+        "total": 8
+      },
+      "v2_clusters": {
+        "active": 0,
+        "stale": 0,
+        "needs_prepare": 0,
+        "invalidated": 0,
+        "archived": 0,
+        "total": 0,
+        "fallback_count_last_24h": 0
+      },
+      "shadow_eval": {
+        "enabled": true,
+        "total": 0,
+        "judged": 0,
+        "pending": 0,
+        "ok_unjudged": 0,
+        "failed_auth": 0,
+        "failed_timeout": 0,
+        "failed_other": 0,
+        "last_created_at": null,
+        "last_judged_at": null
+      },
+      "storage": {
+        "ok": true,
+        "database": {
+          "path": "/root/projects/AgentSessionRouter/.claude-session-router/sessions.sqlite",
+          "exists": true,
+          "readable": true,
+          "writable": true,
+          "schema_ok": true,
+          "quick_check_ok": true,
+          "write_check_ok": true,
+          "errors": []
+        },
+        "raw_logs": {
+          "path": "/root/projects/AgentSessionRouter/.claude-session-router/raw",
+          "exists": true,
+          "is_directory": true,
+          "readable": true,
+          "writable": true,
+          "errors": []
+        }
+      }
+    },
+    "cache_health": {
+      "stale_or_needs_prepare": [],
+      "decayed_cluster_cost_signals": [],
+      "reprepare_coverage_drops": [],
+      "attention_by_event": [],
+      "attention_by_cluster": []
+    },
+    "latency": {
+      "slow_session_threshold_ms": 100000,
+      "slow_session_events": [],
+      "slow_session_samples": []
+    },
+    "metadata_health": {
+      "event_counts": [
+        {
+          "event_type": "parse_failed",
+          "count": 1,
+          "latest_created_at": "2026-05-16T18:26:31.075Z"
+        }
+      ],
+      "affected_sessions": [
+        {
+          "session_id": "session_6d9e9350-faac-44e4-89f5-8d4b8aeb069c",
+          "topic": "session continuity benchmark 2026-05-16 fresh_each_turn T4 ygqe3q",
+          "session_status": "active",
+          "parse_failed_count": 1,
+          "threshold_exceeded_count": 0,
+          "latest_created_at": "2026-05-16T18:26:31.075Z",
+          "latest_error": "SESSION_UPDATE_JSON block missing",
+          "latest_raw_response_path": "/root/projects/AgentSessionRouter/.claude-session-router/raw/session_6d9e9350-faac-44e4-89f5-8d4b8aeb069c-1778955991074.txt"
+        }
+      ],
+      "samples": [
+        {
+          "event_id": 431,
+          "session_id": "session_6d9e9350-faac-44e4-89f5-8d4b8aeb069c",
+          "topic": "session continuity benchmark 2026-05-16 fresh_each_turn T4 ygqe3q",
+          "session_status": "active",
+          "event_type": "parse_failed",
+          "question": null,
+          "raw_response_path": "/root/projects/AgentSessionRouter/.claude-session-router/raw/session_6d9e9350-faac-44e4-89f5-8d4b8aeb069c-1778955991074.txt",
+          "error": "SESSION_UPDATE_JSON block missing",
+          "created_at": "2026-05-16T18:26:31.075Z"
+        }
+      ]
+    },
+    "route_health": {
+      "decision_counts": [
+        {
+          "selected_path": "claude_consult_existing_session",
+          "count": 4,
+          "latest_created_at": "2026-05-16T18:27:46.203Z"
+        },
+        {
+          "selected_path": "claude_consult_explicit_session",
+          "count": 4,
+          "latest_created_at": "2026-05-16T18:28:23.062Z"
+        },
+        {
+          "selected_path": "claude_consult_new_session",
+          "count": 2,
+          "latest_created_at": "2026-05-16T18:27:53.713Z"
+        }
+      ],
+      "forced_new_due_to_ambiguity_count_last_24h": 0,
+      "score_histogram_by_selected_path": [
+        {
+          "selected_path": "claude_consult_existing_session",
+          "buckets": [
+            {
+              "bucket": "1.00",
+              "count": 4
+            }
+          ]
+        },
+        {
+          "selected_path": "claude_consult_explicit_session",
+          "buckets": [
+            {
+              "bucket": "1.00",
+              "count": 4
+            }
+          ]
+        },
+        {
+          "selected_path": "claude_consult_new_session",
+          "buckets": [
+            {
+              "bucket": "0.00-0.54",
+              "count": 2
+            }
+          ]
+        }
+      ],
+      "score_histogram_by_cluster": [],
+      "metadata_quality": {
+        "total": 10,
+        "known": 10,
+        "unknown_schema_count": 0,
+        "average_score": 0.35,
+        "full_metadata_count": 0,
+        "missing_topic_hint_count": 0,
+        "missing_related_files_count": 10,
+        "missing_tags_count": 10,
+        "missing_task_type_count": 10,
+        "generic_tags_count": 0,
+        "score_buckets": [
+          {
+            "bucket": "0.35-0.69",
+            "count": 10
+          }
+        ]
+      },
+      "samples": [
+        {
+          "event_id": 457,
+          "selected_path": "claude_consult_explicit_session",
+          "session_id": "session_3c96aee2-ac2d-4aa7-b876-5bf4e18c04e6",
+          "topic": "session continuity benchmark 2026-05-16 router_explicit_session",
+          "question": "Session continuity benchmark turn 5. Based on the two remembered benchmark decisions, explain why comparing cluster_consult only against direct_fresh is insufficient for this project. The answer must reference both codewords and say what extra benchmark is needed.",
+          "match_score": 1,
+          "match_reason": "Explicit session_id provided by caller.; topic_hint=session continuity benchmark 2026-05-16 router_explicit_session; auto_cluster_routing=disabled_read_only; metadata_score=0.35; metadata_topic_hint_source=caller; metadata_missing=related_files,tags,task_type; related_files_count=0; tags_count=0; generic_tags_count=0; session_id=session_3c96aee2-ac2d-4aa7-b876-5bf4e18c04e6",
+          "created_at": "2026-05-16T18:28:23.062Z"
+        },
+        {
+          "event_id": 455,
+          "selected_path": "claude_consult_explicit_session",
+          "session_id": "session_3c96aee2-ac2d-4aa7-b876-5bf4e18c04e6",
+          "topic": "session continuity benchmark 2026-05-16 router_explicit_session",
+          "question": "Session continuity benchmark turn 4. Summarize both benchmark codewords and their meanings from earlier turns. Do not infer from this prompt; use session memory.",
+          "match_score": 1,
+          "match_reason": "Explicit session_id provided by caller.; topic_hint=session continuity benchmark 2026-05-16 router_explicit_session; auto_cluster_routing=disabled_read_only; metadata_score=0.35; metadata_topic_hint_source=caller; metadata_missing=related_files,tags,task_type; related_files_count=0; tags_count=0; generic_tags_count=0; session_id=session_3c96aee2-ac2d-4aa7-b876-5bf4e18c04e6",
+          "created_at": "2026-05-16T18:28:16.762Z"
+        },
+        {
+          "event_id": 453,
+          "selected_path": "claude_consult_explicit_session",
+          "session_id": "session_3c96aee2-ac2d-4aa7-b876-5bf4e18c04e6",
+          "topic": "session continuity benchmark 2026-05-16 router_explicit_session",
+          "question": "Session continuity benchmark turn 3. Add and remember a second benchmark decision: codeword BETA-29 means 'factsheet evidence must be revalidated before use; if revalidation cannot prove current facts, the router falls back internally instead of asking the caller to recover'. Reply with both the new codeword and the operational meaning.",
+          "match_score": 1,
+          "match_reason": "Explicit session_id provided by caller.; topic_hint=session continuity benchmark 2026-05-16 router_explicit_session; auto_cluster_routing=disabled_read_only; metadata_score=0.35; metadata_topic_hint_source=caller; metadata_missing=related_files,tags,task_type; related_files_count=0; tags_count=0; generic_tags_count=0; session_id=session_3c96aee2-ac2d-4aa7-b876-5bf4e18c04e6",
+          "created_at": "2026-05-16T18:28:07.581Z"
+        },
+        {
+          "event_id": 451,
+          "selected_path": "claude_consult_explicit_session",
+          "session_id": "session_3c96aee2-ac2d-4aa7-b876-5bf4e18c04e6",
+          "topic": "session continuity benchmark 2026-05-16 router_explicit_session",
+          "question": "Session continuity benchmark turn 2. Without inventing, what codeword and caller/operator rule did we establish in the previous turn? Do not search files; answer from session memory.",
+          "match_score": 1,
+          "match_reason": "Explicit session_id provided by caller.; topic_hint=session continuity benchmark 2026-05-16 router_explicit_session; auto_cluster_routing=disabled_read_only; metadata_score=0.35; metadata_topic_hint_source=caller; metadata_missing=related_files,tags,task_type; related_files_count=0; tags_count=0; generic_tags_count=0; session_id=session_3c96aee2-ac2d-4aa7-b876-5bf4e18c04e6",
+          "created_at": "2026-05-16T18:28:01.806Z"
+        },
+        {
+          "event_id": 449,
+          "selected_path": "claude_consult_new_session",
+          "session_id": null,
+          "topic": null,
+          "question": "Session continuity benchmark turn 1. Establish and remember this benchmark decision: codeword ALPHA-17 means 'the router must answer the caller when Claude is available; monitor telemetry is for the operator, not for caller recovery'. Reply with the codeword and rule in two bullets.",
+          "match_score": 0.44538431115364835,
+          "match_reason": "No exact or usable existing session match; router starts a new durable session. Matched topic=0.6, files=0, tags=0.08, aliases=1, recency=1.; topic_hint=session continuity benchmark 2026-05-16 router_explicit_session; auto_cluster_routing=disabled_read_only; metadata_score=0.35; metadata_topic_hint_source=caller; metadata_missing=related_files,tags,task_type; related_files_count=0; tags_count=0; generic_tags_count=0; candidate_gap=0.12; force_new_session=true",
+          "created_at": "2026-05-16T18:27:53.713Z"
+        },
+        {
+          "event_id": 447,
+          "selected_path": "claude_consult_existing_session",
+          "session_id": "session_ced6c095-35fe-458b-afa0-6f363e8b834e",
+          "topic": "session continuity benchmark 2026-05-16 router_exact_topic",
+          "question": "Session continuity benchmark turn 5. Based on the two remembered benchmark decisions, explain why comparing cluster_consult only against direct_fresh is insufficient for this project. The answer must reference both codewords and say what extra benchmark is needed.",
+          "match_score": 1,
+          "match_reason": "Exact normalized topic match; routing to existing session before allowing a new session.; topic_hint=session continuity benchmark 2026-05-16 router_exact_topic; auto_cluster_routing=disabled_read_only; metadata_score=0.35; metadata_topic_hint_source=caller; metadata_missing=related_files,tags,task_type; related_files_count=0; tags_count=0; generic_tags_count=0; session_id=session_ced6c095-35fe-458b-afa0-6f363e8b834e",
+          "created_at": "2026-05-16T18:27:46.203Z"
+        },
+        {
+          "event_id": 445,
+          "selected_path": "claude_consult_existing_session",
+          "session_id": "session_ced6c095-35fe-458b-afa0-6f363e8b834e",
+          "topic": "session continuity benchmark 2026-05-16 router_exact_topic",
+          "question": "Session continuity benchmark turn 4. Summarize both benchmark codewords and their meanings from earlier turns. Do not infer from this prompt; use session memory.",
+          "match_score": 1,
+          "match_reason": "Exact normalized topic match; routing to existing session before allowing a new session.; topic_hint=session continuity benchmark 2026-05-16 router_exact_topic; auto_cluster_routing=disabled_read_only; metadata_score=0.35; metadata_topic_hint_source=caller; metadata_missing=related_files,tags,task_type; related_files_count=0; tags_count=0; generic_tags_count=0; session_id=session_ced6c095-35fe-458b-afa0-6f363e8b834e",
+          "created_at": "2026-05-16T18:27:42.147Z"
+        },
+        {
+          "event_id": 443,
+          "selected_path": "claude_consult_existing_session",
+          "session_id": "session_ced6c095-35fe-458b-afa0-6f363e8b834e",
+          "topic": "session continuity benchmark 2026-05-16 router_exact_topic",
+          "question": "Session continuity benchmark turn 3. Add and remember a second benchmark decision: codeword BETA-29 means 'factsheet evidence must be revalidated before use; if revalidation cannot prove current facts, the router falls back internally instead of asking the caller to recover'. Reply with both the new codeword and the operational meaning.",
+          "match_score": 1,
+          "match_reason": "Exact normalized topic match; routing to existing session before allowing a new session.; topic_hint=session continuity benchmark 2026-05-16 router_exact_topic; auto_cluster_routing=disabled_read_only; metadata_score=0.35; metadata_topic_hint_source=caller; metadata_missing=related_files,tags,task_type; related_files_count=0; tags_count=0; generic_tags_count=0; session_id=session_ced6c095-35fe-458b-afa0-6f363e8b834e",
+          "created_at": "2026-05-16T18:27:38.481Z"
+        },
+        {
+          "event_id": 441,
+          "selected_path": "claude_consult_existing_session",
+          "session_id": "session_ced6c095-35fe-458b-afa0-6f363e8b834e",
+          "topic": "session continuity benchmark 2026-05-16 router_exact_topic",
+          "question": "Session continuity benchmark turn 2. Without inventing, what codeword and caller/operator rule did we establish in the previous turn? Do not search files; answer from session memory.",
+          "match_score": 1,
+          "match_reason": "Exact normalized topic match; routing to existing session before allowing a new session.; topic_hint=session continuity benchmark 2026-05-16 router_exact_topic; auto_cluster_routing=disabled_read_only; metadata_score=0.35; metadata_topic_hint_source=caller; metadata_missing=related_files,tags,task_type; related_files_count=0; tags_count=0; generic_tags_count=0; session_id=session_ced6c095-35fe-458b-afa0-6f363e8b834e",
+          "created_at": "2026-05-16T18:27:35.348Z"
+        },
+        {
+          "event_id": 439,
+          "selected_path": "claude_consult_new_session",
+          "session_id": null,
+          "topic": null,
+          "question": "Session continuity benchmark turn 1. Establish and remember this benchmark decision: codeword ALPHA-17 means 'the router must answer the caller when Claude is available; monitor telemetry is for the operator, not for caller recovery'. Reply with the codeword and rule in two bullets.",
+          "match_score": 0.4290209787637773,
+          "match_reason": "No exact or usable existing session match; router starts a new durable session. Matched topic=0.55, files=0, tags=0.08, aliases=1, recency=1.; topic_hint=session continuity benchmark 2026-05-16 router_exact_topic; auto_cluster_routing=disabled_read_only; metadata_score=0.35; metadata_topic_hint_source=caller; metadata_missing=related_files,tags,task_type; related_files_count=0; tags_count=0; generic_tags_count=0; candidate_gap=0.17; force_new_session=true",
+          "created_at": "2026-05-16T18:27:30.078Z"
+        }
+      ]
+    },
+    "quality": {
+      "cluster_stats": [],
+      "direct_win_samples": [],
+      "not_in_context_samples": [],
+      "auto_routing_candidates": []
+    },
+    "recommendations": [
+      {
+        "priority": "medium",
+        "area": "sessions",
+        "action": "Inspect recent session_events and raw responses.",
+        "reason": "Session event 'parse_failed' has 1 error row(s)."
+      },
+      {
+        "priority": "medium",
+        "area": "metadata",
+        "action": "Inspect metadata_health.samples raw responses and tighten SESSION_UPDATE_JSON prompting if failures repeat.",
+        "reason": "1 SESSION_UPDATE_JSON parse failure(s) occurred in the recent window."
+      },
+      {
+        "priority": "low",
+        "area": "routing",
+        "action": "Inspect route_health.samples for claude_consult_new_session decisions; add aliases/tags/file evidence or pass an explicit session if these should have reused context.",
+        "reason": "2 router_consult call(s) started a new durable session after automatic routing checks."
+      }
+    ],
+    "next_directions": [
+      "Collect more shadow comparisons before deciding on auto-routing or factsheet expansion."
+    ]
+  },
+  "server_stderr": "",
+  "finished_at": "2026-05-16T18:28:38.350Z"
+}

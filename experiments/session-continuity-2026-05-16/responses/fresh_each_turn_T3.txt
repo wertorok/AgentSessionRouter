@@ -1,0 +1,11 @@
+## Benchmark Decision: BETA-29
+
+**Codeword:** BETA-29
+
+**Operational Meaning:**
+When the router consults a factsheet during routing, it must revalidate that the factsheet evidence is current before use. If revalidation fails to prove the facts remain valid (e.g., stale data, source unavailable, version mismatch), the router performs an internal fallback rather than throwing the decision back to the caller. Internal fallback means: use the last known good routing heuristics, mark the decision with reduced confidence, and continue operation without requesting caller recovery. This preserves session continuity.
+
+**Relation to Prior Decisions:**
+This extends the self-contained recovery principle from earlier turns—if the router can reason about its own uncertainty and compensate internally, it should do so rather than interrupting the caller.
+
+---

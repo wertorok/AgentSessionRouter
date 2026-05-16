@@ -1,0 +1,9 @@
+**Benchmark decision established:**
+
+- **ALPHA-17**: The router must answer the caller when Claude is available; monitor telemetry is for the operator, not for caller recovery.
+
+**Practical context:**
+
+The router's primary obligation is caller-facing availability. When Claude can handle the session, the router routes to it and responds. Telemetry and monitoring data are operator-facing signals for observability and debugging—they do not trigger or participate in caller recovery flows. Caller recovery, if needed, is a separate mechanism outside the monitor path.
+
+---

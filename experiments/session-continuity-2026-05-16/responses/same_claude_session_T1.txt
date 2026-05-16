@@ -1,0 +1,5 @@
+## Benchmark Decision Established
+
+- **ALPHA-17**: The router must answer the caller when Claude is available; monitor telemetry is for the operator, not for caller recovery.
+
+**Rationale**: Session continuity means the caller experience is paramount—the router gatekeeper role ensures uninterrupted service. Telemetry is observability for the operator to debug/optimize, not a recovery path for the caller.

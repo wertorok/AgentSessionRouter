@@ -1,0 +1,7 @@
+**New benchmark decision added:**
+
+- **BETA-29**: Factsheet evidence must be revalidated before use; if revalidation cannot prove current facts, the router falls back internally instead of asking the caller to recover.
+
+**Operational meaning:** When routing with factsheet-backed evidence, the router must revalidate the evidence's currency. If revalidation fails to confirm the facts are current, the router performs an internal fallback—it does not surface the failure to the caller or request caller-side recovery.
+
+---

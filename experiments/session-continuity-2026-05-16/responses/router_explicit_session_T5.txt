@@ -1,0 +1,11 @@
+**Why cluster_consult vs direct_fresh is insufficient:**
+
+ALPHA-17 and BETA-29 establish router responsibilities that this comparison ignores:
+
+- **ALPHA-17** divides telemetry into operator-only (monitor) vs caller-facing (router answer). The direct_fresh path tests fresh state but not how the router behaves when monitor telemetry diverges from actual availability. A router that tunnels through cluster_consult must still answer the caller regardless of what the monitor shows.
+
+- **BETA-29** requires the router to internally fall back when factsheet revalidation cannot prove facts current. Neither cluster_consult nor direct_fresh exercises the revalidation-then-fallback path — they assume facts are provably current or don't model the fallback.
+
+**Missing extra benchmark:**
+
+A **stale_factsheet** scenario — where factsheet data exists but revalidation fails or returns stale — to verify the router's internal fallback behavior (per BETA-29) without asking the caller to recover. This is distinct from both "cluster is slow" and "direct is fresh"; it's about the router's self-healing on factsheet uncertainty.

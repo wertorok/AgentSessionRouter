@@ -751,3 +751,29 @@ For the AgentSessionRouter codebase cluster, include at least:
 - `src/profiles.ts`
 - `docs/CLUSTER_CACHE_SPEC.md`
 - `docs/SHADOW_EVAL_SPEC.md`
+
+## Post-Refactor Proof: 2026-05-16
+
+The mechanical refactor that split `src/tools.ts` into domain modules was
+validated after the final stage with:
+
+- `npm run build`
+- `npm test` (`106` passed)
+- `node scripts/adversarial-proof-matrix.mjs` (`broken: []`)
+- `npm run session:continuity` (`20` live calls, `failed: []`)
+
+Continuity comparison against the original v1 premise:
+
+| Method | Memory probes | Memory+synthesis | Unique sessions |
+| --- | ---: | ---: | ---: |
+| `fresh_each_turn` | `0.50` | `0.67` | `5` |
+| `same_claude_session` | `3.00` | `3.00` | `1` |
+| `router_exact_topic` | `3.00` | `2.67` | `1` |
+| `router_explicit_session` | `3.00` | `2.67` | `1` |
+
+Interpretation: the refactor preserved the important continuity invariant
+(`3.00` memory probes for durable/session-routed paths vs `0.50` fresh). The
+two router synthesis scores were `2` rather than `3` because they named the
+needed benchmark less explicitly, not because session reuse broke. The run also
+surfaced one `SESSION_UPDATE_JSON` parse warning in a fresh-each-turn session;
+track repeats via `router_monitor.metadata_health`.

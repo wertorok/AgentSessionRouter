@@ -1,0 +1,5 @@
+**Benchmark Decision Established:**
+
+- **ALPHA-17**: The router must answer the caller when Claude is available; monitor telemetry is for the operator, not for caller recovery.
+
+**Rationale**: Caller-facing availability is the router's responsibility. Monitor telemetry serves operator observability and debugging, not the caller's recovery path. The router handles session continuity directly with the caller, independent of monitor state.

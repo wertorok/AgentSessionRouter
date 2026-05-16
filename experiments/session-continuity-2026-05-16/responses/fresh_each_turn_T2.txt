@@ -1,0 +1,9 @@
+I don't have access to prior benchmark turns' content or established decisions from this session continuity benchmark series. This appears to be turn 2, but I have no stored memory of turn 1's codeword or caller/operator rule.
+
+To proceed accurately, I would need:
+- The codeword and rule established in turn 1 of this benchmark
+- Any prior summary/decisions from the session-continuity-2026-05-16 experiment
+
+If you can share what was established in turn 1, I can continue from there and build on it. Otherwise, I can only work with what exists in the experiment directory if you'd like me to inspect it (though you've asked me not to search files).
+
+---

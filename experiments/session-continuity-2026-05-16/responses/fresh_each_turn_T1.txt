@@ -1,0 +1,6 @@
+**Established benchmark decision ALPHA-17:**
+
+- **Router answerability**: When Claude is available, the router must answer the caller directly — caller-facing continuity is the router's responsibility, not a delegation to be deferred.
+- **Telemetry scope**: Monitor telemetry is operator-facing only. It supports observability and debugging but is not a recovery mechanism for callers experiencing issues.
+
+---

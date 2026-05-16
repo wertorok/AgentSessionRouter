@@ -1,0 +1,9 @@
+## Why Two-Way Comparison Is Insufficient
+
+Comparing `cluster_consult` against `direct_fresh` only tests the direct path with freshly retrieved facts. It misses the router's actual responsibilities under our benchmark rules.
+
+**ALPHA-17 gap**: The comparison does not measure whether the router actively answers the caller when Claude is available. `direct_fresh` bypasses the router entirely—it tests a standalone call path, not the router-as-gatekeeper behavior.
+
+**BETA-29 gap**: The comparison does not test factsheet revalidation under load or partial failure. `direct_fresh` assumes facts are trustworthy without revalidation, and it doesn't exercise the internal-fallback path when revalidation proves stale facts.
+
+**What is missing**: A `router_under_contention` benchmark that measures session continuity when the router must answer (ALPHA-17) and when factsheet revalidation fails mid-session (BETA-29). This third leg tests the router's own internal fallback behavior, not just raw availability or fresh-data performance.

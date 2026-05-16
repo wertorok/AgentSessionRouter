@@ -1,0 +1,15 @@
+# Why `cluster_consult` vs `direct_fresh` Is an Incomplete Comparison
+
+The two previously remembered benchmark decisions established baseline metrics for **session-persistent routing** (`cluster_consult`) and **fresh-session routing** (`direct_fresh`). Each was benchmarked independently as a standalone strategy. This comparison is insufficient for this project for two reasons:
+
+1. **It tests strategies, not session modes.** Both `cluster_consult` and `direct_fresh` are routing *strategies* that apply across multiple turns. A fair session continuity benchmark needs to test *within* a session—which strategy preserves continuity *within* an ongoing conversation versus which one breaks it.
+
+2. **It omits the hybrid mode.** The project supports sessions that combine cluster attention sharing for multi-agent coordination *and* fresh agent spawning per turn (`fresh_each_turn`). Neither existing benchmark captures this hybrid behavior where a session maintains shared context but each turn starts with a new agent.
+
+## Extra Benchmark Needed
+
+**`cluster_fresh`** — benchmark sessions that use `cluster_consult` semantics (shared attention events, cluster recovery, coordinated monitoring) but also set `fresh_each_turn=true`. This tests whether the cluster infrastructure can deliver continuity *without* carrying forward agent state between turns.
+
+This third benchmark would reveal whether the project's multi-agent cluster layer adds overhead or provides actual continuity benefits when agent state is explicitly reset each turn.
+
+---

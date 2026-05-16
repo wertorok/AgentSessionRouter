@@ -1,0 +1,11 @@
+**Why cluster_consult vs. direct_fresh alone is insufficient:**
+
+Comparing only these two paths misses the territory covered by both ALPHA-17 and BETA-29:
+
+- **ALPHA-17** requires the router to gate on Claude availability before answering the caller. A direct cluster_consult vs. direct_fresh comparison exercises two routing paths but does not test whether the router correctly answers (or degrades gracefully) when Claude availability state changes. Both paths could route identically while violating the availability-gating rule.
+
+- **BETA-29** requires factsheet revalidation with silent internal fallback. If direct_fresh bypasses factsheet entirely and cluster_consult assumes factsheet validity without revalidation, neither path exercises the revalidate-then-fallback logic. You cannot detect a missing revalidation step by comparing two paths that both elide it.
+
+**Extra benchmark needed:** A third path—call it `factsheet_stale` or `factsheet_fallback`—that forces a factsheet-backed consult where revalidation fails, so you can verify the router falls back silently to a safe internal state without surfacing the failure to the caller. This is the missing test surface for BETA-29.
+
+---
