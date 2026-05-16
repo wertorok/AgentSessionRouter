@@ -890,6 +890,30 @@ must carry at least:
 - status: `proposed`, `active`, `suspended`, or `superseded`
 - optional counter-evidence / suspension note
 
+The exact source-of-truth file name and storage backend are not decided yet, but
+the entry shape is already part of this decision. A future diffable principle
+document must support entries shaped like:
+
+```yaml
+- id: EP-0001
+  status: proposed
+  statement: "Caller-facing router tools should return an answer whenever any safe internal recovery path exists."
+  applies_when:
+    - "caller is another automated agent"
+    - "router can recover internally without credentials, destructive actions, or product-scope approval"
+  revisit_when:
+    - "the caller contract changes to require explicit cache-health errors"
+    - "internal fallback creates unacceptable cost or latency in router_monitor"
+  provenance:
+    source_type: session_decision
+    source_ref: "session:<id> / docs:<path> / experiment:<path>"
+    derived_at: "YYYY-MM-DD"
+    derived_by: "codex"
+    reviewed_by: "claude-lead-session"
+  counter_evidence: []
+  supersedes: null
+```
+
 Using a principle means "check this applies in the current context", not "always
 do this". A lead session may reject or suspend a principle in a new context when
 it records counter-evidence and the scope condition that failed.
@@ -912,6 +936,21 @@ Bootstrap policy:
   to review the distilled candidates.
 - The human owner receives a phase-end summary of what was seeded and why, but
   does not hand-curate the initial list.
+
+Distill mechanism boundary:
+
+- Decided: Phase 7 needs a distill step that turns existing decisions/docs into
+  staged project-architecture and engineering-principle candidates.
+- Not yet designed: the extraction prompt, scoring rules, hallucination checks,
+  over-extraction limits, and reviewer rubric for deciding whether a candidate
+  was actually supported by the source decision.
+- Do not build distill extraction in the same step as the principle document
+  structure. First design the diffable source-of-truth structure and dry-run
+  report shape. Only then design the LLM extraction/review mechanism.
+- Distill has the same risk class as `cluster_prepare`: it can over-extract,
+  over-generalize, or invent a principle that was not present in the source
+  decision. It must therefore have explicit evidence/provenance and lead-session
+  review before promotion.
 
 Non-goals:
 
