@@ -98,6 +98,7 @@ Additional closed gates:
 | Gate 8: Field-population draft | closed | `field-population-draft.md`, `field-population-draft.json`, `gate-8-summary.md` |
 | Gate 9: Lead field review | closed | `field-review.md`, `field-review.json`, `gate-9-summary.md` |
 | Gate 10: Request-changes resolution | closed | `request-changes-resolution.md`, `request-changes-resolution.json`, `gate-10-summary.md` |
+| Gate 11: Proposed record materialization | closed | `docs/ENGINEERING_PRINCIPLES.md`, `docs/PROJECT_ARCHITECTURE.md`, `materialized-proposed-records.md`, `materialized-proposed-records.json`, `gate-11-summary.md` |
 
 Gate 6 added a deterministic verifier report. Gate 7 named the future
 diffable source-of-truth files and documented field-population semantics. Gate
@@ -106,5 +107,11 @@ field draft. Gate 9 reviewed those fields with the durable Claude lead session:
 87 entries received `APPROVED_FIELDS`, 6 received `REQUEST_CHANGES`, and 0 were
 suspended. Gate 10 resolved those changes: 1 entry was corrected and approved
 for future promotion consideration, while 5 were excluded from promotion.
-These gates do not create active memory, write clusters, or add a runtime
-serving path.
+Gate 11 materialized 88 field-approved records as `status: proposed` in the
+diffable source-of-truth docs. These gates do not create active memory, write
+clusters, or add a runtime serving path.
+
+Operational finding: after these review gates, the durable lead session can hit
+`COST_LIMIT_EXCEEDED` on broad review prompts. Future promotion work needs a
+smaller review protocol or lead-session context maintenance before asking for
+large approvals.

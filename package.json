@@ -43,6 +43,7 @@
     "memory:verify": "node scripts/architectural-memory-verifier.mjs",
     "memory:field-populate": "node scripts/architectural-memory-field-population-dry-run.mjs",
     "memory:field-review": "node scripts/architectural-memory-field-review.mjs",
+    "memory:materialize-proposed": "node scripts/architectural-memory-materialize-proposed.mjs",
     "monitor:snapshot": "node scripts/router-monitor-snapshot.mjs",
     "mcp:workload": "node scripts/mcp-workload-matrix.mjs",
     "mcp:workload:live": "node scripts/mcp-workload-matrix.mjs --live"

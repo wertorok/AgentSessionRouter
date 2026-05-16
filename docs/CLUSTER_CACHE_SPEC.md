@@ -1464,6 +1464,42 @@ Gate 10 non-goals:
 - no runtime import or serving path
 - no promotion approval
 
+#### Proposed Record Materialization (Gate 11)
+
+Status: proposed records materialized, not promoted. Gate 11 writes the
+field-approved set into the diffable source-of-truth documents as proposed
+records only.
+
+Gate 11 outputs:
+
+- `docs/ENGINEERING_PRINCIPLES.md`
+- `docs/PROJECT_ARCHITECTURE.md`
+- `experiments/architectural-memory-dry-run-2026-05-16/materialized-proposed-records.json`
+- `experiments/architectural-memory-dry-run-2026-05-16/materialized-proposed-records.md`
+
+Gate 11 result for the 2026-05-16 dry run:
+
+- 13 engineering-principle records written as `status: proposed`.
+- 75 project-architecture records written as `status: proposed`.
+- 88 total proposed records.
+- 0 active records.
+- 5 excluded audit records remain out of the source-of-truth docs.
+
+Every proposed record carries promotion requirements:
+
+- explicit future promotion gate
+- lead-session promotion approval
+- active source-of-truth write
+- separate runtime import/serving gate before router use
+
+Gate 11 non-goals:
+
+- no `status: active`
+- no promotion approval
+- no runtime import or serving path
+- no cluster writes
+- no router behavior changes
+
 Non-goals:
 
 - no implementation in this decision step
@@ -1492,9 +1528,10 @@ Implementation gates:
    `project_scope` fields into a non-authoritative draft artifact.
 9. Closed: run bounded lead-session field review of the populated draft.
 10. Closed: resolve or exclude `REQUEST_CHANGES` entries before promotion.
-11. Future: add bounded lead-session promotion approval and durable writes.
-12. Future: add explicit import/serving for `engineering-principles`.
-13. Future: add `router_monitor` visibility: staged count, promoted count,
+11. Closed: materialize field-approved records as proposed source-of-truth docs.
+12. Future: add bounded lead-session promotion approval and active writes.
+13. Future: add explicit import/serving for `engineering-principles`.
+14. Future: add `router_monitor` visibility: staged count, promoted count,
     suspended count, stale/superseded count, and recent counter-evidence.
 
 Do not implement this pipeline if real usage shows that durable lead sessions

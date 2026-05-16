@@ -1,0 +1,51 @@
+{
+  "generated_at": "2026-05-16T22:22:40.691Z",
+  "status": "proposed_records_only",
+  "source_draft": "experiments/architectural-memory-dry-run-2026-05-16/field-population-draft.json",
+  "source_field_review": "experiments/architectural-memory-dry-run-2026-05-16/field-review.json",
+  "source_request_changes_resolution": "experiments/architectural-memory-dry-run-2026-05-16/request-changes-resolution.json",
+  "output_docs": {
+    "engineering_principles": "docs/ENGINEERING_PRINCIPLES.md",
+    "project_architecture": "docs/PROJECT_ARCHITECTURE.md"
+  },
+  "counts": {
+    "engineering_principles": 13,
+    "project_architecture": 75,
+    "proposed_records": 88,
+    "active_records": 0,
+    "excluded": 5
+  },
+  "excluded": [
+    {
+      "id": "PA-SD-000115",
+      "memory_product": "project-architecture",
+      "reason": "Generic npm command, not durable AgentSessionRouter project architecture."
+    },
+    {
+      "id": "PA-SD-000171",
+      "memory_product": "project-architecture",
+      "reason": "References non-existent docs/DECISIONS.md and is superseded by PA-SD-000199."
+    },
+    {
+      "id": "PA-SD-000172",
+      "memory_product": "project-architecture",
+      "reason": "Generic workflow governance statement; not project-specific enough."
+    },
+    {
+      "id": "PA-SD-000173",
+      "memory_product": "project-architecture",
+      "reason": "References undocumented gate_criteria.json; inaccurate for the current documentation-only gate workflow."
+    },
+    {
+      "id": "PA-SD-000185",
+      "memory_product": "project-architecture",
+      "reason": "References non-existent docs/DECISIONS.md and is superseded by PA-SD-000199."
+    }
+  ],
+  "notes": [
+    "Materialization writes proposed records only.",
+    "No record is active.",
+    "No runtime import, serving path, or cluster write is added.",
+    "Future promotion requires a separate explicit promotion gate."
+  ]
+}
