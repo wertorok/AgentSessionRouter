@@ -1,7 +1,7 @@
 # Adversarial Proof Matrix
 
-Started: 2026-05-16T17:56:39.994Z
-Finished: 2026-05-16T17:56:45.873Z
+Started: 2026-05-16T17:59:16.608Z
+Finished: 2026-05-16T17:59:22.102Z
 
 ## Findings
 
@@ -32,7 +32,7 @@ Finished: 2026-05-16T17:56:45.873Z
 - HELD: two_hundred_sessions_routing_scale
   - input: Create 200 sessions through claude_consult, then run router_dry_run/router_consult probes.
   - edge: Routing should not catastrophically slow down or pick unrelated sessions only because N is large.
-  - latency: before=3ms, after=66ms
+  - latency: before=7ms, after=60ms
   - scale: seeded=200, total_sessions=202
 
 ### ZONE 4: Stale / revalidation / fallback
