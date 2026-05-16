@@ -1,8 +1,8 @@
 # MCP Workload Matrix (stub)
 
-Started: 2026-05-16T06:06:49.043Z
-Finished: 2026-05-16T06:06:51.693Z
-Project dir: /tmp/asr-mcp-matrix-stub-Yn8iCy/project
+Started: 2026-05-16T06:46:03.367Z
+Finished: 2026-05-16T06:46:05.732Z
+Project dir: /tmp/asr-mcp-matrix-stub-hylTGW/project
 
 Passed: 23
 Failed: 0
@@ -11,27 +11,27 @@ Failed: 0
 
 - PASS tool_discovery_all_modes (n/ams)
 - PASS router_status_baseline (5ms)
-- PASS router_monitor_baseline (5ms)
-- PASS v1_claude_consult_new_session (65ms)
-- PASS v1_claude_consult_explicit_resume_or_orphan_recovery (53ms)
+- PASS router_monitor_baseline (4ms)
+- PASS v1_claude_consult_new_session (47ms)
+- PASS v1_claude_consult_explicit_resume_or_orphan_recovery (45ms)
 - PASS v1_session_inspect (2ms)
 - PASS router_dry_run_observe_only (6ms)
-- PASS session_update_success_metadata_path (55ms)
-- PASS session_update_parse_failure_threshold_archives (611ms)
-- PASS session_update_archived_bootstrap_replacement (54ms)
-- PASS router_consult_explicit_cluster_route (135ms)
-- PASS v2_cluster_consult_fast_path_with_shadow (552ms)
-- PASS shadow_comparison_judged_after_cluster_consult (3ms)
-- PASS cluster_refresh_verify_only (11ms)
-- PASS evidence_revalidation_success_selector_moved (69ms)
-- PASS evidence_revalidation_failure_falls_back (59ms)
-- PASS evidence_revalidation_failure_snippet_changed_falls_back (62ms)
-- PASS static_policy_deny_falls_back (52ms)
-- PASS missing_cluster_falls_back (50ms)
-- PASS cluster_prepare_llm_verifier_promotes_or_rejects_semantically (49ms)
-- PASS v2_llm_trusted_cluster_consult_with_deny_policy (252ms)
+- PASS session_update_success_metadata_path (51ms)
+- PASS session_update_parse_failure_threshold_archives (455ms)
+- PASS session_update_archived_bootstrap_replacement (51ms)
+- PASS router_consult_explicit_cluster_route (118ms)
+- PASS v2_cluster_consult_fast_path_with_shadow (543ms)
+- PASS shadow_comparison_judged_after_cluster_consult (4ms)
+- PASS cluster_refresh_verify_only (9ms)
+- PASS evidence_revalidation_success_selector_moved (52ms)
+- PASS evidence_revalidation_failure_falls_back (88ms)
+- PASS evidence_revalidation_failure_snippet_changed_falls_back (60ms)
+- PASS static_policy_deny_falls_back (50ms)
+- PASS missing_cluster_falls_back (44ms)
+- PASS cluster_prepare_llm_verifier_promotes_or_rejects_semantically (48ms)
+- PASS v2_llm_trusted_cluster_consult_with_deny_policy (247ms)
 - PASS comparison_list_drilldown (1ms)
-- PASS router_monitor_after_workload (4ms)
+- PASS router_monitor_after_workload (3ms)
 
 ## DB Snapshot
 
@@ -200,7 +200,7 @@ Failed: 0
       "preferred": "tie",
       "cluster_score": 3,
       "direct_score": 3,
-      "created_at": "2026-05-16T06:06:51.462Z"
+      "created_at": "2026-05-16T06:46:05.505Z"
     },
     {
       "cluster_id": "monitor-static",
@@ -208,7 +208,7 @@ Failed: 0
       "preferred": "tie",
       "cluster_score": 3,
       "direct_score": 3,
-      "created_at": "2026-05-16T06:06:51.112Z"
+      "created_at": "2026-05-16T06:46:05.137Z"
     },
     {
       "cluster_id": "monitor-static",
@@ -216,7 +216,7 @@ Failed: 0
       "preferred": "tie",
       "cluster_score": 3,
       "direct_score": 3,
-      "created_at": "2026-05-16T06:06:50.530Z"
+      "created_at": "2026-05-16T06:46:04.573Z"
     },
     {
       "cluster_id": "monitor-static",
@@ -224,7 +224,7 @@ Failed: 0
       "preferred": "tie",
       "cluster_score": 3,
       "direct_score": 3,
-      "created_at": "2026-05-16T06:06:50.479Z"
+      "created_at": "2026-05-16T06:46:04.532Z"
     }
   ],
   "clusters": [

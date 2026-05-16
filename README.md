@@ -786,7 +786,7 @@ Input:
 Output sections:
 
 - `health`: normal/degraded mode, Claude version, v1/v2 counts, shadow-eval pipeline health.
-- `cache_health`: stale/needs-prepare clusters and recent revalidation/fallback attention events.
+- `cache_health`: stale/needs-prepare clusters, recent revalidation/fallback attention events, and per-cluster fallback cost signals for decayed caches.
 - `latency`: slow consult aggregates plus concrete slow-session samples with topic, question, token counts, duration, and raw response path.
 - `metadata_health`: `SESSION_UPDATE_JSON` parse failures, affected sessions, threshold archives, and raw response paths.
 - `route_health`: recent `router_consult` selected-path counts, ambiguity-forced new-session count, match-score histograms, caller metadata-quality telemetry, and concrete route-decision samples.
@@ -814,6 +814,8 @@ npm run monitor:snapshot -- --recent-hours 24 --sample-limit 20
 ### `cluster_prepare`
 
 Stores a cluster factsheet. By default it performs static local-file verification and stores `static_verified`. With `verification_mode: "llm"`, it first runs static verification, then asks Claude in a no-tools verifier profile to promote only semantically supported facts to `llm_verified`.
+
+If an existing factsheet is reused as input, `cluster_prepare` treats evidence `hash` and `snippet_hash` values as generated outputs and recalculates them from current files. Stored hashes remain strict constraints only for refresh/revalidation paths.
 
 Input:
 

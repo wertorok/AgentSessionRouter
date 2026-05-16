@@ -130,7 +130,7 @@ export function prepareStaticCluster(
     toolProfileDefault: input.toolProfileDefault,
     staticFactsheetPolicy: input.staticFactsheetPolicy
   });
-  const verification = verifyFactsheetStatic(cwd, input.clusterId, input.factsheet);
+  const verification = verifyFactsheetStatic(cwd, input.clusterId, stripGeneratedEvidenceHashes(input.factsheet));
   ensureHasVerifiedFacts(db, input.projectId, input.clusterId, verification);
 
   const trustState = verification.rejectedFacts.length === 0 ? "static_verified" : "partial_static";
@@ -173,7 +173,7 @@ export async function prepareCluster(
     staticFactsheetPolicy: input.staticFactsheetPolicy
   });
 
-  const verification = verifyFactsheetStatic(cwd, input.clusterId, input.factsheet);
+  const verification = verifyFactsheetStatic(cwd, input.clusterId, stripGeneratedEvidenceHashes(input.factsheet));
   ensureHasVerifiedFacts(db, input.projectId, input.clusterId, verification);
 
   if ((input.verificationMode ?? "static") !== "llm") {
@@ -364,6 +364,21 @@ export function verifyFactsheetStatic(
     },
     fileHashes: [...fileHashes.values()],
     rejectedFacts
+  };
+}
+
+function stripGeneratedEvidenceHashes(factsheet: FactsheetInput): FactsheetInput {
+  return {
+    ...factsheet,
+    facts: factsheet.facts?.map((fact) => ({
+      ...fact,
+      evidence: Array.isArray(fact.evidence)
+        ? fact.evidence.map((evidence) => ({
+            path: evidence.path,
+            ...(evidence.selector ? { selector: evidence.selector } : {})
+          }))
+        : []
+    }))
   };
 }
 

@@ -6,7 +6,7 @@ As of 2026-05-16, the production MCP baseline is:
 
 - code pushed on `master`; use `git log -1 --oneline` for the latest commit
 - public MCP tools: 19
-- tests: `98 passed`
+- tests: `99 passed`
 - build: passing
 - MCP workload matrix: `23/23` stub checks, including observe-only
   `router_dry_run`
@@ -19,8 +19,8 @@ As of 2026-05-16, the production MCP baseline is:
   - no active direct wins after grounded judge
   - one historical active-cluster `NOT IN CONTEXT` sample remains in the recent
     window; inspect the judged sample before treating it as a coverage issue
-  - no active stale or `needs_prepare` clusters after archiving superseded
-    validation clusters
+  - no active stale or `needs_prepare` clusters after re-preparing the active
+    codebase cluster
   - `router_monitor.route_health` is available and records `router_consult`
     selected-path samples
   - 2026-05-15 live route sampling found stale codebase evidence after
@@ -35,10 +35,35 @@ As of 2026-05-16, the production MCP baseline is:
     `NOT IN CONTEXT` answers
   - one slow `new_session` event around 302 seconds, caused by a broad
     `tokens_in=78,258` direct roadmap consult
+  - after the hash-clearing correctness fix, `agentsessionrouter-codebase`
+    should be re-prepared with `llm_verified`, 0 rejected facts, and 0 evidence
+    hash/snippet mismatches
 
 Use `router_monitor` as the first diagnostic entry point. Treat its output as
 the information monitor for what works, what fails, why it failed, and what to
 inspect next.
+
+## Post-v2.7 Hash-Clearing Patch
+
+Verified on 2026-05-16:
+
+- `cluster_prepare` now strips generated evidence `hash` and `snippet_hash`
+  values before static or LLM verification, so re-prepare recalculates evidence
+  against current files automatically.
+- Regression test added for stale input hashes passed through `cluster_prepare`.
+- `router_monitor.cache_health.decayed_cluster_cost_signals` exposes
+  `fallback_count_recent_window` and `estimated_extra_cost_usd` for stale or
+  `needs_prepare` clusters.
+- Auto-reprepare remains deferred; monitor cost signals are the current trigger
+  for deciding when manual `cluster_prepare` is worth running.
+- Verification:
+  - `npm run build`: passed
+  - `npm test`: 99 passed
+  - `npm run smoke:postinstall`: passed
+  - `npm run mcp:workload`: 23/23 stub checks passed
+  - active cluster `agentsessionrouter-codebase` should be verified after the
+    last source/doc edit, with `llm_verified`, 0 rejected facts, and 0 evidence
+    hash/snippet mismatches
 
 ## v2.7 Observe-Only Routing Snapshot
 
@@ -64,8 +89,25 @@ Verified on 2026-05-16:
 Maintenance invariant:
 
 - Treat factsheet evidence `hash` and `snippet_hash` fields as generated
-  outputs. When re-preparing a cluster from an existing factsheet, strip those
-  fields first so `cluster_prepare` recalculates them from current files.
+  outputs. `cluster_prepare` must strip those generated fields before static or
+  LLM verification so evidence is recalculated from current files. Manual
+  hash-clearing is a correctness footgun and should not be required for normal
+  re-prepare. Lower-level refresh/revalidation code still treats stored hashes
+  as strict constraints because those paths prove whether an existing factsheet
+  still matches the current code.
+
+Known future work:
+
+- Auto-reprepare is intentionally not implemented yet. Current caller-facing
+  behavior is: strict revalidation proves old evidence still matches and
+  continues, or failed revalidation marks the cluster stale/`needs_prepare`,
+  logs the failure, falls back internally to `claude_consult`, and still returns
+  an answer when Claude is available. Full auto-reprepare would generate new
+  semantic facts and run the LLM verifier, so it needs async scheduling, rate
+  limits, audit events, and cost controls before it can run unattended. Until
+  then, `router_monitor.cache_health.decayed_cluster_cost_signals` exposes
+  fallback counts and estimated extra cost so agents can decide when a manual
+  `cluster_prepare` is worth doing.
 
 ## v2.6 Metadata-Rich Routing Snapshot
 

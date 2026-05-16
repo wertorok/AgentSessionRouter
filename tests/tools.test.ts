@@ -62,6 +62,44 @@ describe("cluster MCP tools", () => {
     fixture.cleanup();
   });
 
+  it("recalculates generated evidence hashes during cluster_prepare", async () => {
+    const fixture = createToolFixture();
+    const server = new FakeServer();
+    registerTools(server as unknown as McpServer, fixture.runtime);
+    mkdirSync(path.join(fixture.dir, "src"), { recursive: true });
+    writeFileSync(path.join(fixture.dir, "src", "config.ts"), "export const extraArgs = ['--tools', ''];\n");
+
+    const result = parseToolJson(
+      await server.call("cluster_prepare", {
+        project_id: "project",
+        cluster_id: "router-ops",
+        tool_profile_default: "bare",
+        factsheet: {
+          facts: [
+            {
+              id: "extra-args",
+              claim: "extraArgs exists.",
+              evidence: [
+                {
+                  path: "src/config.ts",
+                  selector: "extraArgs",
+                  hash: "sha256:stale-generated-hash"
+                }
+              ]
+            }
+          ]
+        }
+      })
+    );
+
+    expect(result.verified_facts).toBe(1);
+    expect(result.rejected_facts).toBe(0);
+    expect(result.factsheet.facts[0].evidence[0].hash).toMatch(/^sha256:/);
+    expect(result.factsheet.facts[0].evidence[0].hash).not.toBe("sha256:stale-generated-hash");
+    expect(result.factsheet.facts[0].evidence[0].snippet_hash).toMatch(/^sha256:/);
+    fixture.cleanup();
+  });
+
   it("preserves existing static factsheet policy when re-preparing without an explicit policy", async () => {
     const fixture = createToolFixture();
     const server = new FakeServer();
@@ -1283,6 +1321,7 @@ describe("cluster MCP tools", () => {
       fileHashes: []
     });
     fixture.runtime.db.markClusterFactsheetStale(factsheet.id);
+    fixture.runtime.db.markClusterNeedsPrepare("weak-cluster");
     fixture.runtime.db.logClusterEvent({
       clusterId: "weak-cluster",
       projectId: "project",
@@ -1324,6 +1363,13 @@ describe("cluster MCP tools", () => {
 
     expect(monitor.health.v2_clusters.fallback_count_last_24h).toBe(1);
     expect(monitor.cache_health.stale_or_needs_prepare[0].id).toBe("weak-cluster");
+    expect(monitor.cache_health.decayed_cluster_cost_signals[0]).toMatchObject({
+      cluster_id: "weak-cluster",
+      status: "needs_prepare",
+      fallback_count_recent_window: 1,
+      recent_window_hours: 24,
+      estimated_extra_cost_usd: 0.05
+    });
     expect(monitor.latency.slow_session_samples[0]).toMatchObject({
       session_id: "session-1",
       topic: "Router ops",

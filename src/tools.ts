@@ -99,6 +99,7 @@ const routerMonitorInput = z.object({
 
 const SLOW_SESSION_TOKEN_BLOAT_THRESHOLD = 50_000;
 const ROUTER_MONITOR_SAMPLE_LIMIT_CAP = 30;
+const ESTIMATED_CLUSTER_FALLBACK_EXTRA_COST_USD = 0.05;
 
 const clusterToolProfileInput = z.enum(["bare", "focused", "agent"]);
 const staticFactsheetPolicyInput = z.enum(["allow", "deny"]);
@@ -601,6 +602,11 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
       );
       const clusterAttention = runtime.db.getRecentClusterAttentionCounts(projectId, sinceIso);
       const clusterAttentionByCluster = runtime.db.getRecentClusterAttentionCountsByCluster(projectId, sinceIso);
+      const decayedClusterCostSignals = buildDecayedClusterCostSignals(
+        staleClusters,
+        clusterAttentionByCluster,
+        recentHours
+      );
       const shadowEval = runtime.db.getShadowEvalHealth(projectId);
       const activeClusterIds = new Set(runtime.db.listClusters(projectId, false).map((cluster) => cluster.id));
       const comparisonStats = runtime.db
@@ -706,6 +712,7 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
         },
         cache_health: {
           stale_or_needs_prepare: staleClusters,
+          decayed_cluster_cost_signals: decayedClusterCostSignals,
           attention_by_event: clusterAttention,
           attention_by_cluster: clusterAttentionByCluster
         },
@@ -1805,6 +1812,10 @@ function round2(value: number): number {
   return Math.round(value * 100) / 100;
 }
 
+function round4(value: number): number {
+  return Math.round(value * 10_000) / 10_000;
+}
+
 function slowSessionThresholdMs(commandTimeoutMs: number): number {
   if (!Number.isFinite(commandTimeoutMs) || commandTimeoutMs <= 0) {
     return 100_000;
@@ -2106,6 +2117,46 @@ interface AutoRoutingCandidate {
   cluster_wins: number;
   ties: number;
   reason: string;
+}
+
+interface DecayedClusterCostSignal {
+  cluster_id: string;
+  status: string;
+  factsheet_id: string | null;
+  factsheet_version: number | null;
+  fallback_count_recent_window: number;
+  recent_window_hours: number;
+  estimated_extra_cost_usd: number;
+  estimate_basis: string;
+}
+
+function buildDecayedClusterCostSignals(
+  staleClusters: StaleClusterView[],
+  clusterAttentionByCluster: ClusterEventCount[],
+  recentHours: number
+): DecayedClusterCostSignal[] {
+  const fallbackCounts = new Map<string, number>();
+  for (const event of clusterAttentionByCluster) {
+    if (event.event_type !== "cluster_fallback_to_claude_consult") {
+      continue;
+    }
+    fallbackCounts.set(event.cluster_id, (fallbackCounts.get(event.cluster_id) ?? 0) + event.count);
+  }
+
+  return staleClusters.map((cluster) => {
+    const fallbackCount = fallbackCounts.get(cluster.id) ?? 0;
+    return {
+      cluster_id: cluster.id,
+      status: cluster.status,
+      factsheet_id: cluster.factsheet_id,
+      factsheet_version: cluster.factsheet_version,
+      fallback_count_recent_window: fallbackCount,
+      recent_window_hours: recentHours,
+      estimated_extra_cost_usd: round4(fallbackCount * ESTIMATED_CLUSTER_FALLBACK_EXTRA_COST_USD),
+      estimate_basis:
+        "Heuristic: each cache fallback is estimated as about $0.05 extra versus a healthy cluster_consult, based on prior benchmark deltas. Use as a visible maintenance signal, not billing."
+    };
+  });
 }
 
 function buildAutoRoutingCandidates(
