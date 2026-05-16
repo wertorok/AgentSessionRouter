@@ -1360,6 +1360,44 @@ Gate 7 acceptance criteria:
 5. The human owner remains outside the curation loop; only a phase-end summary
    is required.
 
+#### Draft Field Population (Gate 8 Dry Run)
+
+Status: dry-run implemented, not promoted. Gate 8 turns the Gate 5/6 candidates
+into a field-populated draft artifact, but the result is still not active
+memory.
+
+Gate 8 outputs:
+
+- `experiments/architectural-memory-dry-run-2026-05-16/field-population-draft.json`
+- `experiments/architectural-memory-dry-run-2026-05-16/field-population-draft.md`
+- empty source-of-truth scaffolds:
+  - `docs/ENGINEERING_PRINCIPLES.md`
+  - `docs/PROJECT_ARCHITECTURE.md`
+
+The scaffold documents are intentionally empty. They reserve the future
+diffable destinations and contain no active principles or decisions.
+
+Gate 8 population semantics:
+
+- `engineering-principles` entries receive draft `statement`, `applies_when`,
+  `revisit_when`, and copied provenance fields.
+- `project-architecture` entries receive draft `decision`, conservative
+  `rationale`, `rationale_note`, `project_scope.project_id`,
+  `project_scope.boundary_ref`, and copied provenance fields.
+- Every draft entry remains `status: "proposed"`.
+- Every draft entry remains `field_review_status: "pending_lead_review"`.
+- Rejected, suspended, or statically failed candidates are excluded from the
+  populated draft and retained only as audit buckets.
+
+Gate 8 non-goals:
+
+- no active entries in the scaffold docs
+- no import from the draft artifact into runtime memory
+- no cluster writes
+- no `cluster_consult` serving path
+- no promotion eligibility change
+- no human curation loop
+
 Non-goals:
 
 - no implementation in this decision step
@@ -1384,8 +1422,8 @@ Implementation gates:
    artifact.
 7. Closed: design and name the durable source-of-truth document/import location
    for active project-architecture and engineering-principle records.
-8. Future: populate durable `applies_when`, `revisit_when`,
-   `rationale`, and `project_scope` fields for promotion candidates.
+8. Closed: populate draft `applies_when`, `revisit_when`, `rationale`, and
+   `project_scope` fields into a non-authoritative draft artifact.
 9. Future: add bounded lead-session promotion approval and durable writes.
 10. Future: add explicit import/serving for `engineering-principles`.
 11. Future: add `router_monitor` visibility: staged count, promoted count,

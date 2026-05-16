@@ -95,8 +95,10 @@ Additional closed gates:
 | --- | --- | --- |
 | Gate 6: Static verifier and promotion semantics | closed | `verification-report.md`, `verification-report.json`, `gate-6-summary.md` |
 | Gate 7: Source-of-truth and field-population semantics | closed | `gate-7-summary.md`, `docs/CLUSTER_CACHE_SPEC.md` |
+| Gate 8: Field-population draft | closed | `field-population-draft.md`, `field-population-draft.json`, `gate-8-summary.md` |
 
 Gate 6 added a deterministic verifier report. Gate 7 named the future
-diffable source-of-truth files and documented field-population semantics.
-Neither gate creates active memory, writes clusters, or adds a runtime serving
-path.
+diffable source-of-truth files and documented field-population semantics. Gate
+8 created empty source-of-truth scaffolds and a non-authoritative populated
+field draft. These gates do not create active memory, write clusters, or add a
+runtime serving path.
