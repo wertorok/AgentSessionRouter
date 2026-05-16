@@ -1109,6 +1109,76 @@ Skipped as non-distillable: <N>
 - reviewer_observations: ...
 ```
 
+#### Scorer/Rubric Rules (Gate 3)
+
+Gate 3 makes the Gate 2 classification explicit and auditable. It adds
+deterministic scoring to the dry-run report and documents every signal. It does
+not add LLM extraction, semantic rewriting, durable memory promotion, cluster
+writes, or runtime principle evaluation.
+
+Allowed project-architecture signals:
+
+| Signal | Meaning |
+| --- | --- |
+| `project_file_path` | Candidate text mentions a project file path such as `src/...`, `docs/...`, `scripts/...`, or a known repository file. |
+| `project_identity` | Candidate text mentions the current project name, package name, or git repository identity. |
+| `current_project_session` | Candidate comes from the current project's SQLite `session_decisions` table. |
+| `repo_feature_name` | Candidate text mentions a feature specific to this router, such as `router_consult`, `cluster_consult`, `cluster_reprepare`, `shadow_eval`, `SESSION_UPDATE_JSON`, or `router_monitor`. |
+| `version_or_phase_marker` | Candidate text mentions a release, version, phase, gate, benchmark id, or project milestone. |
+
+Allowed engineering-principle signals:
+
+| Signal | Meaning |
+| --- | --- |
+| `normative_language` | Candidate text uses advisory rule language such as `must`, `should`, `never`, `always`, `invariant`, or `principle`. |
+| `generic_agent_or_router_pattern` | Candidate text describes a pattern that can apply to any agent/router system, not only this repository. |
+| `generic_contract_language` | Candidate text mentions caller contracts, interfaces, boundaries, observability, fallback, or verification without a project-only file/schema dependency. |
+| `no_project_specific_signal` | Candidate has no project-specific signal and has at least one other transferable signal. |
+| `spec_source` | Candidate comes from a spec/maintenance document section rather than a session-only decision. |
+
+Scoring formula:
+
+```txt
+project_score = count(project_signals)
+transferable_score = count(engineering_principle_signals)
+
+classification =
+  project-architecture      if project_score > transferable_score
+  engineering-principles    if transferable_score > project_score
+  ambiguous                 otherwise
+
+confidence =
+  high      if abs(project_score - transferable_score) >= 2
+  medium    if abs(project_score - transferable_score) == 1
+  low       if abs(project_score - transferable_score) == 0
+```
+
+Rejection rules:
+
+| Code | Meaning |
+| --- | --- |
+| `rejected_too_short` | Candidate text is shorter than 20 characters after trimming. |
+| `rejected_duplicate` | Candidate text exactly duplicates an earlier candidate in the same dry run after whitespace/case normalization. |
+| `rejected_no_signal` | Candidate has zero project signals and zero transferable signals. |
+
+Scoring statuses are separate from lifecycle statuses. Gate 3 may emit
+`project-architecture`, `engineering-principles`, `ambiguous`, or one of the
+`rejected_*` codes. Lifecycle statuses remain `proposed`, `active`,
+`suspended`, and `superseded`; Gate 3 only emits `proposed` candidates.
+
+Gate 3 dry-run reports must add:
+
+- `project_score`
+- `transferable_score`
+- `primary_signal`
+- `confidence`
+- `classification`
+- rejected candidate rows with `rejection_code` and reason
+- notes summarizing confidence buckets and signal totals
+
+Ambiguous candidates are not errors. They are the handoff queue for the future
+lead-session review gate.
+
 Non-goals:
 
 - no implementation in this decision step
