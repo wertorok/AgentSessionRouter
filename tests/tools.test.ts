@@ -1486,6 +1486,15 @@ describe("cluster MCP tools", () => {
 
     expect(status.architectural_memory).toMatchObject({
       runtime_import_serving_enabled: false,
+      serving_preflight: {
+        selection_llm_input_tokens: 0,
+        per_consult_architectural_memory_tokens: 0,
+        max_engineering_principles: 7,
+        target_seed_tokens: 900,
+        absolute_seed_tokens: 1200,
+        min_post_serving_continuity_runs: 3,
+        adversarial_broken_zero_sufficient: false
+      },
       active_records: 2,
       proposed_records: 1,
       suspended_records: 1,
@@ -1500,6 +1509,15 @@ describe("cluster MCP tools", () => {
     });
     expect(monitor.health.architectural_memory).toMatchObject({
       runtime_import_serving_enabled: false,
+      serving_preflight: {
+        selection_llm_input_tokens: 0,
+        per_consult_architectural_memory_tokens: 0,
+        max_engineering_principles: 7,
+        target_seed_tokens: 900,
+        absolute_seed_tokens: 1200,
+        min_post_serving_continuity_runs: 3,
+        adversarial_broken_zero_sufficient: false
+      },
       active_records: 2,
       proposed_records: 1,
       suspended_records: 1,

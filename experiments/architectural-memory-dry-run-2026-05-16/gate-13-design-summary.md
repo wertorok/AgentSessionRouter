@@ -143,5 +143,20 @@ and returned `APPROVE_SCOPE`. The lead confirmed that the guardrails are
 mechanizable pre-implementation blockers, not runtime changes, and that they
 correctly prevent the approved design from drifting into v2 discovery behavior.
 
+## Disabled Scaffold
+
+The first implementation step adds a disabled/preflight scaffold only:
+
+- deterministic record parser and selector;
+- compact seed projection;
+- seed manifest and dedup decision;
+- visible `router_status` / `router_monitor` preflight limits.
+
+The scaffold does not inject memory, does not write clusters, does not add a
+router answer-path call site, and keeps `runtime_import_serving_enabled: false`.
+
+The durable Claude lead session reviewed the scaffold and returned
+`APPROVE_SCOPE`, confirming that it stays inside the Gate 13 boundary.
+
 Gate 13 implementation remains blocked until there is explicit sign-off on the
 canonical import boundary and a proof that the seed stays below the token budget.

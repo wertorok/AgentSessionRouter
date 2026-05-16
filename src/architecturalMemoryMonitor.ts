@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
+import { ARCHITECTURAL_MEMORY_SERVING_LIMITS } from "./architecturalMemoryServing.js";
 
 export interface ArchitecturalMemoryDocStats {
   memory_product: string;
@@ -14,6 +15,15 @@ export interface ArchitecturalMemoryDocStats {
 export interface ArchitecturalMemoryTelemetry {
   enabled: true;
   runtime_import_serving_enabled: false;
+  serving_preflight: {
+    selection_llm_input_tokens: 0;
+    per_consult_architectural_memory_tokens: 0;
+    max_engineering_principles: number;
+    target_seed_tokens: number;
+    absolute_seed_tokens: number;
+    min_post_serving_continuity_runs: number;
+    adversarial_broken_zero_sufficient: false;
+  };
   active_records: number;
   proposed_records: number;
   suspended_records: number;
@@ -63,6 +73,16 @@ export function buildArchitecturalMemoryTelemetry(cwd: string): ArchitecturalMem
   return {
     enabled: true,
     runtime_import_serving_enabled: false,
+    serving_preflight: {
+      selection_llm_input_tokens: ARCHITECTURAL_MEMORY_SERVING_LIMITS.selectionLlmInputTokens,
+      per_consult_architectural_memory_tokens:
+        ARCHITECTURAL_MEMORY_SERVING_LIMITS.perConsultArchitecturalMemoryTokens,
+      max_engineering_principles: ARCHITECTURAL_MEMORY_SERVING_LIMITS.maxEngineeringPrinciples,
+      target_seed_tokens: ARCHITECTURAL_MEMORY_SERVING_LIMITS.targetSeedTokens,
+      absolute_seed_tokens: ARCHITECTURAL_MEMORY_SERVING_LIMITS.absoluteSeedTokens,
+      min_post_serving_continuity_runs: ARCHITECTURAL_MEMORY_SERVING_LIMITS.minPostServingContinuityRuns,
+      adversarial_broken_zero_sufficient: ARCHITECTURAL_MEMORY_SERVING_LIMITS.adversarialBrokenZeroSufficient
+    },
     active_records: sum(sourceDocs.map((doc) => doc.active_records)),
     proposed_records: sum(sourceDocs.map((doc) => doc.proposed_records)),
     suspended_records: sum(sourceDocs.map((doc) => doc.suspended_records)),
