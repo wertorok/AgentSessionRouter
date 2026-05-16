@@ -1179,6 +1179,114 @@ Gate 3 dry-run reports must add:
 Ambiguous candidates are not errors. They are the handoff queue for the future
 lead-session review gate.
 
+#### Verifier and Promotion Semantics (Gate 6 Design)
+
+Status: proposed, not implemented. Gate 6 defines what "verified" and
+"promotion-eligible" mean for architectural-memory candidates. This section does
+not itself promote any candidate, create a runtime serving path, or write a
+cluster.
+
+Gate 6 exists because Gates 1-5 produce useful review artifacts, but they are
+not authoritative memory. A candidate may become authoritative only after a
+separate verification step proves that the candidate is structurally complete,
+traceable to real provenance, and explicitly approved by the durable Claude lead
+session.
+
+Verifier inputs:
+
+- `factsheet-dry-run.json` from the Gate 5 artifact.
+- `lead-session-review.json` from the Gate 4 artifact.
+- The current project SQLite `session_decisions` table opened read-only.
+- Referenced docs/experiment files opened read-only.
+
+The verifier performs only deterministic checks. It must not call an LLM and
+must not rewrite candidate text.
+
+| Check | Meaning |
+| --- | --- |
+| `provenance_exists` | `provenance.source_ref` resolves to an existing session decision row or existing doc/experiment path. |
+| `source_text_matches` | For session decisions, the source row text still matches the candidate text or the review target that produced it. |
+| `structure_complete` | Required fields for the current candidate artifact are present and non-empty. This proves the candidate can be audited, not that it is ready for durable promotion. |
+| `lead_review_present` | A Gate 4 lead-session review decision exists for the candidate when the candidate came from the ambiguous queue. |
+| `not_rejected_or_suspended` | Candidate is not rejected and has no active suspension. |
+| `no_direct_negation` | Candidate text does not mechanically negate the source text with obvious `always`/`never` or `must`/`must not` contradiction. This is a guardrail only, not semantic proof. |
+| `duplicate_id_absent` | Candidate id is not already present in the target durable document/import artifact. |
+
+Verifier output:
+
+```json
+{
+  "generated_at": "YYYY-MM-DDTHH:mm:ssZ",
+  "source_factsheet": "experiments/.../factsheet-dry-run.json",
+  "candidate_results": [
+    {
+      "candidate_id": "EP-0001",
+      "candidate_type": "engineering-principles",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": ["provenance_exists", "structure_complete"],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": ["missing_applies_when", "missing_revisit_when"],
+      "source_ref": "session:<id>;decision:<id>"
+    }
+  ],
+  "summary": {
+    "verified": 0,
+    "promotion_eligible": 0,
+    "failed": 0
+  }
+}
+```
+
+Promotion eligibility requires all of:
+
+1. `verified: true` in the Gate 6 verifier report.
+2. Lead-session `APPROVED` decision for the candidate.
+3. Non-empty `applies_when` for transferable principles, or non-empty
+   project-scope/rationale fields for project-architecture records.
+4. Non-empty `revisit_when` for transferable principles.
+5. No active suspension.
+6. No duplicate id in the destination source-of-truth document/import artifact.
+
+Failure handling:
+
+| Failure | Handling |
+| --- | --- |
+| Missing provenance | `verified: false`; do not promote. |
+| Source text changed since review | `verified: false`; require a new dry-run/review cycle. |
+| Empty `applies_when` / `revisit_when` | `verified: true` may still be possible, but `promotion_eligible: false`; send back to staging. |
+| Rejected by lead session | `verified: false`; keep only in audit trail. |
+| Suspended by lead session | `verified: false`; keep in suspended section until a future review resolves it. |
+| Direct mechanical contradiction | `verified: false`; require lead-session review with counter-evidence. |
+| Duplicate id | `verified: true`, `promotion_eligible: false`; merge/supersede must be designed separately. |
+
+Operatorless approval rule:
+
+- The durable Claude lead session is the reviewer for promotion eligibility.
+- Codex must send a bounded `router_consult` request with explicit candidate ids,
+  proposed disposition, and verifier results.
+- The lead session may return `APPROVED`, `REQUEST_REVIEW`, or `SUSPEND` per
+  candidate.
+- The human owner is not a curator in this loop; they receive the phase-end
+  summary only.
+
+Gate 6 non-goals:
+
+- no runtime serving of architectural memory
+- no cluster writes
+- no hidden global memory
+- no semantic LLM verifier in this gate
+- no automatic promotion from dry-run output alone
+- no promotion of candidates with missing scope conditions
+- no project-to-project mutation without explicit import
+
+Implementation note:
+
+Gate 6 may safely start with a verifier report artifact only. Durable promotion
+is a later step that must name the source-of-truth file/import location before
+writing any `active` memory item.
+
 Non-goals:
 
 - no implementation in this decision step
@@ -1188,19 +1296,27 @@ Non-goals:
 - no hidden model-memory authority; every active memory item must have a
   diffable artifact or explicit provenance record
 
-Implementation gates, when this is resumed:
+Implementation gates:
 
-1. Write the data/model spec for project decisions, transferable principles,
-   staging, provenance, and suspension.
-2. Add a dry-run distill report that reads the SQLite `session_decisions` table,
-   `session_events.raw_response_path` files where available, and existing docs,
-   but writes no durable memory.
-3. Add scorer/reviewer rules for project-vs-transferable classification.
-4. Add staging and lead-session review.
-5. Add verified project-architecture factsheet generation.
-6. Add explicit import/serving for `engineering-principles`.
-7. Add `router_monitor` visibility: staged count, promoted count, suspended
-   count, stale/superseded count, and recent counter-evidence.
+1. Closed: write the data/model spec for project decisions, transferable
+   principles, staging, provenance, and suspension.
+2. Closed: add a dry-run distill report that reads the SQLite
+   `session_decisions` table, `session_events.raw_response_path` files where
+   available, and existing docs, but writes no durable memory.
+3. Closed: add scorer/reviewer rules for project-vs-transferable
+   classification.
+4. Closed: add staging and lead-session review.
+5. Closed: compile a non-authoritative factsheet dry-run artifact.
+6. Closed: define verifier/promotion semantics and add a static verifier report
+   artifact.
+7. Future: design and name the durable source-of-truth document/import location
+   for active project-architecture and engineering-principle records.
+8. Future: populate durable `applies_when`, `revisit_when`,
+   `rationale`, and `project_scope` fields for promotion candidates.
+9. Future: add bounded lead-session promotion approval and durable writes.
+10. Future: add explicit import/serving for `engineering-principles`.
+11. Future: add `router_monitor` visibility: staged count, promoted count,
+    suspended count, stale/superseded count, and recent counter-evidence.
 
 Do not implement this pipeline if real usage shows that durable lead sessions
 already preserve enough architectural continuity, if `session_decisions` remain

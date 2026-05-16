@@ -1,0 +1,3180 @@
+{
+  "generated_at": "2026-05-16T21:49:40.469Z",
+  "source_factsheet": "experiments/architectural-memory-dry-run-2026-05-16/factsheet-dry-run.json",
+  "source_lead_review": "experiments/architectural-memory-dry-run-2026-05-16/lead-session-review.json",
+  "target_doc": null,
+  "candidate_results": [
+    {
+      "candidate_id": "PA-SD-000009",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11d18ee8-3799-443f-8f5f-ecd866db9e57;decision:9",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "rand_assign committed to DB before either prompt fires for deterministic auditable assignment"
+    },
+    {
+      "candidate_id": "PA-SD-000010",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11d18ee8-3799-443f-8f5f-ecd866db9e57;decision:10",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Single shadowJudge.ts function, not a class"
+    },
+    {
+      "candidate_id": "PA-SD-000012",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11d18ee8-3799-443f-8f5f-ecd866db9e57;decision:12",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "shadowEvalRate config knob in DEFAULT_CONFIG not overridable via tool input"
+    },
+    {
+      "candidate_id": "PA-SD-000013",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_e65145e0-1911-4a87-ad7d-8477254bdbb2;decision:13",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Add cost_usd field to ClusterConsultSuccess and forward from Claude adapter response"
+    },
+    {
+      "candidate_id": "PA-SD-000014",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_e65145e0-1911-4a87-ad7d-8477254bdbb2;decision:14",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Investigate A3 variance by testing with stripped factsheet before adding facts"
+    },
+    {
+      "candidate_id": "PA-SD-000015",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_e65145e0-1911-4a87-ad7d-8477254bdbb2;decision:15",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Add shadow eval loss alert: cluster_consult loses to direct_resume 2+ times in rolling window"
+    },
+    {
+      "candidate_id": "PA-SD-000016",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_e65145e0-1911-4a87-ad7d-8477254bdbb2;decision:16",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Document B1/B2 reasoning boundary explicitly in tools.ts cluster_consult tool comment and CLUSTER_CACHE_SPEC.md caller-facing section"
+    },
+    {
+      "candidate_id": "PA-SD-000017",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11d18ee8-3799-443f-8f5f-ecd866db9e57;decision:17",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "shadow answer column cap at 4096 chars with CHECK constraint and truncate-at-insert"
+    },
+    {
+      "candidate_id": "PA-SD-000018",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11d18ee8-3799-443f-8f5f-ecd866db9e57;decision:18",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "judge failure records error string in judge_result JSON, not NULL"
+    },
+    {
+      "candidate_id": "PA-SD-000019",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11d18ee8-3799-443f-8f5f-ecd866db9e57;decision:19",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "NOT IN CONTEXT from cluster_consult is a terminal signal; parent agent continues without retrying"
+    },
+    {
+      "candidate_id": "PA-SD-000021",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11d18ee8-3799-443f-8f5f-ecd866db9e57;decision:21",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "claude_consult is the default entry point for all parent agents"
+    },
+    {
+      "candidate_id": "PA-SD-000022",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11d18ee8-3799-443f-8f5f-ecd866db9e57;decision:22",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "cluster_consult is secondary; only used when a verified factsheet cluster already exists"
+    },
+    {
+      "candidate_id": "PA-SD-000023",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11d18ee8-3799-443f-8f5f-ecd866db9e57;decision:23",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Auto routing is gated on A3 variance resolution and stable cluster_consult vs direct_resume quality gap across all tiers, not just aggregate"
+    },
+    {
+      "candidate_id": "PA-SD-000025",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11d18ee8-3799-443f-8f5f-ecd866db9e57;decision:25",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "claude_consult is used directly when no verified factsheet cluster exists or when explicit session_id routing is required"
+    },
+    {
+      "candidate_id": "PA-SD-000027",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11d18ee8-3799-443f-8f5f-ecd866db9e57;decision:27",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "route_health as a concept does not exist in v2.3.1; existing monitoring uses degradedMode and session_events quality metrics"
+    },
+    {
+      "candidate_id": "PA-SD-000028",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11d18ee8-3799-443f-8f5f-ecd866db9e57;decision:28",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "A cluster requires re-prepare when any tracked file's hash or size differs from the stored cluster_file_hashes entry"
+    },
+    {
+      "candidate_id": "PA-SD-000029",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4;decision:29",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Re-prepare cluster on package.json/lockfile changes that alter import topology"
+    },
+    {
+      "candidate_id": "PA-SD-000030",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4;decision:30",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Re-prepare cluster when consult failure rates exceed sanity threshold"
+    },
+    {
+      "candidate_id": "PA-SD-000031",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4;decision:31",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Default consult entry point is the sanity/ready check, not full routing"
+    },
+    {
+      "candidate_id": "PA-SD-000032",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4;decision:32",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Full routing only proceeds after sanity endpoint confirms cluster health"
+    },
+    {
+      "candidate_id": "PA-SD-000033",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4;decision:33",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Auto routing requires confirmed metadata freshness from health snapshots"
+    },
+    {
+      "candidate_id": "PA-SD-000034",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4;decision:34",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Auto routing requires routing latency within acceptable tolerance"
+    },
+    {
+      "candidate_id": "PA-SD-000037",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4;decision:37",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Fallback to claude_consult when sanity endpoint fails or times out"
+    },
+    {
+      "candidate_id": "PA-SD-000038",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4;decision:38",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Bypass cluster when routing latency exceeds acceptable threshold"
+    },
+    {
+      "candidate_id": "PA-SD-000042",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4;decision:42",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "claude_consult fallback is mandatory when sanity check fails"
+    },
+    {
+      "candidate_id": "PA-SD-000043",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4;decision:43",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "route_health is derived from sanity check, metadata freshness, and latency tolerance"
+    },
+    {
+      "candidate_id": "PA-SD-000044",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4;decision:44",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "route_health=false forces mandatory claude_consult fallback"
+    },
+    {
+      "candidate_id": "PA-SD-000045",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4;decision:45",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Re-prepare on package.json/lockfile changes that alter import topology"
+    },
+    {
+      "candidate_id": "PA-SD-000046",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4;decision:46",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Re-prepare when consult failure rates exceed sanity threshold"
+    },
+    {
+      "candidate_id": "PA-SD-000047",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_570b63cb-efa6-4345-96bc-84d875385637;decision:47",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "inspect active session-route mapping before chasing downstream route health metrics"
+    },
+    {
+      "candidate_id": "PA-SD-000054",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_9e3540b3-5451-442f-af26-03c888b7e859;decision:54",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Route conservative fallback when cluster factsheet evidence fails strict revalidation"
+    },
+    {
+      "candidate_id": "PA-SD-000056",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_e04a3fed-2a53-44f2-92ea-695d2e3e193e;decision:56",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Operator signal is the snapshot's `verifiedAt` timestamp"
+    },
+    {
+      "candidate_id": "PA-SD-000057",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_63fec26d-9e40-4981-80ce-5b7311daa01c;decision:57",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "prompt.ts consult export is the default entry point for route sample sessions"
+    },
+    {
+      "candidate_id": "PA-SD-000058",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_63fec26d-9e40-4981-80ce-5b7311daa01c;decision:58",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Auto routing requires confirmed fresh cluster facts plus clear operator signal"
+    },
+    {
+      "candidate_id": "PA-SD-000059",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_9e3540b3-5451-442f-af26-03c888b7e859;decision:59",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Do not reuse prior session route sample matrix for claude-code-live-workload without revalidation"
+    },
+    {
+      "candidate_id": "PA-SD-000063",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_63fec26d-9e40-4981-80ce-5b7311daa01c;decision:63",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "route_health composite status gates routing readiness"
+    },
+    {
+      "candidate_id": "PA-SD-000115",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_bff3152b-7854-41b0-814f-39461a95685a;decision:115",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Use npm test for standard test runs"
+    },
+    {
+      "candidate_id": "PA-SD-000119",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_116e5b9d-bebf-41a0-a173-2c94e094238a;decision:119",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Use fallback routing for race-test-cluster until factsheet revalidation passes"
+    },
+    {
+      "candidate_id": "PA-SD-000169",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:169",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Workers used only for parallel test authoring, doc drafting, benchmarks, and shadow eval"
+    },
+    {
+      "candidate_id": "PA-SD-000171",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:171",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Decision ledger in docs/DECISIONS.md provides continuity across stateless Codex sessions"
+    },
+    {
+      "candidate_id": "PA-SD-000172",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:172",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Escalation requires mechanical threshold triggers, not open-ended uncertainty"
+    },
+    {
+      "candidate_id": "PA-SD-000173",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:173",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Phase gates are deterministic pass/fail via gate_criteria.json checked by Codex"
+    },
+    {
+      "candidate_id": "PA-SD-000174",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:174",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Workers are firewalled from human contact by architecture, not policy"
+    },
+    {
+      "candidate_id": "PA-SD-000176",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:176",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Decision ledger entries include expiry, valid_while conditions, and reconsider_on triggers"
+    },
+    {
+      "candidate_id": "PA-SD-000177",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:177",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Escalation queue requires Codex proposed resolution to bound the response"
+    },
+    {
+      "candidate_id": "PA-SD-000178",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:178",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Codex proceeds alone when routeDecision.ts contracts unchanged, router_monitor green, tests pass, and change is additive"
+    },
+    {
+      "candidate_id": "PA-SD-000179",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:179",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "router_consult for route-level conflicts; cluster_consult for cache invalidation ambiguity"
+    },
+    {
+      "candidate_id": "PA-SD-000180",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:180",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Workers are existing test runners run in background, NOT separate Codex sessions"
+    },
+    {
+      "candidate_id": "PA-SD-000181",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:181",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Phase bundle uses existing docs (EXPERIMENTS.md, CLUSTER_CACHE_SPEC.md, SHADOW_EVAL_SPEC.md) plus PR descriptions as artifacts"
+    },
+    {
+      "candidate_id": "PA-SD-000182",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:182",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Single human touchpoint is the PR description; human reads only, mid-phase replies become new issues"
+    },
+    {
+      "candidate_id": "PA-SD-000185",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:185",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "docs/DECISIONS.md and phase state location should be named explicitly in the section"
+    },
+    {
+      "candidate_id": "PA-SD-000189",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:189",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Phase 7 distill is consistent with prior deferral — now has concrete trigger: Phase 4 handoff produces transferable insight"
+    },
+    {
+      "candidate_id": "PA-SD-000190",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:190",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Bootstrap via docs/ARCHITECTURE_LESSONS.md manual seed, then auto-populate via distill pipeline; fully manual forever rejected"
+    },
+    {
+      "candidate_id": "PA-SD-000194",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:194",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Phase 7 distill triggered at Phase 4 handoff when insight is marked transferable — consistent with prior deferral"
+    },
+    {
+      "candidate_id": "PA-SD-000195",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:195",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Hybrid bootstrap: docs/ARCHITECTURE_LESSONS.md manual seed, then auto-distill; fully manual forever rejected"
+    },
+    {
+      "candidate_id": "PA-SD-000196",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:196",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Bootstrap is Codex-derived from existing MAINTENANCE.md and CLUSTER_CACHE_SPEC.md content — no human seed curation"
+    },
+    {
+      "candidate_id": "PA-SD-000197",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:197",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Project isolation preserved via Option A: imported cluster template with canonical URL in MAINTENANCE.md; fallback to per-user global if URL undefined"
+    },
+    {
+      "candidate_id": "PA-SD-000199",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:199",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Durable decision artifacts are MAINTENANCE.md, docs/CLUSTER_CACHE_SPEC.md, docs/SHADOW_EVAL_SPEC.md, docs/EXPERIMENTS.md — docs/DECISIONS.md does not exist"
+    },
+    {
+      "candidate_id": "PA-SD-000200",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:200",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Phase number must be Phase 7 consistently across all docs or explicitly reconciled with MAINTENANCE.md"
+    },
+    {
+      "candidate_id": "PA-SD-000201",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:201",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "session_decisions must be confirmed as a readable persistent artifact or distill input redefined as phase summaries + existing docs only"
+    },
+    {
+      "candidate_id": "PA-SD-000203",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:203",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Phase 7 now consistent across section header and MAINTENANCE.md"
+    },
+    {
+      "candidate_id": "PA-SD-000204",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:204",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "session_decisions confirmed as SQLite table — not ambiguous artifact"
+    },
+    {
+      "candidate_id": "PA-SD-000205",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:205",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Non-goals sentence complete: no hidden model-memory authority clause resolved"
+    },
+    {
+      "candidate_id": "PA-SD-000206",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:206",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Gate 1 is documentation-only: spec defines data shapes, not extraction logic or storage"
+    },
+    {
+      "candidate_id": "PA-SD-000207",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:207",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "No LLM/extraction prompts, no cluster writes, no src/schema.ts changes, no applies_when evaluation"
+    },
+    {
+      "candidate_id": "PA-SD-000208",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:208",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Primary artifact is new subsection in CLUSTER_CACHE_SPEC.md; secondary is dry-run template in EXPERIMENTS.md"
+    },
+    {
+      "candidate_id": "PA-SD-000209",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:209",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Proof of gate close: 6 criteria including field-complete schemas, state machine completeness, no extraction logic, no cross-references to src/"
+    },
+    {
+      "candidate_id": "PA-SD-000210",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:210",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Phase 7 Gate 1 closed — Data/Model Spec in CLUSTER_CACHE_SPEC.md and dry-run template in EXPERIMENTS.md are complete and correct"
+    },
+    {
+      "candidate_id": "PA-SD-000211",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:211",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Phase 7 Gate 1 closed — no remaining issues"
+    },
+    {
+      "candidate_id": "PA-SD-000212",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:212",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Gate 2 is a deterministic skeleton report: verbatim decision_text as statement, auto-filled provenance, mechanical classification only, no LLM"
+    },
+    {
+      "candidate_id": "PA-SD-000213",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:213",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Script: scripts/architectural-memory-dry-run.mjs reads SQLite + docs, writes report to docs/EXPERIMENTS.md"
+    },
+    {
+      "candidate_id": "PA-SD-000214",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:214",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Gate 2 closes when script runs without error, all decision_text appears verbatim, no durable memory written, report in EXPERIMENTS.md"
+    },
+    {
+      "candidate_id": "PA-SD-000215",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:215",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Phase 7 Gate 2 closed — dry-run script operates correctly within Option B scope"
+    },
+    {
+      "candidate_id": "PA-SD-000216",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:216",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Gate 3 is both: extended dry-run script with scoring functions AND documented rubric in CLUSTER_CACHE_SPEC.md"
+    },
+    {
+      "candidate_id": "PA-SD-000217",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:217",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Mechanical scoring: project signals (+1 each) vs transferable signals (+1 each), difference determines classification, confidence from score gap"
+    },
+    {
+      "candidate_id": "PA-SD-000218",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:218",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "No LLM, no extraction — signals are keyword/path-based only"
+    },
+    {
+      "candidate_id": "PA-SD-000219",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:219",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Allowed statuses after Gate 3 scoring: project-architecture, engineering-principles, ambiguous, rejected_no_signal, rejected_too_short, rejected_duplicate"
+    },
+    {
+      "candidate_id": "PA-SD-000220",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:220",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Phase 7 Gate 3 closed — scoring rubric and implementation match scope; spec_source signal gap is non-blocking follow-up"
+    },
+    {
+      "candidate_id": "PA-SD-000221",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:221",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "Gate 3 follow-up on spec_source was a false positive and is withdrawn"
+    },
+    {
+      "candidate_id": "PA-DOC-0001",
+      "candidate_type": "project-architecture",
+      "status_bucket": "gate3_project_architecture",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_rationale",
+        "missing_project_scope",
+        "missing_lead_approval"
+      ],
+      "source_ref": "docs:docs/CLUSTER_CACHE_SPEC.md#cluster-consult",
+      "lead_decision": null,
+      "effective_classification": "project-architecture",
+      "text": "`cluster_consult`: Consults Claude using a verified factsheet. Phase 4 does not use fork sessions; fork support is Phase 5."
+    },
+    {
+      "candidate_id": "AMB-SD-000007",
+      "candidate_type": "engineering-principles",
+      "status_bucket": "gate4_approved_engineering_principles",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_revisit_when"
+      ],
+      "source_ref": "session:session_11d18ee8-3799-443f-8f5f-ecd866db9e57;decision:7",
+      "lead_decision": "APPROVED",
+      "effective_classification": "engineering-principles",
+      "text": "Shadow must use dedicated lock namespace (shadow:${projectId}) separate from production locks"
+    },
+    {
+      "candidate_id": "AMB-SD-000035",
+      "candidate_type": "engineering-principles",
+      "status_bucket": "gate4_approved_engineering_principles",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_revisit_when"
+      ],
+      "source_ref": "session:session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4;decision:35",
+      "lead_decision": "APPROVED",
+      "effective_classification": "engineering-principles",
+      "text": "Cluster health metrics are router-internal only"
+    },
+    {
+      "candidate_id": "AMB-SD-000039",
+      "candidate_type": "engineering-principles",
+      "status_bucket": "gate4_approved_engineering_principles",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_revisit_when"
+      ],
+      "source_ref": "session:session_11d18ee8-3799-443f-8f5f-ecd866db9e57;decision:39",
+      "lead_decision": "APPROVED",
+      "effective_classification": "engineering-principles",
+      "text": "Orphaned session replacement must remain transparent; dead sessions are never silently reused"
+    },
+    {
+      "candidate_id": "AMB-SD-000041",
+      "candidate_type": "engineering-principles",
+      "status_bucket": "gate4_approved_engineering_principles",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_revisit_when"
+      ],
+      "source_ref": "session:session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4;decision:41",
+      "lead_decision": "APPROVED",
+      "effective_classification": "engineering-principles",
+      "text": "Unhealthy cluster must never receive production auto routing traffic"
+    },
+    {
+      "candidate_id": "AMB-SD-000050",
+      "candidate_type": "engineering-principles",
+      "status_bucket": "gate4_approved_engineering_principles",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_revisit_when"
+      ],
+      "source_ref": "session:session_e04a3fed-2a53-44f2-92ea-695d2e3e193e;decision:50",
+      "lead_decision": "APPROVED",
+      "effective_classification": "engineering-principles",
+      "text": "Stale cluster fallback defaults to conservative routing strategy"
+    },
+    {
+      "candidate_id": "AMB-SD-000051",
+      "candidate_type": "engineering-principles",
+      "status_bucket": "gate4_approved_engineering_principles",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_revisit_when"
+      ],
+      "source_ref": "session:session_e04a3fed-2a53-44f2-92ea-695d2e3e193e;decision:51",
+      "lead_decision": "APPROVED",
+      "effective_classification": "engineering-principles",
+      "text": "Unverified facts must be re-validated against live metadata before use"
+    },
+    {
+      "candidate_id": "AMB-SD-000060",
+      "candidate_type": "engineering-principles",
+      "status_bucket": "gate4_approved_engineering_principles",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_revisit_when"
+      ],
+      "source_ref": "session:session_e04a3fed-2a53-44f2-92ea-695d2e3e193e;decision:60",
+      "lead_decision": "APPROVED",
+      "effective_classification": "engineering-principles",
+      "text": "Secondary session routing must verify metadata health snapshot before using session facts"
+    },
+    {
+      "candidate_id": "AMB-SD-000061",
+      "candidate_type": "engineering-principles",
+      "status_bucket": "gate4_approved_engineering_principles",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_revisit_when"
+      ],
+      "source_ref": "session:session_e04a3fed-2a53-44f2-92ea-695d2e3e193e;decision:61",
+      "lead_decision": "APPROVED",
+      "effective_classification": "engineering-principles",
+      "text": "Stale-memory risk must be surfaced, not silently suppressed, for older sessions"
+    },
+    {
+      "candidate_id": "AMB-SD-000116",
+      "candidate_type": "engineering-principles",
+      "status_bucket": "gate4_approved_engineering_principles",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_revisit_when"
+      ],
+      "source_ref": "session:session_5d398351-9c4a-4670-b70c-49398e6ba477;decision:116",
+      "lead_decision": "APPROVED",
+      "effective_classification": "engineering-principles",
+      "text": "Reject cluster names containing SQL metacharacters (; \" --) at input validation boundary"
+    },
+    {
+      "candidate_id": "AMB-SD-000121",
+      "candidate_type": "engineering-principles",
+      "status_bucket": "gate4_approved_engineering_principles",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_revisit_when"
+      ],
+      "source_ref": "session:session_116e5b9d-bebf-41a0-a173-2c94e094238a;decision:121",
+      "lead_decision": "APPROVED",
+      "effective_classification": "engineering-principles",
+      "text": "Consistent fallback routing for all parallel queries until cluster-level revalidation succeeds"
+    },
+    {
+      "candidate_id": "AMB-SD-000122",
+      "candidate_type": "engineering-principles",
+      "status_bucket": "gate4_approved_engineering_principles",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_revisit_when"
+      ],
+      "source_ref": "session:session_116e5b9d-bebf-41a0-a173-2c94e094238a;decision:122",
+      "lead_decision": "APPROVED",
+      "effective_classification": "engineering-principles",
+      "text": "Continue fallback routing for all remaining parallel queries until cluster revalidation"
+    },
+    {
+      "candidate_id": "AMB-SD-000123",
+      "candidate_type": "engineering-principles",
+      "status_bucket": "gate4_approved_engineering_principles",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_revisit_when"
+      ],
+      "source_ref": "session:session_116e5b9d-bebf-41a0-a173-2c94e094238a;decision:123",
+      "lead_decision": "APPROVED",
+      "effective_classification": "engineering-principles",
+      "text": "Maintain fallback during reprepare until successful completion"
+    },
+    {
+      "candidate_id": "AMB-DOC-0008",
+      "candidate_type": "engineering-principles",
+      "status_bucket": "gate4_approved_engineering_principles",
+      "verified": true,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "not_rejected_or_suspended",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [],
+      "failure_reasons": [],
+      "promotion_blockers": [
+        "missing_revisit_when"
+      ],
+      "source_ref": "docs:docs/CLUSTER_CACHE_SPEC.md#scorer-rubric-rules-gate-3",
+      "lead_decision": "APPROVED",
+      "effective_classification": "engineering-principles",
+      "text": "Scorer/Rubric Rules (Gate 3): Gate 3 makes the Gate 2 classification explicit and auditable. It adds"
+    },
+    {
+      "candidate_id": "AMB-SD-000036",
+      "candidate_type": "unknown",
+      "status_bucket": "gate4_suspended",
+      "verified": false,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [
+        "not_rejected_or_suspended"
+      ],
+      "failure_reasons": [
+        "candidate lead_decision is SUSPENDED"
+      ],
+      "promotion_blockers": [
+        "missing_effective_classification",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4;decision:36",
+      "lead_decision": "SUSPENDED",
+      "effective_classification": null,
+      "text": "External clients must not bypass sanity check based on exposed metrics"
+    },
+    {
+      "candidate_id": "AMB-DOC-0019",
+      "candidate_type": "unknown",
+      "status_bucket": "gate4_suspended",
+      "verified": false,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [
+        "not_rejected_or_suspended"
+      ],
+      "failure_reasons": [
+        "candidate lead_decision is SUSPENDED"
+      ],
+      "promotion_blockers": [
+        "missing_effective_classification",
+        "missing_lead_approval"
+      ],
+      "source_ref": "docs:MAINTENANCE.md#v2-7-observe-only-routing-snapshot",
+      "lead_decision": "SUSPENDED",
+      "effective_classification": null,
+      "text": "v2.7 Observe-Only Routing Snapshot: Verified on 2026-05-16:"
+    },
+    {
+      "candidate_id": "AMB-DOC-0020",
+      "candidate_type": "unknown",
+      "status_bucket": "gate4_suspended",
+      "verified": false,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [
+        "not_rejected_or_suspended"
+      ],
+      "failure_reasons": [
+        "candidate lead_decision is SUSPENDED"
+      ],
+      "promotion_blockers": [
+        "missing_effective_classification",
+        "missing_lead_approval"
+      ],
+      "source_ref": "docs:MAINTENANCE.md#v2-6-metadata-rich-routing-snapshot",
+      "lead_decision": "SUSPENDED",
+      "effective_classification": null,
+      "text": "v2.6 Metadata-Rich Routing Snapshot: Verified on 2026-05-15:"
+    },
+    {
+      "candidate_id": "AMB-SD-000008",
+      "candidate_type": "unknown",
+      "status_bucket": "gate4_rejected",
+      "verified": false,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [
+        "not_rejected_or_suspended"
+      ],
+      "failure_reasons": [
+        "candidate lead_decision is REJECTED"
+      ],
+      "promotion_blockers": [
+        "missing_effective_classification",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11d18ee8-3799-443f-8f5f-ecd866db9e57;decision:8",
+      "lead_decision": "REJECTED",
+      "effective_classification": null,
+      "text": "New shadow_comparisons table only; shadow data never mixes with cluster_events or session_events"
+    },
+    {
+      "candidate_id": "AMB-SD-000040",
+      "candidate_type": "unknown",
+      "status_bucket": "gate4_rejected",
+      "verified": false,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [
+        "not_rejected_or_suspended"
+      ],
+      "failure_reasons": [
+        "candidate lead_decision is REJECTED"
+      ],
+      "promotion_blockers": [
+        "missing_effective_classification",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11d18ee8-3799-443f-8f5f-ecd866db9e57;decision:40",
+      "lead_decision": "REJECTED",
+      "effective_classification": null,
+      "text": "Exact-topic session deduplication must be preserved across explicit session_id routing"
+    },
+    {
+      "candidate_id": "AMB-SD-000052",
+      "candidate_type": "unknown",
+      "status_bucket": "gate4_rejected",
+      "verified": false,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [
+        "not_rejected_or_suspended"
+      ],
+      "failure_reasons": [
+        "candidate lead_decision is REJECTED"
+      ],
+      "promotion_blockers": [
+        "missing_effective_classification",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_63fec26d-9e40-4981-80ce-5b7311daa01c;decision:52",
+      "lead_decision": "REJECTED",
+      "effective_classification": null,
+      "text": "Fallback path emits stale cluster signal, not silent degradation"
+    },
+    {
+      "candidate_id": "AMB-SD-000053",
+      "candidate_type": "unknown",
+      "status_bucket": "gate4_rejected",
+      "verified": false,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [
+        "not_rejected_or_suspended"
+      ],
+      "failure_reasons": [
+        "candidate lead_decision is REJECTED"
+      ],
+      "promotion_blockers": [
+        "missing_effective_classification",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_63fec26d-9e40-4981-80ce-5b7311daa01c;decision:53",
+      "lead_decision": "REJECTED",
+      "effective_classification": null,
+      "text": "Fallback halts on stale cluster, emits signal for operator to resolve"
+    },
+    {
+      "candidate_id": "AMB-SD-000062",
+      "candidate_type": "unknown",
+      "status_bucket": "gate4_rejected",
+      "verified": false,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [
+        "not_rejected_or_suspended"
+      ],
+      "failure_reasons": [
+        "candidate lead_decision is REJECTED"
+      ],
+      "promotion_blockers": [
+        "missing_effective_classification",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_63fec26d-9e40-4981-80ce-5b7311daa01c;decision:62",
+      "lead_decision": "REJECTED",
+      "effective_classification": null,
+      "text": "Stale facts = halt with signal, never silent degradation"
+    },
+    {
+      "candidate_id": "AMB-SD-000089",
+      "candidate_type": "unknown",
+      "status_bucket": "gate4_rejected",
+      "verified": false,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [
+        "not_rejected_or_suspended"
+      ],
+      "failure_reasons": [
+        "candidate lead_decision is REJECTED"
+      ],
+      "promotion_blockers": [
+        "missing_effective_classification",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_e5feff70-5233-4395-906d-0ecb13bbbb69;decision:89",
+      "lead_decision": "REJECTED",
+      "effective_classification": null,
+      "text": "MAINTENANCE.md contains router answer-hygiene rule; never let shadow eval affect caller answers"
+    },
+    {
+      "candidate_id": "AMB-SD-000090",
+      "candidate_type": "unknown",
+      "status_bucket": "gate4_rejected",
+      "verified": false,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [
+        "not_rejected_or_suspended"
+      ],
+      "failure_reasons": [
+        "candidate lead_decision is REJECTED"
+      ],
+      "promotion_blockers": [
+        "missing_effective_classification",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_e5feff70-5233-4395-906d-0ecb13bbbb69;decision:90",
+      "lead_decision": "REJECTED",
+      "effective_classification": null,
+      "text": "MAINTENANCE.md is authoritative for router answer-hygiene rules; shadow eval must not affect caller answers"
+    },
+    {
+      "candidate_id": "AMB-SD-000114",
+      "candidate_type": "unknown",
+      "status_bucket": "gate4_rejected",
+      "verified": false,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [
+        "not_rejected_or_suspended"
+      ],
+      "failure_reasons": [
+        "candidate lead_decision is REJECTED"
+      ],
+      "promotion_blockers": [
+        "missing_effective_classification",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_e5feff70-5233-4395-906d-0ecb13bbbb69;decision:114",
+      "lead_decision": "REJECTED",
+      "effective_classification": null,
+      "text": "MAINTENANCE.md is authoritative; shadow eval must not affect caller answers"
+    },
+    {
+      "candidate_id": "AMB-SD-000167",
+      "candidate_type": "unknown",
+      "status_bucket": "gate4_rejected",
+      "verified": false,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [
+        "not_rejected_or_suspended"
+      ],
+      "failure_reasons": [
+        "candidate lead_decision is REJECTED"
+      ],
+      "promotion_blockers": [
+        "missing_effective_classification",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:167",
+      "lead_decision": "REJECTED",
+      "effective_classification": null,
+      "text": "Phase gate model with explicit artifact bundles required per phase"
+    },
+    {
+      "candidate_id": "AMB-SD-000168",
+      "candidate_type": "unknown",
+      "status_bucket": "gate4_rejected",
+      "verified": false,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [
+        "not_rejected_or_suspended"
+      ],
+      "failure_reasons": [
+        "candidate lead_decision is REJECTED"
+      ],
+      "promotion_blockers": [
+        "missing_effective_classification",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:168",
+      "lead_decision": "REJECTED",
+      "effective_classification": null,
+      "text": "Codex must escalate architectural conflicts, ambiguous reqs, risk crossing, and design reversals to lead"
+    },
+    {
+      "candidate_id": "AMB-SD-000175",
+      "candidate_type": "unknown",
+      "status_bucket": "gate4_rejected",
+      "verified": false,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [
+        "not_rejected_or_suspended"
+      ],
+      "failure_reasons": [
+        "candidate lead_decision is REJECTED"
+      ],
+      "promotion_blockers": [
+        "missing_effective_classification",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:175",
+      "lead_decision": "REJECTED",
+      "effective_classification": null,
+      "text": "Phase summaries are read-only by explicit workflow contract; human replies become new issues"
+    },
+    {
+      "candidate_id": "AMB-SD-000184",
+      "candidate_type": "unknown",
+      "status_bucket": "gate4_rejected",
+      "verified": false,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [
+        "not_rejected_or_suspended"
+      ],
+      "failure_reasons": [
+        "candidate lead_decision is REJECTED"
+      ],
+      "promotion_blockers": [
+        "missing_effective_classification",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:184",
+      "lead_decision": "REJECTED",
+      "effective_classification": null,
+      "text": "Security patches requiring human sign-off should be explicit exception in Human Touchpoint"
+    },
+    {
+      "candidate_id": "AMB-SD-000186",
+      "candidate_type": "unknown",
+      "status_bucket": "gate4_rejected",
+      "verified": false,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [
+        "not_rejected_or_suspended"
+      ],
+      "failure_reasons": [
+        "candidate lead_decision is REJECTED"
+      ],
+      "promotion_blockers": [
+        "missing_effective_classification",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:186",
+      "lead_decision": "REJECTED",
+      "effective_classification": null,
+      "text": "Two-pass auto-classification with staging cluster for global population — not mandatory human review, not fully automatic"
+    },
+    {
+      "candidate_id": "AMB-SD-000187",
+      "candidate_type": "unknown",
+      "status_bucket": "gate4_rejected",
+      "verified": false,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [
+        "not_rejected_or_suspended"
+      ],
+      "failure_reasons": [
+        "candidate lead_decision is REJECTED"
+      ],
+      "promotion_blockers": [
+        "missing_effective_classification",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:187",
+      "lead_decision": "REJECTED",
+      "effective_classification": null,
+      "text": "Every principle stores applicability clause and lead session rejection mechanism to prevent dogmatization"
+    },
+    {
+      "candidate_id": "AMB-SD-000191",
+      "candidate_type": "unknown",
+      "status_bucket": "gate4_rejected",
+      "verified": false,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [
+        "not_rejected_or_suspended"
+      ],
+      "failure_reasons": [
+        "candidate lead_decision is REJECTED"
+      ],
+      "promotion_blockers": [
+        "missing_effective_classification",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:191",
+      "lead_decision": "REJECTED",
+      "effective_classification": null,
+      "text": "Two-cluster memory via existing cluster mechanism: project-architecture + engineering-principles"
+    },
+    {
+      "candidate_id": "AMB-SD-000192",
+      "candidate_type": "unknown",
+      "status_bucket": "gate4_rejected",
+      "verified": false,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [
+        "not_rejected_or_suspended"
+      ],
+      "failure_reasons": [
+        "candidate lead_decision is REJECTED"
+      ],
+      "promotion_blockers": [
+        "missing_effective_classification",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:192",
+      "lead_decision": "REJECTED",
+      "effective_classification": null,
+      "text": "Two-pass auto-classification: project vs. transferable candidate via staging cluster, Codex self-reviews"
+    },
+    {
+      "candidate_id": "AMB-SD-000198",
+      "candidate_type": "unknown",
+      "status_bucket": "gate4_rejected",
+      "verified": false,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [
+        "not_rejected_or_suspended"
+      ],
+      "failure_reasons": [
+        "candidate lead_decision is REJECTED"
+      ],
+      "promotion_blockers": [
+        "missing_effective_classification",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:198",
+      "lead_decision": "REJECTED",
+      "effective_classification": null,
+      "text": "All phase gates are documentation milestones — no code required for decision record acceptance"
+    },
+    {
+      "candidate_id": "AMB-SD-000202",
+      "candidate_type": "unknown",
+      "status_bucket": "gate4_rejected",
+      "verified": false,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [
+        "not_rejected_or_suspended"
+      ],
+      "failure_reasons": [
+        "candidate lead_decision is REJECTED"
+      ],
+      "promotion_blockers": [
+        "missing_effective_classification",
+        "missing_lead_approval"
+      ],
+      "source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:202",
+      "lead_decision": "REJECTED",
+      "effective_classification": null,
+      "text": "Non-goals sentence must be completed: 'no hidden model-memory authority without a diffable artifact' is syntactically incomplete"
+    },
+    {
+      "candidate_id": "AMB-DOC-0018",
+      "candidate_type": "unknown",
+      "status_bucket": "gate4_rejected",
+      "verified": false,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [
+        "not_rejected_or_suspended"
+      ],
+      "failure_reasons": [
+        "candidate lead_decision is REJECTED"
+      ],
+      "promotion_blockers": [
+        "missing_effective_classification",
+        "missing_lead_approval"
+      ],
+      "source_ref": "docs:docs/EXPERIMENTS.md#decisions",
+      "lead_decision": "REJECTED",
+      "effective_classification": null,
+      "text": "Decisions: - Use verified factsheet cache as source of truth. Do not use opaque Claude session state as the only source of truth."
+    },
+    {
+      "candidate_id": "AMB-DOC-0026",
+      "candidate_type": "unknown",
+      "status_bucket": "gate4_rejected",
+      "verified": false,
+      "promotion_eligible": false,
+      "checks_passed": [
+        "provenance_exists",
+        "source_text_matches",
+        "structure_complete",
+        "lead_review_present",
+        "no_direct_negation",
+        "duplicate_id_absent"
+      ],
+      "checks_failed": [
+        "not_rejected_or_suspended"
+      ],
+      "failure_reasons": [
+        "candidate lead_decision is REJECTED"
+      ],
+      "promotion_blockers": [
+        "missing_effective_classification",
+        "missing_lead_approval"
+      ],
+      "source_ref": "docs:MAINTENANCE.md#cluster-factsheet-re-prepare",
+      "lead_decision": "REJECTED",
+      "effective_classification": null,
+      "text": "Cluster Factsheet Re-Prepare: Re-prepare affected cluster factsheets after any architectural PR that changes:"
+    }
+  ],
+  "summary": {
+    "total": 116,
+    "verified": 93,
+    "promotion_eligible": 0,
+    "failed": 23,
+    "by_bucket": {
+      "gate3_project_architecture": 80,
+      "gate4_approved_engineering_principles": 13,
+      "gate4_suspended": 3,
+      "gate4_rejected": 20
+    },
+    "failed_checks": {
+      "not_rejected_or_suspended": 23
+    }
+  },
+  "notes": [
+    "Static verifier only. No LLM calls, no cluster writes, and no durable promotion.",
+    "promotion_eligible requires verified=true plus durable-record scope/rationale fields.",
+    "Current Gate 5 dry-run artifacts are expected to verify provenance but usually fail promotion eligibility until applies_when/revisit_when/rationale are populated."
+  ]
+}
