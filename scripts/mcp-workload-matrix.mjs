@@ -289,6 +289,40 @@ try {
       };
     });
 
+    writeMonitorSource();
+    await prepareMonitorCluster(client, "monitor-reprepare-drop", "allow", "static");
+    writeMonitorSource({ selectorLine: "export const routerMonitorRenamed = true;" });
+    await scenario("cluster_reprepare_coverage_drop_visible_in_monitor", async () => {
+      const reprepared = await callTool(client, "cluster_reprepare", {
+        project_id: null,
+        cluster_id: "monitor-reprepare-drop",
+        verification_mode: "static"
+      });
+      const monitor = await callTool(client, "router_monitor", { project_id: null, recent_hours: 24, sample_limit: 20 });
+      const coverageDrop = monitor.cache_health?.reprepare_coverage_drops?.find(
+        (item) => item.cluster_id === "monitor-reprepare-drop"
+      );
+      const recommendation = monitor.recommendations?.find(
+        (item) => item.area === "coverage" && item.cluster_id === "monitor-reprepare-drop"
+      );
+      return {
+        pass: Boolean(
+          reprepared.coverage?.source_fact_count === 2 &&
+            reprepared.coverage?.verified_facts === 1 &&
+            reprepared.coverage?.rejected_facts === 1 &&
+            reprepared.coverage?.drop_percent === 50 &&
+            coverageDrop?.rejected_facts === 1 &&
+            coverageDrop?.coverage_drop_percent === 50 &&
+            recommendation?.action?.includes("cluster_prepare")
+        ),
+        details: {
+          reprepare: reprepared,
+          coverage_drop: coverageDrop,
+          recommendation
+        }
+      };
+    });
+
     writeMonitorSource({ leading: ["// moved selector but stable snippet remains"] });
     await scenario("evidence_revalidation_success_selector_moved", async () => {
       const consult = await callTool(client, "cluster_consult", {

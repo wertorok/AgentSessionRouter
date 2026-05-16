@@ -85,7 +85,7 @@ Validation performed:
 - Live matrix run: committed as `LIVE_TEST_LOG.md`
 - Post-fix targeted live rerun: `TARGETED_RERUN_PASS`
 - Post-install smoke: stub mode passes and covers v1, v2 cluster tools, `router_status`, and `router_monitor`
-- MCP workload matrix: stub mode passes 24/24 checks, including clean `SESSION_UPDATE_JSON`, parse-failure threshold archival, archived-bootstrap replacement, observe-only `router_dry_run`, conservative `router_consult`, evidence revalidation, re-prepare from latest factsheet, fallback, and shadow telemetry
+- MCP workload matrix: stub mode passes 25/25 checks, including clean `SESSION_UPDATE_JSON`, parse-failure threshold archival, archived-bootstrap replacement, observe-only `router_dry_run`, conservative `router_consult`, evidence revalidation, re-prepare from latest factsheet, reprepare coverage-drop monitor visibility, fallback, and shadow telemetry
 - Router monitor snapshots: `npm run monitor:snapshot` writes `router_status` + `router_monitor` payloads under `experiments/router-monitor-snapshots/`
 - Route sample follow-up: 118/118 shadow comparisons judged, 0 pending, active
   `agentsessionrouter-codebase` factsheet v4 is `llm_verified` with 50

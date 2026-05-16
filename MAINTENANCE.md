@@ -8,7 +8,7 @@ As of 2026-05-16, the production MCP baseline is:
 - public MCP tools: 20
 - tests: `100 passed`
 - build: passing
-- MCP workload matrix: `24/24` stub checks, including observe-only
+- MCP workload matrix: `25/25` stub checks, including observe-only
   `router_dry_run`
 - shadow eval: `118/118` judged, `0` pending, `0` failed
 - active benchmark clusters: 1 (`agentsessionrouter-codebase`)
@@ -62,10 +62,20 @@ Verified on 2026-05-16:
   reduce coverage, but that reduction must be visible with retained/rejected
   counts and a recommendation to run `cluster_prepare` when coverage should be
   restored.
+- Targeted workload scenario
+  `cluster_reprepare_coverage_drop_visible_in_monitor` verifies the real path:
+  prepare two facts, remove one selector, run `cluster_reprepare`, observe one
+  rejected fact, and confirm `router_monitor` reports the coverage drop plus a
+  `cluster_prepare` recommendation.
 - Live `cluster_reprepare` on `agentsessionrouter-codebase` proved the boundary
   of this path: it recalculates evidence, but it does not generate or rewrite
   semantic facts. After the public MCP surface changed from 19 to 20 tools, the
   stale old tool-count fact was rejected instead of being silently rewritten.
+- Follow-up live `cluster_reprepare` after the coverage-drop monitor patch
+  produced factsheet version 15 with `partial_llm`, 14 verified facts, 3
+  rejected facts, and 17.65% coverage drop. `router_monitor` surfaced this under
+  `cache_health.reprepare_coverage_drops` and emitted a high-priority
+  `cluster_prepare` recommendation. Evidence hashes/snippets had 0 mismatches.
 - Auto-reprepare remains deferred; monitor cost signals are the current trigger
   for deciding when `cluster_reprepare` or a broader `cluster_prepare` is worth
   running.
@@ -73,10 +83,40 @@ Verified on 2026-05-16:
   - `npm run build`: passed
   - `npm test`: 100 passed
   - `npm run smoke:postinstall`: passed
-  - `npm run mcp:workload`: 24/24 stub checks passed
+  - `npm run mcp:workload`: 25/25 stub checks passed
   - active cluster `agentsessionrouter-codebase` should be rechecked after the
     last source/doc edit; `partial_llm` is acceptable when stale semantic facts
     are safely rejected rather than rewritten
+
+## Factsheet Recovery Current State
+
+Factsheet recovery is semi-manual by design.
+
+Automated:
+
+- Minor staleness where the selector and snippet still match is revalidated
+  inside `cluster_consult` / `router_consult`.
+- Broken factsheets fall back internally to `claude_consult`, so the caller
+  still gets an answer when Claude is available.
+- `router_monitor` exposes stale/`needs_prepare` clusters, fallback cost
+  signals, and `cache_health.reprepare_coverage_drops` when maintenance
+  rechecks reject stored facts.
+
+Manual:
+
+- Run `cluster_reprepare` when `router_monitor` shows a cluster needs evidence
+  maintenance. This recalculates evidence and rejects invalid stored facts; it
+  does not generate new facts.
+- Run `cluster_prepare` when `router_monitor` shows coverage dropped and the
+  rejected facts are still part of the intended cluster scope. This is the
+  semantic regeneration path.
+
+Not automated yet:
+
+- No unattended auto-reprepare or auto-prepare pipeline runs in the background.
+  Those steps would generate or remove semantic facts, call the LLM verifier,
+  need rate limits, and need audit/cost controls. Keep them explicit until real
+  usage data shows the right trigger thresholds.
 
 ## v2.7 Observe-Only Routing Snapshot
 
@@ -92,7 +132,7 @@ Verified on 2026-05-16:
   changes, or write `router_route_decision`
 - tests: `100 passed`
 - build: passing
-- workload matrix: `24/24` stub checks
+- workload matrix: `25/25` stub checks
 - live router sanity initially found `agentsessionrouter-codebase` stale after
   the v2.7 file changes; the cluster was re-prepared to factsheet version 7
   with `llm_verified`, 16 verified facts, and 0 rejected facts
