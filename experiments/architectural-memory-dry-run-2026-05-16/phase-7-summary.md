@@ -97,11 +97,14 @@ Additional closed gates:
 | Gate 7: Source-of-truth and field-population semantics | closed | `gate-7-summary.md`, `docs/CLUSTER_CACHE_SPEC.md` |
 | Gate 8: Field-population draft | closed | `field-population-draft.md`, `field-population-draft.json`, `gate-8-summary.md` |
 | Gate 9: Lead field review | closed | `field-review.md`, `field-review.json`, `gate-9-summary.md` |
+| Gate 10: Request-changes resolution | closed | `request-changes-resolution.md`, `request-changes-resolution.json`, `gate-10-summary.md` |
 
 Gate 6 added a deterministic verifier report. Gate 7 named the future
 diffable source-of-truth files and documented field-population semantics. Gate
 8 created empty source-of-truth scaffolds and a non-authoritative populated
 field draft. Gate 9 reviewed those fields with the durable Claude lead session:
 87 entries received `APPROVED_FIELDS`, 6 received `REQUEST_CHANGES`, and 0 were
-suspended. These gates do not create active memory, write clusters, or add a
-runtime serving path.
+suspended. Gate 10 resolved those changes: 1 entry was corrected and approved
+for future promotion consideration, while 5 were excluded from promotion.
+These gates do not create active memory, write clusters, or add a runtime
+serving path.

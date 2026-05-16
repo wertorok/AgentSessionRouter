@@ -1436,6 +1436,34 @@ Gate 9 non-goals:
 - no promotion approval
 - no automatic correction of `REQUEST_CHANGES` entries
 
+#### Request-Changes Resolution (Gate 10)
+
+Status: resolution artifact implemented, not promoted. Gate 10 resolves the
+six `REQUEST_CHANGES` entries from Gate 9 before any future promotion gate may
+consider the field-reviewed set.
+
+Gate 10 outputs:
+
+- `experiments/architectural-memory-dry-run-2026-05-16/request-changes-resolution.json`
+- `experiments/architectural-memory-dry-run-2026-05-16/request-changes-resolution.md`
+
+Gate 10 result for the 2026-05-16 dry run:
+
+- `AMB-DOC-0008` was corrected from the Gate 3 scorer/rubric source section
+  and approved by the durable lead session for future promotion consideration.
+- 5 entries were excluded from promotion because they were generic, stale,
+  inaccurate, or superseded.
+- The field-reviewed set now has 88 entries eligible for future promotion
+  consideration and 5 excluded audit entries.
+
+Gate 10 non-goals:
+
+- no active entries
+- no source-of-truth doc population
+- no cluster writes
+- no runtime import or serving path
+- no promotion approval
+
 Non-goals:
 
 - no implementation in this decision step
@@ -1463,7 +1491,7 @@ Implementation gates:
 8. Closed: populate draft `applies_when`, `revisit_when`, `rationale`, and
    `project_scope` fields into a non-authoritative draft artifact.
 9. Closed: run bounded lead-session field review of the populated draft.
-10. Future: resolve or exclude `REQUEST_CHANGES` entries before promotion.
+10. Closed: resolve or exclude `REQUEST_CHANGES` entries before promotion.
 11. Future: add bounded lead-session promotion approval and durable writes.
 12. Future: add explicit import/serving for `engineering-principles`.
 13. Future: add `router_monitor` visibility: staged count, promoted count,

@@ -1,0 +1,60 @@
+{
+  "generated_at": "2026-05-16T22:15:00.000Z",
+  "status": "resolution_only",
+  "non_authoritative": true,
+  "source_field_review": "experiments/architectural-memory-dry-run-2026-05-16/field-review.json",
+  "lead_resolution_review": "APPROVE",
+  "summary": {
+    "field_approved_before_resolution": 87,
+    "field_approved_after_resolution": 88,
+    "excluded_from_promotion": 5,
+    "active_entries_created": 0
+  },
+  "actions": [
+    {
+      "id": "AMB-DOC-0008",
+      "action": "FIX_AND_APPROVE_FIELDS",
+      "field_review_status_after_resolution": "APPROVED_FIELDS",
+      "replacement_statement": "Classification rubrics should make scoring explicit and auditable by documenting deterministic signals, scoring formulas, rejection rules, and lifecycle/status boundaries without adding extraction, durable memory promotion, cluster writes, or runtime evaluation.",
+      "applies_when": [
+        "Apply as a generic rubric/scorer design principle for classification pipelines; verify against the target project context."
+      ],
+      "revisit_when": [
+        "When classification signals, scoring formulas, or rejection rules change.",
+        "When monitor/adversarial evidence shows the rubric produces misleading classifications."
+      ],
+      "reason": "Original statement was truncated from the Gate 3 scorer/rubric section. The corrected fields were reviewed by the durable lead session and approved for future promotion consideration."
+    },
+    {
+      "id": "PA-SD-000115",
+      "action": "EXCLUDE_FROM_PROMOTION",
+      "reason": "Generic npm command, not durable AgentSessionRouter project architecture."
+    },
+    {
+      "id": "PA-SD-000171",
+      "action": "EXCLUDE_FROM_PROMOTION",
+      "reason": "References non-existent docs/DECISIONS.md and is superseded by PA-SD-000199."
+    },
+    {
+      "id": "PA-SD-000172",
+      "action": "EXCLUDE_FROM_PROMOTION",
+      "reason": "Generic workflow governance statement; not project-specific enough."
+    },
+    {
+      "id": "PA-SD-000173",
+      "action": "EXCLUDE_FROM_PROMOTION",
+      "reason": "References undocumented gate_criteria.json; inaccurate for the current documentation-only gate workflow."
+    },
+    {
+      "id": "PA-SD-000185",
+      "action": "EXCLUDE_FROM_PROMOTION",
+      "reason": "References non-existent docs/DECISIONS.md and is superseded by PA-SD-000199."
+    }
+  ],
+  "notes": [
+    "Resolution is not promotion.",
+    "No scaffold docs were populated with active entries.",
+    "The excluded entries remain audit evidence but must not be imported or served.",
+    "The corrected AMB-DOC-0008 entry may be considered by a future promotion gate, but is not active."
+  ]
+}
