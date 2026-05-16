@@ -7,6 +7,24 @@ import { CONSULT_LIKE_EVENT_TYPES, type SessionStatus } from "./constants.js";
 import type { EventType } from "./constants.js";
 import { SCHEMA_SQL } from "./schema.js";
 
+const CLUSTER_ATTENTION_EVENT_TYPES = [
+  "cluster_consult_failed",
+  "cluster_fallback_to_claude_consult",
+  "cluster_fallback_failed",
+  "cluster_refresh_required",
+  "factsheet_stale",
+  "factsheet_rejected",
+  "evidence_revalidation_failed",
+  "evidence_revalidation_suppressed",
+  "cluster_fallback_coalesced",
+  "bare_probe_failed",
+  "tool_profile_downgraded"
+] as const;
+
+const CLUSTER_ATTENTION_EVENT_TYPES_SQL = CLUSTER_ATTENTION_EVENT_TYPES.map((eventType) => `'${eventType}'`).join(
+  ",\n             "
+);
+
 export interface SessionRecord {
   id: string;
   project_id: string;
@@ -1503,17 +1521,7 @@ export class RouterDatabase {
          WHERE e.project_id = ?
            AND e.created_at >= ?
            AND e.event_type IN (
-             'cluster_consult_failed',
-             'cluster_fallback_to_claude_consult',
-             'cluster_fallback_failed',
-             'cluster_refresh_required',
-             'factsheet_stale',
-             'factsheet_rejected',
-             'evidence_revalidation_failed',
-             'evidence_revalidation_suppressed',
-             'cluster_fallback_coalesced',
-             'bare_probe_failed',
-             'tool_profile_downgraded'
+             ${CLUSTER_ATTENTION_EVENT_TYPES_SQL}
            )
          GROUP BY e.event_type
          ORDER BY count DESC, e.event_type ASC`
@@ -1533,17 +1541,7 @@ export class RouterDatabase {
          WHERE e.project_id = ?
            AND e.created_at >= ?
            AND e.event_type IN (
-             'cluster_consult_failed',
-             'cluster_fallback_to_claude_consult',
-             'cluster_fallback_failed',
-             'cluster_refresh_required',
-             'factsheet_stale',
-             'factsheet_rejected',
-             'evidence_revalidation_failed',
-             'evidence_revalidation_suppressed',
-             'cluster_fallback_coalesced',
-             'bare_probe_failed',
-             'tool_profile_downgraded'
+             ${CLUSTER_ATTENTION_EVENT_TYPES_SQL}
            )
          GROUP BY e.cluster_id, e.event_type
          ORDER BY count DESC, e.cluster_id ASC, e.event_type ASC`

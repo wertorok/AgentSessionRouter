@@ -1514,6 +1514,11 @@ describe("cluster MCP tools", () => {
     fixture.runtime.db.logClusterEvent({
       clusterId: "weak-cluster",
       projectId: "project",
+      eventType: "cluster_refresh_required"
+    });
+    fixture.runtime.db.logClusterEvent({
+      clusterId: "weak-cluster",
+      projectId: "project",
       eventType: "cluster_reprepare",
       details: {
         source_factsheet_id: "factsheet-old",
@@ -1582,6 +1587,18 @@ describe("cluster MCP tools", () => {
       coverage_retained_percent: 50,
       coverage_drop_percent: 50
     });
+    expect(monitor.cache_health.attention_by_event).toEqual(
+      expect.arrayContaining([expect.objectContaining({ event_type: "cluster_refresh_required", count: 1 })])
+    );
+    expect(monitor.cache_health.attention_by_cluster).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          cluster_id: "weak-cluster",
+          event_type: "cluster_refresh_required",
+          count: 1
+        })
+      ])
+    );
     expect(monitor.latency.slow_session_samples[0]).toMatchObject({
       session_id: "session-1",
       topic: "Router ops",
