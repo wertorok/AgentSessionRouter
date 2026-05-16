@@ -179,6 +179,32 @@ fallback work but each could start its own profile availability probe. Runtime
 profile availability detection is now coalesced through a shared in-flight
 promise, reducing the 10-call stale race from 20 profile probes to 2.
 
+Found-and-fixed record:
+
+- First completed proof run: 2 red rows from harness assertion mistakes, 0
+  confirmed MCP behavior failures.
+- Confirmed application issue found by the proof data: repeated profile
+  availability probes under burst load.
+- Only application fix made between first completed proof and final proof:
+  coalesce concurrent profile availability detection in `RouterRuntime`.
+- Earlier failed proof attempts were script setup issues, not MCP behavior:
+  wrong DB column name and stale fixture state carried across zones.
+
+Known scaling limit:
+
+- Session matching is currently O(N) over active/dormant sessions:
+  `listMatchCandidates()` loads all candidates, exact topic checks scan the
+  list, and `rankSessionMatches()` scores every candidate then sorts.
+- Proof data point: routing latency was 4ms with the small fixture set and 63ms
+  with 202 total sessions. A rough linear extrapolation from that delta is
+  about 300ms at 1000 sessions before any filesystem/session-file checks.
+- This is acceptable for the current registry size but should become a
+  maintenance trigger. If a project reaches ~1000 active/dormant sessions or
+  router_dry_run/router_consult route selection regularly exceeds 250-300ms,
+  add a prefilter/index before full scoring. Candidate prefilter options:
+  normalized-topic index, tag/file inverted indexes, and exact-topic lookup
+  before loading full candidate metadata.
+
 ## Factsheet Recovery Current State
 
 Factsheet recovery is semi-manual by design.

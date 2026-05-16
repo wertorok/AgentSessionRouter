@@ -5,6 +5,29 @@ Finished: 2026-05-16T15:26:37.020Z
 
 ## Findings
 
+## Found And Fixed During Review
+
+The final proof run has `BROKEN=0`, but the review did find one real bug before
+the final rerun:
+
+- BROKEN in the first completed proof run: 2 script assertions, 0 confirmed MCP
+  behavior failures. The two red rows were harness mistakes: `comparison_rejudge`
+  returns `processed`, not `rejudged`, and an absent call-count bucket needed to
+  be treated as 0.
+- Confirmed MCP issue found by the proof data: profile availability probes were
+  repeated under burst load. In the stale 10-call race, fallback coalescing
+  worked, but profile availability detection produced 20 profile probes before
+  the runtime fix.
+- Fix applied during review: `RouterRuntime.getProfileAvailability()` now
+  coalesces concurrent detection through a shared in-flight promise.
+- Final rerun result for the same stale 10-call race: 2 profile probes, 1
+  fallback consult, 9 suppressed revalidations, 9 coalesced fallbacks.
+
+That profile-probe leak was the only application fix made between the first
+completed proof run and the final proof run. Earlier failed attempts were
+script setup errors (wrong DB column name; stale fixture file not reset before a
+later zone), not MCP behavior failures.
+
 ### ZONE 1: Caller sends malformed or huge input
 
 - HELD: oversized_router_consult_100k
@@ -82,4 +105,3 @@ Finished: 2026-05-16T15:26:37.020Z
   - input: 12 unique cluster_consult calls against one stale cluster with max_consults_per_hour=5
   - edge: Fallback cost must be capped instead of unbounded Claude calls.
   - claude_delta: total=7, by_type={"profile_probe":2,"consult":5}, cost=$0.018429
-
