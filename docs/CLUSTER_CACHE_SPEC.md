@@ -1575,6 +1575,201 @@ Gate 12.5 non-goals:
 - no router behavior changes
 - no classifier algorithm changes
 
+#### Runtime Serving Design (Gate 13 Design, Not Implemented)
+
+Status: design captured, not implemented. Gate 13 is not an on/off switch for
+architectural memory. It is the design boundary for how active
+`engineering-principles` may later be served without recreating the discovery
+token bloat that the router exists to avoid.
+
+Current state after Gate 12.5:
+
+- 13 active `engineering-principles`.
+- 80 active `project-architecture` records.
+- 93 active source-of-truth records total.
+- `runtime_import_serving_enabled: false`.
+
+Gate 13 does not enable runtime serving. Implementation still requires a
+separate explicit sign-off on the canonical import boundary before router use.
+
+##### Serving Mode Decision
+
+Chosen design: seed relevant engineering principles once when creating a
+durable lead session.
+
+Rejected default: retrieve architectural memory on every `router_consult`.
+
+Reasoning:
+
+- Engineering principles are stable, low-churn invariants. They do not need to
+  be reselected on every turn.
+- Session continuity benchmarks showed that persistent lead-session memory can
+  hold context across turns. The serving path should use that property instead
+  of reinjecting the same principles repeatedly.
+- Per-consult retrieval would add token cost and routing complexity to normal
+  calls, including calls that do not need architectural memory.
+- If future monitor evidence shows that seeded lead sessions lose or misuse
+  principles over time, per-consult retrieval may be reconsidered as a separate
+  design with its own cost proof. It is not the Gate 13 default.
+
+##### Trigger Boundary
+
+Architectural-memory serving is not part of every consult.
+
+Allowed triggers for a future implementation:
+
+- Creating a durable lead session for architectural review, planning, or
+  operatorless engineering coordination.
+- Explicitly creating a project lead session that asks for architectural-memory
+  seed.
+- Explicit reseed of an existing lead session when the active
+  source-of-truth docs changed and the session seed manifest is stale.
+
+Disallowed triggers:
+
+- Normal `router_consult` calls.
+- `cluster_consult` factual lookup calls.
+- Debug, lookup, benchmark, and monitoring calls unless they are explicitly
+  escalated into a lead-session architectural review.
+- Any path where architectural memory would be injected only because records
+  exist.
+
+##### Deterministic Relevant-Subset Selection
+
+The future serving path must not run an LLM over all active records to choose a
+subset. Selection is a deterministic prefilter similar to routing.
+
+Default candidate pool:
+
+- Include active `engineering-principles`.
+- Exclude `project-architecture` from the global lead seed by default.
+- For project-scoped lead sessions, allow a separate project-specific seed of
+  at most 3 `project-architecture` records after deterministic project/domain
+  matching.
+
+Signals available to the prefilter:
+
+- Session kind: lead, project lead, review, planning.
+- `task_type`: architectural, review, planning, implementation, lookup, debug.
+- `topic_hint`, `tags`, and `related_files` from the router call that creates
+  the session.
+- Record text fields: `statement`, `applies_when`, `revisit_when`,
+  `counter_evidence`, and `provenance`.
+- Record status and active date.
+
+Selection algorithm:
+
+1. Reject all non-active records.
+2. Reject project-architecture records unless the session is explicitly
+   project-scoped.
+3. Build deterministic lowercase token sets from request metadata and record
+   fields. No LLM call is allowed in this step.
+4. Score records with transparent weighted signals:
+   - topic/tag overlap between request metadata and `statement` /
+     `applies_when`;
+   - task-type compatibility, for example architecture/review/planning signals;
+   - provenance or file overlap for project-scoped records only;
+   - recency only as a tie-breaker, never as the primary reason to include.
+5. Sort by score, then by stable record id for deterministic ties.
+6. Select the top records until the token budget is reached.
+7. If no record clears the minimum deterministic score, seed nothing.
+
+The selection result must be auditable: selected record ids, scores, matched
+signals, and skipped-over-threshold reasons are recorded in the future seed
+manifest. This design intentionally does not fix the Gate 12.5 classifier
+weakness; it only constrains runtime serving to deterministic, inspectable
+selection.
+
+##### Token Budget
+
+Serving must stay below the token cost of rediscovery.
+
+Approximate active corpus size:
+
+| Corpus | Count | Approx tokens/record | Approx total |
+| --- | ---: | ---: | ---: |
+| Engineering principles | 13 | 140 | 1,820 |
+| Project architecture | 80 | 140 | 11,200 |
+| All active records | 93 | 140 | 13,020 |
+
+Injecting all active records is forbidden. It would cost roughly 13k input
+tokens, risks turning architectural memory into another discovery blob, and
+would be repeated context the lead session does not need.
+
+Future seed budget:
+
+| Budget item | Limit |
+| --- | ---: |
+| Engineering-principle records | max 7 |
+| Compact seed text | target < 900 tokens |
+| Project-architecture records | default 0 |
+| Project-scoped add-on | max 3 records and max 300 additional tokens |
+| Absolute one-time seed cap | 1,200 tokens |
+| Per-consult architectural-memory cost | 0 tokens by default |
+
+The compact seed projection should include only the fields needed for safe use:
+
+- id
+- statement
+- short applicability condition
+- short counter-evidence condition
+- provenance pointer
+
+Long provenance strings, promotion requirements, audit notes, and full
+`revisit_when` prose are not included in the seed unless specifically selected
+by the compact projection. The diffable source-of-truth documents remain the
+authority.
+
+Gate 13 implementation is blocked unless a proof shows that a typical lead
+session seed stays under 1k tokens once and does not add architectural-memory
+tokens on normal turns.
+
+##### Deduplication And Reseed Semantics
+
+A future serving implementation must store a seed manifest in session metadata
+or an append-only session decision. The manifest is the dedup authority, not
+model memory.
+
+Seed manifest fields:
+
+- `seed_kind`: `engineering_principles`
+- `source_docs`: source-of-truth document paths and commit/hash
+- `record_ids`: selected ids
+- `record_hashes`: stable hashes of selected record compact projections
+- `seed_signature`: hash of ordered ids, hashes, source docs, and active dates
+- `seeded_at`
+- `selection_reason`: deterministic matched signals and budget result
+
+Before seeding an existing session:
+
+1. Read the latest seed manifest.
+2. If the `seed_signature` matches the current deterministic selection, skip
+   injection.
+3. If only new records are selected, inject only the delta if it stays within
+   budget.
+4. If source docs changed substantially or the deterministic selection changes
+   beyond the budget, require explicit reseed rather than silently replacing
+   session memory.
+
+This prevents reinjecting principles that the durable lead session already
+holds and keeps repeated architectural-memory serving from becoming hidden
+context bloat.
+
+##### Gate 13 Acceptance Criteria Before Implementation
+
+Before any runtime import/serving code is written:
+
+1. This design must be reviewed by the durable lead session.
+2. The canonical import boundary must be explicitly signed off.
+3. The implementation plan must prove one-time seed cost under 1k tokens for a
+   typical lead session and absolute seed cost under 1,200 tokens.
+4. The implementation plan must keep per-consult architectural-memory retrieval
+   off by default.
+5. Deduplication must be based on a seed manifest, not on assumptions about
+   model memory.
+6. Normal caller answer behavior must remain unchanged when architectural
+   memory serving is disabled.
+
 Non-goals:
 
 - no implementation in this decision step
@@ -1607,9 +1802,11 @@ Implementation gates:
 12. Closed: add bounded lead-session promotion approval and active writes.
 12.5. Closed: manually correct classification, rescue rejected fundamentals,
       and add engineering-principle counter-evidence fields.
-13. Future: add explicit import/serving for `engineering-principles`.
-    Runtime import/serving requires a separate design gate and human sign-off on
-    the canonical URL/import boundary before router use.
+13. Design captured, not implemented: seed selected engineering principles once
+    at durable lead-session creation, with deterministic prefiltering, a hard
+    token budget, seed-manifest deduplication, and no per-consult retrieval by
+    default. Runtime import/serving still requires human sign-off on the
+    canonical URL/import boundary before router use.
 14. Closed: add `router_monitor` visibility: staged count, promoted count,
     suspended count, stale/superseded count, and recent counter-evidence.
     Gate 14 is observability-only: it reads source-of-truth docs and audit

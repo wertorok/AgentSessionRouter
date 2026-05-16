@@ -143,6 +143,18 @@ cross the Gate 13 runtime import/serving boundary.
 Gate 14 post-implementation lead review returned `APPROVE_SCOPE` and closed the
 gate.
 
+Gate 13 is now designed but not implemented. The chosen serving shape is a
+one-time seed when a durable lead session is created, not retrieval on every
+consult. Selection must be deterministic and auditable, normally drawing only
+from active engineering-principles and capping the compact seed under 900
+tokens, with an absolute one-time cap of 1,200 tokens. Project-architecture
+records are not part of the global seed by default. Runtime import/serving
+remains disabled and still requires a separate sign-off on the canonical
+import boundary before any router use.
+The durable lead session returned `APPROVE_SCOPE` for this Gate 13 design and
+confirmed that full-corpus injection, per-consult retrieval, LLM-over-corpus
+selection, and repeated seed injection remain outside the approved scope.
+
 Operational finding: broad artifact-paste review prompts can hit
 `COST_LIMIT_EXCEEDED`. Compact proof-style review prompts work and received
 Gate 11 approval, but durable lead-session token anomalies remain visible and
