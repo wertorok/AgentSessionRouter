@@ -277,6 +277,18 @@ try {
       };
     });
 
+    await scenario("cluster_reprepare_from_latest_factsheet", async () => {
+      const reprepared = await callTool(client, "cluster_reprepare", {
+        project_id: null,
+        cluster_id: "monitor-static",
+        verification_mode: "static"
+      });
+      return {
+        pass: reprepared.cluster_id === "monitor-static" && reprepared.source_factsheet_version >= 1 && reprepared.factsheet_version > reprepared.source_factsheet_version,
+        details: reprepared
+      };
+    });
+
     writeMonitorSource({ leading: ["// moved selector but stable snippet remains"] });
     await scenario("evidence_revalidation_success_selector_moved", async () => {
       const consult = await callTool(client, "cluster_consult", {
@@ -669,6 +681,7 @@ function hasTools(toolNames) {
     "router_status",
     "router_monitor",
     "cluster_prepare",
+    "cluster_reprepare",
     "cluster_get",
     "cluster_consult",
     "comparison_stats",

@@ -5,10 +5,10 @@
 As of 2026-05-16, the production MCP baseline is:
 
 - code pushed on `master`; use `git log -1 --oneline` for the latest commit
-- public MCP tools: 19
-- tests: `99 passed`
+- public MCP tools: 20
+- tests: `100 passed`
 - build: passing
-- MCP workload matrix: `23/23` stub checks, including observe-only
+- MCP workload matrix: `24/24` stub checks, including observe-only
   `router_dry_run`
 - shadow eval: `118/118` judged, `0` pending, `0` failed
 - active benchmark clusters: 1 (`agentsessionrouter-codebase`)
@@ -35,9 +35,9 @@ As of 2026-05-16, the production MCP baseline is:
     `NOT IN CONTEXT` answers
   - one slow `new_session` event around 302 seconds, caused by a broad
     `tokens_in=78,258` direct roadmap consult
-  - after the hash-clearing correctness fix, `agentsessionrouter-codebase`
-    should be re-prepared with `llm_verified`, 0 rejected facts, and 0 evidence
-    hash/snippet mismatches
+  - after the hash-clearing correctness fix, `cluster_reprepare` can rebuild
+    `agentsessionrouter-codebase` from its latest stored factsheet without
+    manually passing factsheet JSON
 
 Use `router_monitor` as the first diagnostic entry point. Treat its output as
 the information monitor for what works, what fails, why it failed, and what to
@@ -54,22 +54,30 @@ Verified on 2026-05-16:
 - `router_monitor.cache_health.decayed_cluster_cost_signals` exposes
   `fallback_count_recent_window` and `estimated_extra_cost_usd` for stale or
   `needs_prepare` clusters.
+- `cluster_reprepare` is the non-footgun maintenance path for rebuilding a
+  cluster from its latest stored factsheet without manually passing factsheet
+  JSON.
+- Live `cluster_reprepare` on `agentsessionrouter-codebase` proved the boundary
+  of this path: it recalculates evidence, but it does not generate or rewrite
+  semantic facts. After the public MCP surface changed from 19 to 20 tools, the
+  stale old tool-count fact was rejected instead of being silently rewritten.
 - Auto-reprepare remains deferred; monitor cost signals are the current trigger
-  for deciding when manual `cluster_prepare` is worth running.
+  for deciding when `cluster_reprepare` or a broader `cluster_prepare` is worth
+  running.
 - Verification:
   - `npm run build`: passed
-  - `npm test`: 99 passed
+  - `npm test`: 100 passed
   - `npm run smoke:postinstall`: passed
-  - `npm run mcp:workload`: 23/23 stub checks passed
-  - active cluster `agentsessionrouter-codebase` should be verified after the
-    last source/doc edit, with `llm_verified`, 0 rejected facts, and 0 evidence
-    hash/snippet mismatches
+  - `npm run mcp:workload`: 24/24 stub checks passed
+  - active cluster `agentsessionrouter-codebase` should be rechecked after the
+    last source/doc edit; `partial_llm` is acceptable when stale semantic facts
+    are safely rejected rather than rewritten
 
 ## v2.7 Observe-Only Routing Snapshot
 
 Verified on 2026-05-16:
 
-- public MCP surface has 19 tools
+- public MCP surface has 20 tools
 - every tool description starts with a tier label:
   `[ANSWER DEFAULT]`, `[ANSWER EXPERT]`, `[OBSERVE]`, `[MAINTAIN]`, or
   `[EVAL DEBUG]`
@@ -77,9 +85,9 @@ Verified on 2026-05-16:
   `router_consult`
 - `router_dry_run` must not invoke Claude, create sessions, apply lifecycle
   changes, or write `router_route_decision`
-- tests: `98 passed`
+- tests: `100 passed`
 - build: passing
-- workload matrix: `23/23` stub checks
+- workload matrix: `24/24` stub checks
 - live router sanity initially found `agentsessionrouter-codebase` stale after
   the v2.7 file changes; the cluster was re-prepared to factsheet version 7
   with `llm_verified`, 16 verified facts, and 0 rejected facts

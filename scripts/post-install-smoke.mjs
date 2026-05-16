@@ -93,6 +93,17 @@ try {
       clusterPrepare
     );
 
+    const clusterReprepare = await callTool(client, "cluster_reprepare", {
+      project_id: null,
+      cluster_id: "post-install-smoke",
+      verification_mode: "static"
+    });
+    record(
+      "cluster_reprepare",
+      clusterReprepare.cluster_id === "post-install-smoke" && clusterReprepare.verified_facts === 1,
+      clusterReprepare
+    );
+
     const clusterGet = await callTool(client, "cluster_get", {
       project_id: null,
       cluster_id: "post-install-smoke",

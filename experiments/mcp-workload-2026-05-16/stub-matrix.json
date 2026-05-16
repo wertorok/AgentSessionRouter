@@ -1,7 +1,7 @@
 {
   "mode": "stub",
-  "started_at": "2026-05-16T06:46:03.367Z",
-  "project_dir": "/tmp/asr-mcp-matrix-stub-hylTGW/project",
+  "started_at": "2026-05-16T08:45:06.297Z",
+  "project_dir": "/tmp/asr-mcp-matrix-stub-mRSKKO/project",
   "output_dir": "/root/projects/AgentSessionRouter/experiments/mcp-workload-2026-05-16",
   "checks": [
     {
@@ -9,7 +9,7 @@
       "pass": true,
       "duration_ms": null,
       "details": {
-        "tool_count": 19,
+        "tool_count": 20,
         "tools": [
           "claude_sessions_list",
           "claude_session_inspect",
@@ -21,6 +21,7 @@
           "router_status",
           "router_monitor",
           "cluster_prepare",
+          "cluster_reprepare",
           "cluster_get",
           "cluster_consult",
           "comparison_stats",
@@ -39,7 +40,7 @@
       "duration_ms": 5,
       "details": {
         "project_id": "project",
-        "checked_at": "2026-05-16T06:46:03.739Z",
+        "checked_at": "2026-05-16T08:45:06.699Z",
         "mode": "normal",
         "degraded_reason": null,
         "uptime_hours": 0,
@@ -91,7 +92,7 @@
       "duration_ms": 4,
       "details": {
         "project_id": "project",
-        "checked_at": "2026-05-16T06:46:03.744Z",
+        "checked_at": "2026-05-16T08:45:06.704Z",
         "recent_window_hours": 24,
         "output_limits": {
           "requested_sample_limit": 10,
@@ -185,10 +186,10 @@
     {
       "name": "v1_claude_consult_new_session",
       "pass": true,
-      "duration_ms": 47,
+      "duration_ms": 57,
       "details": {
-        "session_id": "session_4cdb4ca3-4771-42f3-ab70-1dffd56659a0",
-        "claude_session_id": "fake-1778913963775-4baf33ec9f87d",
+        "session_id": "session_73b4ba2d-b2da-4f23-9173-5811bbe896c5",
+        "claude_session_id": "fake-1778921106744-bbb3cda4b7002",
         "was_new_session": true,
         "was_orphan_recovery": false,
         "diagnostics": null,
@@ -198,10 +199,10 @@
     {
       "name": "v1_claude_consult_explicit_resume_or_orphan_recovery",
       "pass": true,
-      "duration_ms": 45,
+      "duration_ms": 58,
       "details": {
-        "session_id": "session_4cdb4ca3-4771-42f3-ab70-1dffd56659a0",
-        "claude_session_id": "fake-1778913963775-4baf33ec9f87d",
+        "session_id": "session_73b4ba2d-b2da-4f23-9173-5811bbe896c5",
+        "claude_session_id": "fake-1778921106744-bbb3cda4b7002",
         "was_new_session": false,
         "was_orphan_recovery": false,
         "diagnostics": null
@@ -210,14 +211,14 @@
     {
       "name": "v1_session_inspect",
       "pass": true,
-      "duration_ms": 2,
+      "duration_ms": 3,
       "details": {
         "session": {
-          "id": "session_4cdb4ca3-4771-42f3-ab70-1dffd56659a0",
-          "claude_session_id": "fake-1778913963775-4baf33ec9f87d",
+          "id": "session_73b4ba2d-b2da-4f23-9173-5811bbe896c5",
+          "claude_session_id": "fake-1778921106744-bbb3cda4b7002",
           "topic": "mcp workload v1",
           "status": "active",
-          "last_used": "2026-05-16T06:46:03.831Z",
+          "last_used": "2026-05-16T08:45:06.804Z",
           "summary": "MCP workload consult completed.",
           "decisions": [
             "Use router_monitor before deciding what to fix next"
@@ -234,27 +235,27 @@
             "router monitor"
           ],
           "project_id": "project",
-          "created_at": "2026-05-16T06:46:03.782Z"
+          "created_at": "2026-05-16T08:45:06.752Z"
         },
         "recent_events": [
           {
             "event_type": "consult",
-            "created_at": "2026-05-16T06:46:03.835Z",
+            "created_at": "2026-05-16T08:45:06.813Z",
             "match_score": 1,
             "match_reason": "Direct session_id provided and project/Claude session health checks passed.",
             "tokens_in": 400,
             "tokens_out": 109,
-            "duration_ms": 36,
+            "duration_ms": 40,
             "error": null
           },
           {
             "event_type": "new_session",
-            "created_at": "2026-05-16T06:46:03.789Z",
+            "created_at": "2026-05-16T08:45:06.759Z",
             "match_score": 0,
             "match_reason": "No eligible active or dormant sessions in project.",
             "tokens_in": 338,
             "tokens_out": 109,
-            "duration_ms": 34,
+            "duration_ms": 41,
             "error": null
           }
         ],
@@ -269,7 +270,7 @@
         "route_decision": {
           "selected_path": "claude_consult_existing_session",
           "reason": "Exact normalized topic match; routing to existing session before allowing a new session.",
-          "session_id": "session_4cdb4ca3-4771-42f3-ab70-1dffd56659a0",
+          "session_id": "session_73b4ba2d-b2da-4f23-9173-5811bbe896c5",
           "match_score": 1,
           "topic_hint": "mcp workload v1",
           "metadata_quality": {
@@ -286,7 +287,7 @@
         "top_session_candidates": [
           {
             "rank": 1,
-            "session_id": "session_4cdb4ca3-4771-42f3-ab70-1dffd56659a0",
+            "session_id": "session_73b4ba2d-b2da-4f23-9173-5811bbe896c5",
             "topic": "mcp workload v1",
             "status": "active",
             "score": 0.86,
@@ -303,21 +304,21 @@
     {
       "name": "session_update_success_metadata_path",
       "pass": true,
-      "duration_ms": 51,
+      "duration_ms": 49,
       "details": {
         "consult": {
-          "session_id": "session_e0b83e84-d452-418e-9731-13d4e2af02ca",
-          "claude_session_id": "fake-1778913963877-6f60dd7b8697d",
+          "session_id": "session_2007aa2b-1cf2-47ec-a990-35ab07c68a14",
+          "claude_session_id": "fake-1778921106858-88f0cb31fef01",
           "was_new_session": true,
           "was_orphan_recovery": false,
           "diagnostics": null
         },
         "session": {
-          "id": "session_e0b83e84-d452-418e-9731-13d4e2af02ca",
-          "claude_session_id": "fake-1778913963877-6f60dd7b8697d",
+          "id": "session_2007aa2b-1cf2-47ec-a990-35ab07c68a14",
+          "claude_session_id": "fake-1778921106858-88f0cb31fef01",
           "topic": "session update success workload",
           "status": "active",
-          "last_used": "2026-05-16T06:46:03.885Z",
+          "last_used": "2026-05-16T08:45:06.869Z",
           "summary": "MCP workload consult completed.",
           "decisions": [
             "Use router_monitor before deciding what to fix next"
@@ -334,203 +335,203 @@
             "router monitor"
           ],
           "project_id": "project",
-          "created_at": "2026-05-16T06:46:03.885Z"
+          "created_at": "2026-05-16T08:45:06.869Z"
         }
       }
     },
     {
       "name": "session_update_parse_failure_threshold_archives",
       "pass": true,
-      "duration_ms": 455,
+      "duration_ms": 515,
       "details": {
         "session": {
-          "id": "session_3d7172c3-cbfa-4dee-9c9d-92507f290aa6",
-          "claude_session_id": "fake-1778913963933-6cfeb6c83725",
+          "id": "session_5c190ca1-1ca8-4e68-b068-517c776c4ca4",
+          "claude_session_id": "fake-1778921106908-04641ab532128",
           "topic": "session update threshold workload",
           "summary": "",
           "status": "archived",
-          "archived_at": "2026-05-16T06:46:04.347Z"
+          "archived_at": "2026-05-16T08:45:07.390Z"
         },
         "events": [
           {
             "event_type": "parse_failed",
             "error": "Unexpected token '}', ...\"sions\": [ }\" is not valid JSON",
-            "raw_response_path": "/tmp/asr-mcp-matrix-stub-hylTGW/project/.claude-session-router/raw/session_3d7172c3-cbfa-4dee-9c9d-92507f290aa6-1778913963943.txt",
+            "raw_response_path": "/tmp/asr-mcp-matrix-stub-mRSKKO/project/.claude-session-router/raw/session_5c190ca1-1ca8-4e68-b068-517c776c4ca4-1778921106917.txt",
             "match_reason": null,
             "was_new_session": 0,
             "was_orphan_recovery": 0,
-            "created_at": "2026-05-16T06:46:03.943Z"
+            "created_at": "2026-05-16T08:45:06.917Z"
           },
           {
             "event_type": "new_session",
             "error": null,
-            "raw_response_path": "/tmp/asr-mcp-matrix-stub-hylTGW/project/.claude-session-router/raw/session_3d7172c3-cbfa-4dee-9c9d-92507f290aa6-1778913963943.txt",
+            "raw_response_path": "/tmp/asr-mcp-matrix-stub-mRSKKO/project/.claude-session-router/raw/session_5c190ca1-1ca8-4e68-b068-517c776c4ca4-1778921106917.txt",
             "match_reason": "Matched topic=0.6, files=0, tags=0, aliases=0, recency=1.",
             "was_new_session": 1,
             "was_orphan_recovery": 0,
-            "created_at": "2026-05-16T06:46:03.945Z"
+            "created_at": "2026-05-16T08:45:06.923Z"
           },
           {
             "event_type": "parse_failed",
             "error": "Unexpected token '}', ...\"sions\": [ }\" is not valid JSON",
-            "raw_response_path": "/tmp/asr-mcp-matrix-stub-hylTGW/project/.claude-session-router/raw/session_3d7172c3-cbfa-4dee-9c9d-92507f290aa6-1778913963986.txt",
+            "raw_response_path": "/tmp/asr-mcp-matrix-stub-mRSKKO/project/.claude-session-router/raw/session_5c190ca1-1ca8-4e68-b068-517c776c4ca4-1778921106968.txt",
             "match_reason": null,
             "was_new_session": 0,
             "was_orphan_recovery": 0,
-            "created_at": "2026-05-16T06:46:03.986Z"
+            "created_at": "2026-05-16T08:45:06.969Z"
           },
           {
             "event_type": "consult",
             "error": null,
-            "raw_response_path": "/tmp/asr-mcp-matrix-stub-hylTGW/project/.claude-session-router/raw/session_3d7172c3-cbfa-4dee-9c9d-92507f290aa6-1778913963986.txt",
+            "raw_response_path": "/tmp/asr-mcp-matrix-stub-mRSKKO/project/.claude-session-router/raw/session_5c190ca1-1ca8-4e68-b068-517c776c4ca4-1778921106968.txt",
             "match_reason": "Direct session_id provided and project/Claude session health checks passed.",
             "was_new_session": 0,
             "was_orphan_recovery": 0,
-            "created_at": "2026-05-16T06:46:03.988Z"
+            "created_at": "2026-05-16T08:45:06.970Z"
           },
           {
             "event_type": "parse_failed",
             "error": "Unexpected token '}', ...\"sions\": [ }\" is not valid JSON",
-            "raw_response_path": "/tmp/asr-mcp-matrix-stub-hylTGW/project/.claude-session-router/raw/session_3d7172c3-cbfa-4dee-9c9d-92507f290aa6-1778913964031.txt",
+            "raw_response_path": "/tmp/asr-mcp-matrix-stub-mRSKKO/project/.claude-session-router/raw/session_5c190ca1-1ca8-4e68-b068-517c776c4ca4-1778921107014.txt",
             "match_reason": null,
             "was_new_session": 0,
             "was_orphan_recovery": 0,
-            "created_at": "2026-05-16T06:46:04.032Z"
+            "created_at": "2026-05-16T08:45:07.014Z"
           },
           {
             "event_type": "consult",
             "error": null,
-            "raw_response_path": "/tmp/asr-mcp-matrix-stub-hylTGW/project/.claude-session-router/raw/session_3d7172c3-cbfa-4dee-9c9d-92507f290aa6-1778913964031.txt",
+            "raw_response_path": "/tmp/asr-mcp-matrix-stub-mRSKKO/project/.claude-session-router/raw/session_5c190ca1-1ca8-4e68-b068-517c776c4ca4-1778921107014.txt",
             "match_reason": "Direct session_id provided and project/Claude session health checks passed.",
             "was_new_session": 0,
             "was_orphan_recovery": 0,
-            "created_at": "2026-05-16T06:46:04.033Z"
+            "created_at": "2026-05-16T08:45:07.016Z"
           },
           {
             "event_type": "parse_failed",
             "error": "Unexpected token '}', ...\"sions\": [ }\" is not valid JSON",
-            "raw_response_path": "/tmp/asr-mcp-matrix-stub-hylTGW/project/.claude-session-router/raw/session_3d7172c3-cbfa-4dee-9c9d-92507f290aa6-1778913964082.txt",
+            "raw_response_path": "/tmp/asr-mcp-matrix-stub-mRSKKO/project/.claude-session-router/raw/session_5c190ca1-1ca8-4e68-b068-517c776c4ca4-1778921107078.txt",
             "match_reason": null,
             "was_new_session": 0,
             "was_orphan_recovery": 0,
-            "created_at": "2026-05-16T06:46:04.082Z"
+            "created_at": "2026-05-16T08:45:07.079Z"
           },
           {
             "event_type": "consult",
             "error": null,
-            "raw_response_path": "/tmp/asr-mcp-matrix-stub-hylTGW/project/.claude-session-router/raw/session_3d7172c3-cbfa-4dee-9c9d-92507f290aa6-1778913964082.txt",
+            "raw_response_path": "/tmp/asr-mcp-matrix-stub-mRSKKO/project/.claude-session-router/raw/session_5c190ca1-1ca8-4e68-b068-517c776c4ca4-1778921107078.txt",
             "match_reason": "Direct session_id provided and project/Claude session health checks passed.",
             "was_new_session": 0,
             "was_orphan_recovery": 0,
-            "created_at": "2026-05-16T06:46:04.084Z"
+            "created_at": "2026-05-16T08:45:07.084Z"
           },
           {
             "event_type": "parse_failed",
             "error": "Unexpected token '}', ...\"sions\": [ }\" is not valid JSON",
-            "raw_response_path": "/tmp/asr-mcp-matrix-stub-hylTGW/project/.claude-session-router/raw/session_3d7172c3-cbfa-4dee-9c9d-92507f290aa6-1778913964131.txt",
+            "raw_response_path": "/tmp/asr-mcp-matrix-stub-mRSKKO/project/.claude-session-router/raw/session_5c190ca1-1ca8-4e68-b068-517c776c4ca4-1778921107144.txt",
             "match_reason": null,
             "was_new_session": 0,
             "was_orphan_recovery": 0,
-            "created_at": "2026-05-16T06:46:04.131Z"
+            "created_at": "2026-05-16T08:45:07.144Z"
           },
           {
             "event_type": "consult",
             "error": null,
-            "raw_response_path": "/tmp/asr-mcp-matrix-stub-hylTGW/project/.claude-session-router/raw/session_3d7172c3-cbfa-4dee-9c9d-92507f290aa6-1778913964131.txt",
+            "raw_response_path": "/tmp/asr-mcp-matrix-stub-mRSKKO/project/.claude-session-router/raw/session_5c190ca1-1ca8-4e68-b068-517c776c4ca4-1778921107144.txt",
             "match_reason": "Direct session_id provided and project/Claude session health checks passed.",
             "was_new_session": 0,
             "was_orphan_recovery": 0,
-            "created_at": "2026-05-16T06:46:04.132Z"
+            "created_at": "2026-05-16T08:45:07.153Z"
           },
           {
             "event_type": "parse_failed",
             "error": "Unexpected token '}', ...\"sions\": [ }\" is not valid JSON",
-            "raw_response_path": "/tmp/asr-mcp-matrix-stub-hylTGW/project/.claude-session-router/raw/session_3d7172c3-cbfa-4dee-9c9d-92507f290aa6-1778913964172.txt",
+            "raw_response_path": "/tmp/asr-mcp-matrix-stub-mRSKKO/project/.claude-session-router/raw/session_5c190ca1-1ca8-4e68-b068-517c776c4ca4-1778921107208.txt",
             "match_reason": null,
             "was_new_session": 0,
             "was_orphan_recovery": 0,
-            "created_at": "2026-05-16T06:46:04.172Z"
+            "created_at": "2026-05-16T08:45:07.208Z"
           },
           {
             "event_type": "consult",
             "error": null,
-            "raw_response_path": "/tmp/asr-mcp-matrix-stub-hylTGW/project/.claude-session-router/raw/session_3d7172c3-cbfa-4dee-9c9d-92507f290aa6-1778913964172.txt",
+            "raw_response_path": "/tmp/asr-mcp-matrix-stub-mRSKKO/project/.claude-session-router/raw/session_5c190ca1-1ca8-4e68-b068-517c776c4ca4-1778921107208.txt",
             "match_reason": "Direct session_id provided and project/Claude session health checks passed.",
             "was_new_session": 0,
             "was_orphan_recovery": 0,
-            "created_at": "2026-05-16T06:46:04.174Z"
+            "created_at": "2026-05-16T08:45:07.211Z"
           },
           {
             "event_type": "parse_failed",
             "error": "Unexpected token '}', ...\"sions\": [ }\" is not valid JSON",
-            "raw_response_path": "/tmp/asr-mcp-matrix-stub-hylTGW/project/.claude-session-router/raw/session_3d7172c3-cbfa-4dee-9c9d-92507f290aa6-1778913964217.txt",
+            "raw_response_path": "/tmp/asr-mcp-matrix-stub-mRSKKO/project/.claude-session-router/raw/session_5c190ca1-1ca8-4e68-b068-517c776c4ca4-1778921107259.txt",
             "match_reason": null,
             "was_new_session": 0,
             "was_orphan_recovery": 0,
-            "created_at": "2026-05-16T06:46:04.217Z"
+            "created_at": "2026-05-16T08:45:07.259Z"
           },
           {
             "event_type": "consult",
             "error": null,
-            "raw_response_path": "/tmp/asr-mcp-matrix-stub-hylTGW/project/.claude-session-router/raw/session_3d7172c3-cbfa-4dee-9c9d-92507f290aa6-1778913964217.txt",
+            "raw_response_path": "/tmp/asr-mcp-matrix-stub-mRSKKO/project/.claude-session-router/raw/session_5c190ca1-1ca8-4e68-b068-517c776c4ca4-1778921107259.txt",
             "match_reason": "Direct session_id provided and project/Claude session health checks passed.",
             "was_new_session": 0,
             "was_orphan_recovery": 0,
-            "created_at": "2026-05-16T06:46:04.219Z"
+            "created_at": "2026-05-16T08:45:07.261Z"
           },
           {
             "event_type": "parse_failed",
             "error": "Unexpected token '}', ...\"sions\": [ }\" is not valid JSON",
-            "raw_response_path": "/tmp/asr-mcp-matrix-stub-hylTGW/project/.claude-session-router/raw/session_3d7172c3-cbfa-4dee-9c9d-92507f290aa6-1778913964256.txt",
+            "raw_response_path": "/tmp/asr-mcp-matrix-stub-mRSKKO/project/.claude-session-router/raw/session_5c190ca1-1ca8-4e68-b068-517c776c4ca4-1778921107304.txt",
             "match_reason": null,
             "was_new_session": 0,
             "was_orphan_recovery": 0,
-            "created_at": "2026-05-16T06:46:04.257Z"
+            "created_at": "2026-05-16T08:45:07.304Z"
           },
           {
             "event_type": "consult",
             "error": null,
-            "raw_response_path": "/tmp/asr-mcp-matrix-stub-hylTGW/project/.claude-session-router/raw/session_3d7172c3-cbfa-4dee-9c9d-92507f290aa6-1778913964256.txt",
+            "raw_response_path": "/tmp/asr-mcp-matrix-stub-mRSKKO/project/.claude-session-router/raw/session_5c190ca1-1ca8-4e68-b068-517c776c4ca4-1778921107304.txt",
             "match_reason": "Direct session_id provided and project/Claude session health checks passed.",
             "was_new_session": 0,
             "was_orphan_recovery": 0,
-            "created_at": "2026-05-16T06:46:04.258Z"
+            "created_at": "2026-05-16T08:45:07.308Z"
           },
           {
             "event_type": "parse_failed",
             "error": "Unexpected token '}', ...\"sions\": [ }\" is not valid JSON",
-            "raw_response_path": "/tmp/asr-mcp-matrix-stub-hylTGW/project/.claude-session-router/raw/session_3d7172c3-cbfa-4dee-9c9d-92507f290aa6-1778913964299.txt",
+            "raw_response_path": "/tmp/asr-mcp-matrix-stub-mRSKKO/project/.claude-session-router/raw/session_5c190ca1-1ca8-4e68-b068-517c776c4ca4-1778921107349.txt",
             "match_reason": null,
             "was_new_session": 0,
             "was_orphan_recovery": 0,
-            "created_at": "2026-05-16T06:46:04.300Z"
+            "created_at": "2026-05-16T08:45:07.349Z"
           },
           {
             "event_type": "consult",
             "error": null,
-            "raw_response_path": "/tmp/asr-mcp-matrix-stub-hylTGW/project/.claude-session-router/raw/session_3d7172c3-cbfa-4dee-9c9d-92507f290aa6-1778913964299.txt",
+            "raw_response_path": "/tmp/asr-mcp-matrix-stub-mRSKKO/project/.claude-session-router/raw/session_5c190ca1-1ca8-4e68-b068-517c776c4ca4-1778921107349.txt",
             "match_reason": "Direct session_id provided and project/Claude session health checks passed.",
             "was_new_session": 0,
             "was_orphan_recovery": 0,
-            "created_at": "2026-05-16T06:46:04.301Z"
+            "created_at": "2026-05-16T08:45:07.351Z"
           },
           {
             "event_type": "parse_failed",
             "error": "Unexpected token '}', ...\"sions\": [ }\" is not valid JSON",
-            "raw_response_path": "/tmp/asr-mcp-matrix-stub-hylTGW/project/.claude-session-router/raw/session_3d7172c3-cbfa-4dee-9c9d-92507f290aa6-1778913964343.txt",
+            "raw_response_path": "/tmp/asr-mcp-matrix-stub-mRSKKO/project/.claude-session-router/raw/session_5c190ca1-1ca8-4e68-b068-517c776c4ca4-1778921107385.txt",
             "match_reason": null,
             "was_new_session": 0,
             "was_orphan_recovery": 0,
-            "created_at": "2026-05-16T06:46:04.343Z"
+            "created_at": "2026-05-16T08:45:07.386Z"
           },
           {
             "event_type": "consult",
             "error": null,
-            "raw_response_path": "/tmp/asr-mcp-matrix-stub-hylTGW/project/.claude-session-router/raw/session_3d7172c3-cbfa-4dee-9c9d-92507f290aa6-1778913964343.txt",
+            "raw_response_path": "/tmp/asr-mcp-matrix-stub-mRSKKO/project/.claude-session-router/raw/session_5c190ca1-1ca8-4e68-b068-517c776c4ca4-1778921107385.txt",
             "match_reason": "Direct session_id provided and project/Claude session health checks passed.",
             "was_new_session": 0,
             "was_orphan_recovery": 0,
-            "created_at": "2026-05-16T06:46:04.344Z"
+            "created_at": "2026-05-16T08:45:07.387Z"
           },
           {
             "event_type": "parse_failed_threshold_exceeded",
@@ -539,7 +540,7 @@
             "match_reason": null,
             "was_new_session": 0,
             "was_orphan_recovery": 0,
-            "created_at": "2026-05-16T06:46:04.346Z"
+            "created_at": "2026-05-16T08:45:07.388Z"
           },
           {
             "event_type": "archive",
@@ -548,7 +549,7 @@
             "match_reason": null,
             "was_new_session": 0,
             "was_orphan_recovery": 0,
-            "created_at": "2026-05-16T06:46:04.348Z"
+            "created_at": "2026-05-16T08:45:07.390Z"
           }
         ]
       }
@@ -556,18 +557,18 @@
     {
       "name": "session_update_archived_bootstrap_replacement",
       "pass": true,
-      "duration_ms": 51,
+      "duration_ms": 46,
       "details": {
         "replacement": {
-          "session_id": "session_aba62604-2d54-4e6e-9a74-e0d75f4e96a1",
-          "claude_session_id": "fake-1778913964384-cede7bc5ca17f",
+          "session_id": "session_ff3ce624-e4cf-426c-a65a-077c237e1aa9",
+          "claude_session_id": "fake-1778921107427-2ac0118a9b3be",
           "was_new_session": true,
           "was_orphan_recovery": false,
           "diagnostics": null
         },
         "replacement_session": {
-          "id": "session_aba62604-2d54-4e6e-9a74-e0d75f4e96a1",
-          "claude_session_id": "fake-1778913964384-cede7bc5ca17f",
+          "id": "session_ff3ce624-e4cf-426c-a65a-077c237e1aa9",
+          "claude_session_id": "fake-1778921107427-2ac0118a9b3be",
           "topic": "session update threshold workload",
           "summary": "MCP workload consult completed.",
           "status": "active",
@@ -578,7 +579,7 @@
     {
       "name": "router_consult_explicit_cluster_route",
       "pass": true,
-      "duration_ms": 118,
+      "duration_ms": 124,
       "details": {
         "route_decision": {
           "selected_path": "cluster_consult_explicit",
@@ -605,7 +606,7 @@
         "cluster_id": "monitor-static",
         "routing": null,
         "metrics": {
-          "duration_ms": 33,
+          "duration_ms": 40,
           "tokens_in": 61,
           "tokens_out": 109
         }
@@ -614,16 +615,16 @@
     {
       "name": "v2_cluster_consult_fast_path_with_shadow",
       "pass": true,
-      "duration_ms": 543,
+      "duration_ms": 551,
       "details": {
         "cluster_id": "monitor-static",
         "factsheet_version": 1,
         "factsheet_status": "static_verified",
         "tool_profile": "bare",
         "used_fork": false,
-        "claude_session_id": "fake-1778913964564-2fcafbbb204b2",
+        "claude_session_id": "fake-1778921107610-b94811ff0685",
         "metrics": {
-          "duration_ms": 34,
+          "duration_ms": 41,
           "tokens_in": 53,
           "tokens_out": 109
         }
@@ -653,19 +654,19 @@
           "project_id": "project",
           "comparisons": [
             {
-              "id": "comparison_8a9176f1-bfc9-42e7-975d-a9d52ada4402",
+              "id": "comparison_96f88cd4-897b-40f7-8dc1-3639b8de6315",
               "project_id": "project",
               "cluster_id": "monitor-static",
               "question": "What is router_monitor for?",
               "cluster_answer": "[omitted]",
-              "cluster_duration_ms": 34,
+              "cluster_duration_ms": 41,
               "cluster_cost_usd": null,
               "cluster_was_not_in_context": 0,
               "shadow_method": "direct_fresh",
               "shadow_status": "ok",
               "shadow_error": null,
               "direct_answer": "[omitted]",
-              "direct_duration_ms": 35,
+              "direct_duration_ms": 32,
               "direct_cost_usd": null,
               "cluster_score": 3,
               "direct_score": 3,
@@ -673,23 +674,23 @@
               "cluster_errors_json": "[]",
               "direct_errors_json": "[]",
               "judge_reasoning": "Both answers are sufficient for workload telemetry.",
-              "judged_at": "2026-05-16T06:46:04.647Z",
-              "created_at": "2026-05-16T06:46:04.573Z"
+              "judged_at": "2026-05-16T08:45:07.688Z",
+              "created_at": "2026-05-16T08:45:07.620Z"
             },
             {
-              "id": "comparison_ea893002-3724-437d-b7b1-0b6f8dca094d",
+              "id": "comparison_f3308b6b-3a53-46a2-a6fe-1bf22bfe357a",
               "project_id": "project",
               "cluster_id": "monitor-static",
               "question": "What is router_monitor for through the conservative router?",
               "cluster_answer": "[omitted]",
-              "cluster_duration_ms": 33,
+              "cluster_duration_ms": 40,
               "cluster_cost_usd": null,
               "cluster_was_not_in_context": 0,
               "shadow_method": "direct_fresh",
               "shadow_status": "ok",
               "shadow_error": null,
               "direct_answer": "[omitted]",
-              "direct_duration_ms": 31,
+              "direct_duration_ms": 38,
               "direct_cost_usd": null,
               "cluster_score": 3,
               "direct_score": 3,
@@ -697,8 +698,8 @@
               "cluster_errors_json": "[]",
               "direct_errors_json": "[]",
               "judge_reasoning": "Both answers are sufficient for workload telemetry.",
-              "judged_at": "2026-05-16T06:46:04.605Z",
-              "created_at": "2026-05-16T06:46:04.532Z"
+              "judged_at": "2026-05-16T08:45:07.646Z",
+              "created_at": "2026-05-16T08:45:07.570Z"
             }
           ]
         }
@@ -707,11 +708,11 @@
     {
       "name": "cluster_refresh_verify_only",
       "pass": true,
-      "duration_ms": 9,
+      "duration_ms": 10,
       "details": {
         "project_id": "project",
         "cluster_id": "monitor-static",
-        "factsheet_id": "factsheet_542c4a5d-9fd1-4a53-bc96-351360e8720e",
+        "factsheet_id": "factsheet_7d50f86a-1255-497d-9ec3-80db7b8446e3",
         "factsheet_version": 1,
         "mode": "verify_only",
         "fresh": true,
@@ -720,23 +721,79 @@
         "changed_files": [],
         "verified_facts": 2,
         "rejected_facts": 0,
-        "refreshed_at": "2026-05-16T06:46:05.081Z"
+        "refreshed_at": "2026-05-16T08:45:08.128Z"
+      }
+    },
+    {
+      "name": "cluster_reprepare_from_latest_factsheet",
+      "pass": true,
+      "duration_ms": 9,
+      "details": {
+        "project_id": "project",
+        "source_factsheet_id": "factsheet_7d50f86a-1255-497d-9ec3-80db7b8446e3",
+        "source_factsheet_version": 1,
+        "cluster_id": "monitor-static",
+        "factsheet_id": "factsheet_2928401b-6880-491a-8284-c2658b68e880",
+        "factsheet_version": 2,
+        "verification_stage": "static",
+        "trust_state": "static_verified",
+        "verified_facts": 2,
+        "rejected_facts": 0,
+        "rejected_fact_details": [],
+        "factsheet": {
+          "schema_version": 1,
+          "cluster_id": "monitor-static",
+          "summary": "Monitor workload facts.",
+          "facts": [
+            {
+              "id": "router-monitor-readme",
+              "claim": "router_monitor is documented as an operator-facing information monitor.",
+              "confidence": "static_verified",
+              "evidence": [
+                {
+                  "path": "README.md",
+                  "hash": "sha256:5348278d40791e5332fb979efeb0d29cfe67309ffcd6a995bcb2b7962c4a8b21",
+                  "selector": "router_monitor",
+                  "snippet_hash": "sha256:5348278d40791e5332fb979efeb0d29cfe67309ffcd6a995bcb2b7962c4a8b21"
+                }
+              ]
+            },
+            {
+              "id": "router-monitor-source",
+              "claim": "router_monitor is registered as an MCP tool in src/tools.ts.",
+              "confidence": "static_verified",
+              "evidence": [
+                {
+                  "path": "src/tools.ts",
+                  "hash": "sha256:6838933afe81160149c4401ac4d167d1d1556b7e7a9724f800ab7a76b0988c3c",
+                  "selector": "router_monitor",
+                  "snippet_hash": "sha256:e8db72f195ab32db7cd5a41d18dcb92dc69df13b53da3f6cc92723b4081091fc"
+                }
+              ]
+            }
+          ],
+          "pitfalls": [],
+          "forbidden_inferences": [
+            "Do not infer unmentioned tools."
+          ],
+          "omitted_facts": 0
+        }
       }
     },
     {
       "name": "evidence_revalidation_success_selector_moved",
       "pass": true,
-      "duration_ms": 52,
+      "duration_ms": 50,
       "details": {
         "consult": {
           "cluster_id": "monitor-static",
-          "factsheet_version": 2,
+          "factsheet_version": 3,
           "factsheet_status": "static_verified",
           "tool_profile": "bare",
           "used_fork": false,
-          "claude_session_id": "fake-1778913965127-bd96d59b3d9f1",
+          "claude_session_id": "fake-1778921108185-941c229624094",
           "metrics": {
-            "duration_ms": 36,
+            "duration_ms": 29,
             "tokens_in": 57,
             "tokens_out": 109
           }
@@ -745,47 +802,62 @@
           {
             "event_type": "cluster_created",
             "details_json": null,
-            "created_at": "2026-05-16T06:46:04.406Z"
+            "created_at": "2026-05-16T08:45:07.442Z"
           },
           {
             "event_type": "factsheet_static_verified",
-            "details_json": "{\"factsheet_id\":\"factsheet_542c4a5d-9fd1-4a53-bc96-351360e8720e\",\"version\":1,\"file_hashes\":2}",
-            "created_at": "2026-05-16T06:46:04.412Z"
+            "details_json": "{\"factsheet_id\":\"factsheet_7d50f86a-1255-497d-9ec3-80db7b8446e3\",\"version\":1,\"file_hashes\":2}",
+            "created_at": "2026-05-16T08:45:07.446Z"
           },
           {
             "event_type": "cluster_consult",
-            "details_json": "{\"factsheet_id\":\"factsheet_542c4a5d-9fd1-4a53-bc96-351360e8720e\",\"factsheet_version\":1,\"factsheet_status\":\"static_verified\",\"tool_profile\":\"bare\",\"requested_profile\":\"bare\",\"downgraded\":false,\"used_fork\":false}",
-            "created_at": "2026-05-16T06:46:04.529Z"
+            "details_json": "{\"factsheet_id\":\"factsheet_7d50f86a-1255-497d-9ec3-80db7b8446e3\",\"factsheet_version\":1,\"factsheet_status\":\"static_verified\",\"tool_profile\":\"bare\",\"requested_profile\":\"bare\",\"downgraded\":false,\"used_fork\":false}",
+            "created_at": "2026-05-16T08:45:07.561Z"
           },
           {
             "event_type": "cluster_consult",
-            "details_json": "{\"factsheet_id\":\"factsheet_542c4a5d-9fd1-4a53-bc96-351360e8720e\",\"factsheet_version\":1,\"factsheet_status\":\"static_verified\",\"tool_profile\":\"bare\",\"requested_profile\":\"bare\",\"downgraded\":false,\"used_fork\":false}",
-            "created_at": "2026-05-16T06:46:04.571Z"
+            "details_json": "{\"factsheet_id\":\"factsheet_7d50f86a-1255-497d-9ec3-80db7b8446e3\",\"factsheet_version\":1,\"factsheet_status\":\"static_verified\",\"tool_profile\":\"bare\",\"requested_profile\":\"bare\",\"downgraded\":false,\"used_fork\":false}",
+            "created_at": "2026-05-16T08:45:07.617Z"
           },
           {
             "event_type": "cluster_refresh",
-            "details_json": "{\"mode\":\"verify_only\",\"factsheet_id\":\"factsheet_542c4a5d-9fd1-4a53-bc96-351360e8720e\",\"factsheet_version\":1,\"changed_files\":[]}",
-            "created_at": "2026-05-16T06:46:05.086Z"
-          },
-          {
-            "event_type": "cluster_refresh_required",
-            "details_json": "{\"factsheet_id\":\"factsheet_542c4a5d-9fd1-4a53-bc96-351360e8720e\",\"factsheet_version\":1,\"changed_files\":[\"src/tools.ts\"]}",
-            "created_at": "2026-05-16T06:46:05.092Z"
+            "details_json": "{\"mode\":\"verify_only\",\"factsheet_id\":\"factsheet_7d50f86a-1255-497d-9ec3-80db7b8446e3\",\"factsheet_version\":1,\"changed_files\":[]}",
+            "created_at": "2026-05-16T08:45:08.134Z"
           },
           {
             "event_type": "factsheet_static_verified",
-            "details_json": "{\"factsheet_id\":\"factsheet_569229db-4e61-4e55-ad72-19b4bfda4d9d\",\"version\":2,\"file_hashes\":2}",
-            "created_at": "2026-05-16T06:46:05.096Z"
+            "details_json": "{\"factsheet_id\":\"factsheet_2928401b-6880-491a-8284-c2658b68e880\",\"version\":2,\"file_hashes\":2}",
+            "created_at": "2026-05-16T08:45:08.142Z"
+          },
+          {
+            "event_type": "cluster_reprepare",
+            "details_json": "{\"source_factsheet_id\":\"factsheet_7d50f86a-1255-497d-9ec3-80db7b8446e3\",\"source_factsheet_version\":1,\"new_factsheet_id\":\"factsheet_2928401b-6880-491a-8284-c2658b68e880\",\"new_factsheet_version\":2,\"verification_mode\":\"static\"}",
+            "created_at": "2026-05-16T08:45:08.143Z"
+          },
+          {
+            "event_type": "cluster_refresh_required",
+            "details_json": "{\"factsheet_id\":\"factsheet_2928401b-6880-491a-8284-c2658b68e880\",\"factsheet_version\":2,\"changed_files\":[\"src/tools.ts\"]}",
+            "created_at": "2026-05-16T08:45:08.150Z"
+          },
+          {
+            "event_type": "cluster_refresh_required",
+            "details_json": "{\"factsheet_id\":\"factsheet_7d50f86a-1255-497d-9ec3-80db7b8446e3\",\"factsheet_version\":1,\"changed_files\":[\"src/tools.ts\"]}",
+            "created_at": "2026-05-16T08:45:08.155Z"
+          },
+          {
+            "event_type": "factsheet_static_verified",
+            "details_json": "{\"factsheet_id\":\"factsheet_c44d7609-17ee-4506-83af-8af7b70975ec\",\"version\":3,\"file_hashes\":2}",
+            "created_at": "2026-05-16T08:45:08.159Z"
           },
           {
             "event_type": "evidence_revalidated",
-            "details_json": "{\"previous_factsheet_id\":\"factsheet_542c4a5d-9fd1-4a53-bc96-351360e8720e\",\"previous_factsheet_version\":1,\"factsheet_id\":\"factsheet_569229db-4e61-4e55-ad72-19b4bfda4d9d\",\"factsheet_version\":2,\"factsheet_status\":\"static_verified\",\"original_facts\":2,\"revalidated_facts\":2,\"retained_ratio\":1}",
-            "created_at": "2026-05-16T06:46:05.097Z"
+            "details_json": "{\"previous_factsheet_id\":\"factsheet_2928401b-6880-491a-8284-c2658b68e880\",\"previous_factsheet_version\":2,\"factsheet_id\":\"factsheet_c44d7609-17ee-4506-83af-8af7b70975ec\",\"factsheet_version\":3,\"factsheet_status\":\"static_verified\",\"original_facts\":2,\"revalidated_facts\":2,\"retained_ratio\":1}",
+            "created_at": "2026-05-16T08:45:08.160Z"
           },
           {
             "event_type": "cluster_consult",
-            "details_json": "{\"factsheet_id\":\"factsheet_569229db-4e61-4e55-ad72-19b4bfda4d9d\",\"factsheet_version\":2,\"factsheet_status\":\"static_verified\",\"tool_profile\":\"bare\",\"requested_profile\":\"bare\",\"downgraded\":false,\"used_fork\":false}",
-            "created_at": "2026-05-16T06:46:05.135Z"
+            "details_json": "{\"factsheet_id\":\"factsheet_c44d7609-17ee-4506-83af-8af7b70975ec\",\"factsheet_version\":3,\"factsheet_status\":\"static_verified\",\"tool_profile\":\"bare\",\"requested_profile\":\"bare\",\"downgraded\":false,\"used_fork\":false}",
+            "created_at": "2026-05-16T08:45:08.191Z"
           }
         ]
       }
@@ -793,11 +865,11 @@
     {
       "name": "evidence_revalidation_failure_falls_back",
       "pass": true,
-      "duration_ms": 88,
+      "duration_ms": 55,
       "details": {
         "fallback": {
-          "session_id": "session_68eaa7dd-9e24-438c-b161-2e9500758ecf",
-          "claude_session_id": "fake-1778913965196-8cebcede619c7",
+          "session_id": "session_25d308be-1e49-4c55-ab88-f21b0af1b446",
+          "claude_session_id": "fake-1778921108244-16f340a8aedbb",
           "was_new_session": true,
           "was_orphan_recovery": false,
           "diagnostics": null
@@ -812,27 +884,27 @@
           {
             "event_type": "cluster_created",
             "details_json": null,
-            "created_at": "2026-05-16T06:46:05.144Z"
+            "created_at": "2026-05-16T08:45:08.198Z"
           },
           {
             "event_type": "factsheet_static_verified",
-            "details_json": "{\"factsheet_id\":\"factsheet_87097242-3d21-45e4-8b85-dbe655d5bdd7\",\"version\":1,\"file_hashes\":2}",
-            "created_at": "2026-05-16T06:46:05.147Z"
+            "details_json": "{\"factsheet_id\":\"factsheet_a2889b3e-4c17-4b63-8857-0e7c77c567a6\",\"version\":1,\"file_hashes\":2}",
+            "created_at": "2026-05-16T08:45:08.202Z"
           },
           {
             "event_type": "cluster_refresh_required",
-            "details_json": "{\"factsheet_id\":\"factsheet_87097242-3d21-45e4-8b85-dbe655d5bdd7\",\"factsheet_version\":1,\"changed_files\":[\"src/tools.ts\"]}",
-            "created_at": "2026-05-16T06:46:05.153Z"
+            "details_json": "{\"factsheet_id\":\"factsheet_a2889b3e-4c17-4b63-8857-0e7c77c567a6\",\"factsheet_version\":1,\"changed_files\":[\"src/tools.ts\"]}",
+            "created_at": "2026-05-16T08:45:08.208Z"
           },
           {
             "event_type": "evidence_revalidation_failed",
-            "details_json": "{\"factsheet_id\":\"factsheet_87097242-3d21-45e4-8b85-dbe655d5bdd7\",\"factsheet_version\":1,\"original_facts\":2,\"revalidated_facts\":1,\"retained_ratio\":0.5,\"min_retained_ratio\":1,\"rejected_facts\":[{\"id\":\"router-monitor-source\",\"claim\":\"router_monitor is registered as an MCP tool in src/tools.ts.\",\"reason\":\"selector not found: router_monitor\"}]}",
-            "created_at": "2026-05-16T06:46:05.155Z"
+            "details_json": "{\"factsheet_id\":\"factsheet_a2889b3e-4c17-4b63-8857-0e7c77c567a6\",\"factsheet_version\":1,\"original_facts\":2,\"revalidated_facts\":1,\"retained_ratio\":0.5,\"min_retained_ratio\":1,\"rejected_facts\":[{\"id\":\"router-monitor-source\",\"claim\":\"router_monitor is registered as an MCP tool in src/tools.ts.\",\"reason\":\"selector not found: router_monitor\"}]}",
+            "created_at": "2026-05-16T08:45:08.209Z"
           },
           {
             "event_type": "cluster_fallback_to_claude_consult",
-            "details_json": "{\"reason\":\"Cluster factsheet evidence changed and automatic evidence revalidation could not prove the factsheet is still valid.\",\"revalidation_error\":{\"code\":\"CLUSTER_FACTSHEET_UNRECOVERABLE\",\"message\":\"Cluster factsheet evidence changed and automatic evidence revalidation could not prove the factsheet is still valid.\",\"cluster_id\":\"monitor-decay\",\"details\":{\"reason\":\"evidence revalidation failed; not all required evidence still matches current files\",\"factsheet_id\":\"factsheet_87097242-3d21-45e4-8b85-dbe655d5bdd7\",\"factsheet_version\":1,\"original_facts\":2,\"revalidated_facts\":1,\"retained_ratio\":0.5,\"min_retained_ratio\":1,\"rejected_facts\":[{\"id\":\"router-monitor-source\",\"claim\":\"router_monitor is registered as an MCP tool in src/tools.ts.\",\"reason\":\"selector not found: router_monitor\"}],\"suggested_action\":\"Recreate the cluster with cluster_prepare or use claude_consult for fresh exploration.\"}},\"fallback_session_id\":\"session_68eaa7dd-9e24-438c-b161-2e9500758ecf\",\"fallback_claude_session_id\":\"fake-1778913965196-8cebcede619c7\"}",
-            "created_at": "2026-05-16T06:46:05.223Z"
+            "details_json": "{\"reason\":\"Cluster factsheet evidence changed and automatic evidence revalidation could not prove the factsheet is still valid.\",\"revalidation_error\":{\"code\":\"CLUSTER_FACTSHEET_UNRECOVERABLE\",\"message\":\"Cluster factsheet evidence changed and automatic evidence revalidation could not prove the factsheet is still valid.\",\"cluster_id\":\"monitor-decay\",\"details\":{\"reason\":\"evidence revalidation failed; not all required evidence still matches current files\",\"factsheet_id\":\"factsheet_a2889b3e-4c17-4b63-8857-0e7c77c567a6\",\"factsheet_version\":1,\"original_facts\":2,\"revalidated_facts\":1,\"retained_ratio\":0.5,\"min_retained_ratio\":1,\"rejected_facts\":[{\"id\":\"router-monitor-source\",\"claim\":\"router_monitor is registered as an MCP tool in src/tools.ts.\",\"reason\":\"selector not found: router_monitor\"}],\"suggested_action\":\"Recreate the cluster with cluster_prepare or use claude_consult for fresh exploration.\"}},\"fallback_session_id\":\"session_25d308be-1e49-4c55-ab88-f21b0af1b446\",\"fallback_claude_session_id\":\"fake-1778921108244-16f340a8aedbb\"}",
+            "created_at": "2026-05-16T08:45:08.256Z"
           }
         ]
       }
@@ -840,11 +912,11 @@
     {
       "name": "evidence_revalidation_failure_snippet_changed_falls_back",
       "pass": true,
-      "duration_ms": 60,
+      "duration_ms": 53,
       "details": {
         "fallback": {
-          "session_id": "session_e33fe1c1-bbc1-44cc-8fd4-4bb991849bb5",
-          "claude_session_id": "fake-1778913965297-907ecb7c84e9d",
+          "session_id": "session_a64ca2b0-3f2c-48df-bc40-3cfa97149444",
+          "claude_session_id": "fake-1778921108303-e6b17f31be09",
           "was_new_session": true,
           "was_orphan_recovery": false,
           "diagnostics": null
@@ -859,27 +931,27 @@
           {
             "event_type": "cluster_created",
             "details_json": null,
-            "created_at": "2026-05-16T06:46:05.244Z"
+            "created_at": "2026-05-16T08:45:08.261Z"
           },
           {
             "event_type": "factsheet_static_verified",
-            "details_json": "{\"factsheet_id\":\"factsheet_9fc09b7c-b0a0-4b98-87f3-ca71bcb9ddbc\",\"version\":1,\"file_hashes\":2}",
-            "created_at": "2026-05-16T06:46:05.252Z"
+            "details_json": "{\"factsheet_id\":\"factsheet_33445407-1ee5-4b50-9965-06ea2819a75f\",\"version\":1,\"file_hashes\":2}",
+            "created_at": "2026-05-16T08:45:08.265Z"
           },
           {
             "event_type": "cluster_refresh_required",
-            "details_json": "{\"factsheet_id\":\"factsheet_9fc09b7c-b0a0-4b98-87f3-ca71bcb9ddbc\",\"factsheet_version\":1,\"changed_files\":[\"src/tools.ts\"]}",
-            "created_at": "2026-05-16T06:46:05.261Z"
+            "details_json": "{\"factsheet_id\":\"factsheet_33445407-1ee5-4b50-9965-06ea2819a75f\",\"factsheet_version\":1,\"changed_files\":[\"src/tools.ts\"]}",
+            "created_at": "2026-05-16T08:45:08.271Z"
           },
           {
             "event_type": "evidence_revalidation_failed",
-            "details_json": "{\"factsheet_id\":\"factsheet_9fc09b7c-b0a0-4b98-87f3-ca71bcb9ddbc\",\"factsheet_version\":1,\"original_facts\":2,\"revalidated_facts\":1,\"retained_ratio\":0.5,\"min_retained_ratio\":1,\"rejected_facts\":[{\"id\":\"router-monitor-source\",\"claim\":\"router_monitor is registered as an MCP tool in src/tools.ts.\",\"reason\":\"snippet changed for src/tools.ts: router_monitor\"}]}",
-            "created_at": "2026-05-16T06:46:05.264Z"
+            "details_json": "{\"factsheet_id\":\"factsheet_33445407-1ee5-4b50-9965-06ea2819a75f\",\"factsheet_version\":1,\"original_facts\":2,\"revalidated_facts\":1,\"retained_ratio\":0.5,\"min_retained_ratio\":1,\"rejected_facts\":[{\"id\":\"router-monitor-source\",\"claim\":\"router_monitor is registered as an MCP tool in src/tools.ts.\",\"reason\":\"snippet changed for src/tools.ts: router_monitor\"}]}",
+            "created_at": "2026-05-16T08:45:08.273Z"
           },
           {
             "event_type": "cluster_fallback_to_claude_consult",
-            "details_json": "{\"reason\":\"Cluster factsheet evidence changed and automatic evidence revalidation could not prove the factsheet is still valid.\",\"revalidation_error\":{\"code\":\"CLUSTER_FACTSHEET_UNRECOVERABLE\",\"message\":\"Cluster factsheet evidence changed and automatic evidence revalidation could not prove the factsheet is still valid.\",\"cluster_id\":\"monitor-snippet-decay\",\"details\":{\"reason\":\"evidence revalidation failed; not all required evidence still matches current files\",\"factsheet_id\":\"factsheet_9fc09b7c-b0a0-4b98-87f3-ca71bcb9ddbc\",\"factsheet_version\":1,\"original_facts\":2,\"revalidated_facts\":1,\"retained_ratio\":0.5,\"min_retained_ratio\":1,\"rejected_facts\":[{\"id\":\"router-monitor-source\",\"claim\":\"router_monitor is registered as an MCP tool in src/tools.ts.\",\"reason\":\"snippet changed for src/tools.ts: router_monitor\"}],\"suggested_action\":\"Recreate the cluster with cluster_prepare or use claude_consult for fresh exploration.\"}},\"fallback_session_id\":\"session_e33fe1c1-bbc1-44cc-8fd4-4bb991849bb5\",\"fallback_claude_session_id\":\"fake-1778913965297-907ecb7c84e9d\"}",
-            "created_at": "2026-05-16T06:46:05.313Z"
+            "details_json": "{\"reason\":\"Cluster factsheet evidence changed and automatic evidence revalidation could not prove the factsheet is still valid.\",\"revalidation_error\":{\"code\":\"CLUSTER_FACTSHEET_UNRECOVERABLE\",\"message\":\"Cluster factsheet evidence changed and automatic evidence revalidation could not prove the factsheet is still valid.\",\"cluster_id\":\"monitor-snippet-decay\",\"details\":{\"reason\":\"evidence revalidation failed; not all required evidence still matches current files\",\"factsheet_id\":\"factsheet_33445407-1ee5-4b50-9965-06ea2819a75f\",\"factsheet_version\":1,\"original_facts\":2,\"revalidated_facts\":1,\"retained_ratio\":0.5,\"min_retained_ratio\":1,\"rejected_facts\":[{\"id\":\"router-monitor-source\",\"claim\":\"router_monitor is registered as an MCP tool in src/tools.ts.\",\"reason\":\"snippet changed for src/tools.ts: router_monitor\"}],\"suggested_action\":\"Recreate the cluster with cluster_prepare or use claude_consult for fresh exploration.\"}},\"fallback_session_id\":\"session_a64ca2b0-3f2c-48df-bc40-3cfa97149444\",\"fallback_claude_session_id\":\"fake-1778921108303-e6b17f31be09\"}",
+            "created_at": "2026-05-16T08:45:08.317Z"
           }
         ]
       }
@@ -887,11 +959,11 @@
     {
       "name": "static_policy_deny_falls_back",
       "pass": true,
-      "duration_ms": 50,
+      "duration_ms": 44,
       "details": {
         "fallback": {
-          "session_id": "session_e99654d0-2d9f-4a53-8c95-41769cd7f1ef",
-          "claude_session_id": "fake-1778913965359-2258dbbe40bba",
+          "session_id": "session_43472048-5123-4cd2-a9a0-f04b6d8b08d7",
+          "claude_session_id": "fake-1778921108356-a0af5cc1e3ce6",
           "was_new_session": true,
           "was_orphan_recovery": false,
           "diagnostics": null
@@ -906,17 +978,17 @@
           {
             "event_type": "cluster_created",
             "details_json": null,
-            "created_at": "2026-05-16T06:46:05.319Z"
+            "created_at": "2026-05-16T08:45:08.322Z"
           },
           {
             "event_type": "factsheet_static_verified",
-            "details_json": "{\"factsheet_id\":\"factsheet_610afd5c-12f5-4413-80d4-b7be366af0b3\",\"version\":1,\"file_hashes\":2}",
-            "created_at": "2026-05-16T06:46:05.323Z"
+            "details_json": "{\"factsheet_id\":\"factsheet_cfcaf773-0f14-4213-8c04-9aefc571e040\",\"version\":1,\"file_hashes\":2}",
+            "created_at": "2026-05-16T08:45:08.326Z"
           },
           {
             "event_type": "cluster_fallback_to_claude_consult",
-            "details_json": "{\"reason\":\"Cluster factsheet is not LLM-verified. Run cluster_prepare with verification_mode=llm or explicitly allow static facts.\",\"revalidation_error\":{\"code\":\"CLUSTER_FACTSHEET_UNTRUSTED\",\"message\":\"Cluster factsheet is not LLM-verified. Run cluster_prepare with verification_mode=llm or explicitly allow static facts.\",\"cluster_id\":\"monitor-static-deny\",\"reason\":\"Current factsheet status is static_verified; cluster static_factsheet_policy is deny.\"},\"fallback_session_id\":\"session_e99654d0-2d9f-4a53-8c95-41769cd7f1ef\",\"fallback_claude_session_id\":\"fake-1778913965359-2258dbbe40bba\"}",
-            "created_at": "2026-05-16T06:46:05.372Z"
+            "details_json": "{\"reason\":\"Cluster factsheet is not LLM-verified. Run cluster_prepare with verification_mode=llm or explicitly allow static facts.\",\"revalidation_error\":{\"code\":\"CLUSTER_FACTSHEET_UNTRUSTED\",\"message\":\"Cluster factsheet is not LLM-verified. Run cluster_prepare with verification_mode=llm or explicitly allow static facts.\",\"cluster_id\":\"monitor-static-deny\",\"reason\":\"Current factsheet status is static_verified; cluster static_factsheet_policy is deny.\"},\"fallback_session_id\":\"session_43472048-5123-4cd2-a9a0-f04b6d8b08d7\",\"fallback_claude_session_id\":\"fake-1778921108356-a0af5cc1e3ce6\"}",
+            "created_at": "2026-05-16T08:45:08.370Z"
           }
         ]
       }
@@ -924,11 +996,11 @@
     {
       "name": "missing_cluster_falls_back",
       "pass": true,
-      "duration_ms": 44,
+      "duration_ms": 55,
       "details": {
         "fallback": {
-          "session_id": "session_8fc794fc-b4a8-41be-9c5e-44a37eac1166",
-          "claude_session_id": "fake-1778913965404-33523bca12852",
+          "session_id": "session_be5ff870-fb34-426a-8ae9-f7f0d0060d01",
+          "claude_session_id": "fake-1778921108405-a2745e0e6f7a6",
           "was_new_session": true,
           "was_orphan_recovery": false,
           "diagnostics": null
@@ -936,8 +1008,8 @@
         "events": [
           {
             "event_type": "cluster_fallback_to_claude_consult",
-            "details_json": "{\"reason\":\"No cluster found for the provided cluster_id.\",\"revalidation_error\":{\"code\":\"CLUSTER_NOT_FOUND\",\"message\":\"No cluster found for the provided cluster_id.\",\"cluster_id\":\"missing-workload-cluster\"},\"fallback_session_id\":\"session_8fc794fc-b4a8-41be-9c5e-44a37eac1166\",\"fallback_claude_session_id\":\"fake-1778913965404-33523bca12852\"}",
-            "created_at": "2026-05-16T06:46:05.417Z"
+            "details_json": "{\"reason\":\"No cluster found for the provided cluster_id.\",\"revalidation_error\":{\"code\":\"CLUSTER_NOT_FOUND\",\"message\":\"No cluster found for the provided cluster_id.\",\"cluster_id\":\"missing-workload-cluster\"},\"fallback_session_id\":\"session_be5ff870-fb34-426a-8ae9-f7f0d0060d01\",\"fallback_claude_session_id\":\"fake-1778921108405-a2745e0e6f7a6\"}",
+            "created_at": "2026-05-16T08:45:08.424Z"
           }
         ]
       }
@@ -954,7 +1026,7 @@
           "downgraded": false
         },
         "cluster_id": "monitor-llm",
-        "factsheet_id": "factsheet_7de0e527-37eb-4a0e-95f0-51486d607df7",
+        "factsheet_id": "factsheet_e2f09f3c-463f-41ef-b498-760d90c4fef7",
         "factsheet_version": 1,
         "verification_stage": "llm",
         "trust_state": "llm_verified",
@@ -1001,7 +1073,7 @@
         },
         "verifier_metrics": {
           "tool_profile": "bare",
-          "duration_ms": 35,
+          "duration_ms": 33,
           "tokens_in": 404,
           "tokens_out": 70
         }
@@ -1010,7 +1082,7 @@
     {
       "name": "v2_llm_trusted_cluster_consult_with_deny_policy",
       "pass": true,
-      "duration_ms": 247,
+      "duration_ms": 258,
       "details": {
         "consult": {
           "cluster_id": "monitor-llm",
@@ -1018,9 +1090,9 @@
           "factsheet_status": "llm_verified",
           "tool_profile": "bare",
           "used_fork": false,
-          "claude_session_id": "fake-1778913965495-1c7802cfda0ff",
+          "claude_session_id": "fake-1778921108509-b76413f6aaf58",
           "metrics": {
-            "duration_ms": 34,
+            "duration_ms": 41,
             "tokens_in": 55,
             "tokens_out": 109
           }
@@ -1045,19 +1117,19 @@
             "project_id": "project",
             "comparisons": [
               {
-                "id": "comparison_3f751254-7df6-461f-9efd-4ffe976c0af4",
+                "id": "comparison_2acbc48a-d086-4019-afde-8f4507477918",
                 "project_id": "project",
                 "cluster_id": "monitor-llm",
                 "question": "What is router_monitor documented as?",
                 "cluster_answer": "[omitted]",
-                "cluster_duration_ms": 34,
+                "cluster_duration_ms": 41,
                 "cluster_cost_usd": null,
                 "cluster_was_not_in_context": 0,
                 "shadow_method": "direct_fresh",
                 "shadow_status": "ok",
                 "shadow_error": null,
                 "direct_answer": "[omitted]",
-                "direct_duration_ms": 40,
+                "direct_duration_ms": 37,
                 "direct_cost_usd": null,
                 "cluster_score": 3,
                 "direct_score": 3,
@@ -1065,8 +1137,8 @@
                 "cluster_errors_json": "[]",
                 "direct_errors_json": "[]",
                 "judge_reasoning": "Both answers are sufficient for workload telemetry.",
-                "judged_at": "2026-05-16T06:46:05.588Z",
-                "created_at": "2026-05-16T06:46:05.505Z"
+                "judged_at": "2026-05-16T08:45:08.598Z",
+                "created_at": "2026-05-16T08:45:08.521Z"
               }
             ]
           }
@@ -1081,19 +1153,19 @@
         "project_id": "project",
         "comparisons": [
           {
-            "id": "comparison_3f751254-7df6-461f-9efd-4ffe976c0af4",
+            "id": "comparison_2acbc48a-d086-4019-afde-8f4507477918",
             "project_id": "project",
             "cluster_id": "monitor-llm",
             "question": "What is router_monitor documented as?",
             "cluster_answer": "[omitted]",
-            "cluster_duration_ms": 34,
+            "cluster_duration_ms": 41,
             "cluster_cost_usd": null,
             "cluster_was_not_in_context": 0,
             "shadow_method": "direct_fresh",
             "shadow_status": "ok",
             "shadow_error": null,
             "direct_answer": "[omitted]",
-            "direct_duration_ms": 40,
+            "direct_duration_ms": 37,
             "direct_cost_usd": null,
             "cluster_score": 3,
             "direct_score": 3,
@@ -1101,23 +1173,23 @@
             "cluster_errors_json": "[]",
             "direct_errors_json": "[]",
             "judge_reasoning": "Both answers are sufficient for workload telemetry.",
-            "judged_at": "2026-05-16T06:46:05.588Z",
-            "created_at": "2026-05-16T06:46:05.505Z"
+            "judged_at": "2026-05-16T08:45:08.598Z",
+            "created_at": "2026-05-16T08:45:08.521Z"
           },
           {
-            "id": "comparison_56253aab-117d-4596-9e0d-4e094653ab07",
+            "id": "comparison_483f2191-e127-4b50-9600-12b850ec3e57",
             "project_id": "project",
             "cluster_id": "monitor-static",
             "question": "What is router_monitor for after a file moved?",
             "cluster_answer": "[omitted]",
-            "cluster_duration_ms": 36,
+            "cluster_duration_ms": 29,
             "cluster_cost_usd": null,
             "cluster_was_not_in_context": 0,
             "shadow_method": "direct_fresh",
             "shadow_status": "ok",
             "shadow_error": null,
             "direct_answer": "[omitted]",
-            "direct_duration_ms": 41,
+            "direct_duration_ms": 39,
             "direct_cost_usd": null,
             "cluster_score": 3,
             "direct_score": 3,
@@ -1125,23 +1197,23 @@
             "cluster_errors_json": "[]",
             "direct_errors_json": "[]",
             "judge_reasoning": "Both answers are sufficient for workload telemetry.",
-            "judged_at": "2026-05-16T06:46:05.229Z",
-            "created_at": "2026-05-16T06:46:05.137Z"
+            "judged_at": "2026-05-16T08:45:08.284Z",
+            "created_at": "2026-05-16T08:45:08.193Z"
           },
           {
-            "id": "comparison_8a9176f1-bfc9-42e7-975d-a9d52ada4402",
+            "id": "comparison_96f88cd4-897b-40f7-8dc1-3639b8de6315",
             "project_id": "project",
             "cluster_id": "monitor-static",
             "question": "What is router_monitor for?",
             "cluster_answer": "[omitted]",
-            "cluster_duration_ms": 34,
+            "cluster_duration_ms": 41,
             "cluster_cost_usd": null,
             "cluster_was_not_in_context": 0,
             "shadow_method": "direct_fresh",
             "shadow_status": "ok",
             "shadow_error": null,
             "direct_answer": "[omitted]",
-            "direct_duration_ms": 35,
+            "direct_duration_ms": 32,
             "direct_cost_usd": null,
             "cluster_score": 3,
             "direct_score": 3,
@@ -1149,23 +1221,23 @@
             "cluster_errors_json": "[]",
             "direct_errors_json": "[]",
             "judge_reasoning": "Both answers are sufficient for workload telemetry.",
-            "judged_at": "2026-05-16T06:46:04.647Z",
-            "created_at": "2026-05-16T06:46:04.573Z"
+            "judged_at": "2026-05-16T08:45:07.688Z",
+            "created_at": "2026-05-16T08:45:07.620Z"
           },
           {
-            "id": "comparison_ea893002-3724-437d-b7b1-0b6f8dca094d",
+            "id": "comparison_f3308b6b-3a53-46a2-a6fe-1bf22bfe357a",
             "project_id": "project",
             "cluster_id": "monitor-static",
             "question": "What is router_monitor for through the conservative router?",
             "cluster_answer": "[omitted]",
-            "cluster_duration_ms": 33,
+            "cluster_duration_ms": 40,
             "cluster_cost_usd": null,
             "cluster_was_not_in_context": 0,
             "shadow_method": "direct_fresh",
             "shadow_status": "ok",
             "shadow_error": null,
             "direct_answer": "[omitted]",
-            "direct_duration_ms": 31,
+            "direct_duration_ms": 38,
             "direct_cost_usd": null,
             "cluster_score": 3,
             "direct_score": 3,
@@ -1173,8 +1245,8 @@
             "cluster_errors_json": "[]",
             "direct_errors_json": "[]",
             "judge_reasoning": "Both answers are sufficient for workload telemetry.",
-            "judged_at": "2026-05-16T06:46:04.605Z",
-            "created_at": "2026-05-16T06:46:04.532Z"
+            "judged_at": "2026-05-16T08:45:07.646Z",
+            "created_at": "2026-05-16T08:45:07.570Z"
           }
         ]
       }
@@ -1182,10 +1254,10 @@
     {
       "name": "router_monitor_after_workload",
       "pass": true,
-      "duration_ms": 3,
+      "duration_ms": 4,
       "details": {
         "project_id": "project",
-        "checked_at": "2026-05-16T06:46:05.717Z",
+        "checked_at": "2026-05-16T08:45:08.737Z",
         "recent_window_hours": 24,
         "output_limits": {
           "requested_sample_limit": 20,
@@ -1224,8 +1296,8 @@
             "failed_auth": 0,
             "failed_timeout": 0,
             "failed_other": 0,
-            "last_created_at": "2026-05-16T06:46:05.505Z",
-            "last_judged_at": "2026-05-16T06:46:05.588Z"
+            "last_created_at": "2026-05-16T08:45:08.521Z",
+            "last_judged_at": "2026-05-16T08:45:08.598Z"
           }
         },
         "cache_health": {
@@ -1235,40 +1307,40 @@
               "name": "monitor-static-deny",
               "status": "needs_prepare",
               "trust_state": "untrusted",
-              "last_used": "2026-05-16T06:46:05.326Z",
-              "factsheet_id": "factsheet_610afd5c-12f5-4413-80d4-b7be366af0b3",
+              "last_used": "2026-05-16T08:45:08.329Z",
+              "factsheet_id": "factsheet_cfcaf773-0f14-4213-8c04-9aefc571e040",
               "factsheet_version": 1,
               "factsheet_status": "static_verified",
-              "verified_at": "2026-05-16T06:46:05.321Z"
+              "verified_at": "2026-05-16T08:45:08.325Z"
             },
             {
               "id": "monitor-snippet-decay",
               "name": "monitor-snippet-decay",
               "status": "needs_prepare",
               "trust_state": "untrusted",
-              "last_used": "2026-05-16T06:46:05.266Z",
-              "factsheet_id": "factsheet_9fc09b7c-b0a0-4b98-87f3-ca71bcb9ddbc",
+              "last_used": "2026-05-16T08:45:08.274Z",
+              "factsheet_id": "factsheet_33445407-1ee5-4b50-9965-06ea2819a75f",
               "factsheet_version": 1,
               "factsheet_status": "stale",
-              "verified_at": "2026-05-16T06:46:05.247Z"
+              "verified_at": "2026-05-16T08:45:08.263Z"
             },
             {
               "id": "monitor-decay",
               "name": "monitor-decay",
               "status": "needs_prepare",
               "trust_state": "untrusted",
-              "last_used": "2026-05-16T06:46:05.157Z",
-              "factsheet_id": "factsheet_87097242-3d21-45e4-8b85-dbe655d5bdd7",
+              "last_used": "2026-05-16T08:45:08.211Z",
+              "factsheet_id": "factsheet_a2889b3e-4c17-4b63-8857-0e7c77c567a6",
               "factsheet_version": 1,
               "factsheet_status": "stale",
-              "verified_at": "2026-05-16T06:46:05.146Z"
+              "verified_at": "2026-05-16T08:45:08.200Z"
             }
           ],
           "decayed_cluster_cost_signals": [
             {
               "cluster_id": "monitor-static-deny",
               "status": "needs_prepare",
-              "factsheet_id": "factsheet_610afd5c-12f5-4413-80d4-b7be366af0b3",
+              "factsheet_id": "factsheet_cfcaf773-0f14-4213-8c04-9aefc571e040",
               "factsheet_version": 1,
               "fallback_count_recent_window": 1,
               "recent_window_hours": 24,
@@ -1278,7 +1350,7 @@
             {
               "cluster_id": "monitor-snippet-decay",
               "status": "needs_prepare",
-              "factsheet_id": "factsheet_9fc09b7c-b0a0-4b98-87f3-ca71bcb9ddbc",
+              "factsheet_id": "factsheet_33445407-1ee5-4b50-9965-06ea2819a75f",
               "factsheet_version": 1,
               "fallback_count_recent_window": 1,
               "recent_window_hours": 24,
@@ -1288,7 +1360,7 @@
             {
               "cluster_id": "monitor-decay",
               "status": "needs_prepare",
-              "factsheet_id": "factsheet_87097242-3d21-45e4-8b85-dbe655d5bdd7",
+              "factsheet_id": "factsheet_a2889b3e-4c17-4b63-8857-0e7c77c567a6",
               "factsheet_version": 1,
               "fallback_count_recent_window": 1,
               "recent_window_hours": 24,
@@ -1298,69 +1370,69 @@
           ],
           "attention_by_event": [
             {
-              "event_type": "cluster_fallback_to_claude_consult",
-              "count": 3,
-              "latest_created_at": "2026-05-16T06:46:05.372Z"
+              "event_type": "cluster_refresh_required",
+              "count": 4,
+              "latest_created_at": "2026-05-16T08:45:08.271Z"
             },
             {
-              "event_type": "cluster_refresh_required",
+              "event_type": "cluster_fallback_to_claude_consult",
               "count": 3,
-              "latest_created_at": "2026-05-16T06:46:05.261Z"
+              "latest_created_at": "2026-05-16T08:45:08.370Z"
             },
             {
               "event_type": "evidence_revalidation_failed",
               "count": 2,
-              "latest_created_at": "2026-05-16T06:46:05.264Z"
+              "latest_created_at": "2026-05-16T08:45:08.273Z"
             }
           ],
           "attention_by_cluster": [
             {
-              "cluster_id": "monitor-decay",
-              "event_type": "cluster_fallback_to_claude_consult",
-              "count": 1,
-              "latest_created_at": "2026-05-16T06:46:05.223Z"
-            },
-            {
-              "cluster_id": "monitor-decay",
-              "event_type": "cluster_refresh_required",
-              "count": 1,
-              "latest_created_at": "2026-05-16T06:46:05.153Z"
-            },
-            {
-              "cluster_id": "monitor-decay",
-              "event_type": "evidence_revalidation_failed",
-              "count": 1,
-              "latest_created_at": "2026-05-16T06:46:05.155Z"
-            },
-            {
-              "cluster_id": "monitor-snippet-decay",
-              "event_type": "cluster_fallback_to_claude_consult",
-              "count": 1,
-              "latest_created_at": "2026-05-16T06:46:05.313Z"
-            },
-            {
-              "cluster_id": "monitor-snippet-decay",
-              "event_type": "cluster_refresh_required",
-              "count": 1,
-              "latest_created_at": "2026-05-16T06:46:05.261Z"
-            },
-            {
-              "cluster_id": "monitor-snippet-decay",
-              "event_type": "evidence_revalidation_failed",
-              "count": 1,
-              "latest_created_at": "2026-05-16T06:46:05.264Z"
-            },
-            {
               "cluster_id": "monitor-static",
               "event_type": "cluster_refresh_required",
+              "count": 2,
+              "latest_created_at": "2026-05-16T08:45:08.155Z"
+            },
+            {
+              "cluster_id": "monitor-decay",
+              "event_type": "cluster_fallback_to_claude_consult",
               "count": 1,
-              "latest_created_at": "2026-05-16T06:46:05.092Z"
+              "latest_created_at": "2026-05-16T08:45:08.256Z"
+            },
+            {
+              "cluster_id": "monitor-decay",
+              "event_type": "cluster_refresh_required",
+              "count": 1,
+              "latest_created_at": "2026-05-16T08:45:08.208Z"
+            },
+            {
+              "cluster_id": "monitor-decay",
+              "event_type": "evidence_revalidation_failed",
+              "count": 1,
+              "latest_created_at": "2026-05-16T08:45:08.209Z"
+            },
+            {
+              "cluster_id": "monitor-snippet-decay",
+              "event_type": "cluster_fallback_to_claude_consult",
+              "count": 1,
+              "latest_created_at": "2026-05-16T08:45:08.317Z"
+            },
+            {
+              "cluster_id": "monitor-snippet-decay",
+              "event_type": "cluster_refresh_required",
+              "count": 1,
+              "latest_created_at": "2026-05-16T08:45:08.271Z"
+            },
+            {
+              "cluster_id": "monitor-snippet-decay",
+              "event_type": "evidence_revalidation_failed",
+              "count": 1,
+              "latest_created_at": "2026-05-16T08:45:08.273Z"
             },
             {
               "cluster_id": "monitor-static-deny",
               "event_type": "cluster_fallback_to_claude_consult",
               "count": 1,
-              "latest_created_at": "2026-05-16T06:46:05.372Z"
+              "latest_created_at": "2026-05-16T08:45:08.370Z"
             }
           ]
         },
@@ -1374,147 +1446,147 @@
             {
               "event_type": "parse_failed",
               "count": 10,
-              "latest_created_at": "2026-05-16T06:46:04.343Z"
+              "latest_created_at": "2026-05-16T08:45:07.386Z"
             },
             {
               "event_type": "parse_failed_threshold_exceeded",
               "count": 1,
-              "latest_created_at": "2026-05-16T06:46:04.346Z"
+              "latest_created_at": "2026-05-16T08:45:07.388Z"
             }
           ],
           "affected_sessions": [
             {
-              "session_id": "session_3d7172c3-cbfa-4dee-9c9d-92507f290aa6",
+              "session_id": "session_5c190ca1-1ca8-4e68-b068-517c776c4ca4",
               "topic": "session update threshold workload",
               "session_status": "archived",
               "parse_failed_count": 10,
               "threshold_exceeded_count": 1,
-              "latest_created_at": "2026-05-16T06:46:04.346Z",
+              "latest_created_at": "2026-05-16T08:45:07.388Z",
               "latest_error": "parse_failure_threshold",
-              "latest_raw_response_path": "/tmp/asr-mcp-matrix-stub-hylTGW/project/.claude-session-router/raw/session_3d7172c3-cbfa-4dee-9c9d-92507f290aa6-1778913964343.txt"
+              "latest_raw_response_path": "/tmp/asr-mcp-matrix-stub-mRSKKO/project/.claude-session-router/raw/session_5c190ca1-1ca8-4e68-b068-517c776c4ca4-1778921107385.txt"
             }
           ],
           "samples": [
             {
               "event_id": 26,
-              "session_id": "session_3d7172c3-cbfa-4dee-9c9d-92507f290aa6",
+              "session_id": "session_5c190ca1-1ca8-4e68-b068-517c776c4ca4",
               "topic": "session update threshold workload",
               "session_status": "archived",
               "event_type": "parse_failed_threshold_exceeded",
               "question": null,
               "raw_response_path": null,
               "error": "parse_failure_threshold",
-              "created_at": "2026-05-16T06:46:04.346Z"
+              "created_at": "2026-05-16T08:45:07.388Z"
             },
             {
               "event_id": 24,
-              "session_id": "session_3d7172c3-cbfa-4dee-9c9d-92507f290aa6",
+              "session_id": "session_5c190ca1-1ca8-4e68-b068-517c776c4ca4",
               "topic": "session update threshold workload",
               "session_status": "archived",
               "event_type": "parse_failed",
               "question": null,
-              "raw_response_path": "/tmp/asr-mcp-matrix-stub-hylTGW/project/.claude-session-router/raw/session_3d7172c3-cbfa-4dee-9c9d-92507f290aa6-1778913964343.txt",
+              "raw_response_path": "/tmp/asr-mcp-matrix-stub-mRSKKO/project/.claude-session-router/raw/session_5c190ca1-1ca8-4e68-b068-517c776c4ca4-1778921107385.txt",
               "error": "Unexpected token '}', ...\"sions\": [ }\" is not valid JSON",
-              "created_at": "2026-05-16T06:46:04.343Z"
+              "created_at": "2026-05-16T08:45:07.386Z"
             },
             {
               "event_id": 22,
-              "session_id": "session_3d7172c3-cbfa-4dee-9c9d-92507f290aa6",
+              "session_id": "session_5c190ca1-1ca8-4e68-b068-517c776c4ca4",
               "topic": "session update threshold workload",
               "session_status": "archived",
               "event_type": "parse_failed",
               "question": null,
-              "raw_response_path": "/tmp/asr-mcp-matrix-stub-hylTGW/project/.claude-session-router/raw/session_3d7172c3-cbfa-4dee-9c9d-92507f290aa6-1778913964299.txt",
+              "raw_response_path": "/tmp/asr-mcp-matrix-stub-mRSKKO/project/.claude-session-router/raw/session_5c190ca1-1ca8-4e68-b068-517c776c4ca4-1778921107349.txt",
               "error": "Unexpected token '}', ...\"sions\": [ }\" is not valid JSON",
-              "created_at": "2026-05-16T06:46:04.300Z"
+              "created_at": "2026-05-16T08:45:07.349Z"
             },
             {
               "event_id": 20,
-              "session_id": "session_3d7172c3-cbfa-4dee-9c9d-92507f290aa6",
+              "session_id": "session_5c190ca1-1ca8-4e68-b068-517c776c4ca4",
               "topic": "session update threshold workload",
               "session_status": "archived",
               "event_type": "parse_failed",
               "question": null,
-              "raw_response_path": "/tmp/asr-mcp-matrix-stub-hylTGW/project/.claude-session-router/raw/session_3d7172c3-cbfa-4dee-9c9d-92507f290aa6-1778913964256.txt",
+              "raw_response_path": "/tmp/asr-mcp-matrix-stub-mRSKKO/project/.claude-session-router/raw/session_5c190ca1-1ca8-4e68-b068-517c776c4ca4-1778921107304.txt",
               "error": "Unexpected token '}', ...\"sions\": [ }\" is not valid JSON",
-              "created_at": "2026-05-16T06:46:04.257Z"
+              "created_at": "2026-05-16T08:45:07.304Z"
             },
             {
               "event_id": 18,
-              "session_id": "session_3d7172c3-cbfa-4dee-9c9d-92507f290aa6",
+              "session_id": "session_5c190ca1-1ca8-4e68-b068-517c776c4ca4",
               "topic": "session update threshold workload",
               "session_status": "archived",
               "event_type": "parse_failed",
               "question": null,
-              "raw_response_path": "/tmp/asr-mcp-matrix-stub-hylTGW/project/.claude-session-router/raw/session_3d7172c3-cbfa-4dee-9c9d-92507f290aa6-1778913964217.txt",
+              "raw_response_path": "/tmp/asr-mcp-matrix-stub-mRSKKO/project/.claude-session-router/raw/session_5c190ca1-1ca8-4e68-b068-517c776c4ca4-1778921107259.txt",
               "error": "Unexpected token '}', ...\"sions\": [ }\" is not valid JSON",
-              "created_at": "2026-05-16T06:46:04.217Z"
+              "created_at": "2026-05-16T08:45:07.259Z"
             },
             {
               "event_id": 16,
-              "session_id": "session_3d7172c3-cbfa-4dee-9c9d-92507f290aa6",
+              "session_id": "session_5c190ca1-1ca8-4e68-b068-517c776c4ca4",
               "topic": "session update threshold workload",
               "session_status": "archived",
               "event_type": "parse_failed",
               "question": null,
-              "raw_response_path": "/tmp/asr-mcp-matrix-stub-hylTGW/project/.claude-session-router/raw/session_3d7172c3-cbfa-4dee-9c9d-92507f290aa6-1778913964172.txt",
+              "raw_response_path": "/tmp/asr-mcp-matrix-stub-mRSKKO/project/.claude-session-router/raw/session_5c190ca1-1ca8-4e68-b068-517c776c4ca4-1778921107208.txt",
               "error": "Unexpected token '}', ...\"sions\": [ }\" is not valid JSON",
-              "created_at": "2026-05-16T06:46:04.172Z"
+              "created_at": "2026-05-16T08:45:07.208Z"
             },
             {
               "event_id": 14,
-              "session_id": "session_3d7172c3-cbfa-4dee-9c9d-92507f290aa6",
+              "session_id": "session_5c190ca1-1ca8-4e68-b068-517c776c4ca4",
               "topic": "session update threshold workload",
               "session_status": "archived",
               "event_type": "parse_failed",
               "question": null,
-              "raw_response_path": "/tmp/asr-mcp-matrix-stub-hylTGW/project/.claude-session-router/raw/session_3d7172c3-cbfa-4dee-9c9d-92507f290aa6-1778913964131.txt",
+              "raw_response_path": "/tmp/asr-mcp-matrix-stub-mRSKKO/project/.claude-session-router/raw/session_5c190ca1-1ca8-4e68-b068-517c776c4ca4-1778921107144.txt",
               "error": "Unexpected token '}', ...\"sions\": [ }\" is not valid JSON",
-              "created_at": "2026-05-16T06:46:04.131Z"
+              "created_at": "2026-05-16T08:45:07.144Z"
             },
             {
               "event_id": 12,
-              "session_id": "session_3d7172c3-cbfa-4dee-9c9d-92507f290aa6",
+              "session_id": "session_5c190ca1-1ca8-4e68-b068-517c776c4ca4",
               "topic": "session update threshold workload",
               "session_status": "archived",
               "event_type": "parse_failed",
               "question": null,
-              "raw_response_path": "/tmp/asr-mcp-matrix-stub-hylTGW/project/.claude-session-router/raw/session_3d7172c3-cbfa-4dee-9c9d-92507f290aa6-1778913964082.txt",
+              "raw_response_path": "/tmp/asr-mcp-matrix-stub-mRSKKO/project/.claude-session-router/raw/session_5c190ca1-1ca8-4e68-b068-517c776c4ca4-1778921107078.txt",
               "error": "Unexpected token '}', ...\"sions\": [ }\" is not valid JSON",
-              "created_at": "2026-05-16T06:46:04.082Z"
+              "created_at": "2026-05-16T08:45:07.079Z"
             },
             {
               "event_id": 10,
-              "session_id": "session_3d7172c3-cbfa-4dee-9c9d-92507f290aa6",
+              "session_id": "session_5c190ca1-1ca8-4e68-b068-517c776c4ca4",
               "topic": "session update threshold workload",
               "session_status": "archived",
               "event_type": "parse_failed",
               "question": null,
-              "raw_response_path": "/tmp/asr-mcp-matrix-stub-hylTGW/project/.claude-session-router/raw/session_3d7172c3-cbfa-4dee-9c9d-92507f290aa6-1778913964031.txt",
+              "raw_response_path": "/tmp/asr-mcp-matrix-stub-mRSKKO/project/.claude-session-router/raw/session_5c190ca1-1ca8-4e68-b068-517c776c4ca4-1778921107014.txt",
               "error": "Unexpected token '}', ...\"sions\": [ }\" is not valid JSON",
-              "created_at": "2026-05-16T06:46:04.032Z"
+              "created_at": "2026-05-16T08:45:07.014Z"
             },
             {
               "event_id": 8,
-              "session_id": "session_3d7172c3-cbfa-4dee-9c9d-92507f290aa6",
+              "session_id": "session_5c190ca1-1ca8-4e68-b068-517c776c4ca4",
               "topic": "session update threshold workload",
               "session_status": "archived",
               "event_type": "parse_failed",
               "question": null,
-              "raw_response_path": "/tmp/asr-mcp-matrix-stub-hylTGW/project/.claude-session-router/raw/session_3d7172c3-cbfa-4dee-9c9d-92507f290aa6-1778913963986.txt",
+              "raw_response_path": "/tmp/asr-mcp-matrix-stub-mRSKKO/project/.claude-session-router/raw/session_5c190ca1-1ca8-4e68-b068-517c776c4ca4-1778921106968.txt",
               "error": "Unexpected token '}', ...\"sions\": [ }\" is not valid JSON",
-              "created_at": "2026-05-16T06:46:03.986Z"
+              "created_at": "2026-05-16T08:45:06.969Z"
             },
             {
               "event_id": 6,
-              "session_id": "session_3d7172c3-cbfa-4dee-9c9d-92507f290aa6",
+              "session_id": "session_5c190ca1-1ca8-4e68-b068-517c776c4ca4",
               "topic": "session update threshold workload",
               "session_status": "archived",
               "event_type": "parse_failed",
               "question": null,
-              "raw_response_path": "/tmp/asr-mcp-matrix-stub-hylTGW/project/.claude-session-router/raw/session_3d7172c3-cbfa-4dee-9c9d-92507f290aa6-1778913963943.txt",
+              "raw_response_path": "/tmp/asr-mcp-matrix-stub-mRSKKO/project/.claude-session-router/raw/session_5c190ca1-1ca8-4e68-b068-517c776c4ca4-1778921106917.txt",
               "error": "Unexpected token '}', ...\"sions\": [ }\" is not valid JSON",
-              "created_at": "2026-05-16T06:46:03.943Z"
+              "created_at": "2026-05-16T08:45:06.917Z"
             }
           ]
         },
@@ -1523,7 +1595,7 @@
             {
               "selected_path": "cluster_consult_explicit",
               "count": 1,
-              "latest_created_at": "2026-05-16T06:46:04.416Z"
+              "latest_created_at": "2026-05-16T08:45:07.448Z"
             }
           ],
           "forced_new_due_to_ambiguity_count_last_24h": 0,
@@ -1576,7 +1648,7 @@
               "question": "What is router_monitor for through the conservative router?",
               "match_score": 1,
               "match_reason": "Explicit cluster_id provided by caller.; topic_hint=What is router_monitor for through the conservative router; auto_cluster_routing=disabled_read_only; metadata_score=0; metadata_topic_hint_source=inferred; metadata_missing=topic_hint,related_files,tags,task_type; related_files_count=0; tags_count=0; generic_tags_count=0; cluster_id=monitor-static",
-              "created_at": "2026-05-16T06:46:04.416Z"
+              "created_at": "2026-05-16T08:45:07.448Z"
             }
           ]
         },
@@ -1632,21 +1704,21 @@
             "area": "cache",
             "cluster_id": "monitor-static-deny",
             "action": "Run cluster_prepare or expand/rebuild this factsheet.",
-            "reason": "Cluster is needs_prepare; factsheet factsheet_610afd5c-12f5-4413-80d4-b7be366af0b3 cannot be trusted as current cache."
+            "reason": "Cluster is needs_prepare; factsheet factsheet_cfcaf773-0f14-4213-8c04-9aefc571e040 cannot be trusted as current cache."
           },
           {
             "priority": "high",
             "area": "cache",
             "cluster_id": "monitor-snippet-decay",
             "action": "Run cluster_prepare or expand/rebuild this factsheet.",
-            "reason": "Cluster is needs_prepare; factsheet factsheet_9fc09b7c-b0a0-4b98-87f3-ca71bcb9ddbc cannot be trusted as current cache."
+            "reason": "Cluster is needs_prepare; factsheet factsheet_33445407-1ee5-4b50-9965-06ea2819a75f cannot be trusted as current cache."
           },
           {
             "priority": "high",
             "area": "cache",
             "cluster_id": "monitor-decay",
             "action": "Run cluster_prepare or expand/rebuild this factsheet.",
-            "reason": "Cluster is needs_prepare; factsheet factsheet_87097242-3d21-45e4-8b85-dbe655d5bdd7 cannot be trusted as current cache."
+            "reason": "Cluster is needs_prepare; factsheet factsheet_a2889b3e-4c17-4b63-8857-0e7c77c567a6 cannot be trusted as current cache."
           },
           {
             "priority": "medium",
@@ -1711,7 +1783,7 @@
             "priority": "high",
             "area": "metadata",
             "action": "Review this archived session's raw response path and verify the replacement session kept registry context.",
-            "reason": "Session session_3d7172c3-cbfa-4dee-9c9d-92507f290aa6 (session update threshold workload) had 10 parse failure(s), 1 threshold event(s), status=archived, latest raw=/tmp/asr-mcp-matrix-stub-hylTGW/project/.claude-session-router/raw/session_3d7172c3-cbfa-4dee-9c9d-92507f290aa6-1778913964343.txt."
+            "reason": "Session session_5c190ca1-1ca8-4e68-b068-517c776c4ca4 (session update threshold workload) had 10 parse failure(s), 1 threshold event(s), status=archived, latest raw=/tmp/asr-mcp-matrix-stub-mRSKKO/project/.claude-session-router/raw/session_5c190ca1-1ca8-4e68-b068-517c776c4ca4-1778921107385.txt."
           },
           {
             "priority": "low",
@@ -1856,6 +1928,11 @@
       {
         "cluster_id": "monitor-static",
         "event_type": "cluster_refresh_required",
+        "count": 2
+      },
+      {
+        "cluster_id": "monitor-static",
+        "event_type": "cluster_reprepare",
         "count": 1
       },
       {
@@ -1866,7 +1943,7 @@
       {
         "cluster_id": "monitor-static",
         "event_type": "factsheet_static_verified",
-        "count": 2
+        "count": 3
       },
       {
         "cluster_id": "monitor-static-deny",
@@ -1891,7 +1968,7 @@
         "preferred": "tie",
         "cluster_score": 3,
         "direct_score": 3,
-        "created_at": "2026-05-16T06:46:05.505Z"
+        "created_at": "2026-05-16T08:45:08.521Z"
       },
       {
         "cluster_id": "monitor-static",
@@ -1899,7 +1976,7 @@
         "preferred": "tie",
         "cluster_score": 3,
         "direct_score": 3,
-        "created_at": "2026-05-16T06:46:05.137Z"
+        "created_at": "2026-05-16T08:45:08.193Z"
       },
       {
         "cluster_id": "monitor-static",
@@ -1907,7 +1984,7 @@
         "preferred": "tie",
         "cluster_score": 3,
         "direct_score": 3,
-        "created_at": "2026-05-16T06:46:04.573Z"
+        "created_at": "2026-05-16T08:45:07.620Z"
       },
       {
         "cluster_id": "monitor-static",
@@ -1915,7 +1992,7 @@
         "preferred": "tie",
         "cluster_score": 3,
         "direct_score": 3,
-        "created_at": "2026-05-16T06:46:04.532Z"
+        "created_at": "2026-05-16T08:45:07.570Z"
       }
     ],
     "clusters": [
@@ -1953,14 +2030,14 @@
   },
   "fake_calls": [
     {
-      "cwd": "/tmp/asr-mcp-matrix-stub-hylTGW/project",
+      "cwd": "/tmp/asr-mcp-matrix-stub-mRSKKO/project",
       "args": [
         "--version"
       ],
       "prompt": "--version"
     },
     {
-      "cwd": "/tmp/asr-mcp-matrix-stub-hylTGW/project",
+      "cwd": "/tmp/asr-mcp-matrix-stub-mRSKKO/project",
       "args": [
         "-p",
         "--tools",
@@ -1972,7 +2049,7 @@
       "prompt": "ping"
     },
     {
-      "cwd": "/tmp/asr-mcp-matrix-stub-hylTGW/project",
+      "cwd": "/tmp/asr-mcp-matrix-stub-mRSKKO/project",
       "args": [
         "-p",
         "--tools",
@@ -1984,7 +2061,7 @@
       "prompt": "You are acting as a senior engineering consultant for this project.\n\nProject: project\nTopic: mcp workload v1\nTrigger: mcp workload matrix\nTask: Exercise AgentSessionRouter MCP modes.\nTask type: unspec"
     },
     {
-      "cwd": "/tmp/asr-mcp-matrix-stub-hylTGW/project",
+      "cwd": "/tmp/asr-mcp-matrix-stub-mRSKKO/project",
       "args": [
         "-p",
         "--tools",
@@ -1992,13 +2069,13 @@
         "--output-format",
         "json",
         "--resume",
-        "fake-1778913963775-4baf33ec9f87d",
+        "fake-1778921106744-bbb3cda4b7002",
         "You are acting as a senior engineering consultant for this project.\n\nProject: project\nTopic: mcp workload v1 follow-up\nTrigger: mcp workload matrix\nTask: Exercise AgentSessionRouter MCP modes.\nTask type: unspecified\nRelated files:\n- None\nCaller tags:\n- None\n\nKnown registry context:\nCurrent session registry context:\nTopic: mcp workload v1\nSummary: MCP workload consult completed.\nDecisions:\n- Use router_monitor before deciding what to fix next\nOpen questions:\n- None\nFiles discussed:\n- README.md\n- src/tools.ts\nTags:\n- mcp-workload\nAliases:\n- router monitor\n\nRelevant code, max 200 lines:\nREADME.md\nsrc/tools.ts\n\nQuestion:\nSummarize whether router_monitor helps a parent agent track this MCP.\n\nAnswer the question directly and practically.\nDo not restate generic background.\nUse the existing decisions when possible.\nThis router invocation cannot execute tool calls for you.\nDo not emit XML, JSON, bracketed, or pseudo tool calls such as <tool_call>, <invoke>, [TOOL_CALL], Glob, Read, Grep, or Bash.\nIf the registry context is insufficient, answer with the useful context you have and explicitly name what is missing; do not attempt discovery in the response.\nThe prose before SESSION_UPDATE_JSON must be the final caller-facing answer, not a plan to inspect files.\n\nAt the end of your response, include exactly one machine-readable block:\n\nSESSION_UPDATE_JSON:\n{\n  \"summary\": \"one sentence summary, max 200 chars\",\n  \"decisions\": [\"new durable decision\"],\n  \"open_questions\": [\"open question\"],\n  \"files_discussed\": [\"path/or/file.ts\"],\n  \"tags\": [\"tag\"],\n  \"aliases\": [\"alternative phrase\"]\n}"
       ],
       "prompt": "You are acting as a senior engineering consultant for this project.\n\nProject: project\nTopic: mcp workload v1 follow-up\nTrigger: mcp workload matrix\nTask: Exercise AgentSessionRouter MCP modes.\nTask ty"
     },
     {
-      "cwd": "/tmp/asr-mcp-matrix-stub-hylTGW/project",
+      "cwd": "/tmp/asr-mcp-matrix-stub-mRSKKO/project",
       "args": [
         "-p",
         "--tools",
@@ -2010,7 +2087,7 @@
       "prompt": "You are acting as a senior engineering consultant for this project.\n\nProject: project\nTopic: session update success workload\nTrigger: mcp workload matrix\nTask: Exercise AgentSessionRouter MCP modes.\nT"
     },
     {
-      "cwd": "/tmp/asr-mcp-matrix-stub-hylTGW/project",
+      "cwd": "/tmp/asr-mcp-matrix-stub-mRSKKO/project",
       "args": [
         "-p",
         "--tools",
@@ -2022,7 +2099,7 @@
       "prompt": "You are acting as a senior engineering consultant for this project.\n\nProject: project\nTopic: session update threshold workload\nTrigger: mcp workload matrix\nTask: Exercise SESSION_UPDATE_JSON parse-fai"
     },
     {
-      "cwd": "/tmp/asr-mcp-matrix-stub-hylTGW/project",
+      "cwd": "/tmp/asr-mcp-matrix-stub-mRSKKO/project",
       "args": [
         "-p",
         "--tools",
@@ -2030,13 +2107,13 @@
         "--output-format",
         "json",
         "--resume",
-        "fake-1778913963933-6cfeb6c83725",
+        "fake-1778921106908-04641ab532128",
         "You are acting as a senior engineering consultant for this project.\n\nProject: project\nTopic: session update threshold workload\nTrigger: mcp workload matrix\nTask: Exercise SESSION_UPDATE_JSON parse-failure threshold and archived-bootstrap recovery.\nTask type: unspecified\nRelated files:\n- None\nCaller tags:\n- None\n\nKnown registry context:\nCurrent session registry context:\nTopic: session update threshold workload\nSummary: \nDecisions:\n- None\nOpen questions:\n- None\nFiles discussed:\n- None\nTags:\n- None\nAliases:\n- None\n\nRelevant code, max 200 lines:\nsrc/sessionUpdate.ts\nsrc/consult.ts\n\nQuestion:\n[MATRIX_MALFORMED_SESSION_UPDATE] malformed metadata run 0\n\nAnswer the question directly and practically.\nDo not restate generic background.\nUse the existing decisions when possible.\nThis router invocation cannot execute tool calls for you.\nDo not emit XML, JSON, bracketed, or pseudo tool calls such as <tool_call>, <invoke>, [TOOL_CALL], Glob, Read, Grep, or Bash.\nIf the registry context is insufficient, answer with the useful context you have and explicitly name what is missing; do not attempt discovery in the response.\nThe prose before SESSION_UPDATE_JSON must be the final caller-facing answer, not a plan to inspect files.\n\nAt the end of your response, include exactly one machine-readable block:\n\nSESSION_UPDATE_JSON:\n{\n  \"summary\": \"one sentence summary, max 200 chars\",\n  \"decisions\": [\"new durable decision\"],\n  \"open_questions\": [\"open question\"],\n  \"files_discussed\": [\"path/or/file.ts\"],\n  \"tags\": [\"tag\"],\n  \"aliases\": [\"alternative phrase\"]\n}"
       ],
       "prompt": "You are acting as a senior engineering consultant for this project.\n\nProject: project\nTopic: session update threshold workload\nTrigger: mcp workload matrix\nTask: Exercise SESSION_UPDATE_JSON parse-fai"
     },
     {
-      "cwd": "/tmp/asr-mcp-matrix-stub-hylTGW/project",
+      "cwd": "/tmp/asr-mcp-matrix-stub-mRSKKO/project",
       "args": [
         "-p",
         "--tools",
@@ -2044,13 +2121,13 @@
         "--output-format",
         "json",
         "--resume",
-        "fake-1778913963933-6cfeb6c83725",
+        "fake-1778921106908-04641ab532128",
         "You are acting as a senior engineering consultant for this project.\n\nProject: project\nTopic: session update threshold workload\nTrigger: mcp workload matrix\nTask: Exercise SESSION_UPDATE_JSON parse-failure threshold and archived-bootstrap recovery.\nTask type: unspecified\nRelated files:\n- None\nCaller tags:\n- None\n\nKnown registry context:\nCurrent session registry context:\nTopic: session update threshold workload\nSummary: \nDecisions:\n- None\nOpen questions:\n- None\nFiles discussed:\n- None\nTags:\n- None\nAliases:\n- None\n\nRelevant code, max 200 lines:\nsrc/sessionUpdate.ts\nsrc/consult.ts\n\nQuestion:\n[MATRIX_MALFORMED_SESSION_UPDATE] malformed metadata run 1\n\nAnswer the question directly and practically.\nDo not restate generic background.\nUse the existing decisions when possible.\nThis router invocation cannot execute tool calls for you.\nDo not emit XML, JSON, bracketed, or pseudo tool calls such as <tool_call>, <invoke>, [TOOL_CALL], Glob, Read, Grep, or Bash.\nIf the registry context is insufficient, answer with the useful context you have and explicitly name what is missing; do not attempt discovery in the response.\nThe prose before SESSION_UPDATE_JSON must be the final caller-facing answer, not a plan to inspect files.\n\nAt the end of your response, include exactly one machine-readable block:\n\nSESSION_UPDATE_JSON:\n{\n  \"summary\": \"one sentence summary, max 200 chars\",\n  \"decisions\": [\"new durable decision\"],\n  \"open_questions\": [\"open question\"],\n  \"files_discussed\": [\"path/or/file.ts\"],\n  \"tags\": [\"tag\"],\n  \"aliases\": [\"alternative phrase\"]\n}"
       ],
       "prompt": "You are acting as a senior engineering consultant for this project.\n\nProject: project\nTopic: session update threshold workload\nTrigger: mcp workload matrix\nTask: Exercise SESSION_UPDATE_JSON parse-fai"
     },
     {
-      "cwd": "/tmp/asr-mcp-matrix-stub-hylTGW/project",
+      "cwd": "/tmp/asr-mcp-matrix-stub-mRSKKO/project",
       "args": [
         "-p",
         "--tools",
@@ -2058,13 +2135,13 @@
         "--output-format",
         "json",
         "--resume",
-        "fake-1778913963933-6cfeb6c83725",
+        "fake-1778921106908-04641ab532128",
         "You are acting as a senior engineering consultant for this project.\n\nProject: project\nTopic: session update threshold workload\nTrigger: mcp workload matrix\nTask: Exercise SESSION_UPDATE_JSON parse-failure threshold and archived-bootstrap recovery.\nTask type: unspecified\nRelated files:\n- None\nCaller tags:\n- None\n\nKnown registry context:\nCurrent session registry context:\nTopic: session update threshold workload\nSummary: \nDecisions:\n- None\nOpen questions:\n- None\nFiles discussed:\n- None\nTags:\n- None\nAliases:\n- None\n\nRelevant code, max 200 lines:\nsrc/sessionUpdate.ts\nsrc/consult.ts\n\nQuestion:\n[MATRIX_MALFORMED_SESSION_UPDATE] malformed metadata run 2\n\nAnswer the question directly and practically.\nDo not restate generic background.\nUse the existing decisions when possible.\nThis router invocation cannot execute tool calls for you.\nDo not emit XML, JSON, bracketed, or pseudo tool calls such as <tool_call>, <invoke>, [TOOL_CALL], Glob, Read, Grep, or Bash.\nIf the registry context is insufficient, answer with the useful context you have and explicitly name what is missing; do not attempt discovery in the response.\nThe prose before SESSION_UPDATE_JSON must be the final caller-facing answer, not a plan to inspect files.\n\nAt the end of your response, include exactly one machine-readable block:\n\nSESSION_UPDATE_JSON:\n{\n  \"summary\": \"one sentence summary, max 200 chars\",\n  \"decisions\": [\"new durable decision\"],\n  \"open_questions\": [\"open question\"],\n  \"files_discussed\": [\"path/or/file.ts\"],\n  \"tags\": [\"tag\"],\n  \"aliases\": [\"alternative phrase\"]\n}"
       ],
       "prompt": "You are acting as a senior engineering consultant for this project.\n\nProject: project\nTopic: session update threshold workload\nTrigger: mcp workload matrix\nTask: Exercise SESSION_UPDATE_JSON parse-fai"
     },
     {
-      "cwd": "/tmp/asr-mcp-matrix-stub-hylTGW/project",
+      "cwd": "/tmp/asr-mcp-matrix-stub-mRSKKO/project",
       "args": [
         "-p",
         "--tools",
@@ -2072,13 +2149,13 @@
         "--output-format",
         "json",
         "--resume",
-        "fake-1778913963933-6cfeb6c83725",
+        "fake-1778921106908-04641ab532128",
         "You are acting as a senior engineering consultant for this project.\n\nProject: project\nTopic: session update threshold workload\nTrigger: mcp workload matrix\nTask: Exercise SESSION_UPDATE_JSON parse-failure threshold and archived-bootstrap recovery.\nTask type: unspecified\nRelated files:\n- None\nCaller tags:\n- None\n\nKnown registry context:\nCurrent session registry context:\nTopic: session update threshold workload\nSummary: \nDecisions:\n- None\nOpen questions:\n- None\nFiles discussed:\n- None\nTags:\n- None\nAliases:\n- None\n\nRelevant code, max 200 lines:\nsrc/sessionUpdate.ts\nsrc/consult.ts\n\nQuestion:\n[MATRIX_MALFORMED_SESSION_UPDATE] malformed metadata run 3\n\nAnswer the question directly and practically.\nDo not restate generic background.\nUse the existing decisions when possible.\nThis router invocation cannot execute tool calls for you.\nDo not emit XML, JSON, bracketed, or pseudo tool calls such as <tool_call>, <invoke>, [TOOL_CALL], Glob, Read, Grep, or Bash.\nIf the registry context is insufficient, answer with the useful context you have and explicitly name what is missing; do not attempt discovery in the response.\nThe prose before SESSION_UPDATE_JSON must be the final caller-facing answer, not a plan to inspect files.\n\nAt the end of your response, include exactly one machine-readable block:\n\nSESSION_UPDATE_JSON:\n{\n  \"summary\": \"one sentence summary, max 200 chars\",\n  \"decisions\": [\"new durable decision\"],\n  \"open_questions\": [\"open question\"],\n  \"files_discussed\": [\"path/or/file.ts\"],\n  \"tags\": [\"tag\"],\n  \"aliases\": [\"alternative phrase\"]\n}"
       ],
       "prompt": "You are acting as a senior engineering consultant for this project.\n\nProject: project\nTopic: session update threshold workload\nTrigger: mcp workload matrix\nTask: Exercise SESSION_UPDATE_JSON parse-fai"
     },
     {
-      "cwd": "/tmp/asr-mcp-matrix-stub-hylTGW/project",
+      "cwd": "/tmp/asr-mcp-matrix-stub-mRSKKO/project",
       "args": [
         "-p",
         "--tools",
@@ -2086,13 +2163,13 @@
         "--output-format",
         "json",
         "--resume",
-        "fake-1778913963933-6cfeb6c83725",
+        "fake-1778921106908-04641ab532128",
         "You are acting as a senior engineering consultant for this project.\n\nProject: project\nTopic: session update threshold workload\nTrigger: mcp workload matrix\nTask: Exercise SESSION_UPDATE_JSON parse-failure threshold and archived-bootstrap recovery.\nTask type: unspecified\nRelated files:\n- None\nCaller tags:\n- None\n\nKnown registry context:\nCurrent session registry context:\nTopic: session update threshold workload\nSummary: \nDecisions:\n- None\nOpen questions:\n- None\nFiles discussed:\n- None\nTags:\n- None\nAliases:\n- None\n\nRelevant code, max 200 lines:\nsrc/sessionUpdate.ts\nsrc/consult.ts\n\nQuestion:\n[MATRIX_MALFORMED_SESSION_UPDATE] malformed metadata run 4\n\nAnswer the question directly and practically.\nDo not restate generic background.\nUse the existing decisions when possible.\nThis router invocation cannot execute tool calls for you.\nDo not emit XML, JSON, bracketed, or pseudo tool calls such as <tool_call>, <invoke>, [TOOL_CALL], Glob, Read, Grep, or Bash.\nIf the registry context is insufficient, answer with the useful context you have and explicitly name what is missing; do not attempt discovery in the response.\nThe prose before SESSION_UPDATE_JSON must be the final caller-facing answer, not a plan to inspect files.\n\nAt the end of your response, include exactly one machine-readable block:\n\nSESSION_UPDATE_JSON:\n{\n  \"summary\": \"one sentence summary, max 200 chars\",\n  \"decisions\": [\"new durable decision\"],\n  \"open_questions\": [\"open question\"],\n  \"files_discussed\": [\"path/or/file.ts\"],\n  \"tags\": [\"tag\"],\n  \"aliases\": [\"alternative phrase\"]\n}"
       ],
       "prompt": "You are acting as a senior engineering consultant for this project.\n\nProject: project\nTopic: session update threshold workload\nTrigger: mcp workload matrix\nTask: Exercise SESSION_UPDATE_JSON parse-fai"
     },
     {
-      "cwd": "/tmp/asr-mcp-matrix-stub-hylTGW/project",
+      "cwd": "/tmp/asr-mcp-matrix-stub-mRSKKO/project",
       "args": [
         "-p",
         "--tools",
@@ -2100,13 +2177,13 @@
         "--output-format",
         "json",
         "--resume",
-        "fake-1778913963933-6cfeb6c83725",
+        "fake-1778921106908-04641ab532128",
         "You are acting as a senior engineering consultant for this project.\n\nProject: project\nTopic: session update threshold workload\nTrigger: mcp workload matrix\nTask: Exercise SESSION_UPDATE_JSON parse-failure threshold and archived-bootstrap recovery.\nTask type: unspecified\nRelated files:\n- None\nCaller tags:\n- None\n\nKnown registry context:\nCurrent session registry context:\nTopic: session update threshold workload\nSummary: \nDecisions:\n- None\nOpen questions:\n- None\nFiles discussed:\n- None\nTags:\n- None\nAliases:\n- None\n\nRelevant code, max 200 lines:\nsrc/sessionUpdate.ts\nsrc/consult.ts\n\nQuestion:\n[MATRIX_MALFORMED_SESSION_UPDATE] malformed metadata run 5\n\nAnswer the question directly and practically.\nDo not restate generic background.\nUse the existing decisions when possible.\nThis router invocation cannot execute tool calls for you.\nDo not emit XML, JSON, bracketed, or pseudo tool calls such as <tool_call>, <invoke>, [TOOL_CALL], Glob, Read, Grep, or Bash.\nIf the registry context is insufficient, answer with the useful context you have and explicitly name what is missing; do not attempt discovery in the response.\nThe prose before SESSION_UPDATE_JSON must be the final caller-facing answer, not a plan to inspect files.\n\nAt the end of your response, include exactly one machine-readable block:\n\nSESSION_UPDATE_JSON:\n{\n  \"summary\": \"one sentence summary, max 200 chars\",\n  \"decisions\": [\"new durable decision\"],\n  \"open_questions\": [\"open question\"],\n  \"files_discussed\": [\"path/or/file.ts\"],\n  \"tags\": [\"tag\"],\n  \"aliases\": [\"alternative phrase\"]\n}"
       ],
       "prompt": "You are acting as a senior engineering consultant for this project.\n\nProject: project\nTopic: session update threshold workload\nTrigger: mcp workload matrix\nTask: Exercise SESSION_UPDATE_JSON parse-fai"
     },
     {
-      "cwd": "/tmp/asr-mcp-matrix-stub-hylTGW/project",
+      "cwd": "/tmp/asr-mcp-matrix-stub-mRSKKO/project",
       "args": [
         "-p",
         "--tools",
@@ -2114,13 +2191,13 @@
         "--output-format",
         "json",
         "--resume",
-        "fake-1778913963933-6cfeb6c83725",
+        "fake-1778921106908-04641ab532128",
         "You are acting as a senior engineering consultant for this project.\n\nProject: project\nTopic: session update threshold workload\nTrigger: mcp workload matrix\nTask: Exercise SESSION_UPDATE_JSON parse-failure threshold and archived-bootstrap recovery.\nTask type: unspecified\nRelated files:\n- None\nCaller tags:\n- None\n\nKnown registry context:\nCurrent session registry context:\nTopic: session update threshold workload\nSummary: \nDecisions:\n- None\nOpen questions:\n- None\nFiles discussed:\n- None\nTags:\n- None\nAliases:\n- None\n\nRelevant code, max 200 lines:\nsrc/sessionUpdate.ts\nsrc/consult.ts\n\nQuestion:\n[MATRIX_MALFORMED_SESSION_UPDATE] malformed metadata run 6\n\nAnswer the question directly and practically.\nDo not restate generic background.\nUse the existing decisions when possible.\nThis router invocation cannot execute tool calls for you.\nDo not emit XML, JSON, bracketed, or pseudo tool calls such as <tool_call>, <invoke>, [TOOL_CALL], Glob, Read, Grep, or Bash.\nIf the registry context is insufficient, answer with the useful context you have and explicitly name what is missing; do not attempt discovery in the response.\nThe prose before SESSION_UPDATE_JSON must be the final caller-facing answer, not a plan to inspect files.\n\nAt the end of your response, include exactly one machine-readable block:\n\nSESSION_UPDATE_JSON:\n{\n  \"summary\": \"one sentence summary, max 200 chars\",\n  \"decisions\": [\"new durable decision\"],\n  \"open_questions\": [\"open question\"],\n  \"files_discussed\": [\"path/or/file.ts\"],\n  \"tags\": [\"tag\"],\n  \"aliases\": [\"alternative phrase\"]\n}"
       ],
       "prompt": "You are acting as a senior engineering consultant for this project.\n\nProject: project\nTopic: session update threshold workload\nTrigger: mcp workload matrix\nTask: Exercise SESSION_UPDATE_JSON parse-fai"
     },
     {
-      "cwd": "/tmp/asr-mcp-matrix-stub-hylTGW/project",
+      "cwd": "/tmp/asr-mcp-matrix-stub-mRSKKO/project",
       "args": [
         "-p",
         "--tools",
@@ -2128,13 +2205,13 @@
         "--output-format",
         "json",
         "--resume",
-        "fake-1778913963933-6cfeb6c83725",
+        "fake-1778921106908-04641ab532128",
         "You are acting as a senior engineering consultant for this project.\n\nProject: project\nTopic: session update threshold workload\nTrigger: mcp workload matrix\nTask: Exercise SESSION_UPDATE_JSON parse-failure threshold and archived-bootstrap recovery.\nTask type: unspecified\nRelated files:\n- None\nCaller tags:\n- None\n\nKnown registry context:\nCurrent session registry context:\nTopic: session update threshold workload\nSummary: \nDecisions:\n- None\nOpen questions:\n- None\nFiles discussed:\n- None\nTags:\n- None\nAliases:\n- None\n\nRelevant code, max 200 lines:\nsrc/sessionUpdate.ts\nsrc/consult.ts\n\nQuestion:\n[MATRIX_MALFORMED_SESSION_UPDATE] malformed metadata run 7\n\nAnswer the question directly and practically.\nDo not restate generic background.\nUse the existing decisions when possible.\nThis router invocation cannot execute tool calls for you.\nDo not emit XML, JSON, bracketed, or pseudo tool calls such as <tool_call>, <invoke>, [TOOL_CALL], Glob, Read, Grep, or Bash.\nIf the registry context is insufficient, answer with the useful context you have and explicitly name what is missing; do not attempt discovery in the response.\nThe prose before SESSION_UPDATE_JSON must be the final caller-facing answer, not a plan to inspect files.\n\nAt the end of your response, include exactly one machine-readable block:\n\nSESSION_UPDATE_JSON:\n{\n  \"summary\": \"one sentence summary, max 200 chars\",\n  \"decisions\": [\"new durable decision\"],\n  \"open_questions\": [\"open question\"],\n  \"files_discussed\": [\"path/or/file.ts\"],\n  \"tags\": [\"tag\"],\n  \"aliases\": [\"alternative phrase\"]\n}"
       ],
       "prompt": "You are acting as a senior engineering consultant for this project.\n\nProject: project\nTopic: session update threshold workload\nTrigger: mcp workload matrix\nTask: Exercise SESSION_UPDATE_JSON parse-fai"
     },
     {
-      "cwd": "/tmp/asr-mcp-matrix-stub-hylTGW/project",
+      "cwd": "/tmp/asr-mcp-matrix-stub-mRSKKO/project",
       "args": [
         "-p",
         "--tools",
@@ -2142,13 +2219,13 @@
         "--output-format",
         "json",
         "--resume",
-        "fake-1778913963933-6cfeb6c83725",
+        "fake-1778921106908-04641ab532128",
         "You are acting as a senior engineering consultant for this project.\n\nProject: project\nTopic: session update threshold workload\nTrigger: mcp workload matrix\nTask: Exercise SESSION_UPDATE_JSON parse-failure threshold and archived-bootstrap recovery.\nTask type: unspecified\nRelated files:\n- None\nCaller tags:\n- None\n\nKnown registry context:\nCurrent session registry context:\nTopic: session update threshold workload\nSummary: \nDecisions:\n- None\nOpen questions:\n- None\nFiles discussed:\n- None\nTags:\n- None\nAliases:\n- None\n\nRelevant code, max 200 lines:\nsrc/sessionUpdate.ts\nsrc/consult.ts\n\nQuestion:\n[MATRIX_MALFORMED_SESSION_UPDATE] malformed metadata run 8\n\nAnswer the question directly and practically.\nDo not restate generic background.\nUse the existing decisions when possible.\nThis router invocation cannot execute tool calls for you.\nDo not emit XML, JSON, bracketed, or pseudo tool calls such as <tool_call>, <invoke>, [TOOL_CALL], Glob, Read, Grep, or Bash.\nIf the registry context is insufficient, answer with the useful context you have and explicitly name what is missing; do not attempt discovery in the response.\nThe prose before SESSION_UPDATE_JSON must be the final caller-facing answer, not a plan to inspect files.\n\nAt the end of your response, include exactly one machine-readable block:\n\nSESSION_UPDATE_JSON:\n{\n  \"summary\": \"one sentence summary, max 200 chars\",\n  \"decisions\": [\"new durable decision\"],\n  \"open_questions\": [\"open question\"],\n  \"files_discussed\": [\"path/or/file.ts\"],\n  \"tags\": [\"tag\"],\n  \"aliases\": [\"alternative phrase\"]\n}"
       ],
       "prompt": "You are acting as a senior engineering consultant for this project.\n\nProject: project\nTopic: session update threshold workload\nTrigger: mcp workload matrix\nTask: Exercise SESSION_UPDATE_JSON parse-fai"
     },
     {
-      "cwd": "/tmp/asr-mcp-matrix-stub-hylTGW/project",
+      "cwd": "/tmp/asr-mcp-matrix-stub-mRSKKO/project",
       "args": [
         "-p",
         "--tools",
@@ -2160,7 +2237,7 @@
       "prompt": "You are acting as a senior engineering consultant for this project.\n\nProject: project\nTopic: session update threshold workload\nTrigger: mcp workload matrix\nTask: Exercise SESSION_UPDATE_JSON parse-fai"
     },
     {
-      "cwd": "/tmp/asr-mcp-matrix-stub-hylTGW/project",
+      "cwd": "/tmp/asr-mcp-matrix-stub-mRSKKO/project",
       "args": [
         "-p",
         "--tools",
@@ -2172,7 +2249,7 @@
       "prompt": "Return exactly: PROFILE_OK"
     },
     {
-      "cwd": "/tmp/asr-mcp-matrix-stub-hylTGW/project",
+      "cwd": "/tmp/asr-mcp-matrix-stub-mRSKKO/project",
       "args": [
         "-p",
         "--bare",
@@ -2185,7 +2262,7 @@
       "prompt": "Return exactly: PROFILE_OK"
     },
     {
-      "cwd": "/tmp/asr-mcp-matrix-stub-hylTGW/project",
+      "cwd": "/tmp/asr-mcp-matrix-stub-mRSKKO/project",
       "args": [
         "-p",
         "--bare",
@@ -2194,25 +2271,25 @@
         "--output-format",
         "json",
         "--append-system-prompt",
-        "You are consulting through AgentSessionRouter cluster_consult.\nUse only the verified factsheet below and the user's question.\nDo not infer config keys, function names, files, or behavior that are not present in the factsheet.\nIf a required fact is absent, write NOT IN CONTEXT.\nDo not use tools unless the selected profile explicitly provides them.\n\nCluster id: monitor-static\nFactsheet id: factsheet_542c4a5d-9fd1-4a53-bc96-351360e8720e\nFactsheet version: 1\nFactsheet status: static_verified\n\nFactsheet JSON:\n{\n  \"schema_version\": 1,\n  \"cluster_id\": \"monitor-static\",\n  \"summary\": \"Monitor workload facts.\",\n  \"facts\": [\n    {\n      \"id\": \"router-monitor-readme\",\n      \"claim\": \"router_monitor is documented as an operator-facing information monitor.\",\n      \"confidence\": \"static_verified\",\n      \"evidence\": [\n        {\n          \"path\": \"README.md\",\n          \"hash\": \"sha256:5348278d40791e5332fb979efeb0d29cfe67309ffcd6a995bcb2b7962c4a8b21\",\n          \"selector\": \"router_monitor\",\n          \"snippet_hash\": \"sha256:5348278d40791e5332fb979efeb0d29cfe67309ffcd6a995bcb2b7962c4a8b21\"\n        }\n      ]\n    },\n    {\n      \"id\": \"router-monitor-source\",\n      \"claim\": \"router_monitor is registered as an MCP tool in src/tools.ts.\",\n      \"confidence\": \"static_verified\",\n      \"evidence\": [\n        {\n          \"path\": \"src/tools.ts\",\n          \"hash\": \"sha256:6838933afe81160149c4401ac4d167d1d1556b7e7a9724f800ab7a76b0988c3c\",\n          \"selector\": \"router_monitor\",\n          \"snippet_hash\": \"sha256:e8db72f195ab32db7cd5a41d18dcb92dc69df13b53da3f6cc92723b4081091fc\"\n        }\n      ]\n    }\n  ],\n  \"pitfalls\": [],\n  \"forbidden_inferences\": [\n    \"Do not infer unmentioned tools.\"\n  ],\n  \"omitted_facts\": 0\n}",
+        "You are consulting through AgentSessionRouter cluster_consult.\nUse only the verified factsheet below and the user's question.\nDo not infer config keys, function names, files, or behavior that are not present in the factsheet.\nIf a required fact is absent, write NOT IN CONTEXT.\nDo not use tools unless the selected profile explicitly provides them.\n\nCluster id: monitor-static\nFactsheet id: factsheet_7d50f86a-1255-497d-9ec3-80db7b8446e3\nFactsheet version: 1\nFactsheet status: static_verified\n\nFactsheet JSON:\n{\n  \"schema_version\": 1,\n  \"cluster_id\": \"monitor-static\",\n  \"summary\": \"Monitor workload facts.\",\n  \"facts\": [\n    {\n      \"id\": \"router-monitor-readme\",\n      \"claim\": \"router_monitor is documented as an operator-facing information monitor.\",\n      \"confidence\": \"static_verified\",\n      \"evidence\": [\n        {\n          \"path\": \"README.md\",\n          \"hash\": \"sha256:5348278d40791e5332fb979efeb0d29cfe67309ffcd6a995bcb2b7962c4a8b21\",\n          \"selector\": \"router_monitor\",\n          \"snippet_hash\": \"sha256:5348278d40791e5332fb979efeb0d29cfe67309ffcd6a995bcb2b7962c4a8b21\"\n        }\n      ]\n    },\n    {\n      \"id\": \"router-monitor-source\",\n      \"claim\": \"router_monitor is registered as an MCP tool in src/tools.ts.\",\n      \"confidence\": \"static_verified\",\n      \"evidence\": [\n        {\n          \"path\": \"src/tools.ts\",\n          \"hash\": \"sha256:6838933afe81160149c4401ac4d167d1d1556b7e7a9724f800ab7a76b0988c3c\",\n          \"selector\": \"router_monitor\",\n          \"snippet_hash\": \"sha256:e8db72f195ab32db7cd5a41d18dcb92dc69df13b53da3f6cc92723b4081091fc\"\n        }\n      ]\n    }\n  ],\n  \"pitfalls\": [],\n  \"forbidden_inferences\": [\n    \"Do not infer unmentioned tools.\"\n  ],\n  \"omitted_facts\": 0\n}",
         "Answer the user's question using the verified cluster factsheet in the appended system prompt.\nIf the factsheet does not contain the required fact, answer NOT IN CONTEXT.\n\nQuestion:\nWhat is router_monitor for through the conservative router?"
       ],
       "prompt": "Answer the user's question using the verified cluster factsheet in the appended system prompt.\nIf the factsheet does not contain the required fact, answer NOT IN CONTEXT.\n\nQuestion:\nWhat is router_mon"
     },
     {
-      "cwd": "/tmp/asr-mcp-matrix-stub-hylTGW/project",
+      "cwd": "/tmp/asr-mcp-matrix-stub-mRSKKO/project",
       "args": [
         "-p",
         "--tools",
         "",
         "--output-format",
         "json",
-        "You are a shadow evaluation baseline for AgentSessionRouter.\nAnswer the technical question about the software project in the current working directory.\nProject cwd: /tmp/asr-mcp-matrix-stub-hylTGW/project\nUse read-only project inspection if needed. Do not modify files.\nKeep the answer concise but complete.\n\nQuestion:\nWhat is router_monitor for through the conservative router?"
+        "You are a shadow evaluation baseline for AgentSessionRouter.\nAnswer the technical question about the software project in the current working directory.\nProject cwd: /tmp/asr-mcp-matrix-stub-mRSKKO/project\nUse read-only project inspection if needed. Do not modify files.\nKeep the answer concise but complete.\n\nQuestion:\nWhat is router_monitor for through the conservative router?"
       ],
-      "prompt": "You are a shadow evaluation baseline for AgentSessionRouter.\nAnswer the technical question about the software project in the current working directory.\nProject cwd: /tmp/asr-mcp-matrix-stub-hylTGW/pro"
+      "prompt": "You are a shadow evaluation baseline for AgentSessionRouter.\nAnswer the technical question about the software project in the current working directory.\nProject cwd: /tmp/asr-mcp-matrix-stub-mRSKKO/pro"
     },
     {
-      "cwd": "/tmp/asr-mcp-matrix-stub-hylTGW/project",
+      "cwd": "/tmp/asr-mcp-matrix-stub-mRSKKO/project",
       "args": [
         "-p",
         "--bare",
@@ -2221,49 +2298,49 @@
         "--output-format",
         "json",
         "--append-system-prompt",
-        "You are consulting through AgentSessionRouter cluster_consult.\nUse only the verified factsheet below and the user's question.\nDo not infer config keys, function names, files, or behavior that are not present in the factsheet.\nIf a required fact is absent, write NOT IN CONTEXT.\nDo not use tools unless the selected profile explicitly provides them.\n\nCluster id: monitor-static\nFactsheet id: factsheet_542c4a5d-9fd1-4a53-bc96-351360e8720e\nFactsheet version: 1\nFactsheet status: static_verified\n\nFactsheet JSON:\n{\n  \"schema_version\": 1,\n  \"cluster_id\": \"monitor-static\",\n  \"summary\": \"Monitor workload facts.\",\n  \"facts\": [\n    {\n      \"id\": \"router-monitor-readme\",\n      \"claim\": \"router_monitor is documented as an operator-facing information monitor.\",\n      \"confidence\": \"static_verified\",\n      \"evidence\": [\n        {\n          \"path\": \"README.md\",\n          \"hash\": \"sha256:5348278d40791e5332fb979efeb0d29cfe67309ffcd6a995bcb2b7962c4a8b21\",\n          \"selector\": \"router_monitor\",\n          \"snippet_hash\": \"sha256:5348278d40791e5332fb979efeb0d29cfe67309ffcd6a995bcb2b7962c4a8b21\"\n        }\n      ]\n    },\n    {\n      \"id\": \"router-monitor-source\",\n      \"claim\": \"router_monitor is registered as an MCP tool in src/tools.ts.\",\n      \"confidence\": \"static_verified\",\n      \"evidence\": [\n        {\n          \"path\": \"src/tools.ts\",\n          \"hash\": \"sha256:6838933afe81160149c4401ac4d167d1d1556b7e7a9724f800ab7a76b0988c3c\",\n          \"selector\": \"router_monitor\",\n          \"snippet_hash\": \"sha256:e8db72f195ab32db7cd5a41d18dcb92dc69df13b53da3f6cc92723b4081091fc\"\n        }\n      ]\n    }\n  ],\n  \"pitfalls\": [],\n  \"forbidden_inferences\": [\n    \"Do not infer unmentioned tools.\"\n  ],\n  \"omitted_facts\": 0\n}",
+        "You are consulting through AgentSessionRouter cluster_consult.\nUse only the verified factsheet below and the user's question.\nDo not infer config keys, function names, files, or behavior that are not present in the factsheet.\nIf a required fact is absent, write NOT IN CONTEXT.\nDo not use tools unless the selected profile explicitly provides them.\n\nCluster id: monitor-static\nFactsheet id: factsheet_7d50f86a-1255-497d-9ec3-80db7b8446e3\nFactsheet version: 1\nFactsheet status: static_verified\n\nFactsheet JSON:\n{\n  \"schema_version\": 1,\n  \"cluster_id\": \"monitor-static\",\n  \"summary\": \"Monitor workload facts.\",\n  \"facts\": [\n    {\n      \"id\": \"router-monitor-readme\",\n      \"claim\": \"router_monitor is documented as an operator-facing information monitor.\",\n      \"confidence\": \"static_verified\",\n      \"evidence\": [\n        {\n          \"path\": \"README.md\",\n          \"hash\": \"sha256:5348278d40791e5332fb979efeb0d29cfe67309ffcd6a995bcb2b7962c4a8b21\",\n          \"selector\": \"router_monitor\",\n          \"snippet_hash\": \"sha256:5348278d40791e5332fb979efeb0d29cfe67309ffcd6a995bcb2b7962c4a8b21\"\n        }\n      ]\n    },\n    {\n      \"id\": \"router-monitor-source\",\n      \"claim\": \"router_monitor is registered as an MCP tool in src/tools.ts.\",\n      \"confidence\": \"static_verified\",\n      \"evidence\": [\n        {\n          \"path\": \"src/tools.ts\",\n          \"hash\": \"sha256:6838933afe81160149c4401ac4d167d1d1556b7e7a9724f800ab7a76b0988c3c\",\n          \"selector\": \"router_monitor\",\n          \"snippet_hash\": \"sha256:e8db72f195ab32db7cd5a41d18dcb92dc69df13b53da3f6cc92723b4081091fc\"\n        }\n      ]\n    }\n  ],\n  \"pitfalls\": [],\n  \"forbidden_inferences\": [\n    \"Do not infer unmentioned tools.\"\n  ],\n  \"omitted_facts\": 0\n}",
         "Answer the user's question using the verified cluster factsheet in the appended system prompt.\nIf the factsheet does not contain the required fact, answer NOT IN CONTEXT.\n\nQuestion:\nWhat is router_monitor for?"
       ],
       "prompt": "Answer the user's question using the verified cluster factsheet in the appended system prompt.\nIf the factsheet does not contain the required fact, answer NOT IN CONTEXT.\n\nQuestion:\nWhat is router_mon"
     },
     {
-      "cwd": "/tmp/asr-mcp-matrix-stub-hylTGW/project",
+      "cwd": "/tmp/asr-mcp-matrix-stub-mRSKKO/project",
       "args": [
         "-p",
         "--tools",
         "",
         "--output-format",
         "json",
-        "You are evaluating two answers to the same technical question about a software project.\n\nUse the verified cluster factsheet below as ground truth when it is provided.\nIf an answer makes a claim that is directly supported by the factsheet, treat it as verified even if the answer does not show its evidence.\nDo not prefer a response that merely starts searching or asks to inspect files over a concise answer supported by the factsheet.\nIf a claim is not in the factsheet, mark it unsupported unless the answer explicitly says it is outside context.\n\nVerified cluster factsheet ground truth:\n{\n  \"cluster_id\": \"monitor-static\",\n  \"factsheet_id\": \"factsheet_542c4a5d-9fd1-4a53-bc96-351360e8720e\",\n  \"factsheet_version\": 1,\n  \"status\": \"static_verified\",\n  \"content\": {\n    \"schema_version\": 1,\n    \"cluster_id\": \"monitor-static\",\n    \"summary\": \"Monitor workload facts.\",\n    \"facts\": [\n      {\n        \"id\": \"router-monitor-readme\",\n        \"claim\": \"router_monitor is documented as an operator-facing information monitor.\",\n        \"confidence\": \"static_verified\",\n        \"evidence\": [\n          {\n            \"path\": \"README.md\",\n            \"hash\": \"sha256:5348278d40791e5332fb979efeb0d29cfe67309ffcd6a995bcb2b7962c4a8b21\",\n            \"selector\": \"router_monitor\",\n            \"snippet_hash\": \"sha256:5348278d40791e5332fb979efeb0d29cfe67309ffcd6a995bcb2b7962c4a8b21\"\n          }\n        ]\n      },\n      {\n        \"id\": \"router-monitor-source\",\n        \"claim\": \"router_monitor is registered as an MCP tool in src/tools.ts.\",\n        \"confidence\": \"static_verified\",\n        \"evidence\": [\n          {\n            \"path\": \"src/tools.ts\",\n            \"hash\": \"sha256:6838933afe81160149c4401ac4d167d1d1556b7e7a9724f800ab7a76b0988c3c\",\n            \"selector\": \"router_monitor\",\n            \"snippet_hash\": \"sha256:e8db72f195ab32db7cd5a41d18dcb92dc69df13b53da3f6cc92723b4081091fc\"\n          }\n        ]\n      }\n    ],\n    \"pitfalls\": [],\n    \"forbidden_inferences\": [\n      \"Do not infer unmentioned tools.\"\n    ],\n    \"omitted_facts\": 0\n  }\n}\n\nQuestion:\nWhat is router_monitor for through the conservative router?\n\nAnswer A:\nDirect baseline: router_monitor combines health, cache, shadow quality, recommendations, and next directions.\n\nAnswer B:\nrouter_monitor is an operator-facing monitor for parent agents. It shows health, cache decay, quality comparisons, recommendations, and next directions.\n\nSESSION_UPDATE_JSON:\n{\n  \"summary\": \"MCP workload consult completed.\",\n  \"decisions\": [\"Use router_monitor before deciding what to fix next\"],\n  \"open_questions\": [],\n  \"files_discussed\": [\"README.md\", \"src/tools.ts\"],\n  \"tags\": [\"mcp-workload\"],\n  \"aliases\": [\"router monitor\"]\n}\n\nEvaluate each answer:\n1. Factual errors: claims that are demonstrably wrong.\n2. Completeness: did it fully address the question?\n3. Honest refusal: explicit uncertainty or NOT IN CONTEXT is acceptable if the answer lacks needed context.\n\nScore each answer:\n0 = wrong or hallucinated\n1 = partial, missed key facts\n2 = correct but shallow\n3 = fully correct and substantive\n\nOutput JSON only:\n{\n  \"answer_a_score\": 0,\n  \"answer_a_errors\": [\n    \"specific error 1\"\n  ],\n  \"answer_b_score\": 0,\n  \"answer_b_errors\": [\n    \"specific error 1\"\n  ],\n  \"preferred\": \"a|b|tie\",\n  \"reasoning\": \"one paragraph why\"\n}"
+        "You are evaluating two answers to the same technical question about a software project.\n\nUse the verified cluster factsheet below as ground truth when it is provided.\nIf an answer makes a claim that is directly supported by the factsheet, treat it as verified even if the answer does not show its evidence.\nDo not prefer a response that merely starts searching or asks to inspect files over a concise answer supported by the factsheet.\nIf a claim is not in the factsheet, mark it unsupported unless the answer explicitly says it is outside context.\n\nVerified cluster factsheet ground truth:\n{\n  \"cluster_id\": \"monitor-static\",\n  \"factsheet_id\": \"factsheet_7d50f86a-1255-497d-9ec3-80db7b8446e3\",\n  \"factsheet_version\": 1,\n  \"status\": \"static_verified\",\n  \"content\": {\n    \"schema_version\": 1,\n    \"cluster_id\": \"monitor-static\",\n    \"summary\": \"Monitor workload facts.\",\n    \"facts\": [\n      {\n        \"id\": \"router-monitor-readme\",\n        \"claim\": \"router_monitor is documented as an operator-facing information monitor.\",\n        \"confidence\": \"static_verified\",\n        \"evidence\": [\n          {\n            \"path\": \"README.md\",\n            \"hash\": \"sha256:5348278d40791e5332fb979efeb0d29cfe67309ffcd6a995bcb2b7962c4a8b21\",\n            \"selector\": \"router_monitor\",\n            \"snippet_hash\": \"sha256:5348278d40791e5332fb979efeb0d29cfe67309ffcd6a995bcb2b7962c4a8b21\"\n          }\n        ]\n      },\n      {\n        \"id\": \"router-monitor-source\",\n        \"claim\": \"router_monitor is registered as an MCP tool in src/tools.ts.\",\n        \"confidence\": \"static_verified\",\n        \"evidence\": [\n          {\n            \"path\": \"src/tools.ts\",\n            \"hash\": \"sha256:6838933afe81160149c4401ac4d167d1d1556b7e7a9724f800ab7a76b0988c3c\",\n            \"selector\": \"router_monitor\",\n            \"snippet_hash\": \"sha256:e8db72f195ab32db7cd5a41d18dcb92dc69df13b53da3f6cc92723b4081091fc\"\n          }\n        ]\n      }\n    ],\n    \"pitfalls\": [],\n    \"forbidden_inferences\": [\n      \"Do not infer unmentioned tools.\"\n    ],\n    \"omitted_facts\": 0\n  }\n}\n\nQuestion:\nWhat is router_monitor for through the conservative router?\n\nAnswer A:\nrouter_monitor is an operator-facing monitor for parent agents. It shows health, cache decay, quality comparisons, recommendations, and next directions.\n\nSESSION_UPDATE_JSON:\n{\n  \"summary\": \"MCP workload consult completed.\",\n  \"decisions\": [\"Use router_monitor before deciding what to fix next\"],\n  \"open_questions\": [],\n  \"files_discussed\": [\"README.md\", \"src/tools.ts\"],\n  \"tags\": [\"mcp-workload\"],\n  \"aliases\": [\"router monitor\"]\n}\n\nAnswer B:\nDirect baseline: router_monitor combines health, cache, shadow quality, recommendations, and next directions.\n\nEvaluate each answer:\n1. Factual errors: claims that are demonstrably wrong.\n2. Completeness: did it fully address the question?\n3. Honest refusal: explicit uncertainty or NOT IN CONTEXT is acceptable if the answer lacks needed context.\n\nScore each answer:\n0 = wrong or hallucinated\n1 = partial, missed key facts\n2 = correct but shallow\n3 = fully correct and substantive\n\nOutput JSON only:\n{\n  \"answer_a_score\": 0,\n  \"answer_a_errors\": [\n    \"specific error 1\"\n  ],\n  \"answer_b_score\": 0,\n  \"answer_b_errors\": [\n    \"specific error 1\"\n  ],\n  \"preferred\": \"a|b|tie\",\n  \"reasoning\": \"one paragraph why\"\n}"
       ],
       "prompt": "You are evaluating two answers to the same technical question about a software project.\n\nUse the verified cluster factsheet below as ground truth when it is provided.\nIf an answer makes a claim that i"
     },
     {
-      "cwd": "/tmp/asr-mcp-matrix-stub-hylTGW/project",
+      "cwd": "/tmp/asr-mcp-matrix-stub-mRSKKO/project",
       "args": [
         "-p",
         "--tools",
         "",
         "--output-format",
         "json",
-        "You are a shadow evaluation baseline for AgentSessionRouter.\nAnswer the technical question about the software project in the current working directory.\nProject cwd: /tmp/asr-mcp-matrix-stub-hylTGW/project\nUse read-only project inspection if needed. Do not modify files.\nKeep the answer concise but complete.\n\nQuestion:\nWhat is router_monitor for?"
+        "You are a shadow evaluation baseline for AgentSessionRouter.\nAnswer the technical question about the software project in the current working directory.\nProject cwd: /tmp/asr-mcp-matrix-stub-mRSKKO/project\nUse read-only project inspection if needed. Do not modify files.\nKeep the answer concise but complete.\n\nQuestion:\nWhat is router_monitor for?"
       ],
-      "prompt": "You are a shadow evaluation baseline for AgentSessionRouter.\nAnswer the technical question about the software project in the current working directory.\nProject cwd: /tmp/asr-mcp-matrix-stub-hylTGW/pro"
+      "prompt": "You are a shadow evaluation baseline for AgentSessionRouter.\nAnswer the technical question about the software project in the current working directory.\nProject cwd: /tmp/asr-mcp-matrix-stub-mRSKKO/pro"
     },
     {
-      "cwd": "/tmp/asr-mcp-matrix-stub-hylTGW/project",
+      "cwd": "/tmp/asr-mcp-matrix-stub-mRSKKO/project",
       "args": [
         "-p",
         "--tools",
         "",
         "--output-format",
         "json",
-        "You are evaluating two answers to the same technical question about a software project.\n\nUse the verified cluster factsheet below as ground truth when it is provided.\nIf an answer makes a claim that is directly supported by the factsheet, treat it as verified even if the answer does not show its evidence.\nDo not prefer a response that merely starts searching or asks to inspect files over a concise answer supported by the factsheet.\nIf a claim is not in the factsheet, mark it unsupported unless the answer explicitly says it is outside context.\n\nVerified cluster factsheet ground truth:\n{\n  \"cluster_id\": \"monitor-static\",\n  \"factsheet_id\": \"factsheet_542c4a5d-9fd1-4a53-bc96-351360e8720e\",\n  \"factsheet_version\": 1,\n  \"status\": \"static_verified\",\n  \"content\": {\n    \"schema_version\": 1,\n    \"cluster_id\": \"monitor-static\",\n    \"summary\": \"Monitor workload facts.\",\n    \"facts\": [\n      {\n        \"id\": \"router-monitor-readme\",\n        \"claim\": \"router_monitor is documented as an operator-facing information monitor.\",\n        \"confidence\": \"static_verified\",\n        \"evidence\": [\n          {\n            \"path\": \"README.md\",\n            \"hash\": \"sha256:5348278d40791e5332fb979efeb0d29cfe67309ffcd6a995bcb2b7962c4a8b21\",\n            \"selector\": \"router_monitor\",\n            \"snippet_hash\": \"sha256:5348278d40791e5332fb979efeb0d29cfe67309ffcd6a995bcb2b7962c4a8b21\"\n          }\n        ]\n      },\n      {\n        \"id\": \"router-monitor-source\",\n        \"claim\": \"router_monitor is registered as an MCP tool in src/tools.ts.\",\n        \"confidence\": \"static_verified\",\n        \"evidence\": [\n          {\n            \"path\": \"src/tools.ts\",\n            \"hash\": \"sha256:6838933afe81160149c4401ac4d167d1d1556b7e7a9724f800ab7a76b0988c3c\",\n            \"selector\": \"router_monitor\",\n            \"snippet_hash\": \"sha256:e8db72f195ab32db7cd5a41d18dcb92dc69df13b53da3f6cc92723b4081091fc\"\n          }\n        ]\n      }\n    ],\n    \"pitfalls\": [],\n    \"forbidden_inferences\": [\n      \"Do not infer unmentioned tools.\"\n    ],\n    \"omitted_facts\": 0\n  }\n}\n\nQuestion:\nWhat is router_monitor for?\n\nAnswer A:\nDirect baseline: router_monitor combines health, cache, shadow quality, recommendations, and next directions.\n\nAnswer B:\nrouter_monitor is an operator-facing monitor for parent agents. It shows health, cache decay, quality comparisons, recommendations, and next directions.\n\nSESSION_UPDATE_JSON:\n{\n  \"summary\": \"MCP workload consult completed.\",\n  \"decisions\": [\"Use router_monitor before deciding what to fix next\"],\n  \"open_questions\": [],\n  \"files_discussed\": [\"README.md\", \"src/tools.ts\"],\n  \"tags\": [\"mcp-workload\"],\n  \"aliases\": [\"router monitor\"]\n}\n\nEvaluate each answer:\n1. Factual errors: claims that are demonstrably wrong.\n2. Completeness: did it fully address the question?\n3. Honest refusal: explicit uncertainty or NOT IN CONTEXT is acceptable if the answer lacks needed context.\n\nScore each answer:\n0 = wrong or hallucinated\n1 = partial, missed key facts\n2 = correct but shallow\n3 = fully correct and substantive\n\nOutput JSON only:\n{\n  \"answer_a_score\": 0,\n  \"answer_a_errors\": [\n    \"specific error 1\"\n  ],\n  \"answer_b_score\": 0,\n  \"answer_b_errors\": [\n    \"specific error 1\"\n  ],\n  \"preferred\": \"a|b|tie\",\n  \"reasoning\": \"one paragraph why\"\n}"
+        "You are evaluating two answers to the same technical question about a software project.\n\nUse the verified cluster factsheet below as ground truth when it is provided.\nIf an answer makes a claim that is directly supported by the factsheet, treat it as verified even if the answer does not show its evidence.\nDo not prefer a response that merely starts searching or asks to inspect files over a concise answer supported by the factsheet.\nIf a claim is not in the factsheet, mark it unsupported unless the answer explicitly says it is outside context.\n\nVerified cluster factsheet ground truth:\n{\n  \"cluster_id\": \"monitor-static\",\n  \"factsheet_id\": \"factsheet_7d50f86a-1255-497d-9ec3-80db7b8446e3\",\n  \"factsheet_version\": 1,\n  \"status\": \"static_verified\",\n  \"content\": {\n    \"schema_version\": 1,\n    \"cluster_id\": \"monitor-static\",\n    \"summary\": \"Monitor workload facts.\",\n    \"facts\": [\n      {\n        \"id\": \"router-monitor-readme\",\n        \"claim\": \"router_monitor is documented as an operator-facing information monitor.\",\n        \"confidence\": \"static_verified\",\n        \"evidence\": [\n          {\n            \"path\": \"README.md\",\n            \"hash\": \"sha256:5348278d40791e5332fb979efeb0d29cfe67309ffcd6a995bcb2b7962c4a8b21\",\n            \"selector\": \"router_monitor\",\n            \"snippet_hash\": \"sha256:5348278d40791e5332fb979efeb0d29cfe67309ffcd6a995bcb2b7962c4a8b21\"\n          }\n        ]\n      },\n      {\n        \"id\": \"router-monitor-source\",\n        \"claim\": \"router_monitor is registered as an MCP tool in src/tools.ts.\",\n        \"confidence\": \"static_verified\",\n        \"evidence\": [\n          {\n            \"path\": \"src/tools.ts\",\n            \"hash\": \"sha256:6838933afe81160149c4401ac4d167d1d1556b7e7a9724f800ab7a76b0988c3c\",\n            \"selector\": \"router_monitor\",\n            \"snippet_hash\": \"sha256:e8db72f195ab32db7cd5a41d18dcb92dc69df13b53da3f6cc92723b4081091fc\"\n          }\n        ]\n      }\n    ],\n    \"pitfalls\": [],\n    \"forbidden_inferences\": [\n      \"Do not infer unmentioned tools.\"\n    ],\n    \"omitted_facts\": 0\n  }\n}\n\nQuestion:\nWhat is router_monitor for?\n\nAnswer A:\nrouter_monitor is an operator-facing monitor for parent agents. It shows health, cache decay, quality comparisons, recommendations, and next directions.\n\nSESSION_UPDATE_JSON:\n{\n  \"summary\": \"MCP workload consult completed.\",\n  \"decisions\": [\"Use router_monitor before deciding what to fix next\"],\n  \"open_questions\": [],\n  \"files_discussed\": [\"README.md\", \"src/tools.ts\"],\n  \"tags\": [\"mcp-workload\"],\n  \"aliases\": [\"router monitor\"]\n}\n\nAnswer B:\nDirect baseline: router_monitor combines health, cache, shadow quality, recommendations, and next directions.\n\nEvaluate each answer:\n1. Factual errors: claims that are demonstrably wrong.\n2. Completeness: did it fully address the question?\n3. Honest refusal: explicit uncertainty or NOT IN CONTEXT is acceptable if the answer lacks needed context.\n\nScore each answer:\n0 = wrong or hallucinated\n1 = partial, missed key facts\n2 = correct but shallow\n3 = fully correct and substantive\n\nOutput JSON only:\n{\n  \"answer_a_score\": 0,\n  \"answer_a_errors\": [\n    \"specific error 1\"\n  ],\n  \"answer_b_score\": 0,\n  \"answer_b_errors\": [\n    \"specific error 1\"\n  ],\n  \"preferred\": \"a|b|tie\",\n  \"reasoning\": \"one paragraph why\"\n}"
       ],
       "prompt": "You are evaluating two answers to the same technical question about a software project.\n\nUse the verified cluster factsheet below as ground truth when it is provided.\nIf an answer makes a claim that i"
     },
     {
-      "cwd": "/tmp/asr-mcp-matrix-stub-hylTGW/project",
+      "cwd": "/tmp/asr-mcp-matrix-stub-mRSKKO/project",
       "args": [
         "-p",
         "--bare",
@@ -2272,25 +2349,25 @@
         "--output-format",
         "json",
         "--append-system-prompt",
-        "You are consulting through AgentSessionRouter cluster_consult.\nUse only the verified factsheet below and the user's question.\nDo not infer config keys, function names, files, or behavior that are not present in the factsheet.\nIf a required fact is absent, write NOT IN CONTEXT.\nDo not use tools unless the selected profile explicitly provides them.\n\nCluster id: monitor-static\nFactsheet id: factsheet_569229db-4e61-4e55-ad72-19b4bfda4d9d\nFactsheet version: 2\nFactsheet status: static_verified\n\nFactsheet JSON:\n{\n  \"schema_version\": 1,\n  \"cluster_id\": \"monitor-static\",\n  \"summary\": \"Monitor workload facts.\",\n  \"facts\": [\n    {\n      \"id\": \"router-monitor-readme\",\n      \"claim\": \"router_monitor is documented as an operator-facing information monitor.\",\n      \"confidence\": \"static_verified\",\n      \"evidence\": [\n        {\n          \"path\": \"README.md\",\n          \"hash\": \"sha256:5348278d40791e5332fb979efeb0d29cfe67309ffcd6a995bcb2b7962c4a8b21\",\n          \"selector\": \"router_monitor\",\n          \"snippet_hash\": \"sha256:5348278d40791e5332fb979efeb0d29cfe67309ffcd6a995bcb2b7962c4a8b21\"\n        }\n      ]\n    },\n    {\n      \"id\": \"router-monitor-source\",\n      \"claim\": \"router_monitor is registered as an MCP tool in src/tools.ts.\",\n      \"confidence\": \"static_verified\",\n      \"evidence\": [\n        {\n          \"path\": \"src/tools.ts\",\n          \"hash\": \"sha256:d3433f2c59ab5cdc8d0c3948ef93d8b98dd471c4848daccb983dd7f70a19dc7e\",\n          \"selector\": \"router_monitor\",\n          \"snippet_hash\": \"sha256:e8db72f195ab32db7cd5a41d18dcb92dc69df13b53da3f6cc92723b4081091fc\"\n        }\n      ]\n    }\n  ],\n  \"pitfalls\": [],\n  \"forbidden_inferences\": [\n    \"Do not infer unmentioned tools.\"\n  ],\n  \"omitted_facts\": 0\n}",
+        "You are consulting through AgentSessionRouter cluster_consult.\nUse only the verified factsheet below and the user's question.\nDo not infer config keys, function names, files, or behavior that are not present in the factsheet.\nIf a required fact is absent, write NOT IN CONTEXT.\nDo not use tools unless the selected profile explicitly provides them.\n\nCluster id: monitor-static\nFactsheet id: factsheet_c44d7609-17ee-4506-83af-8af7b70975ec\nFactsheet version: 3\nFactsheet status: static_verified\n\nFactsheet JSON:\n{\n  \"schema_version\": 1,\n  \"cluster_id\": \"monitor-static\",\n  \"summary\": \"Monitor workload facts.\",\n  \"facts\": [\n    {\n      \"id\": \"router-monitor-readme\",\n      \"claim\": \"router_monitor is documented as an operator-facing information monitor.\",\n      \"confidence\": \"static_verified\",\n      \"evidence\": [\n        {\n          \"path\": \"README.md\",\n          \"hash\": \"sha256:5348278d40791e5332fb979efeb0d29cfe67309ffcd6a995bcb2b7962c4a8b21\",\n          \"selector\": \"router_monitor\",\n          \"snippet_hash\": \"sha256:5348278d40791e5332fb979efeb0d29cfe67309ffcd6a995bcb2b7962c4a8b21\"\n        }\n      ]\n    },\n    {\n      \"id\": \"router-monitor-source\",\n      \"claim\": \"router_monitor is registered as an MCP tool in src/tools.ts.\",\n      \"confidence\": \"static_verified\",\n      \"evidence\": [\n        {\n          \"path\": \"src/tools.ts\",\n          \"hash\": \"sha256:d3433f2c59ab5cdc8d0c3948ef93d8b98dd471c4848daccb983dd7f70a19dc7e\",\n          \"selector\": \"router_monitor\",\n          \"snippet_hash\": \"sha256:e8db72f195ab32db7cd5a41d18dcb92dc69df13b53da3f6cc92723b4081091fc\"\n        }\n      ]\n    }\n  ],\n  \"pitfalls\": [],\n  \"forbidden_inferences\": [\n    \"Do not infer unmentioned tools.\"\n  ],\n  \"omitted_facts\": 0\n}",
         "Answer the user's question using the verified cluster factsheet in the appended system prompt.\nIf the factsheet does not contain the required fact, answer NOT IN CONTEXT.\n\nQuestion:\nWhat is router_monitor for after a file moved?"
       ],
       "prompt": "Answer the user's question using the verified cluster factsheet in the appended system prompt.\nIf the factsheet does not contain the required fact, answer NOT IN CONTEXT.\n\nQuestion:\nWhat is router_mon"
     },
     {
-      "cwd": "/tmp/asr-mcp-matrix-stub-hylTGW/project",
+      "cwd": "/tmp/asr-mcp-matrix-stub-mRSKKO/project",
       "args": [
         "-p",
         "--tools",
         "",
         "--output-format",
         "json",
-        "You are a shadow evaluation baseline for AgentSessionRouter.\nAnswer the technical question about the software project in the current working directory.\nProject cwd: /tmp/asr-mcp-matrix-stub-hylTGW/project\nUse read-only project inspection if needed. Do not modify files.\nKeep the answer concise but complete.\n\nQuestion:\nWhat is router_monitor for after a file moved?"
+        "You are a shadow evaluation baseline for AgentSessionRouter.\nAnswer the technical question about the software project in the current working directory.\nProject cwd: /tmp/asr-mcp-matrix-stub-mRSKKO/project\nUse read-only project inspection if needed. Do not modify files.\nKeep the answer concise but complete.\n\nQuestion:\nWhat is router_monitor for after a file moved?"
       ],
-      "prompt": "You are a shadow evaluation baseline for AgentSessionRouter.\nAnswer the technical question about the software project in the current working directory.\nProject cwd: /tmp/asr-mcp-matrix-stub-hylTGW/pro"
+      "prompt": "You are a shadow evaluation baseline for AgentSessionRouter.\nAnswer the technical question about the software project in the current working directory.\nProject cwd: /tmp/asr-mcp-matrix-stub-mRSKKO/pro"
     },
     {
-      "cwd": "/tmp/asr-mcp-matrix-stub-hylTGW/project",
+      "cwd": "/tmp/asr-mcp-matrix-stub-mRSKKO/project",
       "args": [
         "-p",
         "--tools",
@@ -2302,19 +2379,19 @@
       "prompt": "You are acting as a senior engineering consultant for this project.\n\nProject: project\nTopic: cluster fallback monitor-decay\nTrigger: cluster_consult_fallback\nTask: Answer the caller's question after c"
     },
     {
-      "cwd": "/tmp/asr-mcp-matrix-stub-hylTGW/project",
+      "cwd": "/tmp/asr-mcp-matrix-stub-mRSKKO/project",
       "args": [
         "-p",
         "--tools",
         "",
         "--output-format",
         "json",
-        "You are evaluating two answers to the same technical question about a software project.\n\nUse the verified cluster factsheet below as ground truth when it is provided.\nIf an answer makes a claim that is directly supported by the factsheet, treat it as verified even if the answer does not show its evidence.\nDo not prefer a response that merely starts searching or asks to inspect files over a concise answer supported by the factsheet.\nIf a claim is not in the factsheet, mark it unsupported unless the answer explicitly says it is outside context.\n\nVerified cluster factsheet ground truth:\n{\n  \"cluster_id\": \"monitor-static\",\n  \"factsheet_id\": \"factsheet_569229db-4e61-4e55-ad72-19b4bfda4d9d\",\n  \"factsheet_version\": 2,\n  \"status\": \"static_verified\",\n  \"content\": {\n    \"schema_version\": 1,\n    \"cluster_id\": \"monitor-static\",\n    \"summary\": \"Monitor workload facts.\",\n    \"facts\": [\n      {\n        \"id\": \"router-monitor-readme\",\n        \"claim\": \"router_monitor is documented as an operator-facing information monitor.\",\n        \"confidence\": \"static_verified\",\n        \"evidence\": [\n          {\n            \"path\": \"README.md\",\n            \"hash\": \"sha256:5348278d40791e5332fb979efeb0d29cfe67309ffcd6a995bcb2b7962c4a8b21\",\n            \"selector\": \"router_monitor\",\n            \"snippet_hash\": \"sha256:5348278d40791e5332fb979efeb0d29cfe67309ffcd6a995bcb2b7962c4a8b21\"\n          }\n        ]\n      },\n      {\n        \"id\": \"router-monitor-source\",\n        \"claim\": \"router_monitor is registered as an MCP tool in src/tools.ts.\",\n        \"confidence\": \"static_verified\",\n        \"evidence\": [\n          {\n            \"path\": \"src/tools.ts\",\n            \"hash\": \"sha256:d3433f2c59ab5cdc8d0c3948ef93d8b98dd471c4848daccb983dd7f70a19dc7e\",\n            \"selector\": \"router_monitor\",\n            \"snippet_hash\": \"sha256:e8db72f195ab32db7cd5a41d18dcb92dc69df13b53da3f6cc92723b4081091fc\"\n          }\n        ]\n      }\n    ],\n    \"pitfalls\": [],\n    \"forbidden_inferences\": [\n      \"Do not infer unmentioned tools.\"\n    ],\n    \"omitted_facts\": 0\n  }\n}\n\nQuestion:\nWhat is router_monitor for after a file moved?\n\nAnswer A:\nrouter_monitor is an operator-facing monitor for parent agents. It shows health, cache decay, quality comparisons, recommendations, and next directions.\n\nSESSION_UPDATE_JSON:\n{\n  \"summary\": \"MCP workload consult completed.\",\n  \"decisions\": [\"Use router_monitor before deciding what to fix next\"],\n  \"open_questions\": [],\n  \"files_discussed\": [\"README.md\", \"src/tools.ts\"],\n  \"tags\": [\"mcp-workload\"],\n  \"aliases\": [\"router monitor\"]\n}\n\nAnswer B:\nDirect baseline: router_monitor combines health, cache, shadow quality, recommendations, and next directions.\n\nEvaluate each answer:\n1. Factual errors: claims that are demonstrably wrong.\n2. Completeness: did it fully address the question?\n3. Honest refusal: explicit uncertainty or NOT IN CONTEXT is acceptable if the answer lacks needed context.\n\nScore each answer:\n0 = wrong or hallucinated\n1 = partial, missed key facts\n2 = correct but shallow\n3 = fully correct and substantive\n\nOutput JSON only:\n{\n  \"answer_a_score\": 0,\n  \"answer_a_errors\": [\n    \"specific error 1\"\n  ],\n  \"answer_b_score\": 0,\n  \"answer_b_errors\": [\n    \"specific error 1\"\n  ],\n  \"preferred\": \"a|b|tie\",\n  \"reasoning\": \"one paragraph why\"\n}"
+        "You are evaluating two answers to the same technical question about a software project.\n\nUse the verified cluster factsheet below as ground truth when it is provided.\nIf an answer makes a claim that is directly supported by the factsheet, treat it as verified even if the answer does not show its evidence.\nDo not prefer a response that merely starts searching or asks to inspect files over a concise answer supported by the factsheet.\nIf a claim is not in the factsheet, mark it unsupported unless the answer explicitly says it is outside context.\n\nVerified cluster factsheet ground truth:\n{\n  \"cluster_id\": \"monitor-static\",\n  \"factsheet_id\": \"factsheet_c44d7609-17ee-4506-83af-8af7b70975ec\",\n  \"factsheet_version\": 3,\n  \"status\": \"static_verified\",\n  \"content\": {\n    \"schema_version\": 1,\n    \"cluster_id\": \"monitor-static\",\n    \"summary\": \"Monitor workload facts.\",\n    \"facts\": [\n      {\n        \"id\": \"router-monitor-readme\",\n        \"claim\": \"router_monitor is documented as an operator-facing information monitor.\",\n        \"confidence\": \"static_verified\",\n        \"evidence\": [\n          {\n            \"path\": \"README.md\",\n            \"hash\": \"sha256:5348278d40791e5332fb979efeb0d29cfe67309ffcd6a995bcb2b7962c4a8b21\",\n            \"selector\": \"router_monitor\",\n            \"snippet_hash\": \"sha256:5348278d40791e5332fb979efeb0d29cfe67309ffcd6a995bcb2b7962c4a8b21\"\n          }\n        ]\n      },\n      {\n        \"id\": \"router-monitor-source\",\n        \"claim\": \"router_monitor is registered as an MCP tool in src/tools.ts.\",\n        \"confidence\": \"static_verified\",\n        \"evidence\": [\n          {\n            \"path\": \"src/tools.ts\",\n            \"hash\": \"sha256:d3433f2c59ab5cdc8d0c3948ef93d8b98dd471c4848daccb983dd7f70a19dc7e\",\n            \"selector\": \"router_monitor\",\n            \"snippet_hash\": \"sha256:e8db72f195ab32db7cd5a41d18dcb92dc69df13b53da3f6cc92723b4081091fc\"\n          }\n        ]\n      }\n    ],\n    \"pitfalls\": [],\n    \"forbidden_inferences\": [\n      \"Do not infer unmentioned tools.\"\n    ],\n    \"omitted_facts\": 0\n  }\n}\n\nQuestion:\nWhat is router_monitor for after a file moved?\n\nAnswer A:\nDirect baseline: router_monitor combines health, cache, shadow quality, recommendations, and next directions.\n\nAnswer B:\nrouter_monitor is an operator-facing monitor for parent agents. It shows health, cache decay, quality comparisons, recommendations, and next directions.\n\nSESSION_UPDATE_JSON:\n{\n  \"summary\": \"MCP workload consult completed.\",\n  \"decisions\": [\"Use router_monitor before deciding what to fix next\"],\n  \"open_questions\": [],\n  \"files_discussed\": [\"README.md\", \"src/tools.ts\"],\n  \"tags\": [\"mcp-workload\"],\n  \"aliases\": [\"router monitor\"]\n}\n\nEvaluate each answer:\n1. Factual errors: claims that are demonstrably wrong.\n2. Completeness: did it fully address the question?\n3. Honest refusal: explicit uncertainty or NOT IN CONTEXT is acceptable if the answer lacks needed context.\n\nScore each answer:\n0 = wrong or hallucinated\n1 = partial, missed key facts\n2 = correct but shallow\n3 = fully correct and substantive\n\nOutput JSON only:\n{\n  \"answer_a_score\": 0,\n  \"answer_a_errors\": [\n    \"specific error 1\"\n  ],\n  \"answer_b_score\": 0,\n  \"answer_b_errors\": [\n    \"specific error 1\"\n  ],\n  \"preferred\": \"a|b|tie\",\n  \"reasoning\": \"one paragraph why\"\n}"
       ],
       "prompt": "You are evaluating two answers to the same technical question about a software project.\n\nUse the verified cluster factsheet below as ground truth when it is provided.\nIf an answer makes a claim that i"
     },
     {
-      "cwd": "/tmp/asr-mcp-matrix-stub-hylTGW/project",
+      "cwd": "/tmp/asr-mcp-matrix-stub-mRSKKO/project",
       "args": [
         "-p",
         "--tools",
@@ -2326,7 +2403,7 @@
       "prompt": "You are acting as a senior engineering consultant for this project.\n\nProject: project\nTopic: cluster fallback monitor-snippet-decay\nTrigger: cluster_consult_fallback\nTask: Answer the caller's question"
     },
     {
-      "cwd": "/tmp/asr-mcp-matrix-stub-hylTGW/project",
+      "cwd": "/tmp/asr-mcp-matrix-stub-mRSKKO/project",
       "args": [
         "-p",
         "--tools",
@@ -2338,7 +2415,7 @@
       "prompt": "You are acting as a senior engineering consultant for this project.\n\nProject: project\nTopic: cluster fallback monitor-static-deny\nTrigger: cluster_consult_fallback\nTask: Answer the caller's question a"
     },
     {
-      "cwd": "/tmp/asr-mcp-matrix-stub-hylTGW/project",
+      "cwd": "/tmp/asr-mcp-matrix-stub-mRSKKO/project",
       "args": [
         "-p",
         "--tools",
@@ -2350,7 +2427,7 @@
       "prompt": "You are acting as a senior engineering consultant for this project.\n\nProject: project\nTopic: cluster fallback missing-workload-cluster\nTrigger: cluster_consult_fallback\nTask: Answer the caller's quest"
     },
     {
-      "cwd": "/tmp/asr-mcp-matrix-stub-hylTGW/project",
+      "cwd": "/tmp/asr-mcp-matrix-stub-mRSKKO/project",
       "args": [
         "-p",
         "--bare",
@@ -2363,7 +2440,7 @@
       "prompt": "You are verifying a cluster factsheet for AgentSessionRouter.\nFor each fact, decide whether the supplied evidence semantically supports the claim.\nReturn VERIFIED only when the claim follows from the "
     },
     {
-      "cwd": "/tmp/asr-mcp-matrix-stub-hylTGW/project",
+      "cwd": "/tmp/asr-mcp-matrix-stub-mRSKKO/project",
       "args": [
         "-p",
         "--bare",
@@ -2372,36 +2449,36 @@
         "--output-format",
         "json",
         "--append-system-prompt",
-        "You are consulting through AgentSessionRouter cluster_consult.\nUse only the verified factsheet below and the user's question.\nDo not infer config keys, function names, files, or behavior that are not present in the factsheet.\nIf a required fact is absent, write NOT IN CONTEXT.\nDo not use tools unless the selected profile explicitly provides them.\n\nCluster id: monitor-llm\nFactsheet id: factsheet_7de0e527-37eb-4a0e-95f0-51486d607df7\nFactsheet version: 1\nFactsheet status: llm_verified\n\nFactsheet JSON:\n{\n  \"schema_version\": 1,\n  \"cluster_id\": \"monitor-llm\",\n  \"summary\": \"Monitor workload facts.\",\n  \"facts\": [\n    {\n      \"id\": \"router-monitor-readme\",\n      \"claim\": \"router_monitor is documented as an operator-facing information monitor.\",\n      \"confidence\": \"llm_verified\",\n      \"evidence\": [\n        {\n          \"path\": \"README.md\",\n          \"hash\": \"sha256:5348278d40791e5332fb979efeb0d29cfe67309ffcd6a995bcb2b7962c4a8b21\",\n          \"selector\": \"router_monitor\",\n          \"snippet_hash\": \"sha256:5348278d40791e5332fb979efeb0d29cfe67309ffcd6a995bcb2b7962c4a8b21\"\n        }\n      ]\n    },\n    {\n      \"id\": \"router-monitor-source\",\n      \"claim\": \"router_monitor is registered as an MCP tool in src/tools.ts.\",\n      \"confidence\": \"llm_verified\",\n      \"evidence\": [\n        {\n          \"path\": \"src/tools.ts\",\n          \"hash\": \"sha256:6838933afe81160149c4401ac4d167d1d1556b7e7a9724f800ab7a76b0988c3c\",\n          \"selector\": \"router_monitor\",\n          \"snippet_hash\": \"sha256:e8db72f195ab32db7cd5a41d18dcb92dc69df13b53da3f6cc92723b4081091fc\"\n        }\n      ]\n    }\n  ],\n  \"pitfalls\": [],\n  \"forbidden_inferences\": [\n    \"Do not infer unmentioned tools.\"\n  ],\n  \"omitted_facts\": 0\n}",
+        "You are consulting through AgentSessionRouter cluster_consult.\nUse only the verified factsheet below and the user's question.\nDo not infer config keys, function names, files, or behavior that are not present in the factsheet.\nIf a required fact is absent, write NOT IN CONTEXT.\nDo not use tools unless the selected profile explicitly provides them.\n\nCluster id: monitor-llm\nFactsheet id: factsheet_e2f09f3c-463f-41ef-b498-760d90c4fef7\nFactsheet version: 1\nFactsheet status: llm_verified\n\nFactsheet JSON:\n{\n  \"schema_version\": 1,\n  \"cluster_id\": \"monitor-llm\",\n  \"summary\": \"Monitor workload facts.\",\n  \"facts\": [\n    {\n      \"id\": \"router-monitor-readme\",\n      \"claim\": \"router_monitor is documented as an operator-facing information monitor.\",\n      \"confidence\": \"llm_verified\",\n      \"evidence\": [\n        {\n          \"path\": \"README.md\",\n          \"hash\": \"sha256:5348278d40791e5332fb979efeb0d29cfe67309ffcd6a995bcb2b7962c4a8b21\",\n          \"selector\": \"router_monitor\",\n          \"snippet_hash\": \"sha256:5348278d40791e5332fb979efeb0d29cfe67309ffcd6a995bcb2b7962c4a8b21\"\n        }\n      ]\n    },\n    {\n      \"id\": \"router-monitor-source\",\n      \"claim\": \"router_monitor is registered as an MCP tool in src/tools.ts.\",\n      \"confidence\": \"llm_verified\",\n      \"evidence\": [\n        {\n          \"path\": \"src/tools.ts\",\n          \"hash\": \"sha256:6838933afe81160149c4401ac4d167d1d1556b7e7a9724f800ab7a76b0988c3c\",\n          \"selector\": \"router_monitor\",\n          \"snippet_hash\": \"sha256:e8db72f195ab32db7cd5a41d18dcb92dc69df13b53da3f6cc92723b4081091fc\"\n        }\n      ]\n    }\n  ],\n  \"pitfalls\": [],\n  \"forbidden_inferences\": [\n    \"Do not infer unmentioned tools.\"\n  ],\n  \"omitted_facts\": 0\n}",
         "Answer the user's question using the verified cluster factsheet in the appended system prompt.\nIf the factsheet does not contain the required fact, answer NOT IN CONTEXT.\n\nQuestion:\nWhat is router_monitor documented as?"
       ],
       "prompt": "Answer the user's question using the verified cluster factsheet in the appended system prompt.\nIf the factsheet does not contain the required fact, answer NOT IN CONTEXT.\n\nQuestion:\nWhat is router_mon"
     },
     {
-      "cwd": "/tmp/asr-mcp-matrix-stub-hylTGW/project",
+      "cwd": "/tmp/asr-mcp-matrix-stub-mRSKKO/project",
       "args": [
         "-p",
         "--tools",
         "",
         "--output-format",
         "json",
-        "You are a shadow evaluation baseline for AgentSessionRouter.\nAnswer the technical question about the software project in the current working directory.\nProject cwd: /tmp/asr-mcp-matrix-stub-hylTGW/project\nUse read-only project inspection if needed. Do not modify files.\nKeep the answer concise but complete.\n\nQuestion:\nWhat is router_monitor documented as?"
+        "You are a shadow evaluation baseline for AgentSessionRouter.\nAnswer the technical question about the software project in the current working directory.\nProject cwd: /tmp/asr-mcp-matrix-stub-mRSKKO/project\nUse read-only project inspection if needed. Do not modify files.\nKeep the answer concise but complete.\n\nQuestion:\nWhat is router_monitor documented as?"
       ],
-      "prompt": "You are a shadow evaluation baseline for AgentSessionRouter.\nAnswer the technical question about the software project in the current working directory.\nProject cwd: /tmp/asr-mcp-matrix-stub-hylTGW/pro"
+      "prompt": "You are a shadow evaluation baseline for AgentSessionRouter.\nAnswer the technical question about the software project in the current working directory.\nProject cwd: /tmp/asr-mcp-matrix-stub-mRSKKO/pro"
     },
     {
-      "cwd": "/tmp/asr-mcp-matrix-stub-hylTGW/project",
+      "cwd": "/tmp/asr-mcp-matrix-stub-mRSKKO/project",
       "args": [
         "-p",
         "--tools",
         "",
         "--output-format",
         "json",
-        "You are evaluating two answers to the same technical question about a software project.\n\nUse the verified cluster factsheet below as ground truth when it is provided.\nIf an answer makes a claim that is directly supported by the factsheet, treat it as verified even if the answer does not show its evidence.\nDo not prefer a response that merely starts searching or asks to inspect files over a concise answer supported by the factsheet.\nIf a claim is not in the factsheet, mark it unsupported unless the answer explicitly says it is outside context.\n\nVerified cluster factsheet ground truth:\n{\n  \"cluster_id\": \"monitor-llm\",\n  \"factsheet_id\": \"factsheet_7de0e527-37eb-4a0e-95f0-51486d607df7\",\n  \"factsheet_version\": 1,\n  \"status\": \"llm_verified\",\n  \"content\": {\n    \"schema_version\": 1,\n    \"cluster_id\": \"monitor-llm\",\n    \"summary\": \"Monitor workload facts.\",\n    \"facts\": [\n      {\n        \"id\": \"router-monitor-readme\",\n        \"claim\": \"router_monitor is documented as an operator-facing information monitor.\",\n        \"confidence\": \"llm_verified\",\n        \"evidence\": [\n          {\n            \"path\": \"README.md\",\n            \"hash\": \"sha256:5348278d40791e5332fb979efeb0d29cfe67309ffcd6a995bcb2b7962c4a8b21\",\n            \"selector\": \"router_monitor\",\n            \"snippet_hash\": \"sha256:5348278d40791e5332fb979efeb0d29cfe67309ffcd6a995bcb2b7962c4a8b21\"\n          }\n        ]\n      },\n      {\n        \"id\": \"router-monitor-source\",\n        \"claim\": \"router_monitor is registered as an MCP tool in src/tools.ts.\",\n        \"confidence\": \"llm_verified\",\n        \"evidence\": [\n          {\n            \"path\": \"src/tools.ts\",\n            \"hash\": \"sha256:6838933afe81160149c4401ac4d167d1d1556b7e7a9724f800ab7a76b0988c3c\",\n            \"selector\": \"router_monitor\",\n            \"snippet_hash\": \"sha256:e8db72f195ab32db7cd5a41d18dcb92dc69df13b53da3f6cc92723b4081091fc\"\n          }\n        ]\n      }\n    ],\n    \"pitfalls\": [],\n    \"forbidden_inferences\": [\n      \"Do not infer unmentioned tools.\"\n    ],\n    \"omitted_facts\": 0\n  }\n}\n\nQuestion:\nWhat is router_monitor documented as?\n\nAnswer A:\nDirect baseline: router_monitor combines health, cache, shadow quality, recommendations, and next directions.\n\nAnswer B:\nrouter_monitor is an operator-facing monitor for parent agents. It shows health, cache decay, quality comparisons, recommendations, and next directions.\n\nSESSION_UPDATE_JSON:\n{\n  \"summary\": \"MCP workload consult completed.\",\n  \"decisions\": [\"Use router_monitor before deciding what to fix next\"],\n  \"open_questions\": [],\n  \"files_discussed\": [\"README.md\", \"src/tools.ts\"],\n  \"tags\": [\"mcp-workload\"],\n  \"aliases\": [\"router monitor\"]\n}\n\nEvaluate each answer:\n1. Factual errors: claims that are demonstrably wrong.\n2. Completeness: did it fully address the question?\n3. Honest refusal: explicit uncertainty or NOT IN CONTEXT is acceptable if the answer lacks needed context.\n\nScore each answer:\n0 = wrong or hallucinated\n1 = partial, missed key facts\n2 = correct but shallow\n3 = fully correct and substantive\n\nOutput JSON only:\n{\n  \"answer_a_score\": 0,\n  \"answer_a_errors\": [\n    \"specific error 1\"\n  ],\n  \"answer_b_score\": 0,\n  \"answer_b_errors\": [\n    \"specific error 1\"\n  ],\n  \"preferred\": \"a|b|tie\",\n  \"reasoning\": \"one paragraph why\"\n}"
+        "You are evaluating two answers to the same technical question about a software project.\n\nUse the verified cluster factsheet below as ground truth when it is provided.\nIf an answer makes a claim that is directly supported by the factsheet, treat it as verified even if the answer does not show its evidence.\nDo not prefer a response that merely starts searching or asks to inspect files over a concise answer supported by the factsheet.\nIf a claim is not in the factsheet, mark it unsupported unless the answer explicitly says it is outside context.\n\nVerified cluster factsheet ground truth:\n{\n  \"cluster_id\": \"monitor-llm\",\n  \"factsheet_id\": \"factsheet_e2f09f3c-463f-41ef-b498-760d90c4fef7\",\n  \"factsheet_version\": 1,\n  \"status\": \"llm_verified\",\n  \"content\": {\n    \"schema_version\": 1,\n    \"cluster_id\": \"monitor-llm\",\n    \"summary\": \"Monitor workload facts.\",\n    \"facts\": [\n      {\n        \"id\": \"router-monitor-readme\",\n        \"claim\": \"router_monitor is documented as an operator-facing information monitor.\",\n        \"confidence\": \"llm_verified\",\n        \"evidence\": [\n          {\n            \"path\": \"README.md\",\n            \"hash\": \"sha256:5348278d40791e5332fb979efeb0d29cfe67309ffcd6a995bcb2b7962c4a8b21\",\n            \"selector\": \"router_monitor\",\n            \"snippet_hash\": \"sha256:5348278d40791e5332fb979efeb0d29cfe67309ffcd6a995bcb2b7962c4a8b21\"\n          }\n        ]\n      },\n      {\n        \"id\": \"router-monitor-source\",\n        \"claim\": \"router_monitor is registered as an MCP tool in src/tools.ts.\",\n        \"confidence\": \"llm_verified\",\n        \"evidence\": [\n          {\n            \"path\": \"src/tools.ts\",\n            \"hash\": \"sha256:6838933afe81160149c4401ac4d167d1d1556b7e7a9724f800ab7a76b0988c3c\",\n            \"selector\": \"router_monitor\",\n            \"snippet_hash\": \"sha256:e8db72f195ab32db7cd5a41d18dcb92dc69df13b53da3f6cc92723b4081091fc\"\n          }\n        ]\n      }\n    ],\n    \"pitfalls\": [],\n    \"forbidden_inferences\": [\n      \"Do not infer unmentioned tools.\"\n    ],\n    \"omitted_facts\": 0\n  }\n}\n\nQuestion:\nWhat is router_monitor documented as?\n\nAnswer A:\nrouter_monitor is an operator-facing monitor for parent agents. It shows health, cache decay, quality comparisons, recommendations, and next directions.\n\nSESSION_UPDATE_JSON:\n{\n  \"summary\": \"MCP workload consult completed.\",\n  \"decisions\": [\"Use router_monitor before deciding what to fix next\"],\n  \"open_questions\": [],\n  \"files_discussed\": [\"README.md\", \"src/tools.ts\"],\n  \"tags\": [\"mcp-workload\"],\n  \"aliases\": [\"router monitor\"]\n}\n\nAnswer B:\nDirect baseline: router_monitor combines health, cache, shadow quality, recommendations, and next directions.\n\nEvaluate each answer:\n1. Factual errors: claims that are demonstrably wrong.\n2. Completeness: did it fully address the question?\n3. Honest refusal: explicit uncertainty or NOT IN CONTEXT is acceptable if the answer lacks needed context.\n\nScore each answer:\n0 = wrong or hallucinated\n1 = partial, missed key facts\n2 = correct but shallow\n3 = fully correct and substantive\n\nOutput JSON only:\n{\n  \"answer_a_score\": 0,\n  \"answer_a_errors\": [\n    \"specific error 1\"\n  ],\n  \"answer_b_score\": 0,\n  \"answer_b_errors\": [\n    \"specific error 1\"\n  ],\n  \"preferred\": \"a|b|tie\",\n  \"reasoning\": \"one paragraph why\"\n}"
       ],
       "prompt": "You are evaluating two answers to the same technical question about a software project.\n\nUse the verified cluster factsheet below as ground truth when it is provided.\nIf an answer makes a claim that i"
     }
   ],
-  "server_stderr": "{\"ts\":\"2026-05-16T06:46:03.708Z\",\"level\":\"warn\",\"message\":\"unknown_claude_version\",\"detected_version\":\"2.1.92 (Claude Code)\",\"tested_versions\":[]}\n",
-  "finished_at": "2026-05-16T06:46:05.732Z"
+  "server_stderr": "{\"ts\":\"2026-05-16T08:45:06.668Z\",\"level\":\"warn\",\"message\":\"unknown_claude_version\",\"detected_version\":\"2.1.92 (Claude Code)\",\"tested_versions\":[]}\n",
+  "finished_at": "2026-05-16T08:45:08.752Z"
 }

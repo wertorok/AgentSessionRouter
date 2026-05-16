@@ -151,6 +151,13 @@ const clusterPrepareInput = z.object({
   factsheet: factsheetInput
 });
 
+const clusterReprepareInput = z.object({
+  project_id: z.string().nullable().optional(),
+  cluster_id: z.string().min(1),
+  verification_mode: z.enum(["static", "llm"]).default("llm"),
+  llm_verifier_profile: z.enum(["focused", "bare"]).default("focused")
+});
+
 const clusterGetInput = z.object({
   project_id: z.string().nullable().optional(),
   cluster_id: z.string().min(1),
@@ -817,6 +824,121 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
           errorPayload(code, SPEC_ERROR_MESSAGES[code], {
             cluster_id: input.cluster_id,
             reason
+          }),
+          true
+        );
+      }
+    }
+  );
+
+  server.registerTool(
+    "cluster_reprepare",
+    {
+      title: "Re-prepare cluster from latest factsheet",
+      description:
+        "[MAINTAIN] Rebuilds a cluster from its latest stored factsheet without requiring the caller to pass factsheet JSON. Recalculates generated evidence hashes and may run no-tools LLM verification. Does not generate new facts.",
+      inputSchema: clusterReprepareInput
+    },
+    async (input) => {
+      const projectId = resolveProjectId(input.project_id, runtime.cwd);
+      const cluster = runtime.db.getClusterById(input.cluster_id);
+      if (!cluster) {
+        return jsonToolResult(
+          errorPayload(ERROR_CODES.CLUSTER_NOT_FOUND, SPEC_ERROR_MESSAGES[ERROR_CODES.CLUSTER_NOT_FOUND], {
+            cluster_id: input.cluster_id
+          }),
+          true
+        );
+      }
+      if (cluster.project_id !== projectId) {
+        return jsonToolResult(
+          errorPayload(ERROR_CODES.CLUSTER_PROJECT_MISMATCH, SPEC_ERROR_MESSAGES[ERROR_CODES.CLUSTER_PROJECT_MISMATCH], {
+            cluster_id: input.cluster_id
+          }),
+          true
+        );
+      }
+      if ((input.verification_mode ?? "llm") === "llm" && runtime.degradedMode) {
+        const diagnosis = diagnoseClaudeFailure(runtime.degradedReason);
+        return jsonToolResult(
+          errorPayload(ERROR_CODES.CLAUDE_INCOMPATIBLE, SPEC_ERROR_MESSAGES[ERROR_CODES.CLAUDE_INCOMPATIBLE], {
+            cluster_id: input.cluster_id,
+            reason: diagnosis.reason,
+            category: diagnosis.category,
+            operator_action: diagnosis.operator_action
+          }),
+          true
+        );
+      }
+
+      const sourceFactsheet = runtime.db.getLatestClusterFactsheet(input.cluster_id);
+      if (!sourceFactsheet) {
+        return jsonToolResult(
+          errorPayload(ERROR_CODES.CLUSTER_FACTSHEET_INVALID, SPEC_ERROR_MESSAGES[ERROR_CODES.CLUSTER_FACTSHEET_INVALID], {
+            cluster_id: input.cluster_id,
+            reason: "cluster has no factsheet to re-prepare"
+          }),
+          true
+        );
+      }
+
+      let profileSelection: ProfileSelection | null = null;
+      try {
+        if ((input.verification_mode ?? "llm") === "llm") {
+          const availability = await runtime.getProfileAvailability();
+          profileSelection = pickProfile(input.llm_verifier_profile ?? "focused", availability);
+          if (profileSelection.selected === "agent") {
+            throw new Error("LLM verifier cannot use agent profile");
+          }
+        }
+
+        const result = await prepareCluster(runtime.db, runtime.cwd, runtime.claude, {
+          projectId,
+          clusterId: input.cluster_id,
+          name: cluster.name,
+          description: cluster.description,
+          toolProfileDefault: cluster.tool_profile_default,
+          staticFactsheetPolicy: cluster.static_factsheet_policy,
+          factsheet: parseFactsheetContent(sourceFactsheet) as FactsheetInput,
+          sourceSessionId: sourceFactsheet.source_session_id,
+          gitRev: sourceFactsheet.git_rev,
+          verificationMode: input.verification_mode ?? "llm",
+          llmVerifierProfile: profileSelection?.selected === "bare" ? "bare" : "focused"
+        });
+
+        runtime.db.logClusterEvent({
+          clusterId: input.cluster_id,
+          projectId,
+          eventType: "cluster_reprepare",
+          details: {
+            source_factsheet_id: sourceFactsheet.id,
+            source_factsheet_version: sourceFactsheet.version,
+            new_factsheet_id: result.factsheet_id,
+            new_factsheet_version: result.factsheet_version,
+            verification_mode: input.verification_mode ?? "llm"
+          }
+        });
+
+        return jsonToolResult({
+          project_id: projectId,
+          source_factsheet_id: sourceFactsheet.id,
+          source_factsheet_version: sourceFactsheet.version,
+          ...(profileSelection ? { profile_selection: profileSelection } : {}),
+          ...result
+        });
+      } catch (error: unknown) {
+        const reason = error instanceof Error ? error.message : String(error);
+        const code = reason.includes("Claude") || reason.includes("Command failed")
+          ? ERROR_CODES.CLAUDE_INVOCATION_FAILED
+          : ERROR_CODES.CLUSTER_FACTSHEET_INVALID;
+        return jsonToolResult(
+          errorPayload(code, SPEC_ERROR_MESSAGES[code], {
+            cluster_id: input.cluster_id,
+            reason,
+            details: {
+              source_factsheet_id: sourceFactsheet.id,
+              source_factsheet_version: sourceFactsheet.version
+            }
           }),
           true
         );

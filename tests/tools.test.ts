@@ -100,6 +100,58 @@ describe("cluster MCP tools", () => {
     fixture.cleanup();
   });
 
+  it("re-prepares a cluster from the latest stored factsheet without caller-provided factsheet JSON", async () => {
+    const fixture = createToolFixture();
+    const server = new FakeServer();
+    registerTools(server as unknown as McpServer, fixture.runtime);
+    mkdirSync(path.join(fixture.dir, "src"), { recursive: true });
+    const filePath = path.join(fixture.dir, "src", "config.ts");
+    writeFileSync(filePath, "export const extraArgs = ['--tools', ''];\n");
+
+    const prepared = parseToolJson(
+      await server.call("cluster_prepare", {
+        project_id: "project",
+        cluster_id: "router-ops",
+        tool_profile_default: "bare",
+        static_factsheet_policy: "allow",
+        factsheet: {
+          facts: [
+            {
+              id: "extra-args",
+              claim: "extraArgs exists.",
+              evidence: [{ path: "src/config.ts", selector: "extraArgs" }]
+            }
+          ]
+        }
+      })
+    );
+    const originalHash = prepared.factsheet.facts[0].evidence[0].hash;
+    writeFileSync(filePath, "export const extraArgs = ['--bare', '--tools', ''];\n");
+
+    const reprepared = parseToolJson(
+      await server.call("cluster_reprepare", {
+        project_id: "project",
+        cluster_id: "router-ops",
+        verification_mode: "static"
+      })
+    );
+
+    expect(reprepared.source_factsheet_version).toBe(1);
+    expect(reprepared.factsheet_version).toBe(2);
+    expect(reprepared.verified_facts).toBe(1);
+    expect(reprepared.rejected_facts).toBe(0);
+    expect(reprepared.factsheet.facts[0].evidence[0].hash).toMatch(/^sha256:/);
+    expect(reprepared.factsheet.facts[0].evidence[0].hash).not.toBe(originalHash);
+    const get = parseToolJson(
+      await server.call("cluster_get", {
+        project_id: "project",
+        cluster_id: "router-ops"
+      })
+    );
+    expect(get.cluster.static_factsheet_policy).toBe("allow");
+    fixture.cleanup();
+  });
+
   it("preserves existing static factsheet policy when re-preparing without an explicit policy", async () => {
     const fixture = createToolFixture();
     const server = new FakeServer();

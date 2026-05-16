@@ -68,7 +68,7 @@ If a one-off Claude Code integration diagnostic is needed, pass MCP config expli
 
 | Area | Scenario | Expected signal |
 | --- | --- | --- |
-| Tool discovery | MCP lists all public tools | 19 tools including `router_consult`, `router_dry_run`, and `router_monitor` |
+| Tool discovery | MCP lists all public tools | 20 tools including `router_consult`, `router_dry_run`, `cluster_reprepare`, and `router_monitor` |
 | Router health | `router_status` baseline | normal/degraded state, Claude version, counts |
 | Information monitor | `router_monitor` baseline/final | recommendations and next directions |
 | v1 sessions | `claude_consult` new session | `new_session`, registry row, raw log |

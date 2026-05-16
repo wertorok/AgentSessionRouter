@@ -56,6 +56,7 @@ Implemented MVP tools:
 Experimental cluster-cache tools:
 
 - `cluster_prepare`
+- `cluster_reprepare`
 - `cluster_get`
 - `cluster_consult`
 - `cluster_refresh`
@@ -74,17 +75,17 @@ Tool surface tiers:
 - `[ANSWER DEFAULT]`: `router_consult`. Normal parent-agent entry point.
 - `[ANSWER EXPERT]`: `claude_consult`, `cluster_consult`. Explicit lower-level answer paths when the caller intentionally chooses durable-session or cluster-cache behavior.
 - `[OBSERVE]`: `router_dry_run`, `router_status`, `router_monitor`, `claude_sessions_list`, `claude_session_inspect`, `cluster_get`, `cluster_list`, `comparison_stats`, `comparison_list`. Read/debug/monitor paths; they do not answer the task.
-- `[MAINTAIN]`: `cluster_prepare`, `cluster_refresh`, `cluster_archive`, `claude_session_archive`, `claude_router_reset`. State maintenance paths for agents.
+- `[MAINTAIN]`: `cluster_prepare`, `cluster_reprepare`, `cluster_refresh`, `cluster_archive`, `claude_session_archive`, `claude_router_reset`. State maintenance paths for agents.
 - `[EVAL DEBUG]`: `comparison_process_pending`, `comparison_rejudge`. Shadow-eval maintenance; these may invoke Claude and are not answer paths.
 
 Validation performed:
 
-- Unit/integration tests: `98 passed`
+- Unit/integration tests: `100 passed`
 - Live MCP stdio E2E: `LIVE_CONSULT_PASS`
 - Live matrix run: committed as `LIVE_TEST_LOG.md`
 - Post-fix targeted live rerun: `TARGETED_RERUN_PASS`
 - Post-install smoke: stub mode passes and covers v1, v2 cluster tools, `router_status`, and `router_monitor`
-- MCP workload matrix: stub mode passes 23/23 checks, including clean `SESSION_UPDATE_JSON`, parse-failure threshold archival, archived-bootstrap replacement, observe-only `router_dry_run`, conservative `router_consult`, evidence revalidation, fallback, and shadow telemetry
+- MCP workload matrix: stub mode passes 24/24 checks, including clean `SESSION_UPDATE_JSON`, parse-failure threshold archival, archived-bootstrap replacement, observe-only `router_dry_run`, conservative `router_consult`, evidence revalidation, re-prepare from latest factsheet, fallback, and shadow telemetry
 - Router monitor snapshots: `npm run monitor:snapshot` writes `router_status` + `router_monitor` payloads under `experiments/router-monitor-snapshots/`
 - Route sample follow-up: 118/118 shadow comparisons judged, 0 pending, active
   `agentsessionrouter-codebase` factsheet v4 is `llm_verified` with 50
@@ -865,6 +866,32 @@ Output:
 If some facts fail static verification but at least one fact is valid, the factsheet is stored with only the statically verified facts and cluster `trust_state` is `partial_static`. If no facts verify, the tool returns `CLUSTER_FACTSHEET_INVALID`.
 
 LLM verification uses `llm_verifier_profile: "focused"` as the portable default, which invokes Claude with `--tools ""`. `llm_verifier_profile: "bare"` invokes Claude with `--bare --tools ""` when the local Claude auth supports it.
+
+### `cluster_reprepare`
+
+Rebuilds a cluster from its latest stored factsheet without requiring the caller
+to pass factsheet JSON. This is the normal maintenance path when monitor data
+shows a cluster is stale or `needs_prepare` but the existing facts are still the
+right semantic scope.
+
+It does not generate new facts. It reloads the latest stored factsheet, strips
+generated evidence hashes, recalculates evidence from current files, and then
+runs static or LLM verification.
+
+Input:
+
+```json
+{
+  "project_id": null,
+  "cluster_id": "config-and-cwd-isolation",
+  "verification_mode": "llm",
+  "llm_verifier_profile": "focused"
+}
+```
+
+Use `cluster_prepare` when creating a new factsheet or adding/changing facts.
+Use `cluster_reprepare` when the factsheet content is still right and only
+needs to be rechecked against current files.
 
 ### `cluster_get`
 
