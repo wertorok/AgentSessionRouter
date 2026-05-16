@@ -1499,6 +1499,98 @@ describe("cluster MCP tools", () => {
     fixture.cleanup();
   });
 
+  it("does not report reprepare coverage drops after a later factsheet restores coverage", async () => {
+    const fixture = createToolFixture();
+    const server = new FakeServer();
+    registerTools(server as unknown as McpServer, fixture.runtime);
+    fixture.runtime.db.upsertCluster({
+      id: "restored-cluster",
+      projectId: "project",
+      name: "Restored cluster",
+      toolProfileDefault: "bare",
+      staticFactsheetPolicy: "allow"
+    });
+
+    const contentWithFacts = (count: number) =>
+      JSON.stringify({
+        schema_version: 1,
+        cluster_id: "restored-cluster",
+        summary: "Restored cluster facts.",
+        facts: Array.from({ length: count }, (_, index) => ({
+          id: `fact-${index + 1}`,
+          claim: `Fact ${index + 1}.`,
+          confidence: "static_verified",
+          evidence: []
+        })),
+        pitfalls: [],
+        forbidden_inferences: [],
+        omitted_facts: 0
+      });
+
+    fixture.runtime.db.insertClusterFactsheet({
+      id: "factsheet-restored-source",
+      clusterId: "restored-cluster",
+      contentJson: contentWithFacts(4),
+      status: "static_verified",
+      trustState: "static_verified",
+      fileHashes: []
+    });
+    fixture.runtime.db.insertClusterFactsheet({
+      id: "factsheet-restored-dropped",
+      clusterId: "restored-cluster",
+      contentJson: contentWithFacts(2),
+      status: "static_verified",
+      trustState: "partial_static",
+      fileHashes: []
+    });
+    fixture.runtime.db.logClusterEvent({
+      clusterId: "restored-cluster",
+      projectId: "project",
+      eventType: "cluster_reprepare",
+      details: {
+        source_factsheet_id: "factsheet-restored-source",
+        source_factsheet_version: 1,
+        source_fact_count: 4,
+        new_factsheet_id: "factsheet-restored-dropped",
+        new_factsheet_version: 2,
+        verified_facts: 2,
+        rejected_facts: 2,
+        coverage_retained_percent: 50,
+        coverage_drop_percent: 50,
+        verification_mode: "static"
+      }
+    });
+    fixture.runtime.db.insertClusterFactsheet({
+      id: "factsheet-restored-full",
+      clusterId: "restored-cluster",
+      contentJson: contentWithFacts(4),
+      status: "static_verified",
+      trustState: "static_verified",
+      fileHashes: []
+    });
+
+    const monitor = parseToolJson(
+      await server.call("router_monitor", {
+        project_id: "project",
+        recent_hours: 24,
+        sample_limit: 5
+      })
+    );
+
+    expect(monitor.cache_health.reprepare_coverage_drops).not.toEqual(
+      expect.arrayContaining([expect.objectContaining({ cluster_id: "restored-cluster" })])
+    );
+    expect(monitor.recommendations).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          area: "coverage",
+          cluster_id: "restored-cluster"
+        })
+      ])
+    );
+    fixture.cleanup();
+  });
+
   it("does not flag high-scoring NOT IN CONTEXT caveats as coverage failures", async () => {
     const fixture = createToolFixture();
     const server = new FakeServer();

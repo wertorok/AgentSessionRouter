@@ -85,7 +85,7 @@ If a one-off Claude Code integration diagnostic is needed, pass MCP config expli
 | Shadow telemetry | `comparison_stats` / `comparison_list` | at least one judged comparison, wins/ties/gaps |
 | Refresh | `cluster_refresh verify_only` | fresh factsheet, unchanged files |
 | Cluster archive | `cluster_archive` superseded benchmark cluster | archived cluster disappears from active monitor quality/fallback signals |
-| Reprepare coverage decay | selector removed before `cluster_reprepare` | one fact rejected, coverage drop visible in `router_monitor.cache_health.reprepare_coverage_drops`, `cluster_prepare` recommendation |
+| Reprepare coverage decay | selector removed before `cluster_reprepare` | one fact rejected, unresolved coverage drop visible in `router_monitor.cache_health.reprepare_coverage_drops`, `cluster_prepare` recommendation |
 | Revalidation success | file hash changes, selector snippet same | `evidence_revalidated`, answer from cluster |
 | Revalidation failure | selector removed/renamed | `evidence_revalidation_failed`, `needs_prepare`, fallback |
 | Revalidation failure | selector still present, snippet changed | `evidence_revalidation_failed`, `needs_prepare`, fallback |

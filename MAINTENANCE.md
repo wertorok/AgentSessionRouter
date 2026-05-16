@@ -6,7 +6,7 @@ As of 2026-05-16, the production MCP baseline is:
 
 - code pushed on `master`; use `git log -1 --oneline` for the latest commit
 - public MCP tools: 20
-- tests: `100 passed`
+- tests: `101 passed`
 - build: passing
 - MCP workload matrix: `25/25` stub checks, including observe-only
   `router_dry_run`
@@ -58,10 +58,11 @@ Verified on 2026-05-16:
   cluster from its latest stored factsheet without manually passing factsheet
   JSON.
 - `router_monitor.cache_health.reprepare_coverage_drops` must surface any
-  `cluster_reprepare` run that rejects stored facts. Reprepare can safely
-  reduce coverage, but that reduction must be visible with retained/rejected
-  counts and a recommendation to run `cluster_prepare` when coverage should be
-  restored.
+  unresolved `cluster_reprepare` run that rejects stored facts. Reprepare can
+  safely reduce coverage, but that reduction must be visible with
+  retained/rejected counts and a recommendation to run `cluster_prepare` when
+  coverage should be restored. A later factsheet that restores at least the
+  original fact count resolves the coverage-drop signal.
 - Targeted workload scenario
   `cluster_reprepare_coverage_drop_visible_in_monitor` verifies the real path:
   prepare two facts, remove one selector, run `cluster_reprepare`, observe one
@@ -76,12 +77,18 @@ Verified on 2026-05-16:
   rejected facts, and 17.65% coverage drop. `router_monitor` surfaced this under
   `cache_health.reprepare_coverage_drops` and emitted a high-priority
   `cluster_prepare` recommendation. Evidence hashes/snippets had 0 mismatches.
+- A later evidence-only `cluster_reprepare` produced factsheet version 16 with
+  `llm_verified`, 14 verified facts, 0 rejected facts, and 0 evidence
+  mismatches. The earlier version-15 coverage drop remains unresolved because
+  the current factsheet still has 14 facts while the pre-drop source had 17.
+  `router_monitor` should suppress a reprepare coverage-drop recommendation
+  only after a later factsheet restores at least the original fact count.
 - Auto-reprepare remains deferred; monitor cost signals are the current trigger
   for deciding when `cluster_reprepare` or a broader `cluster_prepare` is worth
   running.
 - Verification:
   - `npm run build`: passed
-  - `npm test`: 100 passed
+  - `npm test`: 101 passed
   - `npm run smoke:postinstall`: passed
   - `npm run mcp:workload`: 25/25 stub checks passed
   - active cluster `agentsessionrouter-codebase` should be rechecked after the
@@ -99,8 +106,8 @@ Automated:
 - Broken factsheets fall back internally to `claude_consult`, so the caller
   still gets an answer when Claude is available.
 - `router_monitor` exposes stale/`needs_prepare` clusters, fallback cost
-  signals, and `cache_health.reprepare_coverage_drops` when maintenance
-  rechecks reject stored facts.
+  signals, and unresolved `cache_health.reprepare_coverage_drops` when
+  maintenance rechecks reject stored facts.
 
 Manual:
 

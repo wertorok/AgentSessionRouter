@@ -300,6 +300,8 @@ export interface ClusterReprepareCoverageDrop {
   source_factsheet_version: number | null;
   new_factsheet_id: string | null;
   new_factsheet_version: number | null;
+  current_factsheet_version: number | null;
+  current_fact_count: number | null;
   source_fact_count: number;
   verified_facts: number;
   rejected_facts: number;
@@ -1599,12 +1601,26 @@ export class RouterDatabase {
       if (rejectedFacts <= 0 && coverageDropPercent <= 0) {
         continue;
       }
+      const newFactsheetVersion = nullableNumberFromUnknown(details.new_factsheet_version);
+      const currentFactsheet = this.getCurrentClusterFactsheet(row.cluster_id);
+      const currentFactCount = currentFactsheet ? factCountFromContentJson(currentFactsheet.content_json) : null;
+      const isResolved =
+        currentFactsheet !== null &&
+        newFactsheetVersion !== null &&
+        currentFactsheet.version > newFactsheetVersion &&
+        currentFactCount !== null &&
+        currentFactCount >= sourceFactCount;
+      if (isResolved) {
+        continue;
+      }
       drops.push({
         cluster_id: row.cluster_id,
         source_factsheet_id: stringOrNull(details.source_factsheet_id),
         source_factsheet_version: nullableNumberFromUnknown(details.source_factsheet_version),
         new_factsheet_id: stringOrNull(details.new_factsheet_id),
-        new_factsheet_version: nullableNumberFromUnknown(details.new_factsheet_version),
+        new_factsheet_version: newFactsheetVersion,
+        current_factsheet_version: currentFactsheet?.version ?? null,
+        current_fact_count: currentFactCount,
         source_fact_count: sourceFactCount,
         verified_facts: verifiedFacts,
         rejected_facts: rejectedFacts,
@@ -1781,4 +1797,10 @@ function nullableNumberFromUnknown(value: unknown): number | null {
 
 function stringOrNull(value: unknown): string | null {
   return typeof value === "string" && value.length > 0 ? value : null;
+}
+
+function factCountFromContentJson(source: string): number {
+  const content = parseJsonObject(source);
+  const facts = content.facts;
+  return Array.isArray(facts) ? facts.length : 0;
 }
