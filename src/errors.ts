@@ -34,6 +34,7 @@ export const SPEC_ERROR_MESSAGES = {
   [ERROR_CODES.SESSION_UPDATE_PARSE_FAILED]:
     "Claude answered, but SESSION_UPDATE_JSON could not be parsed. Metadata was not updated.",
   [ERROR_CODES.CLAUDE_INCOMPATIBLE]: "Claude CLI version is incompatible. See COMPATIBILITY.md. Server is in degraded mode.",
+  [ERROR_CODES.INPUT_INVALID]: "Tool input failed validation before any Claude invocation.",
   [ERROR_CODES.ROUTER_RESET_REJECTED]:
     "Health probe has not passed since degraded mode was entered. Fix compatibility issues and run reset again.",
   [ERROR_CODES.CLUSTER_NOT_FOUND]: "No cluster found for the provided cluster_id.",

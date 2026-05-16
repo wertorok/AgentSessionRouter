@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { revalidateClusterEvidence } from "./clusterEvidenceRevalidation.js";
@@ -101,6 +102,19 @@ const routerMonitorInput = z.object({
 const SLOW_SESSION_TOKEN_BLOAT_THRESHOLD = 50_000;
 const ROUTER_MONITOR_SAMPLE_LIMIT_CAP = 30;
 const ESTIMATED_CLUSTER_FALLBACK_EXTRA_COST_USD = 0.05;
+const MAX_QUESTION_CHARS = 20_000;
+const MAX_RELEVANT_CODE_CHARS = 30_000;
+const MAX_TOPIC_HINT_CHARS = 200;
+const MAX_TRIGGER_CHARS = 200;
+const MAX_TASK_CHARS = 1_000;
+const MAX_IDENTIFIER_CHARS = 160;
+const MAX_TAGS = 20;
+const MAX_TAG_CHARS = 80;
+const MAX_RELATED_FILES = 50;
+const MAX_RELATED_FILE_CHARS = 240;
+const SAFE_IDENTIFIER_RE = /^[A-Za-z0-9._:-]+$/;
+const CLUSTER_REVALIDATION_FAILURE_COOLDOWN_MS = 60_000;
+const CLUSTER_FALLBACK_RESULT_TTL_MS = 30_000;
 
 const clusterToolProfileInput = z.enum(["bare", "focused", "agent"]);
 const staticFactsheetPolicyInput = z.enum(["allow", "deny"]);
@@ -220,6 +234,11 @@ const comparisonRejudgeInput = z.object({
 
 export function registerTools(server: McpServer, runtime: RouterRuntime): void {
   const consultService = new ConsultService(runtime, runtime.locks);
+  const clusterRecoveryState: ClusterRecoveryState = {
+    revalidationFailureCooldowns: new Map(),
+    fallbackPromises: new Map(),
+    fallbackResults: new Map()
+  };
 
   server.registerTool(
     "claude_sessions_list",
@@ -288,17 +307,21 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
       inputSchema: consultInput
     },
     async (input) => {
+      const validation = validateConsultToolInput(input);
+      if (validation) {
+        return jsonToolResult(validation, true);
+      }
       const projectId = resolveProjectId(input.project_id, runtime.cwd);
       const result = await consultService.consult({
         projectId,
         sessionId: input.session_id,
-        topicHint: input.topic_hint,
-        trigger: input.trigger,
-        task: input.task,
+        topicHint: sanitizeRequiredText(input.topic_hint, MAX_TOPIC_HINT_CHARS),
+        trigger: sanitizeRequiredText(input.trigger, MAX_TRIGGER_CHARS),
+        task: sanitizeRequiredText(input.task, MAX_TASK_CHARS),
         taskType: input.task_type ?? null,
-        relatedFiles: normalizeStringArray(input.related_files ?? []),
-        tags: normalizeStringArray(input.tags ?? []),
-        relevantCode: input.relevant_code,
+        relatedFiles: normalizeRelatedFiles(input.related_files ?? []),
+        tags: normalizeTags(input.tags ?? []),
+        relevantCode: sanitizeRequiredText(input.relevant_code, MAX_RELEVANT_CODE_CHARS),
         question: input.question
       });
 
@@ -315,6 +338,10 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
       inputSchema: routerConsultInput
     },
     async (input) => {
+      const validation = validateRouterConsultToolInput(input);
+      if (validation) {
+        return jsonToolResult(validation, true);
+      }
       const projectId = resolveProjectId(input.project_id, runtime.cwd);
       runtime.db.applyLifecycle(projectId);
       const normalizedInput = normalizeRouterConsultInput(input);
@@ -327,7 +354,7 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
           clusterId: decision.cluster_id,
           question: normalizedInput.question,
           toolProfile: normalizedInput.tool_profile
-        });
+        }, clusterRecoveryState);
         if (!("error" in result) && isClusterConsultSuccess(result)) {
           scheduleShadowComparison(runtime, {
             projectId,
@@ -382,6 +409,10 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
       inputSchema: routerDryRunInput
     },
     async (input) => {
+      const validation = validateRouterConsultToolInput(input);
+      if (validation) {
+        return jsonToolResult(validation, true);
+      }
       const projectId = resolveProjectId(input.project_id, runtime.cwd);
       const normalizedInput = normalizeRouterConsultInput(input);
       const decision = resolveRouterConsultDecision(runtime, projectId, normalizedInput);
@@ -629,7 +660,7 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
         .listConsultComparisons({
           projectId,
           preferred: "direct",
-          limit: sampleLimit
+          limit: sampleLimit * 10
         })
         .filter(
           (comparison) =>
@@ -643,11 +674,12 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
           direct_score: comparison.direct_score,
           judge_reasoning: comparison.judge_reasoning,
           created_at: comparison.created_at
-        }));
+        }))
+        .slice(0, sampleLimit);
       const notInContextSamples = runtime.db
         .listConsultComparisons({
           projectId,
-          limit: sampleLimit
+          limit: sampleLimit * 10
         })
         .filter(
           (comparison) =>
@@ -662,7 +694,8 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
           question: comparison.question,
           preferred: comparison.preferred,
           created_at: comparison.created_at
-        }));
+        }))
+        .slice(0, sampleLimit);
       const sessionCounts = countMap(runtime.db.getSessionStatusCounts(projectId), SESSION_STATUSES);
       const clusterCounts = countMap(runtime.db.getClusterStatusCounts(projectId), [
         "active",
@@ -776,6 +809,10 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
       inputSchema: clusterPrepareInput
     },
     async (input) => {
+      const validation = validateClusterPrepareToolInput(input);
+      if (validation) {
+        return jsonToolResult(validation, true);
+      }
       const projectId = resolveProjectId(input.project_id, runtime.cwd);
       let profileSelection: ProfileSelection | null = null;
       if ((input.verification_mode ?? "static") === "llm" && runtime.degradedMode) {
@@ -854,6 +891,10 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
       inputSchema: clusterReprepareInput
     },
     async (input) => {
+      const validation = validateClusterIdToolInput(input.cluster_id, "cluster_id");
+      if (validation) {
+        return jsonToolResult(validation, true);
+      }
       const projectId = resolveProjectId(input.project_id, runtime.cwd);
       const cluster = runtime.db.getClusterById(input.cluster_id);
       if (!cluster) {
@@ -896,6 +937,7 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
         );
       }
 
+      const sourceFactCount = factsheetFactCount(sourceFactsheet);
       let profileSelection: ProfileSelection | null = null;
       try {
         if ((input.verification_mode ?? "llm") === "llm") {
@@ -920,7 +962,6 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
           llmVerifierProfile: profileSelection?.selected === "bare" ? "bare" : "focused"
         });
 
-        const sourceFactCount = factsheetFactCount(sourceFactsheet);
         const coverageRetainedPercent =
           sourceFactCount > 0 ? round2((result.verified_facts / sourceFactCount) * 100) : 100;
         const coverageDropPercent = round2(100 - coverageRetainedPercent);
@@ -962,6 +1003,27 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
         const code = reason.includes("Claude") || reason.includes("Command failed")
           ? ERROR_CODES.CLAUDE_INVOCATION_FAILED
           : ERROR_CODES.CLUSTER_FACTSHEET_INVALID;
+        if (code === ERROR_CODES.CLUSTER_FACTSHEET_INVALID && sourceFactCount > 0) {
+          runtime.db.logClusterEvent({
+            clusterId: input.cluster_id,
+            projectId,
+            eventType: "cluster_reprepare",
+            details: {
+              source_factsheet_id: sourceFactsheet.id,
+              source_factsheet_version: sourceFactsheet.version,
+              source_fact_count: sourceFactCount,
+              new_factsheet_id: null,
+              new_factsheet_version: null,
+              verified_facts: 0,
+              rejected_facts: sourceFactCount,
+              coverage_retained_percent: 0,
+              coverage_drop_percent: 100,
+              verification_mode: input.verification_mode ?? "llm",
+              failed: true,
+              reason
+            }
+          });
+        }
         return jsonToolResult(
           errorPayload(code, SPEC_ERROR_MESSAGES[code], {
             cluster_id: input.cluster_id,
@@ -986,6 +1048,10 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
       inputSchema: clusterGetInput
     },
     async (input) => {
+      const validation = validateClusterIdToolInput(input.cluster_id, "cluster_id");
+      if (validation) {
+        return jsonToolResult(validation, true);
+      }
       const projectId = resolveProjectId(input.project_id, runtime.cwd);
       const cluster = runtime.db.getClusterById(input.cluster_id);
       if (!cluster) {
@@ -1026,6 +1092,10 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
       inputSchema: clusterConsultInput
     },
     async (input) => {
+      const validation = validateClusterConsultToolInput(input);
+      if (validation) {
+        return jsonToolResult(validation, true);
+      }
       const projectId = resolveProjectId(input.project_id, runtime.cwd);
       if (runtime.degradedMode) {
         const diagnosis = diagnoseClaudeFailure(runtime.degradedReason);
@@ -1045,7 +1115,7 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
         clusterId: input.cluster_id,
         question: input.question,
         toolProfile: input.tool_profile
-      });
+      }, clusterRecoveryState);
       if (!("error" in result) && isClusterConsultSuccess(result)) {
         scheduleShadowComparison(runtime, {
           projectId,
@@ -1266,6 +1336,10 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
       inputSchema: clusterRefreshInput
     },
     async (input) => {
+      const validation = validateClusterIdToolInput(input.cluster_id, "cluster_id");
+      if (validation) {
+        return jsonToolResult(validation, true);
+      }
       const projectId = resolveProjectId(input.project_id, runtime.cwd);
       const result = refreshCluster(runtime.db, runtime.cwd, {
         projectId,
@@ -1326,6 +1400,10 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
       inputSchema: clusterArchiveInput
     },
     async (input) => {
+      const validation = validateClusterIdToolInput(input.cluster_id, "cluster_id");
+      if (validation) {
+        return jsonToolResult(validation, true);
+      }
       const projectId = resolveProjectId(input.project_id, runtime.cwd);
       const ok = runtime.db.archiveCluster(projectId, input.cluster_id, input.reason ?? null);
       if (!ok) {
@@ -1392,24 +1470,183 @@ interface RouteMetadataQuality {
   task_type: string | null;
 }
 
+interface ClusterRecoveryState {
+  revalidationFailureCooldowns: Map<string, ClusterRevalidationFailureCooldown>;
+  fallbackPromises: Map<string, Promise<ConsultResult>>;
+  fallbackResults: Map<string, ClusterFallbackCachedResult>;
+}
+
+interface ClusterRevalidationFailureCooldown {
+  until_ms: number;
+  reason: string;
+}
+
+interface ClusterFallbackCachedResult {
+  until_ms: number;
+  result: ConsultResult;
+}
+
+type ClusterRecoveryLockResult =
+  | { kind: "result"; result: ClusterConsultResult | ConsultResult }
+  | { kind: "fallback"; error: Exclude<ClusterConsultResult, { answer: string }> };
+
+function validateConsultToolInput(input: z.infer<typeof consultInput>): ReturnType<typeof inputValidationError> | null {
+  return (
+    validateRequiredTextField(input.question, "question", MAX_QUESTION_CHARS) ??
+    validateOptionalIdentifier(input.session_id, "session_id") ??
+    validateRequiredTextField(input.topic_hint, "topic_hint", MAX_TOPIC_HINT_CHARS) ??
+    validateRequiredTextField(input.trigger, "trigger", MAX_TRIGGER_CHARS) ??
+    validateRequiredTextField(input.task, "task", MAX_TASK_CHARS) ??
+    validateRequiredTextField(input.relevant_code, "relevant_code", MAX_RELEVANT_CODE_CHARS) ??
+    validateOptionalStringArray(input.related_files, "related_files", MAX_RELATED_FILES, MAX_RELATED_FILE_CHARS) ??
+    validateOptionalStringArray(input.tags, "tags", MAX_TAGS, MAX_TAG_CHARS)
+  );
+}
+
+function validateRouterConsultToolInput(input: z.infer<typeof routerConsultInput>): ReturnType<typeof inputValidationError> | null {
+  return (
+    validateRequiredTextField(input.question, "question", MAX_QUESTION_CHARS) ??
+    validateOptionalIdentifier(input.cluster_id, "cluster_id") ??
+    validateOptionalIdentifier(input.session_id, "session_id") ??
+    validateOptionalTextField(input.topic_hint, "topic_hint", MAX_TOPIC_HINT_CHARS) ??
+    validateOptionalTextField(input.trigger, "trigger", MAX_TRIGGER_CHARS) ??
+    validateOptionalTextField(input.task, "task", MAX_TASK_CHARS) ??
+    validateOptionalTextField(input.relevant_code, "relevant_code", MAX_RELEVANT_CODE_CHARS) ??
+    validateOptionalStringArray(input.related_files, "related_files", MAX_RELATED_FILES, MAX_RELATED_FILE_CHARS) ??
+    validateOptionalStringArray(input.tags, "tags", MAX_TAGS, MAX_TAG_CHARS)
+  );
+}
+
+function validateClusterConsultToolInput(input: z.infer<typeof clusterConsultInput>): ReturnType<typeof inputValidationError> | null {
+  return (
+    validateClusterIdToolInput(input.cluster_id, "cluster_id") ??
+    validateRequiredTextField(input.question, "question", MAX_QUESTION_CHARS)
+  );
+}
+
+function validateClusterPrepareToolInput(input: z.infer<typeof clusterPrepareInput>): ReturnType<typeof inputValidationError> | null {
+  return (
+    validateClusterIdToolInput(input.cluster_id, "cluster_id") ??
+    validateOptionalTextField(input.name, "name", MAX_TOPIC_HINT_CHARS) ??
+    validateOptionalTextField(input.description, "description", MAX_TASK_CHARS)
+  );
+}
+
+function validateClusterIdToolInput(value: unknown, field: string): ReturnType<typeof inputValidationError> | null {
+  if (typeof value !== "string" || value.trim().length === 0) {
+    return inputValidationError(`${field} must be a non-empty string`, { field });
+  }
+  const trimmed = value.trim();
+  if (trimmed.length > MAX_IDENTIFIER_CHARS || !SAFE_IDENTIFIER_RE.test(trimmed)) {
+    return inputValidationError(`${field} contains unsupported characters or is too long`, {
+      field,
+      max_chars: MAX_IDENTIFIER_CHARS,
+      allowed_pattern: SAFE_IDENTIFIER_RE.source
+    });
+  }
+  return null;
+}
+
+function validateOptionalIdentifier(value: unknown, field: string): ReturnType<typeof inputValidationError> | null {
+  if (value === null || value === undefined || value === "") {
+    return null;
+  }
+  return validateClusterIdToolInput(value, field);
+}
+
+function validateRequiredTextField(value: unknown, field: string, maxChars: number): ReturnType<typeof inputValidationError> | null {
+  if (typeof value !== "string" || value.trim().length === 0) {
+    return inputValidationError(`${field} must be a non-empty string`, { field });
+  }
+  if (value.length > maxChars) {
+    return inputValidationError(`${field} exceeds preflight character limit`, {
+      field,
+      max_chars: maxChars,
+      actual_chars: value.length
+    });
+  }
+  return null;
+}
+
+function validateOptionalTextField(value: unknown, field: string, maxChars: number): ReturnType<typeof inputValidationError> | null {
+  if (value === null || value === undefined || value === "") {
+    return null;
+  }
+  if (typeof value !== "string") {
+    return inputValidationError(`${field} must be a string when provided`, { field });
+  }
+  if (value.length > maxChars) {
+    return inputValidationError(`${field} exceeds preflight character limit`, {
+      field,
+      max_chars: maxChars,
+      actual_chars: value.length
+    });
+  }
+  return null;
+}
+
+function validateOptionalStringArray(
+  value: unknown,
+  field: string,
+  maxItems: number,
+  maxItemChars: number
+): ReturnType<typeof inputValidationError> | null {
+  if (value === null || value === undefined) {
+    return null;
+  }
+  if (!Array.isArray(value)) {
+    return inputValidationError(`${field} must be an array when provided`, { field });
+  }
+  if (value.length > maxItems) {
+    return inputValidationError(`${field} has too many items`, {
+      field,
+      max_items: maxItems,
+      actual_items: value.length
+    });
+  }
+  for (const [index, item] of value.entries()) {
+    if (item !== null && item !== undefined && typeof item !== "string") {
+      return inputValidationError(`${field}[${index}] must be a string, null, or undefined`, { field, index });
+    }
+    if (typeof item === "string" && item.length > maxItemChars) {
+      return inputValidationError(`${field}[${index}] exceeds preflight character limit`, {
+        field,
+        index,
+        max_chars: maxItemChars,
+        actual_chars: item.length
+      });
+    }
+  }
+  return null;
+}
+
+function inputValidationError(reason: string, details: Record<string, unknown>): ReturnType<typeof errorPayload> {
+  return errorPayload(ERROR_CODES.INPUT_INVALID, SPEC_ERROR_MESSAGES[ERROR_CODES.INPUT_INVALID], {
+    reason,
+    details
+  });
+}
+
 function normalizeRouterConsultInput(input: z.infer<typeof routerConsultInput>): RouterConsultNormalizedInput {
-  const callerTopicHint = cleanOptionalString(input.topic_hint);
+  const callerTopicHint = cleanOptionalString(input.topic_hint, MAX_TOPIC_HINT_CHARS);
+  const relatedFiles = normalizeRelatedFiles(input.related_files ?? []);
+  const tags = normalizeTags(input.tags ?? []);
   return {
-    cluster_id: cleanOptionalString(input.cluster_id),
-    session_id: cleanOptionalString(input.session_id),
+    cluster_id: cleanOptionalIdentifier(input.cluster_id),
+    session_id: cleanOptionalIdentifier(input.session_id),
     topic_hint: callerTopicHint ?? inferTopicHint(input.question),
-    trigger: cleanOptionalString(input.trigger) ?? "router_consult",
-    task: cleanOptionalString(input.task) ?? "Answer the parent agent's question through AgentSessionRouter.",
+    trigger: cleanOptionalString(input.trigger, MAX_TRIGGER_CHARS) ?? "router_consult",
+    task: cleanOptionalString(input.task, MAX_TASK_CHARS) ?? "Answer the parent agent's question through AgentSessionRouter.",
     task_type: input.task_type ?? null,
-    related_files: normalizeStringArray(input.related_files ?? []),
-    tags: normalizeStringArray(input.tags ?? []),
-    relevant_code: cleanOptionalString(input.relevant_code) ?? "",
+    related_files: relatedFiles,
+    tags,
+    relevant_code: cleanOptionalString(input.relevant_code, MAX_RELEVANT_CODE_CHARS) ?? "",
     question: input.question,
     tool_profile: input.tool_profile ?? null,
     metadata_quality: buildRouteMetadataQuality({
       topicHintSource: callerTopicHint ? "caller" : "inferred",
-      relatedFiles: normalizeStringArray(input.related_files ?? []),
-      tags: normalizeStringArray(input.tags ?? []),
+      relatedFiles,
+      tags,
       taskType: input.task_type ?? null
     })
   };
@@ -1613,21 +1850,61 @@ function logRouterRouteDecision(
   });
 }
 
-function cleanOptionalString(value: string | null | undefined): string | null {
+function cleanOptionalString(value: string | null | undefined, maxChars = MAX_TASK_CHARS): string | null {
   const trimmed = value?.trim();
-  return trimmed ? trimmed : null;
+  if (!trimmed) {
+    return null;
+  }
+  return trimmed.slice(0, maxChars);
 }
 
 const GENERIC_ROUTE_TAGS = new Set(["code", "general", "misc", "project", "system", "task", "thing", "work"]);
 
-function normalizeStringArray(values: Array<string | null | undefined> | null | undefined): string[] {
+function normalizeTags(values: Array<string | null | undefined> | null | undefined): string[] {
   return Array.from(
     new Set(
       (values ?? [])
         .map((value) => value?.trim())
         .filter((value): value is string => Boolean(value))
+        .map((value) => value.slice(0, MAX_TAG_CHARS))
     )
-  );
+  ).slice(0, MAX_TAGS);
+}
+
+function normalizeRelatedFiles(values: Array<string | null | undefined> | null | undefined): string[] {
+  return Array.from(
+    new Set(
+      (values ?? [])
+        .map((value) => sanitizeRelatedFile(value))
+        .filter((value): value is string => Boolean(value))
+    )
+  ).slice(0, MAX_RELATED_FILES);
+}
+
+function sanitizeRelatedFile(value: string | null | undefined): string | null {
+  const trimmed = value?.trim().replace(/\\/g, "/");
+  if (!trimmed || trimmed.length > MAX_RELATED_FILE_CHARS || trimmed.includes("\0")) {
+    return null;
+  }
+  if (trimmed.startsWith("/") || trimmed.startsWith("~")) {
+    return null;
+  }
+  if (trimmed.split("/").some((segment) => segment === "..")) {
+    return null;
+  }
+  return trimmed;
+}
+
+function sanitizeRequiredText(value: string, maxChars: number): string {
+  return value.trim().slice(0, maxChars);
+}
+
+function cleanOptionalIdentifier(value: string | null | undefined): string | null {
+  const trimmed = value?.trim();
+  if (!trimmed || trimmed.length > MAX_IDENTIFIER_CHARS || !SAFE_IDENTIFIER_RE.test(trimmed)) {
+    return null;
+  }
+  return trimmed;
 }
 
 function buildRouteMetadataQuality(input: {
@@ -1685,7 +1962,8 @@ async function consultClusterForCaller(
     clusterId: string;
     question: string;
     toolProfile?: "bare" | "focused" | "agent" | null;
-  }
+  },
+  recoveryState: ClusterRecoveryState
 ): Promise<ClusterConsultResult | ConsultResult> {
   const availability = await runtime.getProfileAvailability();
   const result = await consultCluster(runtime.db, runtime.cwd, runtime.claude, availability, input);
@@ -1696,20 +1974,34 @@ async function consultClusterForCaller(
     return result;
   }
   if (result.error.code !== ERROR_CODES.CLUSTER_FACTSHEET_STALE || !runtime.config.cluster.autoRefresh) {
-    return fallbackToClaudeConsult(runtime, consultService, input, result);
+    return getOrCreateClusterFallback(runtime, consultService, recoveryState, input, result);
   }
 
-  return runtime.locks.withLock(`cluster-evidence-revalidation:${input.projectId}:${input.clusterId}`, async () => {
+  const lockResult = await runtime.locks.withLock(`cluster-evidence-revalidation:${input.projectId}:${input.clusterId}`, async () => {
     const afterWaitAvailability = await runtime.getProfileAvailability();
     const afterWaitResult = await consultCluster(runtime.db, runtime.cwd, runtime.claude, afterWaitAvailability, input);
     if (!("error" in afterWaitResult)) {
-      return afterWaitResult;
+      return { kind: "result", result: afterWaitResult } satisfies ClusterRecoveryLockResult;
     }
     if (shouldReturnClusterErrorToCaller(afterWaitResult)) {
-      return afterWaitResult;
+      return { kind: "result", result: afterWaitResult } satisfies ClusterRecoveryLockResult;
     }
     if (afterWaitResult.error.code !== ERROR_CODES.CLUSTER_FACTSHEET_STALE) {
-      return fallbackToClaudeConsult(runtime, consultService, input, afterWaitResult);
+      return { kind: "fallback", error: afterWaitResult } satisfies ClusterRecoveryLockResult;
+    }
+
+    const activeCooldown = getActiveRevalidationCooldown(runtime, recoveryState, input);
+    if (activeCooldown) {
+      runtime.db.logClusterEvent({
+        clusterId: input.clusterId,
+        projectId: input.projectId,
+        eventType: "evidence_revalidation_suppressed",
+        details: {
+          reason: activeCooldown.reason,
+          cooldown_until_ms: activeCooldown.until_ms
+        }
+      });
+      return { kind: "fallback", error: afterWaitResult } satisfies ClusterRecoveryLockResult;
     }
 
     const revalidation = revalidateClusterEvidence(runtime.db, runtime.cwd, {
@@ -1718,12 +2010,81 @@ async function consultClusterForCaller(
       minRetainedRatio: runtime.config.cluster.autoRefreshMinRetainedRatio
     });
     if ("error" in revalidation) {
-      return fallbackToClaudeConsult(runtime, consultService, input, revalidation);
+      setRevalidationFailureCooldown(runtime, recoveryState, input, revalidation.error.message);
+      return { kind: "fallback", error: revalidation } satisfies ClusterRecoveryLockResult;
     }
 
     const refreshedAvailability = await runtime.getProfileAvailability();
-    return consultCluster(runtime.db, runtime.cwd, runtime.claude, refreshedAvailability, input);
+    return {
+      kind: "result",
+      result: await consultCluster(runtime.db, runtime.cwd, runtime.claude, refreshedAvailability, input)
+    } satisfies ClusterRecoveryLockResult;
   });
+
+  if (lockResult.kind === "result") {
+    return lockResult.result;
+  }
+  return getOrCreateClusterFallback(runtime, consultService, recoveryState, input, lockResult.error);
+}
+
+function getOrCreateClusterFallback(
+  runtime: RouterRuntime,
+  consultService: ConsultService,
+  recoveryState: ClusterRecoveryState,
+  input: {
+    projectId: string;
+    clusterId: string;
+    question: string;
+  },
+  revalidationError: Exclude<ClusterConsultResult, { answer: string }>
+): Promise<ConsultResult> {
+  const key = clusterFallbackKey(input);
+  const cached = recoveryState.fallbackResults.get(key);
+  if (cached && cached.until_ms > runtime.clock.nowMillis()) {
+    runtime.db.logClusterEvent({
+      clusterId: input.clusterId,
+      projectId: input.projectId,
+      eventType: "cluster_fallback_coalesced",
+      details: {
+        reason: revalidationError.error.message,
+        question_hash: questionHash(input.question),
+        source: "cached_result"
+      }
+    });
+    return Promise.resolve(cached.result);
+  }
+  if (cached) {
+    recoveryState.fallbackResults.delete(key);
+  }
+
+  const existing = recoveryState.fallbackPromises.get(key);
+  if (existing) {
+    runtime.db.logClusterEvent({
+      clusterId: input.clusterId,
+      projectId: input.projectId,
+      eventType: "cluster_fallback_coalesced",
+      details: {
+        reason: revalidationError.error.message,
+        question_hash: questionHash(input.question),
+        source: "pending_promise"
+      }
+    });
+    return existing;
+  }
+
+  const promise = fallbackToClaudeConsult(runtime, consultService, input, revalidationError)
+    .then((result) => {
+      recoveryState.fallbackResults.set(key, {
+        until_ms: runtime.clock.nowMillis() + CLUSTER_FALLBACK_RESULT_TTL_MS,
+        result
+      });
+      return result;
+    })
+    .finally(() => {
+      recoveryState.fallbackPromises.delete(key);
+    });
+  recoveryState.fallbackPromises.set(key, promise);
+  return promise;
 }
 
 async function fallbackToClaudeConsult(
@@ -1764,6 +2125,47 @@ async function fallbackToClaudeConsult(
   });
 
   return result;
+}
+
+function getActiveRevalidationCooldown(
+  runtime: RouterRuntime,
+  recoveryState: ClusterRecoveryState,
+  input: { projectId: string; clusterId: string }
+): ClusterRevalidationFailureCooldown | null {
+  const key = clusterRecoveryKey(input);
+  const cooldown = recoveryState.revalidationFailureCooldowns.get(key);
+  if (!cooldown) {
+    return null;
+  }
+  if (cooldown.until_ms <= runtime.clock.nowMillis()) {
+    recoveryState.revalidationFailureCooldowns.delete(key);
+    return null;
+  }
+  return cooldown;
+}
+
+function setRevalidationFailureCooldown(
+  runtime: RouterRuntime,
+  recoveryState: ClusterRecoveryState,
+  input: { projectId: string; clusterId: string },
+  reason: string
+): void {
+  recoveryState.revalidationFailureCooldowns.set(clusterRecoveryKey(input), {
+    until_ms: runtime.clock.nowMillis() + CLUSTER_REVALIDATION_FAILURE_COOLDOWN_MS,
+    reason
+  });
+}
+
+function clusterRecoveryKey(input: { projectId: string; clusterId: string }): string {
+  return `${input.projectId}:${input.clusterId}`;
+}
+
+function clusterFallbackKey(input: { projectId: string; clusterId: string; question: string }): string {
+  return `${clusterRecoveryKey(input)}:${questionHash(input.question)}`;
+}
+
+function questionHash(question: string): string {
+  return createHash("sha256").update(question).digest("hex").slice(0, 16);
 }
 
 function shouldReturnClusterErrorToCaller(result: Extract<ClusterConsultResult, { error: unknown }>): boolean {
@@ -2131,6 +2533,22 @@ function buildMonitorRecommendations(input: {
         cluster_id: event.cluster_id,
         action: "Refresh factsheet evidence; selectors or snippets changed.",
         reason: `Strict evidence revalidation failed ${event.count} time(s).`
+      });
+    } else if (event.event_type === "evidence_revalidation_suppressed") {
+      recommendations.push({
+        priority: "medium",
+        area: "cache",
+        cluster_id: event.cluster_id,
+        action: "Re-prepare this cluster instead of repeatedly retrying strict revalidation.",
+        reason: `Strict evidence revalidation was suppressed ${event.count} time(s) by the short failure cooldown.`
+      });
+    } else if (event.event_type === "cluster_fallback_coalesced") {
+      recommendations.push({
+        priority: "low",
+        area: "cost",
+        cluster_id: event.cluster_id,
+        action: "Watch for repeated coalescing; it means burst traffic is hitting a decayed cluster.",
+        reason: `Identical fallback calls were coalesced ${event.count} time(s), preventing duplicate Claude invocations.`
       });
     } else if (event.event_type === "tool_profile_downgraded" || event.event_type === "bare_probe_failed") {
       recommendations.push({

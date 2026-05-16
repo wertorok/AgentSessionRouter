@@ -1510,6 +1510,8 @@ export class RouterDatabase {
              'factsheet_stale',
              'factsheet_rejected',
              'evidence_revalidation_failed',
+             'evidence_revalidation_suppressed',
+             'cluster_fallback_coalesced',
              'bare_probe_failed',
              'tool_profile_downgraded'
            )
@@ -1538,6 +1540,8 @@ export class RouterDatabase {
              'factsheet_stale',
              'factsheet_rejected',
              'evidence_revalidation_failed',
+             'evidence_revalidation_suppressed',
+             'cluster_fallback_coalesced',
              'bare_probe_failed',
              'tool_profile_downgraded'
            )

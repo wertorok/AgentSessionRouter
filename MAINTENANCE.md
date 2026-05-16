@@ -6,13 +6,13 @@ As of 2026-05-16, the production MCP baseline is:
 
 - code pushed on `master`; use `git log -1 --oneline` for the latest commit
 - public MCP tools: 20
-- tests: `101 passed`
+- tests: `105 passed`
 - build: passing
 - MCP workload matrix: `25/25` stub checks, including observe-only
   `router_dry_run`
-- shadow eval: `118/118` judged, `0` pending, `0` failed
+- shadow eval: `121/121` judged, `0` pending, `0` failed
 - active benchmark clusters: 1 (`agentsessionrouter-codebase`)
-- archived superseded benchmark clusters: 10
+- archived superseded/test clusters: 16
 - active direct wins after grounded judge: 0
 - `fallback_count_last_24h`: 0
 - current monitor signals:
@@ -22,7 +22,7 @@ As of 2026-05-16, the production MCP baseline is:
   - no active stale or `needs_prepare` clusters after re-preparing and then
     restoring semantic coverage on the active codebase cluster
   - no unresolved `reprepare_coverage_drops` after restoring
-    `agentsessionrouter-codebase` to 17 verified facts
+    `agentsessionrouter-codebase` to 21 verified facts
   - `router_monitor.route_health` is available and records `router_consult`
     selected-path samples
   - 2026-05-15 live route sampling found stale codebase evidence after
@@ -91,17 +91,55 @@ Verified on 2026-05-16:
   restored facts use direct evidence for the session collision benchmark being
   offline, shadow eval not affecting parent-agent answers, and the
   `router_monitor` information-monitor scope.
+- After the adversarial-review patch, `cluster_prepare` expanded
+  `agentsessionrouter-codebase` to factsheet version 19 with `llm_verified`,
+  21 verified facts, and 0 rejected facts. New verified facts cover preflight
+  input limits, unsafe metadata sanitization, stale-burst fallback coalescing,
+  and 100% reprepare coverage-collapse visibility.
+- A final source/doc-only `cluster_reprepare` restored the active factsheet to
+  `llm_verified` with 21 verified facts, 0 rejected facts, 100% retained
+  coverage, and `cluster_refresh` confirmed `fresh=true`. Use `cluster_get` or
+  `router_status` for the current factsheet version; each maintenance
+  reprepare advances it.
 - Auto-reprepare remains deferred; monitor cost signals are the current trigger
   for deciding when `cluster_reprepare` or a broader `cluster_prepare` is worth
   running.
 - Verification:
   - `npm run build`: passed
-  - `npm test`: 101 passed
+  - `npm test`: 105 passed
   - `npm run smoke:postinstall`: passed
   - `npm run mcp:workload`: 25/25 stub checks passed
-  - active cluster `agentsessionrouter-codebase` should be rechecked after the
-    last source/doc edit; `partial_llm` is acceptable when stale semantic facts
-    are safely rejected rather than rewritten
+  - active cluster `agentsessionrouter-codebase`: latest factsheet
+    `llm_verified`, 21 verified facts, 0 rejected facts, fresh
+
+## Post-Adversarial Review Patch
+
+Recorded on 2026-05-16 in `docs/ADVERSARIAL_REVIEW_2026-05-16.md`.
+
+Implemented fixes:
+
+- Consult tools now apply preflight input limits before invoking Claude:
+  oversized questions, oversized metadata, bad identifiers, and malformed
+  consult metadata return `INPUT_INVALID` rather than entering the prompt path.
+- Routing metadata is sanitized before scoring/storage: unsafe related-file
+  hints such as absolute paths or `../` traversal are dropped instead of stored.
+- Stale evidence failure is throttled per cluster for a short window. Repeated
+  strict revalidation attempts are logged as `evidence_revalidation_suppressed`.
+- Identical fallback questions for the same decayed cluster coalesce through a
+  short pending/result cache. Coalesced requests are logged as
+  `cluster_fallback_coalesced`; the caller still receives an answer.
+- `cluster_reprepare` full coverage collapse logs a `cluster_reprepare` event
+  with `coverage_drop_percent=100`, so `router_monitor` shows the same
+  coverage signal for total fact loss that it already showed for partial loss.
+
+Operational meaning:
+
+- A burst of identical questions against a broken cluster should produce one
+  fallback Claude call, not one fallback per caller.
+- If the cluster factsheet loses all facts during reprepare, the next action is
+  `cluster_prepare`, not another `cluster_reprepare`.
+- `router_monitor.cache_health.attention_by_event` now includes suppressed
+  revalidation and coalesced fallback events as cost/decay signals.
 
 ## Factsheet Recovery Current State
 

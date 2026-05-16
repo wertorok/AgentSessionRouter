@@ -207,6 +207,8 @@ Suggested event types:
 - `cluster_refresh_required`
 - `evidence_revalidated`
 - `evidence_revalidation_failed`
+- `evidence_revalidation_suppressed`
+- `cluster_fallback_coalesced`
 
 ## 6. Factsheet Format
 
@@ -610,6 +612,8 @@ Caller-facing MCP `cluster_consult` treats changed evidence as recoverable only 
 5. If every required selector is present and every snippet hash matches, store a new factsheet version with updated file hashes and continue the consult in the same MCP call.
 6. If any required selector is missing or any snippet hash changed, log `evidence_revalidation_failed`, mark the cluster `needs_prepare`, and do not consult from a partial factsheet.
 7. The caller-facing MCP tool then falls back internally to normal `claude_consult` with the same question and returns that answer. The caller should not spend tokens deciding how to recover from cache health.
+8. After a failed revalidation, repeated attempts for the same cluster enter a short cooldown and log `evidence_revalidation_suppressed` instead of rechecking identical broken evidence.
+9. Identical fallback questions for the same decayed cluster may be coalesced through a short pending/result cache and logged as `cluster_fallback_coalesced`.
 
 Evidence revalidation is all-or-nothing for facts: any rejected fact fails the revalidation path. The retained-ratio config remains strict by default (`1.0`) and is not a license to answer from partially revalidated programming facts.
 

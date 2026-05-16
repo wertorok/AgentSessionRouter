@@ -529,6 +529,48 @@ describe("cluster MCP tools", () => {
     fixture.cleanup();
   });
 
+  it("rejects oversized router_consult input before invoking Claude", async () => {
+    const claude = new FakeClaude();
+    const fixture = createToolFixture(claude);
+    const server = new FakeServer();
+    registerTools(server as unknown as McpServer, fixture.runtime);
+
+    const result = parseToolJson(
+      await server.call("router_consult", {
+        project_id: "project",
+        topic_hint: "oversized consult",
+        question: "x".repeat(20_001)
+      })
+    );
+
+    expect(result.error.code).toBe(ERROR_CODES.INPUT_INVALID);
+    expect(claude.runPromptCalls).toBe(0);
+    expect(claude.runPromptWithOptionsCalls).toBe(0);
+    fixture.cleanup();
+  });
+
+  it("drops unsafe routing file hints before storing session metadata", async () => {
+    const fixture = createToolFixture();
+    const server = new FakeServer();
+    registerTools(server as unknown as McpServer, fixture.runtime);
+
+    const result = parseToolJson(
+      await server.call("router_consult", {
+        project_id: "project",
+        topic_hint: "metadata path sanitization",
+        related_files: ["../../../etc/passwd", "/etc/passwd", "src/safe.ts"],
+        tags: ["routing"],
+        task_type: "debug",
+        question: "Create a new durable session and keep only safe routing file metadata."
+      })
+    );
+    const session = fixture.runtime.db.getSessionView(result.session_id);
+
+    expect(session?.files_discussed).toEqual(["src/safe.ts"]);
+    expect(result.route_decision.metadata_quality.related_files_count).toBe(1);
+    fixture.cleanup();
+  });
+
   it("disambiguates an unambiguous low-confidence session without caller input", async () => {
     const fixture = createToolFixture();
     const server = new FakeServer();
@@ -858,6 +900,38 @@ describe("cluster MCP tools", () => {
     expect(fixture.runtime.db.getCluster("project", "router-ops")?.status).toBe("needs_prepare");
     expect(clusterEventTypes(fixture.runtime.db, "router-ops")).toContain("evidence_revalidation_failed");
     expect(clusterEventTypes(fixture.runtime.db, "router-ops")).toContain("cluster_fallback_to_claude_consult");
+    fixture.cleanup();
+  });
+
+  it("coalesces identical fallback calls after one stale revalidation failure", async () => {
+    const claude = new FakeClaude("cluster path should not be used");
+    const fixture = createToolFixture(claude);
+    const server = new FakeServer();
+    registerTools(server as unknown as McpServer, fixture.runtime);
+    mkdirSync(path.join(fixture.dir, "src"), { recursive: true });
+    const configPath = path.join(fixture.dir, "src", "config.ts");
+    writeFileSync(configPath, configWithExtraArgs());
+
+    await prepareExtraArgsCluster(server);
+    writeFileSync(configPath, configWithoutExtraArgs());
+
+    const calls = await Promise.all(
+      Array.from({ length: 10 }, () =>
+        server.call("cluster_consult", {
+          project_id: "project",
+          cluster_id: "router-ops",
+          question: "What config field exists?"
+        })
+      )
+    );
+    const events = clusterEventTypes(fixture.runtime.db, "router-ops");
+
+    expect(calls.every((result) => !result.isError)).toBe(true);
+    expect(claude.runPromptCalls).toBe(1);
+    expect(events.filter((event) => event === "evidence_revalidation_failed")).toHaveLength(1);
+    expect(events.filter((event) => event === "evidence_revalidation_suppressed")).toHaveLength(9);
+    expect(events.filter((event) => event === "cluster_fallback_to_claude_consult")).toHaveLength(1);
+    expect(events.filter((event) => event === "cluster_fallback_coalesced")).toHaveLength(9);
     fixture.cleanup();
   });
 
@@ -1591,6 +1665,53 @@ describe("cluster MCP tools", () => {
     fixture.cleanup();
   });
 
+  it("surfaces a 100 percent reprepare coverage collapse in router_monitor", async () => {
+    const fixture = createToolFixture();
+    const server = new FakeServer();
+    registerTools(server as unknown as McpServer, fixture.runtime);
+    mkdirSync(path.join(fixture.dir, "src"), { recursive: true });
+    const configPath = path.join(fixture.dir, "src", "config.ts");
+    writeFileSync(configPath, configWithExtraArgs());
+
+    await prepareExtraArgsCluster(server);
+    writeFileSync(configPath, configWithoutExtraArgs());
+
+    const reprepare = parseToolJson(
+      await server.call("cluster_reprepare", {
+        project_id: "project",
+        cluster_id: "router-ops",
+        verification_mode: "static"
+      })
+    );
+    const monitor = parseToolJson(
+      await server.call("router_monitor", {
+        project_id: "project",
+        recent_hours: 24,
+        sample_limit: 5
+      })
+    );
+
+    expect(reprepare.error.code).toBe(ERROR_CODES.CLUSTER_FACTSHEET_INVALID);
+    expect(monitor.cache_health.reprepare_coverage_drops[0]).toMatchObject({
+      cluster_id: "router-ops",
+      source_fact_count: 1,
+      verified_facts: 0,
+      rejected_facts: 1,
+      coverage_retained_percent: 0,
+      coverage_drop_percent: 100
+    });
+    expect(monitor.recommendations).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          area: "coverage",
+          cluster_id: "router-ops",
+          action: expect.stringContaining("cluster_prepare")
+        })
+      ])
+    );
+    fixture.cleanup();
+  });
+
   it("does not flag high-scoring NOT IN CONTEXT caveats as coverage failures", async () => {
     const fixture = createToolFixture();
     const server = new FakeServer();
@@ -2008,6 +2129,8 @@ class FakeServer {
 
 class FakeClaude implements ClaudeAdapter {
   lastOptions: ClaudePromptOptions | undefined;
+  runPromptCalls = 0;
+  runPromptWithOptionsCalls = 0;
 
   constructor(
     public verifierResult: unknown = { facts: [] },
@@ -2019,6 +2142,7 @@ class FakeClaude implements ClaudeAdapter {
   }
 
   async runPrompt(_prompt: string, resumeSessionId?: string): Promise<ClaudeJsonResponse> {
+    this.runPromptCalls += 1;
     if (this.options.failRunPrompt) {
       throw new Error("claude unavailable");
     }
@@ -2031,6 +2155,7 @@ class FakeClaude implements ClaudeAdapter {
   }
 
   async runPromptWithOptions(_prompt: string, options: ClaudePromptOptions): Promise<ClaudeJsonResponse> {
+    this.runPromptWithOptionsCalls += 1;
     if (this.options.failBareProbe && _prompt.includes("PROFILE_OK") && options.extraArgs?.includes("--bare")) {
       throw new Error("bare auth failed");
     }
