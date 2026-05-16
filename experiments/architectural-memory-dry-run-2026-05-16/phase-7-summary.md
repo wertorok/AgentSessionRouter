@@ -154,6 +154,12 @@ import boundary before any router use.
 The durable lead session returned `APPROVE_SCOPE` for this Gate 13 design and
 confirmed that full-corpus injection, per-consult retrieval, LLM-over-corpus
 selection, and repeated seed injection remain outside the approved scope.
+Gate 13 is additionally blocked by six named v2 regression guardrails:
+deterministic zero-token selection, subset-only seed, one-time payment,
+status-gated serving, `session:continuity` quality regression proof, and
+multi-run evidence instead of a single observation.
+The durable lead session returned `APPROVE_SCOPE` for these guardrails and
+classified them as mechanizable pre-implementation blockers.
 
 Operational finding: broad artifact-paste review prompts can hit
 `COST_LIMIT_EXCEEDED`. Compact proof-style review prompts work and received

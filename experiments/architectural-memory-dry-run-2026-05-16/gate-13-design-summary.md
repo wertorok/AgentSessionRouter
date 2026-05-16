@@ -21,6 +21,21 @@ default.
 - Most consults are lookup, debug, monitor, benchmark, or implementation
   requests and should not touch architectural memory at all.
 
+## Mandatory V2 Regression Guardrails
+
+Architectural memory must not recreate the discovery/context-bloat problems
+that v2 removed. Gate 13 is blocked unless each guardrail has a mechanism and a
+numeric budget or proof.
+
+| Guardrail | Gate 13 requirement |
+| --- | --- |
+| Discovery cost | Selection is deterministic router-code prefiltering, not an LLM pass over all records; selection itself costs 0 LLM input tokens. |
+| Everything-in-context | Inject a relevant subset only. Current full corpus is ~93 records / ~13k tokens and is forbidden. |
+| Repeated payment | Seed once at durable lead-session creation; default per-consult architectural-memory cost is 0 tokens. |
+| Stale without signal | Only `active` records may be served. Suspended, superseded, rejected, excluded, or otherwise non-active records must not be injected. |
+| Quiet quality degradation | `BROKEN=0` adversarial proof is not sufficient; `session:continuity` must be used to detect context-noise quality regression. |
+| Single-run over-claim | Capture baseline before implementation and run at least 3 independent post-serving `session:continuity` repetitions before enablement. |
+
 ## Selection
 
 The future serving path must use deterministic prefiltering, not an LLM pass
@@ -102,6 +117,7 @@ Disallowed:
 - Runtime code changes: none
 - Cluster writes: none
 - Router answer behavior changes: none
+- Gate 13 enablement blocked until the six v2 regression guardrails are proven.
 
 ## Lead Review
 
@@ -121,6 +137,11 @@ Lead review confirmed that the design addresses the required concerns:
 
 Lead review also confirmed that implementation remains blocked on explicit
 sign-off for the canonical import boundary.
+
+The durable Claude lead session then reviewed the six v2 regression guardrails
+and returned `APPROVE_SCOPE`. The lead confirmed that the guardrails are
+mechanizable pre-implementation blockers, not runtime changes, and that they
+correctly prevent the approved design from drifting into v2 discovery behavior.
 
 Gate 13 implementation remains blocked until there is explicit sign-off on the
 canonical import boundary and a proof that the seed stays below the token budget.

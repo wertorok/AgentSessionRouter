@@ -1592,6 +1592,44 @@ Current state after Gate 12.5:
 Gate 13 does not enable runtime serving. Implementation still requires a
 separate explicit sign-off on the canonical import boundary before router use.
 
+##### Structural Risk Constraint: Do Not Recreate v2 Discovery Failure
+
+Architectural memory is a new context source. By default, any new context source
+can recreate the same discovery problem that v2 removed: not necessarily as a
+single loud 56k-token exploration call, but as quiet recurring `+N` token
+injections that become normal before anyone notices the cost or quality drag.
+
+Gate 13 is blocked unless the serving design explicitly addresses the six known
+v2/thread failure classes below. This is a mandatory preflight, not general
+caution.
+
+| Failure class | Required Gate 13 answer | Current design answer |
+| --- | --- | --- |
+| 1. Discovery cost | Relevant-principle selection must cost approximately 0 LLM tokens. Selection must be deterministic topic/tag/domain prefiltering, not an LLM pass over the corpus. | Selection is set/token scoring over active record fields and request metadata. No LLM call is allowed in selection. Token cost of selection itself is 0 input tokens because it runs in router code. |
+| 2. Everything-in-context | Serving must inject a relevant subset, not the whole memory corpus. Architectural memory is a factsheet of principles, not a dump. | Full active corpus is approximately 93 records / 13,020 tokens and is forbidden. Seed is capped at max 7 engineering-principle records, target <900 tokens, absolute cap 1,200 tokens. |
+| 3. Paying repeatedly | Seed once at durable lead-session creation. Do not reinject on every turn. The design must rely on the existing session-memory mechanism instead of bypassing it. | Per-consult retrieval is rejected by default. Architectural-memory cost after seed is 0 tokens per normal turn. The design relies on the previously validated session-continuity behavior and requires a fresh continuity proof before implementation. |
+| 4. Stale without signal | `status` must gate serving. `active` can be served; `suspended`, `superseded`, rejected, excluded, or non-active records must not be injected. Apply the stale-signal principle to memory itself. | Step 1 of selection rejects all non-active records. Suspended/superseded memory is not silently used. Any future status expansion must update this gate before serving. |
+| 5. Quiet quality degradation | Adversarial `BROKEN=0` is not enough because context noise can reduce answer quality without producing API failures. | Gate 13 implementation must run `session:continuity` before serving as baseline and again after seed-serving. Quality regression blocks enablement even if adversarial tests pass. |
+| 6. Over-claiming one run | Gate 13 cannot be approved from one observation. It needs baseline before and repeated post-serving runs, using the same standard as v2 benchmarks. | Before enablement: capture pre-serving baseline. After implementation in disabled/test mode: run at least 3 independent `session:continuity` repetitions and compare against baseline. Single-run success is not evidence. |
+
+The known current continuity anchor is that persistent-session routing preserved
+memory where fresh/new-topic routing did not. The exact baseline for Gate 13
+must still be re-captured immediately before any implementation is considered,
+because serving can change context shape.
+
+Minimum quality proof before enabling runtime serving:
+
+1. Run the existing `session:continuity` benchmark before any serving code is
+   enabled and store the baseline.
+2. Run adversarial proof as usual; `BROKEN=0` remains required but is not
+   sufficient.
+3. Run at least 3 independent post-serving `session:continuity` repetitions in
+   disabled/test mode.
+4. Compare against the immediately preceding baseline, including known scorer
+   artifacts such as the T5 synthesis `[3,3,2]` baseline.
+5. Block enablement if persistent-memory cells regress, if context-noise
+   regressions appear, or if the seed violates the token budget.
+
 ##### Serving Mode Decision
 
 Chosen design: seed relevant engineering principles once when creating a
@@ -1769,6 +1807,13 @@ Before any runtime import/serving code is written:
    model memory.
 6. Normal caller answer behavior must remain unchanged when architectural
    memory serving is disabled.
+7. The six v2 discovery-regression failure classes above must each have an
+   explicit mechanism and numeric budget/proof.
+8. `session:continuity` must be captured before implementation and repeated at
+   least 3 times after disabled/test-mode serving is added; one successful run
+   is not sufficient.
+9. Adversarial `BROKEN=0` remains required, but cannot substitute for quality
+   continuity checks.
 
 Non-goals:
 
