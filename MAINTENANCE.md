@@ -57,6 +57,11 @@ Verified on 2026-05-16:
 - `cluster_reprepare` is the non-footgun maintenance path for rebuilding a
   cluster from its latest stored factsheet without manually passing factsheet
   JSON.
+- `router_monitor.cache_health.reprepare_coverage_drops` must surface any
+  `cluster_reprepare` run that rejects stored facts. Reprepare can safely
+  reduce coverage, but that reduction must be visible with retained/rejected
+  counts and a recommendation to run `cluster_prepare` when coverage should be
+  restored.
 - Live `cluster_reprepare` on `agentsessionrouter-codebase` proved the boundary
   of this path: it recalculates evidence, but it does not generate or rewrite
   semantic facts. After the public MCP surface changed from 19 to 20 tools, the

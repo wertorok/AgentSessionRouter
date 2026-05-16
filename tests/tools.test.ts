@@ -140,6 +140,13 @@ describe("cluster MCP tools", () => {
     expect(reprepared.factsheet_version).toBe(2);
     expect(reprepared.verified_facts).toBe(1);
     expect(reprepared.rejected_facts).toBe(0);
+    expect(reprepared.coverage).toMatchObject({
+      source_fact_count: 1,
+      verified_facts: 1,
+      rejected_facts: 0,
+      retained_percent: 100,
+      drop_percent: 0
+    });
     expect(reprepared.factsheet.facts[0].evidence[0].hash).toMatch(/^sha256:/);
     expect(reprepared.factsheet.facts[0].evidence[0].hash).not.toBe(originalHash);
     const get = parseToolJson(
@@ -1379,6 +1386,23 @@ describe("cluster MCP tools", () => {
       projectId: "project",
       eventType: "cluster_fallback_to_claude_consult"
     });
+    fixture.runtime.db.logClusterEvent({
+      clusterId: "weak-cluster",
+      projectId: "project",
+      eventType: "cluster_reprepare",
+      details: {
+        source_factsheet_id: "factsheet-old",
+        source_factsheet_version: 1,
+        source_fact_count: 4,
+        new_factsheet_id: "factsheet-new",
+        new_factsheet_version: 2,
+        verified_facts: 2,
+        rejected_facts: 2,
+        coverage_retained_percent: 50,
+        coverage_drop_percent: 50,
+        verification_mode: "llm"
+      }
+    });
     fixture.runtime.db.insertConsultComparison({
       id: "cmp-direct-win",
       projectId: "project",
@@ -1422,6 +1446,16 @@ describe("cluster MCP tools", () => {
       recent_window_hours: 24,
       estimated_extra_cost_usd: 0.05
     });
+    expect(monitor.cache_health.reprepare_coverage_drops[0]).toMatchObject({
+      cluster_id: "weak-cluster",
+      source_factsheet_version: 1,
+      new_factsheet_version: 2,
+      source_fact_count: 4,
+      verified_facts: 2,
+      rejected_facts: 2,
+      coverage_retained_percent: 50,
+      coverage_drop_percent: 50
+    });
     expect(monitor.latency.slow_session_samples[0]).toMatchObject({
       session_id: "session-1",
       topic: "Router ops",
@@ -1449,6 +1483,11 @@ describe("cluster MCP tools", () => {
     expect(monitor.recommendations).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ area: "cache", cluster_id: "weak-cluster" }),
+        expect.objectContaining({
+          area: "coverage",
+          cluster_id: "weak-cluster",
+          action: expect.stringContaining("cluster_prepare")
+        }),
         expect.objectContaining({ area: "quality", cluster_id: "weak-cluster" }),
         expect.objectContaining({
           area: "latency",

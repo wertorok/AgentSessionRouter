@@ -787,7 +787,7 @@ Input:
 Output sections:
 
 - `health`: normal/degraded mode, Claude version, v1/v2 counts, shadow-eval pipeline health.
-- `cache_health`: stale/needs-prepare clusters, recent revalidation/fallback attention events, and per-cluster fallback cost signals for decayed caches.
+- `cache_health`: stale/needs-prepare clusters, recent revalidation/fallback attention events, per-cluster fallback cost signals for decayed caches, and reprepare coverage-drop signals when rechecking a factsheet rejects stored facts.
 - `latency`: slow consult aggregates plus concrete slow-session samples with topic, question, token counts, duration, and raw response path.
 - `metadata_health`: `SESSION_UPDATE_JSON` parse failures, affected sessions, threshold archives, and raw response paths.
 - `route_health`: recent `router_consult` selected-path counts, ambiguity-forced new-session count, match-score histograms, caller metadata-quality telemetry, and concrete route-decision samples.
@@ -877,6 +877,10 @@ right semantic scope.
 It does not generate new facts. It reloads the latest stored factsheet, strips
 generated evidence hashes, recalculates evidence from current files, and then
 runs static or LLM verification.
+
+If `cluster_reprepare` rejects stored facts, `router_monitor.cache_health` shows
+`reprepare_coverage_drops` with retained/rejected counts and recommends
+`cluster_prepare` when semantic coverage needs to be restored.
 
 Input:
 
@@ -1282,6 +1286,7 @@ evidence_revalidated
 evidence_revalidation_failed
 cluster_refresh
 cluster_refresh_required
+cluster_reprepare
 factsheet_static_verified
 factsheet_partially_static_verified
 factsheet_llm_verified

@@ -294,6 +294,20 @@ export interface ClusterEventCount extends EventCount {
   cluster_id: string;
 }
 
+export interface ClusterReprepareCoverageDrop {
+  cluster_id: string;
+  source_factsheet_id: string | null;
+  source_factsheet_version: number | null;
+  new_factsheet_id: string | null;
+  new_factsheet_version: number | null;
+  source_fact_count: number;
+  verified_facts: number;
+  rejected_facts: number;
+  coverage_retained_percent: number;
+  coverage_drop_percent: number;
+  created_at: string;
+}
+
 export interface StaleClusterView {
   id: string;
   name: string;
@@ -1548,6 +1562,63 @@ export class RouterDatabase {
     return row?.count ?? 0;
   }
 
+  listRecentClusterReprepareCoverageDrops(
+    projectId: string,
+    sinceIso: string,
+    limit: number
+  ): ClusterReprepareCoverageDrop[] {
+    const rows = this.db
+      .prepare(
+        `SELECT e.cluster_id,
+                e.details_json,
+                e.created_at
+         FROM cluster_events e
+         INNER JOIN clusters c
+           ON c.project_id = e.project_id
+          AND c.id = e.cluster_id
+          AND c.status != 'archived'
+         WHERE e.project_id = ?
+           AND e.created_at >= ?
+           AND e.event_type = 'cluster_reprepare'
+         ORDER BY e.id DESC
+         LIMIT ?`
+      )
+      .all(projectId, sinceIso, Math.max(limit * 4, limit)) as Array<{
+        cluster_id: string;
+        details_json: string | null;
+        created_at: string;
+      }>;
+
+    const drops: ClusterReprepareCoverageDrop[] = [];
+    for (const row of rows) {
+      const details = parseJsonObject(row.details_json);
+      const sourceFactCount = numberFromUnknown(details.source_fact_count);
+      const verifiedFacts = numberFromUnknown(details.verified_facts);
+      const rejectedFacts = numberFromUnknown(details.rejected_facts);
+      const coverageDropPercent = numberFromUnknown(details.coverage_drop_percent);
+      if (rejectedFacts <= 0 && coverageDropPercent <= 0) {
+        continue;
+      }
+      drops.push({
+        cluster_id: row.cluster_id,
+        source_factsheet_id: stringOrNull(details.source_factsheet_id),
+        source_factsheet_version: nullableNumberFromUnknown(details.source_factsheet_version),
+        new_factsheet_id: stringOrNull(details.new_factsheet_id),
+        new_factsheet_version: nullableNumberFromUnknown(details.new_factsheet_version),
+        source_fact_count: sourceFactCount,
+        verified_facts: verifiedFacts,
+        rejected_facts: rejectedFacts,
+        coverage_retained_percent: numberFromUnknown(details.coverage_retained_percent),
+        coverage_drop_percent: coverageDropPercent,
+        created_at: row.created_at
+      });
+      if (drops.length >= limit) {
+        break;
+      }
+    }
+    return drops;
+  }
+
   listStaleClusters(projectId: string, limit: number): StaleClusterView[] {
     return this.db
       .prepare(
@@ -1683,4 +1754,31 @@ function factsheetEventType(status: ClusterFactsheetStatus, trustState: ClusterT
     return "factsheet_llm_verified";
   }
   return status === "rejected" ? "factsheet_rejected" : "factsheet_generated";
+}
+
+function parseJsonObject(source: string | null): Record<string, unknown> {
+  if (!source) {
+    return {};
+  }
+  try {
+    const parsed = JSON.parse(source) as unknown;
+    if (typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)) {
+      return parsed as Record<string, unknown>;
+    }
+  } catch {
+    return {};
+  }
+  return {};
+}
+
+function numberFromUnknown(value: unknown): number {
+  return typeof value === "number" && Number.isFinite(value) ? value : 0;
+}
+
+function nullableNumberFromUnknown(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+function stringOrNull(value: unknown): string | null {
+  return typeof value === "string" && value.length > 0 ? value : null;
 }

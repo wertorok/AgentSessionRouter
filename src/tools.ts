@@ -11,6 +11,7 @@ import { ConsultService, type ConsultResult } from "./consult.js";
 import type {
   ClusterEventCount,
   ClusterFactsheetRecord,
+  ClusterReprepareCoverageDrop,
   ConsultComparisonMonitorStats,
   EventCount,
   RouteDecisionCount,
@@ -614,6 +615,11 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
         clusterAttentionByCluster,
         recentHours
       );
+      const reprepareCoverageDrops = runtime.db.listRecentClusterReprepareCoverageDrops(
+        projectId,
+        sinceIso,
+        sampleLimit
+      );
       const shadowEval = runtime.db.getShadowEvalHealth(projectId);
       const activeClusterIds = new Set(runtime.db.listClusters(projectId, false).map((cluster) => cluster.id));
       const comparisonStats = runtime.db
@@ -683,6 +689,7 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
         slowSessionEvents,
         slowSessionSamples,
         clusterAttentionByCluster,
+        reprepareCoverageDrops,
         comparisonStats,
         autoRoutingCandidates
       });
@@ -720,6 +727,7 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
         cache_health: {
           stale_or_needs_prepare: staleClusters,
           decayed_cluster_cost_signals: decayedClusterCostSignals,
+          reprepare_coverage_drops: reprepareCoverageDrops,
           attention_by_event: clusterAttention,
           attention_by_cluster: clusterAttentionByCluster
         },
@@ -748,7 +756,13 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
           auto_routing_candidates: autoRoutingCandidates
         },
         recommendations,
-        next_directions: buildMonitorNextDirections(comparisonStats, clusterAttentionByCluster, staleClusters, shadowEval)
+        next_directions: buildMonitorNextDirections(
+          comparisonStats,
+          clusterAttentionByCluster,
+          staleClusters,
+          shadowEval,
+          reprepareCoverageDrops
+        )
       });
     }
   );
@@ -906,6 +920,11 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
           llmVerifierProfile: profileSelection?.selected === "bare" ? "bare" : "focused"
         });
 
+        const sourceFactCount = factsheetFactCount(sourceFactsheet);
+        const coverageRetainedPercent =
+          sourceFactCount > 0 ? round2((result.verified_facts / sourceFactCount) * 100) : 100;
+        const coverageDropPercent = round2(100 - coverageRetainedPercent);
+
         runtime.db.logClusterEvent({
           clusterId: input.cluster_id,
           projectId,
@@ -913,8 +932,13 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
           details: {
             source_factsheet_id: sourceFactsheet.id,
             source_factsheet_version: sourceFactsheet.version,
+            source_fact_count: sourceFactCount,
             new_factsheet_id: result.factsheet_id,
             new_factsheet_version: result.factsheet_version,
+            verified_facts: result.verified_facts,
+            rejected_facts: result.rejected_facts,
+            coverage_retained_percent: coverageRetainedPercent,
+            coverage_drop_percent: coverageDropPercent,
             verification_mode: input.verification_mode ?? "llm"
           }
         });
@@ -923,6 +947,13 @@ export function registerTools(server: McpServer, runtime: RouterRuntime): void {
           project_id: projectId,
           source_factsheet_id: sourceFactsheet.id,
           source_factsheet_version: sourceFactsheet.version,
+          coverage: {
+            source_fact_count: sourceFactCount,
+            verified_facts: result.verified_facts,
+            rejected_facts: result.rejected_facts,
+            retained_percent: coverageRetainedPercent,
+            drop_percent: coverageDropPercent
+          },
           ...(profileSelection ? { profile_selection: profileSelection } : {}),
           ...result
         });
@@ -2004,6 +2035,7 @@ function buildMonitorRecommendations(input: {
   slowSessionEvents: SlowSessionEventCount[];
   slowSessionSamples: SlowSessionEventSample[];
   clusterAttentionByCluster: ClusterEventCount[];
+  reprepareCoverageDrops: ClusterReprepareCoverageDrop[];
   comparisonStats: ConsultComparisonMonitorStats[];
   autoRoutingCandidates: AutoRoutingCandidate[];
 }): Array<{ priority: "high" | "medium" | "low"; area: string; cluster_id?: string | null; action: string; reason: string }> {
@@ -2059,6 +2091,19 @@ function buildMonitorRecommendations(input: {
       cluster_id: cluster.id,
       action: "Run cluster_prepare or expand/rebuild this factsheet.",
       reason: `Cluster is ${cluster.status}; factsheet ${cluster.factsheet_id ?? "unknown"} cannot be trusted as current cache.`
+    });
+  }
+
+  for (const drop of input.reprepareCoverageDrops) {
+    recommendations.push({
+      priority: drop.coverage_drop_percent >= 25 || drop.rejected_facts >= 3 ? "high" : "medium",
+      area: "coverage",
+      cluster_id: drop.cluster_id,
+      action:
+        "Run cluster_prepare with updated facts if the rejected facts are still part of the intended coverage; cluster_reprepare only rechecks existing facts.",
+      reason:
+        `cluster_reprepare retained ${drop.verified_facts}/${drop.source_fact_count} fact(s), ` +
+        `rejected ${drop.rejected_facts}, coverage dropped ${drop.coverage_drop_percent}%.`
     });
   }
 
@@ -2328,7 +2373,8 @@ function buildMonitorNextDirections(
   comparisonStats: ConsultComparisonMonitorStats[],
   clusterAttentionByCluster: ClusterEventCount[],
   staleClusters: StaleClusterView[],
-  shadowEval: ShadowEvalHealth
+  shadowEval: ShadowEvalHealth,
+  reprepareCoverageDrops: ClusterReprepareCoverageDrop[] = []
 ): string[] {
   const directions: string[] = [];
   const hasQualityData = comparisonStats.some((stats) => stats.judged > 0);
@@ -2351,6 +2397,9 @@ function buildMonitorNextDirections(
   }
   if (fallbackClusters.size > 0 || staleClusters.length > 0) {
     directions.push("Re-prepare decayed clusters before using their data to judge routing quality.");
+  }
+  if (reprepareCoverageDrops.length > 0) {
+    directions.push("Inspect reprepare coverage drops; use cluster_prepare, not cluster_reprepare, when semantic coverage must be restored.");
   }
   if (shadowEval.failed_auth + shadowEval.failed_timeout + shadowEval.failed_other > 0 || shadowEval.pending + shadowEval.ok_unjudged > 0) {
     directions.push("Stabilize the shadow pipeline before trusting long-term trend reports.");
