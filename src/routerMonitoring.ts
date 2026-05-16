@@ -1,4 +1,5 @@
 import { isoHoursAgo } from "./clock.js";
+import { buildArchitecturalMemoryTelemetry } from "./architecturalMemoryMonitor.js";
 import { SESSION_STATUSES } from "./constants.js";
 import type {
   ClusterEventCount,
@@ -30,6 +31,7 @@ export function buildRouterStatusPayload(
 ): object {
   const sinceIso = isoHoursAgo(runtime.clock, recentHours);
   const fallbackCountLast24h = runtime.db.getClusterFallbackCount(projectId, isoHoursAgo(runtime.clock, 24));
+  const architecturalMemory = buildArchitecturalMemoryTelemetry(runtime.cwd);
   const storageHealth = buildStorageHealth(runtime);
   const staleClusters = runtime.db.listStaleClusters(projectId, warningsLimit);
   const sessionErrors = runtime.db.getRecentSessionErrorCounts(projectId, sinceIso);
@@ -91,6 +93,7 @@ export function buildRouterStatusPayload(
       enabled: runtime.config.eval.shadowMode,
       ...shadowEval
     },
+    architectural_memory: architecturalMemory,
     storage: storageHealth,
     warnings
   };
@@ -127,6 +130,7 @@ export function buildRouterMonitorPayload(
     projectId,
     isoHoursAgo(runtime.clock, 24)
   );
+  const architecturalMemory = buildArchitecturalMemoryTelemetry(runtime.cwd);
   const storageHealth = buildStorageHealth(runtime);
   const clusterAttention = runtime.db.getRecentClusterAttentionCounts(projectId, sinceIso);
   const clusterAttentionByCluster = runtime.db.getRecentClusterAttentionCountsByCluster(projectId, sinceIso);
@@ -238,6 +242,7 @@ export function buildRouterMonitorPayload(
         enabled: runtime.config.eval.shadowMode,
         ...shadowEval
       },
+      architectural_memory: architecturalMemory,
       storage: storageHealth
     },
     cache_health: {

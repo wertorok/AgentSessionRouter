@@ -102,6 +102,7 @@ Additional closed gates:
 | Gate 10: Request-changes resolution | closed | `request-changes-resolution.md`, `request-changes-resolution.json`, `gate-10-summary.md` |
 | Gate 11: Proposed record materialization | closed | `docs/ENGINEERING_PRINCIPLES.md`, `docs/PROJECT_ARCHITECTURE.md`, `materialized-proposed-records.md`, `materialized-proposed-records.json`, `gate-11-summary.md` |
 | Gate 12: Active source-of-truth promotion | closed | `docs/ENGINEERING_PRINCIPLES.md`, `docs/PROJECT_ARCHITECTURE.md`, `active-promotion.md`, `active-promotion.json`, `gate-12-summary.md` |
+| Gate 14: Monitor visibility | closed | `router_status.architectural_memory`, `router_monitor.health.architectural_memory`, `gate-14-summary.md` |
 
 Gate 6 added a deterministic verifier report. Gate 7 named the future
 diffable source-of-truth files and documented field-population semantics. Gate
@@ -119,6 +120,14 @@ router behavior.
 Gate 12 post-write compact review returned `APPROVE_SCOPE` and closed the gate.
 Gate 13 remains future runtime import/serving design and requires a separate
 decision on the canonical URL/import boundary before any router use.
+
+Gate 14 added read-only monitor visibility for architectural memory counts.
+The live MCP `router_monitor` call reports 88 active source-of-truth records,
+0 proposed records, 3 suspended audit records, 20 rejected audit records, 5
+excluded records, and `runtime_import_serving_enabled: false`. This does not
+cross the Gate 13 runtime import/serving boundary.
+Gate 14 post-implementation lead review returned `APPROVE_SCOPE` and closed the
+gate.
 
 Operational finding: broad artifact-paste review prompts can hit
 `COST_LIMIT_EXCEEDED`. Compact proof-style review prompts work and received

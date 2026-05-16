@@ -1432,6 +1432,77 @@ describe("cluster MCP tools", () => {
     fixture.cleanup();
   });
 
+  it("surfaces architectural memory source-of-truth counts in status and monitor", async () => {
+    const fixture = createToolFixture();
+    const server = new FakeServer();
+    registerTools(server as unknown as McpServer, fixture.runtime);
+    mkdirSync(path.join(fixture.dir, "docs"), { recursive: true });
+    mkdirSync(path.join(fixture.dir, "experiments", "architectural-memory-dry-run-2026-05-16"), { recursive: true });
+    writeFileSync(
+      path.join(fixture.dir, "docs", "ENGINEERING_PRINCIPLES.md"),
+      [
+        "| id | status | active_date | field_review_status | statement |",
+        "| --- | --- | --- | --- | --- |",
+        "| EP-1 | status: active | 2026-05-17 | APPROVED_FIELDS | Keep router internals hidden. |"
+      ].join("\n")
+    );
+    writeFileSync(
+      path.join(fixture.dir, "docs", "PROJECT_ARCHITECTURE.md"),
+      [
+        "| id | status | active_date | field_review_status | decision |",
+        "| --- | --- | --- | --- | --- |",
+        "| PA-1 | status: active | 2026-05-17 | APPROVED_FIELDS | Router uses durable sessions. |",
+        "| PA-2 | proposed |  | APPROVED_FIELDS | Pending decision. |",
+        "| PA-3 | suspended |  | SUSPEND | Suspended decision. |"
+      ].join("\n")
+    );
+    writeFileSync(
+      path.join(fixture.dir, "experiments", "architectural-memory-dry-run-2026-05-16", "active-promotion.json"),
+      JSON.stringify({ status: "active_source_of_truth_promoted" })
+    );
+    writeFileSync(
+      path.join(fixture.dir, "experiments", "architectural-memory-dry-run-2026-05-16", "request-changes-resolution.json"),
+      JSON.stringify({ summary: { excluded_from_promotion: 5 } })
+    );
+    writeFileSync(
+      path.join(fixture.dir, "experiments", "architectural-memory-dry-run-2026-05-16", "verification-report.json"),
+      JSON.stringify({ summary: { failed: 23, by_bucket: { gate4_suspended: 3, gate4_rejected: 20 } } })
+    );
+
+    const status = parseToolJson(
+      await server.call("router_status", {
+        project_id: "project"
+      })
+    );
+    const monitor = parseToolJson(
+      await server.call("router_monitor", {
+        project_id: "project"
+      })
+    );
+
+    expect(status.architectural_memory).toMatchObject({
+      runtime_import_serving_enabled: false,
+      active_records: 2,
+      proposed_records: 1,
+      suspended_records: 1,
+      suspended_audit_records: 3,
+      rejected_audit_records: 20,
+      excluded_records: 5,
+      rejected_or_suspended_audit_records: 23,
+      warnings: []
+    });
+    expect(monitor.health.architectural_memory).toMatchObject({
+      runtime_import_serving_enabled: false,
+      active_records: 2,
+      proposed_records: 1,
+      suspended_records: 1,
+      suspended_audit_records: 3,
+      rejected_audit_records: 20,
+      excluded_records: 5
+    });
+    fixture.cleanup();
+  });
+
   it("warns when the configured sqlite file disappears while the handle is still open", async () => {
     const fixture = createToolFixture();
     const server = new FakeServer();

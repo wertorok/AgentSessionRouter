@@ -1568,8 +1568,12 @@ Implementation gates:
 13. Future: add explicit import/serving for `engineering-principles`.
     Runtime import/serving requires a separate design gate and human sign-off on
     the canonical URL/import boundary before router use.
-14. Future: add `router_monitor` visibility: staged count, promoted count,
+14. Closed: add `router_monitor` visibility: staged count, promoted count,
     suspended count, stale/superseded count, and recent counter-evidence.
+    Gate 14 is observability-only: it reads source-of-truth docs and audit
+    artifacts, reports counts in `router_status.architectural_memory` and
+    `router_monitor.health.architectural_memory`, and does not import or serve
+    memory at runtime.
 
 Do not implement this pipeline if real usage shows that durable lead sessions
 already preserve enough architectural continuity, if `session_decisions` remain
