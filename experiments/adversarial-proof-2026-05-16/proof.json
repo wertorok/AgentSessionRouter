@@ -1,5 +1,5 @@
 {
-  "started_at": "2026-05-16T18:08:07.095Z",
+  "started_at": "2026-05-16T18:22:38.428Z",
   "server_entry": "/root/projects/AgentSessionRouter/dist/src/index.js",
   "zones": [
     {
@@ -78,7 +78,7 @@
                 "session_update"
               ],
               "selected_path": "claude_consult_new_session",
-              "session_id": "session_c8040de2-cfe0-4fa4-a9dc-c906b8cbbaa3",
+              "session_id": "session_ada14c95-373a-4a4b-ad11-7e2ebc35c2cc",
               "cluster_id": null,
               "factsheet_status": null,
               "trust_state": null,
@@ -194,14 +194,14 @@
           "expected_edge": "Routing should not catastrophically slow down or pick unrelated sessions only because N is large.",
           "observed": {
             "seeded_scale_sessions": 200,
-            "create_duration_ms": 13,
+            "create_duration_ms": 10,
             "latency_before_sessions_ms": 3,
-            "latency_after_router_consult_ms": 60,
+            "latency_after_router_consult_ms": 57,
             "total_session_count": 202,
             "decisions": [
               {
                 "name": "exact_topic_42",
-                "duration_ms": 52,
+                "duration_ms": 42,
                 "selected_path": "claude_consult_existing_session",
                 "selected_session_id": null,
                 "score": null,
@@ -266,7 +266,7 @@
               },
               {
                 "name": "exact_topic_123",
-                "duration_ms": 39,
+                "duration_ms": 38,
                 "selected_path": "claude_consult_existing_session",
                 "selected_session_id": null,
                 "score": null,
@@ -396,7 +396,7 @@
               },
               {
                 "name": "shared_file_7",
-                "duration_ms": 49,
+                "duration_ms": 44,
                 "selected_path": "claude_consult_new_session",
                 "selected_session_id": null,
                 "score": null,
@@ -461,7 +461,7 @@
               },
               {
                 "name": "unrelated_new_domain",
-                "duration_ms": 46,
+                "duration_ms": 43,
                 "selected_path": "claude_consult_new_session",
                 "selected_session_id": null,
                 "score": null,
@@ -562,7 +562,7 @@
               "factsheet_status": "static_verified",
               "trust_state": null,
               "metrics": {
-                "duration_ms": 30,
+                "duration_ms": 34,
                 "tokens_in": 435,
                 "tokens_out": 13,
                 "cost_usd": 0.0015,
@@ -599,7 +599,7 @@
                 "session_update"
               ],
               "selected_path": null,
-              "session_id": "session_5961de40-8d2b-460a-a6e5-fdc7c13e83a9",
+              "session_id": "session_c090e731-aabb-4db3-91b8-63e608978580",
               "cluster_id": null,
               "factsheet_status": null,
               "trust_state": null,
@@ -689,7 +689,7 @@
               "factsheet_status": "static_verified",
               "trust_state": null,
               "metrics": {
-                "duration_ms": 36,
+                "duration_ms": 32,
                 "tokens_in": 432,
                 "tokens_out": 13,
                 "cost_usd": 0.001491,
@@ -1087,7 +1087,7 @@
               "cost_usd": 0.12696,
               "calls": [
                 {
-                  "seq": 47,
+                  "seq": 48,
                   "type": "cluster_consult",
                   "resumeSessionId": null,
                   "tokensIn": 427,
@@ -1095,7 +1095,7 @@
                   "cost": 0.001476
                 },
                 {
-                  "seq": 48,
+                  "seq": 47,
                   "type": "cluster_consult",
                   "resumeSessionId": null,
                   "tokensIn": 427,
@@ -1143,14 +1143,6 @@
                   "cost": 0.001476
                 },
                 {
-                  "seq": 53,
-                  "type": "cluster_consult",
-                  "resumeSessionId": null,
-                  "tokensIn": 427,
-                  "tokensOut": 13,
-                  "cost": 0.001476
-                },
-                {
                   "seq": 54,
                   "type": "cluster_consult",
                   "resumeSessionId": null,
@@ -1159,23 +1151,7 @@
                   "cost": 0.001476
                 },
                 {
-                  "seq": 1,
-                  "type": "cluster_consult",
-                  "resumeSessionId": null,
-                  "tokensIn": 428,
-                  "tokensOut": 13,
-                  "cost": 0.001479
-                },
-                {
-                  "seq": 2,
-                  "type": "cluster_consult",
-                  "resumeSessionId": null,
-                  "tokensIn": 428,
-                  "tokensOut": 13,
-                  "cost": 0.001479
-                },
-                {
-                  "seq": 3,
+                  "seq": 55,
                   "type": "cluster_consult",
                   "resumeSessionId": null,
                   "tokensIn": 427,
@@ -1183,7 +1159,15 @@
                   "cost": 0.001476
                 },
                 {
-                  "seq": 4,
+                  "seq": 56,
+                  "type": "cluster_consult",
+                  "resumeSessionId": null,
+                  "tokensIn": 427,
+                  "tokensOut": 13,
+                  "cost": 0.001476
+                },
+                {
+                  "seq": 57,
                   "type": "cluster_consult",
                   "resumeSessionId": null,
                   "tokensIn": 428,
@@ -1191,7 +1175,7 @@
                   "cost": 0.001479
                 },
                 {
-                  "seq": 5,
+                  "seq": 58,
                   "type": "cluster_consult",
                   "resumeSessionId": null,
                   "tokensIn": 428,
@@ -1199,7 +1183,7 @@
                   "cost": 0.001479
                 },
                 {
-                  "seq": 6,
+                  "seq": 59,
                   "type": "cluster_consult",
                   "resumeSessionId": null,
                   "tokensIn": 428,
@@ -1207,7 +1191,7 @@
                   "cost": 0.001479
                 },
                 {
-                  "seq": 7,
+                  "seq": 60,
                   "type": "cluster_consult",
                   "resumeSessionId": null,
                   "tokensIn": 428,
@@ -1215,7 +1199,7 @@
                   "cost": 0.001479
                 },
                 {
-                  "seq": 8,
+                  "seq": 61,
                   "type": "cluster_consult",
                   "resumeSessionId": null,
                   "tokensIn": 428,
@@ -1223,7 +1207,7 @@
                   "cost": 0.001479
                 },
                 {
-                  "seq": 9,
+                  "seq": 62,
                   "type": "cluster_consult",
                   "resumeSessionId": null,
                   "tokensIn": 428,
@@ -1231,7 +1215,7 @@
                   "cost": 0.001479
                 },
                 {
-                  "seq": 10,
+                  "seq": 63,
                   "type": "cluster_consult",
                   "resumeSessionId": null,
                   "tokensIn": 428,
@@ -1239,7 +1223,7 @@
                   "cost": 0.001479
                 },
                 {
-                  "seq": 11,
+                  "seq": 64,
                   "type": "cluster_consult",
                   "resumeSessionId": null,
                   "tokensIn": 428,
@@ -1247,39 +1231,23 @@
                   "cost": 0.001479
                 },
                 {
-                  "seq": 12,
-                  "type": "shadow_direct",
+                  "seq": 65,
+                  "type": "cluster_consult",
                   "resumeSessionId": null,
-                  "tokensIn": 184,
-                  "tokensOut": 14,
-                  "cost": 0.000762
+                  "tokensIn": 428,
+                  "tokensOut": 13,
+                  "cost": 0.001479
                 },
                 {
-                  "seq": 13,
-                  "type": "shadow_direct",
+                  "seq": 66,
+                  "type": "cluster_consult",
                   "resumeSessionId": null,
-                  "tokensIn": 183,
-                  "tokensOut": 14,
-                  "cost": 0.000759
+                  "tokensIn": 428,
+                  "tokensOut": 13,
+                  "cost": 0.001479
                 },
                 {
-                  "seq": 15,
-                  "type": "shadow_direct",
-                  "resumeSessionId": null,
-                  "tokensIn": 183,
-                  "tokensOut": 14,
-                  "cost": 0.000759
-                },
-                {
-                  "seq": 14,
-                  "type": "shadow_direct",
-                  "resumeSessionId": null,
-                  "tokensIn": 184,
-                  "tokensOut": 14,
-                  "cost": 0.000762
-                },
-                {
-                  "seq": 16,
+                  "seq": 67,
                   "type": "shadow_direct",
                   "resumeSessionId": null,
                   "tokensIn": 183,
@@ -1287,15 +1255,7 @@
                   "cost": 0.000759
                 },
                 {
-                  "seq": 17,
-                  "type": "shadow_direct",
-                  "resumeSessionId": null,
-                  "tokensIn": 184,
-                  "tokensOut": 14,
-                  "cost": 0.000762
-                },
-                {
-                  "seq": 18,
+                  "seq": 68,
                   "type": "shadow_direct",
                   "resumeSessionId": null,
                   "tokensIn": 183,
@@ -1303,7 +1263,7 @@
                   "cost": 0.000759
                 },
                 {
-                  "seq": 16,
+                  "seq": 69,
                   "type": "shadow_direct",
                   "resumeSessionId": null,
                   "tokensIn": 183,
@@ -1311,7 +1271,7 @@
                   "cost": 0.000759
                 },
                 {
-                  "seq": 19,
+                  "seq": 70,
                   "type": "shadow_direct",
                   "resumeSessionId": null,
                   "tokensIn": 183,
@@ -1319,7 +1279,7 @@
                   "cost": 0.000759
                 },
                 {
-                  "seq": 20,
+                  "seq": 71,
                   "type": "shadow_direct",
                   "resumeSessionId": null,
                   "tokensIn": 183,
@@ -1327,7 +1287,7 @@
                   "cost": 0.000759
                 },
                 {
-                  "seq": 21,
+                  "seq": 72,
                   "type": "shadow_direct",
                   "resumeSessionId": null,
                   "tokensIn": 183,
@@ -1335,7 +1295,7 @@
                   "cost": 0.000759
                 },
                 {
-                  "seq": 22,
+                  "seq": 73,
                   "type": "shadow_direct",
                   "resumeSessionId": null,
                   "tokensIn": 183,
@@ -1343,7 +1303,7 @@
                   "cost": 0.000759
                 },
                 {
-                  "seq": 23,
+                  "seq": 74,
                   "type": "shadow_direct",
                   "resumeSessionId": null,
                   "tokensIn": 183,
@@ -1351,7 +1311,15 @@
                   "cost": 0.000759
                 },
                 {
-                  "seq": 24,
+                  "seq": 75,
+                  "type": "shadow_direct",
+                  "resumeSessionId": null,
+                  "tokensIn": 183,
+                  "tokensOut": 14,
+                  "cost": 0.000759
+                },
+                {
+                  "seq": 76,
                   "type": "shadow_direct",
                   "resumeSessionId": null,
                   "tokensIn": 184,
@@ -1359,7 +1327,7 @@
                   "cost": 0.000762
                 },
                 {
-                  "seq": 25,
+                  "seq": 77,
                   "type": "shadow_direct",
                   "resumeSessionId": null,
                   "tokensIn": 184,
@@ -1367,7 +1335,7 @@
                   "cost": 0.000762
                 },
                 {
-                  "seq": 26,
+                  "seq": 78,
                   "type": "shadow_direct",
                   "resumeSessionId": null,
                   "tokensIn": 184,
@@ -1375,7 +1343,7 @@
                   "cost": 0.000762
                 },
                 {
-                  "seq": 27,
+                  "seq": 79,
                   "type": "shadow_direct",
                   "resumeSessionId": null,
                   "tokensIn": 184,
@@ -1383,7 +1351,7 @@
                   "cost": 0.000762
                 },
                 {
-                  "seq": 28,
+                  "seq": 80,
                   "type": "shadow_direct",
                   "resumeSessionId": null,
                   "tokensIn": 184,
@@ -1391,7 +1359,7 @@
                   "cost": 0.000762
                 },
                 {
-                  "seq": 29,
+                  "seq": 81,
                   "type": "shadow_direct",
                   "resumeSessionId": null,
                   "tokensIn": 184,
@@ -1399,7 +1367,7 @@
                   "cost": 0.000762
                 },
                 {
-                  "seq": 30,
+                  "seq": 82,
                   "type": "judge",
                   "resumeSessionId": null,
                   "tokensIn": 1160,
@@ -1407,95 +1375,7 @@
                   "cost": 0.00411
                 },
                 {
-                  "seq": 31,
-                  "type": "judge",
-                  "resumeSessionId": null,
-                  "tokensIn": 1160,
-                  "tokensOut": 42,
-                  "cost": 0.00411
-                },
-                {
-                  "seq": 32,
-                  "type": "judge",
-                  "resumeSessionId": null,
-                  "tokensIn": 1160,
-                  "tokensOut": 42,
-                  "cost": 0.00411
-                },
-                {
-                  "seq": 33,
-                  "type": "judge",
-                  "resumeSessionId": null,
-                  "tokensIn": 1160,
-                  "tokensOut": 42,
-                  "cost": 0.00411
-                },
-                {
-                  "seq": 34,
-                  "type": "judge",
-                  "resumeSessionId": null,
-                  "tokensIn": 1160,
-                  "tokensOut": 42,
-                  "cost": 0.00411
-                },
-                {
-                  "seq": 35,
-                  "type": "judge",
-                  "resumeSessionId": null,
-                  "tokensIn": 1160,
-                  "tokensOut": 42,
-                  "cost": 0.00411
-                },
-                {
-                  "seq": 36,
-                  "type": "judge",
-                  "resumeSessionId": null,
-                  "tokensIn": 1160,
-                  "tokensOut": 42,
-                  "cost": 0.00411
-                },
-                {
-                  "seq": 37,
-                  "type": "judge",
-                  "resumeSessionId": null,
-                  "tokensIn": 1160,
-                  "tokensOut": 42,
-                  "cost": 0.00411
-                },
-                {
-                  "seq": 38,
-                  "type": "judge",
-                  "resumeSessionId": null,
-                  "tokensIn": 1160,
-                  "tokensOut": 42,
-                  "cost": 0.00411
-                },
-                {
-                  "seq": 39,
-                  "type": "judge",
-                  "resumeSessionId": null,
-                  "tokensIn": 1160,
-                  "tokensOut": 42,
-                  "cost": 0.00411
-                },
-                {
-                  "seq": 40,
-                  "type": "judge",
-                  "resumeSessionId": null,
-                  "tokensIn": 1160,
-                  "tokensOut": 42,
-                  "cost": 0.00411
-                },
-                {
-                  "seq": 41,
-                  "type": "judge",
-                  "resumeSessionId": null,
-                  "tokensIn": 1160,
-                  "tokensOut": 42,
-                  "cost": 0.00411
-                },
-                {
-                  "seq": 42,
+                  "seq": 83,
                   "type": "shadow_direct",
                   "resumeSessionId": null,
                   "tokensIn": 184,
@@ -1503,7 +1383,7 @@
                   "cost": 0.000762
                 },
                 {
-                  "seq": 43,
+                  "seq": 84,
                   "type": "judge",
                   "resumeSessionId": null,
                   "tokensIn": 1160,
@@ -1511,7 +1391,7 @@
                   "cost": 0.00411
                 },
                 {
-                  "seq": 44,
+                  "seq": 85,
                   "type": "judge",
                   "resumeSessionId": null,
                   "tokensIn": 1160,
@@ -1519,7 +1399,7 @@
                   "cost": 0.00411
                 },
                 {
-                  "seq": 45,
+                  "seq": 86,
                   "type": "judge",
                   "resumeSessionId": null,
                   "tokensIn": 1160,
@@ -1527,7 +1407,15 @@
                   "cost": 0.00411
                 },
                 {
-                  "seq": 46,
+                  "seq": 87,
+                  "type": "shadow_direct",
+                  "resumeSessionId": null,
+                  "tokensIn": 183,
+                  "tokensOut": 14,
+                  "cost": 0.000759
+                },
+                {
+                  "seq": 88,
                   "type": "judge",
                   "resumeSessionId": null,
                   "tokensIn": 1160,
@@ -1535,7 +1423,7 @@
                   "cost": 0.00411
                 },
                 {
-                  "seq": 47,
+                  "seq": 89,
                   "type": "judge",
                   "resumeSessionId": null,
                   "tokensIn": 1160,
@@ -1543,7 +1431,7 @@
                   "cost": 0.00411
                 },
                 {
-                  "seq": 48,
+                  "seq": 90,
                   "type": "judge",
                   "resumeSessionId": null,
                   "tokensIn": 1160,
@@ -1551,7 +1439,31 @@
                   "cost": 0.00411
                 },
                 {
-                  "seq": 49,
+                  "seq": 91,
+                  "type": "shadow_direct",
+                  "resumeSessionId": null,
+                  "tokensIn": 184,
+                  "tokensOut": 14,
+                  "cost": 0.000762
+                },
+                {
+                  "seq": 92,
+                  "type": "shadow_direct",
+                  "resumeSessionId": null,
+                  "tokensIn": 184,
+                  "tokensOut": 14,
+                  "cost": 0.000762
+                },
+                {
+                  "seq": 93,
+                  "type": "shadow_direct",
+                  "resumeSessionId": null,
+                  "tokensIn": 184,
+                  "tokensOut": 14,
+                  "cost": 0.000762
+                },
+                {
+                  "seq": 94,
                   "type": "judge",
                   "resumeSessionId": null,
                   "tokensIn": 1160,
@@ -1559,7 +1471,95 @@
                   "cost": 0.00411
                 },
                 {
-                  "seq": 50,
+                  "seq": 95,
+                  "type": "judge",
+                  "resumeSessionId": null,
+                  "tokensIn": 1160,
+                  "tokensOut": 42,
+                  "cost": 0.00411
+                },
+                {
+                  "seq": 96,
+                  "type": "judge",
+                  "resumeSessionId": null,
+                  "tokensIn": 1160,
+                  "tokensOut": 42,
+                  "cost": 0.00411
+                },
+                {
+                  "seq": 97,
+                  "type": "judge",
+                  "resumeSessionId": null,
+                  "tokensIn": 1160,
+                  "tokensOut": 42,
+                  "cost": 0.00411
+                },
+                {
+                  "seq": 98,
+                  "type": "judge",
+                  "resumeSessionId": null,
+                  "tokensIn": 1160,
+                  "tokensOut": 42,
+                  "cost": 0.00411
+                },
+                {
+                  "seq": 99,
+                  "type": "judge",
+                  "resumeSessionId": null,
+                  "tokensIn": 1160,
+                  "tokensOut": 42,
+                  "cost": 0.00411
+                },
+                {
+                  "seq": 100,
+                  "type": "judge",
+                  "resumeSessionId": null,
+                  "tokensIn": 1160,
+                  "tokensOut": 42,
+                  "cost": 0.00411
+                },
+                {
+                  "seq": 101,
+                  "type": "judge",
+                  "resumeSessionId": null,
+                  "tokensIn": 1160,
+                  "tokensOut": 42,
+                  "cost": 0.00411
+                },
+                {
+                  "seq": 102,
+                  "type": "judge",
+                  "resumeSessionId": null,
+                  "tokensIn": 1160,
+                  "tokensOut": 42,
+                  "cost": 0.00411
+                },
+                {
+                  "seq": 103,
+                  "type": "judge",
+                  "resumeSessionId": null,
+                  "tokensIn": 1160,
+                  "tokensOut": 42,
+                  "cost": 0.00411
+                },
+                {
+                  "seq": 104,
+                  "type": "judge",
+                  "resumeSessionId": null,
+                  "tokensIn": 1160,
+                  "tokensOut": 42,
+                  "cost": 0.00411
+                },
+                {
+                  "seq": 105,
+                  "type": "judge",
+                  "resumeSessionId": null,
+                  "tokensIn": 1160,
+                  "tokensOut": 42,
+                  "cost": 0.00411
+                },
+                {
+                  "seq": 106,
                   "type": "judge",
                   "resumeSessionId": null,
                   "tokensIn": 1160,
@@ -1616,7 +1616,7 @@
               "factsheet_status": "static_verified",
               "trust_state": null,
               "metrics": {
-                "duration_ms": 41,
+                "duration_ms": 34,
                 "tokens_in": 444,
                 "tokens_out": 13,
                 "cost_usd": 0.001527,
@@ -1637,7 +1637,7 @@
               "cost_usd": 0.006498,
               "calls": [
                 {
-                  "seq": 51,
+                  "seq": 107,
                   "type": "cluster_consult",
                   "resumeSessionId": null,
                   "tokensIn": 444,
@@ -1645,7 +1645,7 @@
                   "cost": 0.001527
                 },
                 {
-                  "seq": 52,
+                  "seq": 108,
                   "type": "shadow_direct",
                   "resumeSessionId": null,
                   "tokensIn": 200,
@@ -1653,7 +1653,7 @@
                   "cost": 0.00081
                 },
                 {
-                  "seq": 53,
+                  "seq": 109,
                   "type": "judge",
                   "resumeSessionId": null,
                   "tokensIn": 1177,
@@ -1692,7 +1692,7 @@
                   "session_update"
                 ],
                 "selected_path": null,
-                "session_id": "session_77654969-2fb3-4bfb-9c78-6fabec2528a7",
+                "session_id": "session_47acdac2-1dd5-45e3-a8e9-3c96bb0608d1",
                 "cluster_id": null,
                 "factsheet_status": null,
                 "trust_state": null,
@@ -1712,7 +1712,7 @@
                   "session_update"
                 ],
                 "selected_path": null,
-                "session_id": "session_77654969-2fb3-4bfb-9c78-6fabec2528a7",
+                "session_id": "session_47acdac2-1dd5-45e3-a8e9-3c96bb0608d1",
                 "cluster_id": null,
                 "factsheet_status": null,
                 "trust_state": null,
@@ -1732,7 +1732,7 @@
                   "session_update"
                 ],
                 "selected_path": null,
-                "session_id": "session_77654969-2fb3-4bfb-9c78-6fabec2528a7",
+                "session_id": "session_47acdac2-1dd5-45e3-a8e9-3c96bb0608d1",
                 "cluster_id": null,
                 "factsheet_status": null,
                 "trust_state": null,
@@ -1752,7 +1752,7 @@
                   "session_update"
                 ],
                 "selected_path": null,
-                "session_id": "session_77654969-2fb3-4bfb-9c78-6fabec2528a7",
+                "session_id": "session_47acdac2-1dd5-45e3-a8e9-3c96bb0608d1",
                 "cluster_id": null,
                 "factsheet_status": null,
                 "trust_state": null,
@@ -1772,7 +1772,7 @@
                   "session_update"
                 ],
                 "selected_path": null,
-                "session_id": "session_77654969-2fb3-4bfb-9c78-6fabec2528a7",
+                "session_id": "session_47acdac2-1dd5-45e3-a8e9-3c96bb0608d1",
                 "cluster_id": null,
                 "factsheet_status": null,
                 "trust_state": null,
@@ -1965,32 +1965,32 @@
               {
                 "event_type": "cluster_created",
                 "details": null,
-                "created_at": "2026-05-16T18:08:12.660Z"
+                "created_at": "2026-05-16T18:22:43.850Z"
               },
               {
                 "event_type": "factsheet_static_verified",
                 "details": {
-                  "factsheet_id": "factsheet_58508f4c-55af-4394-9361-22c239a7591f",
+                  "factsheet_id": "factsheet_9f7603b0-f1c5-4694-8fcd-2056e7648f00",
                   "version": 1,
                   "file_hashes": 1
                 },
-                "created_at": "2026-05-16T18:08:12.668Z"
+                "created_at": "2026-05-16T18:22:43.855Z"
               },
               {
                 "event_type": "cluster_refresh_required",
                 "details": {
-                  "factsheet_id": "factsheet_58508f4c-55af-4394-9361-22c239a7591f",
+                  "factsheet_id": "factsheet_9f7603b0-f1c5-4694-8fcd-2056e7648f00",
                   "factsheet_version": 1,
                   "changed_files": [
                     "src/evidence.ts"
                   ]
                 },
-                "created_at": "2026-05-16T18:08:12.744Z"
+                "created_at": "2026-05-16T18:22:43.942Z"
               },
               {
                 "event_type": "evidence_revalidation_failed",
                 "details": {
-                  "factsheet_id": "factsheet_58508f4c-55af-4394-9361-22c239a7591f",
+                  "factsheet_id": "factsheet_9f7603b0-f1c5-4694-8fcd-2056e7648f00",
                   "factsheet_version": 1,
                   "original_facts": 1,
                   "revalidated_facts": 0,
@@ -2004,7 +2004,7 @@
                     }
                   ]
                 },
-                "created_at": "2026-05-16T18:08:12.747Z"
+                "created_at": "2026-05-16T18:22:43.945Z"
               },
               {
                 "event_type": "cluster_fallback_to_claude_consult",
@@ -2016,7 +2016,7 @@
                     "cluster_id": "rate-limit-stale",
                     "details": {
                       "reason": "evidence revalidation failed; not all required evidence still matches current files",
-                      "factsheet_id": "factsheet_58508f4c-55af-4394-9361-22c239a7591f",
+                      "factsheet_id": "factsheet_9f7603b0-f1c5-4694-8fcd-2056e7648f00",
                       "factsheet_version": 1,
                       "original_facts": 1,
                       "revalidated_facts": 0,
@@ -2032,18 +2032,18 @@
                       "suggested_action": "Recreate the cluster with cluster_prepare or use claude_consult for fresh exploration."
                     }
                   },
-                  "fallback_session_id": "session_77654969-2fb3-4bfb-9c78-6fabec2528a7",
+                  "fallback_session_id": "session_47acdac2-1dd5-45e3-a8e9-3c96bb0608d1",
                   "fallback_claude_session_id": "fake-5"
                 },
-                "created_at": "2026-05-16T18:08:12.801Z"
+                "created_at": "2026-05-16T18:22:43.998Z"
               },
               {
                 "event_type": "evidence_revalidation_suppressed",
                 "details": {
                   "reason": "Cluster factsheet evidence changed and automatic evidence revalidation could not prove the factsheet is still valid.",
-                  "cooldown_until_ms": 1778954952749
+                  "cooldown_until_ms": 1778955823946
                 },
-                "created_at": "2026-05-16T18:08:12.806Z"
+                "created_at": "2026-05-16T18:22:44.003Z"
               },
               {
                 "event_type": "cluster_fallback_to_claude_consult",
@@ -2054,22 +2054,22 @@
                     "message": "Internal cluster evidence signal: scoped factsheet evidence changed; caller-facing tools revalidate or fall back before returning an answer.",
                     "cluster_id": "rate-limit-stale",
                     "details": {
-                      "factsheet_id": "factsheet_58508f4c-55af-4394-9361-22c239a7591f",
+                      "factsheet_id": "factsheet_9f7603b0-f1c5-4694-8fcd-2056e7648f00",
                       "factsheet_version": 1
                     }
                   },
-                  "fallback_session_id": "session_77654969-2fb3-4bfb-9c78-6fabec2528a7",
+                  "fallback_session_id": "session_47acdac2-1dd5-45e3-a8e9-3c96bb0608d1",
                   "fallback_claude_session_id": "fake-5"
                 },
-                "created_at": "2026-05-16T18:08:12.855Z"
+                "created_at": "2026-05-16T18:22:44.066Z"
               },
               {
                 "event_type": "evidence_revalidation_suppressed",
                 "details": {
                   "reason": "Cluster factsheet evidence changed and automatic evidence revalidation could not prove the factsheet is still valid.",
-                  "cooldown_until_ms": 1778954952749
+                  "cooldown_until_ms": 1778955823946
                 },
-                "created_at": "2026-05-16T18:08:12.859Z"
+                "created_at": "2026-05-16T18:22:44.070Z"
               },
               {
                 "event_type": "cluster_fallback_to_claude_consult",
@@ -2080,22 +2080,22 @@
                     "message": "Internal cluster evidence signal: scoped factsheet evidence changed; caller-facing tools revalidate or fall back before returning an answer.",
                     "cluster_id": "rate-limit-stale",
                     "details": {
-                      "factsheet_id": "factsheet_58508f4c-55af-4394-9361-22c239a7591f",
+                      "factsheet_id": "factsheet_9f7603b0-f1c5-4694-8fcd-2056e7648f00",
                       "factsheet_version": 1
                     }
                   },
-                  "fallback_session_id": "session_77654969-2fb3-4bfb-9c78-6fabec2528a7",
+                  "fallback_session_id": "session_47acdac2-1dd5-45e3-a8e9-3c96bb0608d1",
                   "fallback_claude_session_id": "fake-5"
                 },
-                "created_at": "2026-05-16T18:08:12.907Z"
+                "created_at": "2026-05-16T18:22:44.117Z"
               },
               {
                 "event_type": "evidence_revalidation_suppressed",
                 "details": {
                   "reason": "Cluster factsheet evidence changed and automatic evidence revalidation could not prove the factsheet is still valid.",
-                  "cooldown_until_ms": 1778954952749
+                  "cooldown_until_ms": 1778955823946
                 },
-                "created_at": "2026-05-16T18:08:12.911Z"
+                "created_at": "2026-05-16T18:22:44.120Z"
               },
               {
                 "event_type": "cluster_fallback_to_claude_consult",
@@ -2106,22 +2106,22 @@
                     "message": "Internal cluster evidence signal: scoped factsheet evidence changed; caller-facing tools revalidate or fall back before returning an answer.",
                     "cluster_id": "rate-limit-stale",
                     "details": {
-                      "factsheet_id": "factsheet_58508f4c-55af-4394-9361-22c239a7591f",
+                      "factsheet_id": "factsheet_9f7603b0-f1c5-4694-8fcd-2056e7648f00",
                       "factsheet_version": 1
                     }
                   },
-                  "fallback_session_id": "session_77654969-2fb3-4bfb-9c78-6fabec2528a7",
+                  "fallback_session_id": "session_47acdac2-1dd5-45e3-a8e9-3c96bb0608d1",
                   "fallback_claude_session_id": "fake-5"
                 },
-                "created_at": "2026-05-16T18:08:12.959Z"
+                "created_at": "2026-05-16T18:22:44.178Z"
               },
               {
                 "event_type": "evidence_revalidation_suppressed",
                 "details": {
                   "reason": "Cluster factsheet evidence changed and automatic evidence revalidation could not prove the factsheet is still valid.",
-                  "cooldown_until_ms": 1778954952749
+                  "cooldown_until_ms": 1778955823946
                 },
-                "created_at": "2026-05-16T18:08:12.963Z"
+                "created_at": "2026-05-16T18:22:44.181Z"
               },
               {
                 "event_type": "cluster_fallback_to_claude_consult",
@@ -2132,22 +2132,22 @@
                     "message": "Internal cluster evidence signal: scoped factsheet evidence changed; caller-facing tools revalidate or fall back before returning an answer.",
                     "cluster_id": "rate-limit-stale",
                     "details": {
-                      "factsheet_id": "factsheet_58508f4c-55af-4394-9361-22c239a7591f",
+                      "factsheet_id": "factsheet_9f7603b0-f1c5-4694-8fcd-2056e7648f00",
                       "factsheet_version": 1
                     }
                   },
-                  "fallback_session_id": "session_77654969-2fb3-4bfb-9c78-6fabec2528a7",
+                  "fallback_session_id": "session_47acdac2-1dd5-45e3-a8e9-3c96bb0608d1",
                   "fallback_claude_session_id": "fake-5"
                 },
-                "created_at": "2026-05-16T18:08:13.012Z"
+                "created_at": "2026-05-16T18:22:44.224Z"
               },
               {
                 "event_type": "evidence_revalidation_suppressed",
                 "details": {
                   "reason": "Cluster factsheet evidence changed and automatic evidence revalidation could not prove the factsheet is still valid.",
-                  "cooldown_until_ms": 1778954952749
+                  "cooldown_until_ms": 1778955823946
                 },
-                "created_at": "2026-05-16T18:08:13.016Z"
+                "created_at": "2026-05-16T18:22:44.228Z"
               },
               {
                 "event_type": "cluster_fallback_failed",
@@ -2158,22 +2158,22 @@
                     "message": "Internal cluster evidence signal: scoped factsheet evidence changed; caller-facing tools revalidate or fall back before returning an answer.",
                     "cluster_id": "rate-limit-stale",
                     "details": {
-                      "factsheet_id": "factsheet_58508f4c-55af-4394-9361-22c239a7591f",
+                      "factsheet_id": "factsheet_9f7603b0-f1c5-4694-8fcd-2056e7648f00",
                       "factsheet_version": 1
                     }
                   },
                   "fallback_session_id": null,
                   "fallback_claude_session_id": null
                 },
-                "created_at": "2026-05-16T18:08:13.021Z"
+                "created_at": "2026-05-16T18:22:44.234Z"
               },
               {
                 "event_type": "evidence_revalidation_suppressed",
                 "details": {
                   "reason": "Cluster factsheet evidence changed and automatic evidence revalidation could not prove the factsheet is still valid.",
-                  "cooldown_until_ms": 1778954952749
+                  "cooldown_until_ms": 1778955823946
                 },
-                "created_at": "2026-05-16T18:08:13.025Z"
+                "created_at": "2026-05-16T18:22:44.237Z"
               },
               {
                 "event_type": "cluster_fallback_failed",
@@ -2184,22 +2184,22 @@
                     "message": "Internal cluster evidence signal: scoped factsheet evidence changed; caller-facing tools revalidate or fall back before returning an answer.",
                     "cluster_id": "rate-limit-stale",
                     "details": {
-                      "factsheet_id": "factsheet_58508f4c-55af-4394-9361-22c239a7591f",
+                      "factsheet_id": "factsheet_9f7603b0-f1c5-4694-8fcd-2056e7648f00",
                       "factsheet_version": 1
                     }
                   },
                   "fallback_session_id": null,
                   "fallback_claude_session_id": null
                 },
-                "created_at": "2026-05-16T18:08:13.031Z"
+                "created_at": "2026-05-16T18:22:44.241Z"
               },
               {
                 "event_type": "evidence_revalidation_suppressed",
                 "details": {
                   "reason": "Cluster factsheet evidence changed and automatic evidence revalidation could not prove the factsheet is still valid.",
-                  "cooldown_until_ms": 1778954952749
+                  "cooldown_until_ms": 1778955823946
                 },
-                "created_at": "2026-05-16T18:08:13.035Z"
+                "created_at": "2026-05-16T18:22:44.243Z"
               },
               {
                 "event_type": "cluster_fallback_failed",
@@ -2210,22 +2210,22 @@
                     "message": "Internal cluster evidence signal: scoped factsheet evidence changed; caller-facing tools revalidate or fall back before returning an answer.",
                     "cluster_id": "rate-limit-stale",
                     "details": {
-                      "factsheet_id": "factsheet_58508f4c-55af-4394-9361-22c239a7591f",
+                      "factsheet_id": "factsheet_9f7603b0-f1c5-4694-8fcd-2056e7648f00",
                       "factsheet_version": 1
                     }
                   },
                   "fallback_session_id": null,
                   "fallback_claude_session_id": null
                 },
-                "created_at": "2026-05-16T18:08:13.041Z"
+                "created_at": "2026-05-16T18:22:44.246Z"
               },
               {
                 "event_type": "evidence_revalidation_suppressed",
                 "details": {
                   "reason": "Cluster factsheet evidence changed and automatic evidence revalidation could not prove the factsheet is still valid.",
-                  "cooldown_until_ms": 1778954952749
+                  "cooldown_until_ms": 1778955823946
                 },
-                "created_at": "2026-05-16T18:08:13.044Z"
+                "created_at": "2026-05-16T18:22:44.248Z"
               },
               {
                 "event_type": "cluster_fallback_failed",
@@ -2236,22 +2236,22 @@
                     "message": "Internal cluster evidence signal: scoped factsheet evidence changed; caller-facing tools revalidate or fall back before returning an answer.",
                     "cluster_id": "rate-limit-stale",
                     "details": {
-                      "factsheet_id": "factsheet_58508f4c-55af-4394-9361-22c239a7591f",
+                      "factsheet_id": "factsheet_9f7603b0-f1c5-4694-8fcd-2056e7648f00",
                       "factsheet_version": 1
                     }
                   },
                   "fallback_session_id": null,
                   "fallback_claude_session_id": null
                 },
-                "created_at": "2026-05-16T18:08:13.053Z"
+                "created_at": "2026-05-16T18:22:44.251Z"
               },
               {
                 "event_type": "evidence_revalidation_suppressed",
                 "details": {
                   "reason": "Cluster factsheet evidence changed and automatic evidence revalidation could not prove the factsheet is still valid.",
-                  "cooldown_until_ms": 1778954952749
+                  "cooldown_until_ms": 1778955823946
                 },
-                "created_at": "2026-05-16T18:08:13.057Z"
+                "created_at": "2026-05-16T18:22:44.254Z"
               },
               {
                 "event_type": "cluster_fallback_failed",
@@ -2262,22 +2262,22 @@
                     "message": "Internal cluster evidence signal: scoped factsheet evidence changed; caller-facing tools revalidate or fall back before returning an answer.",
                     "cluster_id": "rate-limit-stale",
                     "details": {
-                      "factsheet_id": "factsheet_58508f4c-55af-4394-9361-22c239a7591f",
+                      "factsheet_id": "factsheet_9f7603b0-f1c5-4694-8fcd-2056e7648f00",
                       "factsheet_version": 1
                     }
                   },
                   "fallback_session_id": null,
                   "fallback_claude_session_id": null
                 },
-                "created_at": "2026-05-16T18:08:13.063Z"
+                "created_at": "2026-05-16T18:22:44.257Z"
               },
               {
                 "event_type": "evidence_revalidation_suppressed",
                 "details": {
                   "reason": "Cluster factsheet evidence changed and automatic evidence revalidation could not prove the factsheet is still valid.",
-                  "cooldown_until_ms": 1778954952749
+                  "cooldown_until_ms": 1778955823946
                 },
-                "created_at": "2026-05-16T18:08:13.066Z"
+                "created_at": "2026-05-16T18:22:44.260Z"
               },
               {
                 "event_type": "cluster_fallback_failed",
@@ -2288,22 +2288,22 @@
                     "message": "Internal cluster evidence signal: scoped factsheet evidence changed; caller-facing tools revalidate or fall back before returning an answer.",
                     "cluster_id": "rate-limit-stale",
                     "details": {
-                      "factsheet_id": "factsheet_58508f4c-55af-4394-9361-22c239a7591f",
+                      "factsheet_id": "factsheet_9f7603b0-f1c5-4694-8fcd-2056e7648f00",
                       "factsheet_version": 1
                     }
                   },
                   "fallback_session_id": null,
                   "fallback_claude_session_id": null
                 },
-                "created_at": "2026-05-16T18:08:13.070Z"
+                "created_at": "2026-05-16T18:22:44.263Z"
               },
               {
                 "event_type": "evidence_revalidation_suppressed",
                 "details": {
                   "reason": "Cluster factsheet evidence changed and automatic evidence revalidation could not prove the factsheet is still valid.",
-                  "cooldown_until_ms": 1778954952749
+                  "cooldown_until_ms": 1778955823946
                 },
-                "created_at": "2026-05-16T18:08:13.073Z"
+                "created_at": "2026-05-16T18:22:44.265Z"
               },
               {
                 "event_type": "cluster_fallback_failed",
@@ -2314,14 +2314,14 @@
                     "message": "Internal cluster evidence signal: scoped factsheet evidence changed; caller-facing tools revalidate or fall back before returning an answer.",
                     "cluster_id": "rate-limit-stale",
                     "details": {
-                      "factsheet_id": "factsheet_58508f4c-55af-4394-9361-22c239a7591f",
+                      "factsheet_id": "factsheet_9f7603b0-f1c5-4694-8fcd-2056e7648f00",
                       "factsheet_version": 1
                     }
                   },
                   "fallback_session_id": null,
                   "fallback_claude_session_id": null
                 },
-                "created_at": "2026-05-16T18:08:13.079Z"
+                "created_at": "2026-05-16T18:22:44.269Z"
               }
             ]
           }
@@ -2332,22 +2332,22 @@
   "suites": [
     {
       "name": "main",
-      "project_dir": "/tmp/asr-adversarial-main-b6b3Pd/project",
-      "db_path": "/tmp/asr-adversarial-main-b6b3Pd/project/.claude-session-router/sessions.sqlite",
+      "project_dir": "/tmp/asr-adversarial-main-4R0HGX/project",
+      "db_path": "/tmp/asr-adversarial-main-4R0HGX/project/.claude-session-router/sessions.sqlite",
       "shadow_mode": true,
       "max_consults_per_hour": 1000,
       "max_consults_per_day": 5000,
-      "server_stderr": "{\"ts\":\"2026-05-16T18:08:07.399Z\",\"level\":\"warn\",\"message\":\"unknown_claude_version\",\"detected_version\":\"2.1.92 (Claude Code)\",\"tested_versions\":[]}\n"
+      "server_stderr": "{\"ts\":\"2026-05-16T18:22:38.721Z\",\"level\":\"warn\",\"message\":\"unknown_claude_version\",\"detected_version\":\"2.1.92 (Claude Code)\",\"tested_versions\":[]}\n"
     },
     {
       "name": "rate-limit",
-      "project_dir": "/tmp/asr-adversarial-rate-limit-EoQWPX/project",
-      "db_path": "/tmp/asr-adversarial-rate-limit-EoQWPX/project/.claude-session-router/sessions.sqlite",
+      "project_dir": "/tmp/asr-adversarial-rate-limit-h8xBtc/project",
+      "db_path": "/tmp/asr-adversarial-rate-limit-h8xBtc/project/.claude-session-router/sessions.sqlite",
       "shadow_mode": false,
       "max_consults_per_hour": 5,
       "max_consults_per_day": 20,
-      "server_stderr": "{\"ts\":\"2026-05-16T18:08:12.641Z\",\"level\":\"warn\",\"message\":\"unknown_claude_version\",\"detected_version\":\"2.1.92 (Claude Code)\",\"tested_versions\":[]}\n"
+      "server_stderr": "{\"ts\":\"2026-05-16T18:22:43.831Z\",\"level\":\"warn\",\"message\":\"unknown_claude_version\",\"detected_version\":\"2.1.92 (Claude Code)\",\"tested_versions\":[]}\n"
     }
   ],
-  "finished_at": "2026-05-16T18:08:13.097Z"
+  "finished_at": "2026-05-16T18:22:44.285Z"
 }
