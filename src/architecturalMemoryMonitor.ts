@@ -19,11 +19,15 @@ export interface ArchitecturalMemoryTelemetry {
   suspended_records: number;
   suspended_audit_records: number | null;
   rejected_audit_records: number | null;
+  remaining_rejected_audit_records: number | null;
+  rescued_from_rejected_records: number | null;
+  reclassified_to_project_architecture_records: number | null;
   excluded_records: number | null;
   rejected_or_suspended_audit_records: number | null;
   source_docs: ArchitecturalMemoryDocStats[];
   audit_artifacts: {
     active_promotion: string | null;
+    classification_correction: string | null;
     request_changes_resolution: string | null;
     verification_report: string | null;
   };
@@ -48,9 +52,13 @@ export function buildArchitecturalMemoryTelemetry(cwd: string): ArchitecturalMem
   const requestChangesPath = path.join(cwd, EXPERIMENT_DIR, "request-changes-resolution.json");
   const verificationReportPath = path.join(cwd, EXPERIMENT_DIR, "verification-report.json");
   const activePromotionPath = path.join(cwd, EXPERIMENT_DIR, "active-promotion.json");
+  const classificationCorrectionPath = path.join(cwd, EXPERIMENT_DIR, "classification-correction.json");
   const requestChanges = readJson(requestChangesPath);
   const verificationReport = readJson(verificationReportPath);
+  const classificationCorrection = readJson(classificationCorrectionPath);
   const warnings = buildWarnings(sourceDocs, activePromotionPath);
+  const rejectedAuditRecords = numberAt(verificationReport, ["summary", "by_bucket", "gate4_rejected"]);
+  const rescuedFromRejectedRecords = numberAt(classificationCorrection, ["counts", "rescued_engineering_principles"]);
 
   return {
     enabled: true,
@@ -59,12 +67,21 @@ export function buildArchitecturalMemoryTelemetry(cwd: string): ArchitecturalMem
     proposed_records: sum(sourceDocs.map((doc) => doc.proposed_records)),
     suspended_records: sum(sourceDocs.map((doc) => doc.suspended_records)),
     suspended_audit_records: numberAt(verificationReport, ["summary", "by_bucket", "gate4_suspended"]),
-    rejected_audit_records: numberAt(verificationReport, ["summary", "by_bucket", "gate4_rejected"]),
+    rejected_audit_records: rejectedAuditRecords,
+    remaining_rejected_audit_records:
+      rejectedAuditRecords === null || rescuedFromRejectedRecords === null
+        ? null
+        : Math.max(0, rejectedAuditRecords - rescuedFromRejectedRecords),
+    rescued_from_rejected_records: rescuedFromRejectedRecords,
+    reclassified_to_project_architecture_records: numberAt(classificationCorrection, ["counts", "moved_to_project_architecture"]),
     excluded_records: numberAt(requestChanges, ["summary", "excluded_from_promotion"]),
     rejected_or_suspended_audit_records: numberAt(verificationReport, ["summary", "failed"]),
     source_docs: sourceDocs,
     audit_artifacts: {
       active_promotion: existsSync(activePromotionPath) ? path.relative(cwd, activePromotionPath) : null,
+      classification_correction: existsSync(classificationCorrectionPath)
+        ? path.relative(cwd, classificationCorrectionPath)
+        : null,
       request_changes_resolution: existsSync(requestChangesPath) ? path.relative(cwd, requestChangesPath) : null,
       verification_report: existsSync(verificationReportPath) ? path.relative(cwd, verificationReportPath) : null
     },

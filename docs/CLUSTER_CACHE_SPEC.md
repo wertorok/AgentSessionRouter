@@ -1535,6 +1535,46 @@ Gate 12 non-goals:
 - no router behavior changes
 - no hidden model-memory authority
 
+#### Classification Correction (Gate 12.5)
+
+Status: active source-of-truth classification corrected, not runtime-served.
+Gate 12.5 is a manual correction gate after inspection found that the
+deterministic distill classifier judged wording and artifact specificity more
+than semantic transferability.
+
+Gate 12.5 outputs:
+
+- `docs/ENGINEERING_PRINCIPLES.md`
+- `docs/PROJECT_ARCHITECTURE.md`
+- `experiments/architectural-memory-dry-run-2026-05-16/classification-correction.json`
+- `experiments/architectural-memory-dry-run-2026-05-16/classification-correction.md`
+- `experiments/architectural-memory-dry-run-2026-05-16/gate-12-5-summary.md`
+
+Gate 12.5 result:
+
+- 5 active records were moved from `engineering-principles` to
+  `project-architecture`.
+- 5 fundamental rejected candidates were rescued into transferable
+  engineering-principles after wording was generalized.
+- Active engineering-principles remain 13 records.
+- Active project-architecture records are now 80 records.
+- Active source-of-truth records total 93 records.
+- All engineering-principle rows now include non-empty `counter_evidence`.
+
+Gate 12.5 known limitation:
+
+- This gate does not fix the classifier. It records that the classifier is
+  known-weak: it can misclassify in both directions when wording and
+  project-artifact references do not match semantic transferability. Future
+  distill runs can repeat this failure until classifier semantics are redesigned.
+
+Gate 12.5 non-goals:
+
+- no runtime import or serving path
+- no cluster writes
+- no router behavior changes
+- no classifier algorithm changes
+
 Non-goals:
 
 - no implementation in this decision step
@@ -1565,6 +1605,8 @@ Implementation gates:
 10. Closed: resolve or exclude `REQUEST_CHANGES` entries before promotion.
 11. Closed: materialize field-approved records as proposed source-of-truth docs.
 12. Closed: add bounded lead-session promotion approval and active writes.
+12.5. Closed: manually correct classification, rescue rejected fundamentals,
+      and add engineering-principle counter-evidence fields.
 13. Future: add explicit import/serving for `engineering-principles`.
     Runtime import/serving requires a separate design gate and human sign-off on
     the canonical URL/import boundary before router use.

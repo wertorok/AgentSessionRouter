@@ -1,0 +1,89 @@
+{
+  "generated_at": "2026-05-17T00:00:00.000Z",
+  "status": "classification_corrected",
+  "active_date": "2026-05-17",
+  "counts": {
+    "engineering_principles_before": 13,
+    "engineering_principles_after": 13,
+    "project_architecture_before": 75,
+    "project_architecture_after": 80,
+    "moved_to_project_architecture": 5,
+    "rescued_engineering_principles": 5,
+    "active_records_total_after": 93
+  },
+  "moved_to_project_architecture": [
+    {
+      "id": "AMB-SD-000007",
+      "decision": "Shadow must use dedicated lock namespace (shadow:${projectId}) separate from production locks",
+      "reason": "Gate 12.5 reclassified this active record from engineering-principles to project-architecture because its exact wording is AgentSessionRouter-specific."
+    },
+    {
+      "id": "AMB-SD-000116",
+      "decision": "Reject cluster names containing SQL metacharacters (; \" --) at input validation boundary",
+      "reason": "Gate 12.5 reclassified this active record from engineering-principles to project-architecture because its exact wording is AgentSessionRouter-specific."
+    },
+    {
+      "id": "AMB-SD-000121",
+      "decision": "Consistent fallback routing for all parallel queries until cluster-level revalidation succeeds",
+      "reason": "Gate 12.5 reclassified this active record from engineering-principles to project-architecture because its exact wording is AgentSessionRouter-specific."
+    },
+    {
+      "id": "AMB-SD-000122",
+      "decision": "Continue fallback routing for all remaining parallel queries until cluster revalidation",
+      "reason": "Gate 12.5 reclassified this active record from engineering-principles to project-architecture because its exact wording is AgentSessionRouter-specific."
+    },
+    {
+      "id": "AMB-SD-000123",
+      "decision": "Maintain fallback during reprepare until successful completion",
+      "reason": "Gate 12.5 reclassified this active record from engineering-principles to project-architecture because its exact wording is AgentSessionRouter-specific."
+    }
+  ],
+  "rescued_engineering_principles": [
+    {
+      "id": "AMB-RESCUE-0001",
+      "statement": "Evaluation and telemetry paths must not affect caller-facing answers; observation must remain separate from production response behavior.",
+      "rescued_from": [
+        "AMB-SD-000089",
+        "AMB-SD-000090",
+        "AMB-SD-000114"
+      ]
+    },
+    {
+      "id": "AMB-RESCUE-0002",
+      "statement": "Untrusted or stale evidence must produce an explicit signal and safe fallback, not silent use of stale data.",
+      "rescued_from": [
+        "AMB-SD-000052",
+        "AMB-SD-000053",
+        "AMB-SD-000062"
+      ]
+    },
+    {
+      "id": "AMB-RESCUE-0003",
+      "statement": "Verified evidence artifacts should be the operational source of truth; opaque model or session state must not be the only authority.",
+      "rescued_from": [
+        "AMB-DOC-0018"
+      ]
+    },
+    {
+      "id": "AMB-RESCUE-0004",
+      "statement": "Runtime-served principles need applicability conditions and an explicit rejection or counter-evidence path to avoid dogmatization.",
+      "rescued_from": [
+        "AMB-SD-000187"
+      ]
+    },
+    {
+      "id": "AMB-RESCUE-0005",
+      "statement": "Durable architectural memory must have diffable provenance; hidden model-memory must not become the authority.",
+      "rescued_from": [
+        "AMB-SD-000202"
+      ]
+    }
+  ],
+  "classifier_limitation": "Gate 12.5 is a manual correction. The deterministic distill classifier remains known-weak because it judged wording and artifact specificity more than semantic transferability in both directions.",
+  "scope": {
+    "runtime_import_serving": false,
+    "cluster_writes": false,
+    "router_behavior_changes": false,
+    "classifier_algorithm_changed": false
+  }
+}

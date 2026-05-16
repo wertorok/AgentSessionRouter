@@ -31,7 +31,7 @@ Gate 14 added read-only architectural-memory telemetry to `router_status` and
 
 ## Live Check
 
-The live MCP `router_monitor` call reported:
+The live MCP `router_monitor` call before Gate 12.5 reported:
 
 - active records: 88
 - proposed records: 0
@@ -41,6 +41,10 @@ The live MCP `router_monitor` call reported:
 - excluded records: 5
 - runtime import/serving enabled: false
 - warnings: none
+
+After Gate 12.5 classification correction, architectural-memory telemetry
+reports 93 active records, 5 rescued-from-rejected records, and 15 remaining
+rejected audit records.
 
 ## Verification
 

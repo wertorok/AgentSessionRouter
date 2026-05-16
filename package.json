@@ -45,6 +45,7 @@
     "memory:field-review": "node scripts/architectural-memory-field-review.mjs",
     "memory:materialize-proposed": "node scripts/architectural-memory-materialize-proposed.mjs",
     "memory:promote-active": "node scripts/architectural-memory-promote-active.mjs",
+    "memory:correct-classification": "node scripts/architectural-memory-correct-classification.mjs",
     "monitor:snapshot": "node scripts/router-monitor-snapshot.mjs",
     "mcp:workload": "node scripts/mcp-workload-matrix.mjs",
     "mcp:workload:live": "node scripts/mcp-workload-matrix.mjs --live"

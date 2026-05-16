@@ -1468,6 +1468,10 @@ describe("cluster MCP tools", () => {
       path.join(fixture.dir, "experiments", "architectural-memory-dry-run-2026-05-16", "verification-report.json"),
       JSON.stringify({ summary: { failed: 23, by_bucket: { gate4_suspended: 3, gate4_rejected: 20 } } })
     );
+    writeFileSync(
+      path.join(fixture.dir, "experiments", "architectural-memory-dry-run-2026-05-16", "classification-correction.json"),
+      JSON.stringify({ counts: { rescued_engineering_principles: 5, moved_to_project_architecture: 5 } })
+    );
 
     const status = parseToolJson(
       await server.call("router_status", {
@@ -1487,6 +1491,9 @@ describe("cluster MCP tools", () => {
       suspended_records: 1,
       suspended_audit_records: 3,
       rejected_audit_records: 20,
+      remaining_rejected_audit_records: 15,
+      rescued_from_rejected_records: 5,
+      reclassified_to_project_architecture_records: 5,
       excluded_records: 5,
       rejected_or_suspended_audit_records: 23,
       warnings: []
@@ -1498,6 +1505,9 @@ describe("cluster MCP tools", () => {
       suspended_records: 1,
       suspended_audit_records: 3,
       rejected_audit_records: 20,
+      remaining_rejected_audit_records: 15,
+      rescued_from_rejected_records: 5,
+      reclassified_to_project_architecture_records: 5,
       excluded_records: 5
     });
     fixture.cleanup();
