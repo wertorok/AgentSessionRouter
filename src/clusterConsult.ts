@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { readFileSync, statSync } from "node:fs";
 import path from "node:path";
-import type { ClaudeAdapter, ClaudeJsonResponse } from "./claude.js";
+import type { ClaudeAdapter } from "./claude.js";
 import { ERROR_CODES } from "./constants.js";
 import type { ClusterFactsheetRecord, ClusterFileHashRecord, ClusterRecord, RouterDatabase } from "./db.js";
 import { errorPayload, type ErrorPayload, SPEC_ERROR_MESSAGES } from "./errors.js";

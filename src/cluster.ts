@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import type { ClaudeAdapter, ClaudeJsonResponse } from "./claude.js";
 import type { ClusterStaticFactsheetPolicy, ClusterToolProfile, RouterDatabase } from "./db.js";
-import { buildEvidenceSnippet, normalizeEvidenceHash, readEvidenceFile, type EvidenceFile } from "./evidence.js";
+import { buildEvidenceSnippet, normalizeEvidenceHash, readEvidenceFile } from "./evidence.js";
 import { profilePromptOptions, type VerifierToolProfile } from "./profiles.js";
 
 export interface FactsheetEvidence {
@@ -114,8 +114,6 @@ export interface LlmFactsheetVerification {
   durationMs: number;
   toolProfile: VerifierToolProfile;
 }
-
-type VerifiedEvidenceFile = EvidenceFile;
 
 export function prepareStaticCluster(
   db: RouterDatabase,

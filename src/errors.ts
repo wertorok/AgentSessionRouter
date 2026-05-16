@@ -41,7 +41,8 @@ export const SPEC_ERROR_MESSAGES = {
   [ERROR_CODES.CLUSTER_PROJECT_MISMATCH]: "Cluster belongs to another project_id. Refusing to use it.",
   [ERROR_CODES.CLUSTER_FACTSHEET_INVALID]:
     "Cluster factsheet failed static verification. Store only facts backed by local evidence.",
-  [ERROR_CODES.CLUSTER_FACTSHEET_STALE]: "Cluster factsheet is stale. Run cluster_refresh before consulting.",
+  [ERROR_CODES.CLUSTER_FACTSHEET_STALE]:
+    "Internal cluster evidence signal: scoped factsheet evidence changed; caller-facing tools revalidate or fall back before returning an answer.",
   [ERROR_CODES.CLUSTER_FACTSHEET_UNTRUSTED]:
     "Cluster factsheet is not LLM-verified. Run cluster_prepare with verification_mode=llm or explicitly allow static facts.",
   [ERROR_CODES.CLUSTER_FACTSHEET_UNRECOVERABLE]:

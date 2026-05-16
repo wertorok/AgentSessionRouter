@@ -1,5 +1,5 @@
 {
-  "started_at": "2026-05-16T15:26:31.562Z",
+  "started_at": "2026-05-16T17:56:39.994Z",
   "server_entry": "/root/projects/AgentSessionRouter/dist/src/index.js",
   "zones": [
     {
@@ -78,7 +78,7 @@
                 "session_update"
               ],
               "selected_path": "claude_consult_new_session",
-              "session_id": "session_184ca595-a1d0-443e-9ff9-4fb5fdac7833",
+              "session_id": "session_50fc2dd7-9385-43d1-9301-4c185207a982",
               "cluster_id": null,
               "factsheet_status": null,
               "trust_state": null,
@@ -194,14 +194,14 @@
           "expected_edge": "Routing should not catastrophically slow down or pick unrelated sessions only because N is large.",
           "observed": {
             "seeded_scale_sessions": 200,
-            "create_duration_ms": 11,
-            "latency_before_sessions_ms": 4,
-            "latency_after_router_consult_ms": 63,
+            "create_duration_ms": 12,
+            "latency_before_sessions_ms": 3,
+            "latency_after_router_consult_ms": 66,
             "total_session_count": 202,
             "decisions": [
               {
                 "name": "exact_topic_42",
-                "duration_ms": 48,
+                "duration_ms": 43,
                 "selected_path": "claude_consult_existing_session",
                 "selected_session_id": null,
                 "score": null,
@@ -266,7 +266,7 @@
               },
               {
                 "name": "exact_topic_123",
-                "duration_ms": 36,
+                "duration_ms": 37,
                 "selected_path": "claude_consult_existing_session",
                 "selected_session_id": null,
                 "score": null,
@@ -331,7 +331,7 @@
               },
               {
                 "name": "nearby_topic_4",
-                "duration_ms": 48,
+                "duration_ms": 43,
                 "selected_path": "claude_consult_existing_session",
                 "selected_session_id": null,
                 "score": null,
@@ -396,7 +396,7 @@
               },
               {
                 "name": "shared_file_7",
-                "duration_ms": 48,
+                "duration_ms": 46,
                 "selected_path": "claude_consult_new_session",
                 "selected_session_id": null,
                 "score": null,
@@ -461,7 +461,7 @@
               },
               {
                 "name": "unrelated_new_domain",
-                "duration_ms": 41,
+                "duration_ms": 51,
                 "selected_path": "claude_consult_new_session",
                 "selected_session_id": null,
                 "score": null,
@@ -562,7 +562,7 @@
               "factsheet_status": "static_verified",
               "trust_state": null,
               "metrics": {
-                "duration_ms": 38,
+                "duration_ms": 33,
                 "tokens_in": 435,
                 "tokens_out": 13,
                 "cost_usd": 0.0015,
@@ -599,7 +599,7 @@
                 "session_update"
               ],
               "selected_path": null,
-              "session_id": "session_7621fa31-717a-413f-bbcb-1205f13bcb4b",
+              "session_id": "session_0d93ea4a-89b0-4f68-9a6c-aefa644a411e",
               "cluster_id": null,
               "factsheet_status": null,
               "trust_state": null,
@@ -689,7 +689,7 @@
               "factsheet_status": "static_verified",
               "trust_state": null,
               "metrics": {
-                "duration_ms": 33,
+                "duration_ms": 35,
                 "tokens_in": 432,
                 "tokens_out": 13,
                 "cost_usd": 0.001491,
@@ -1162,17 +1162,17 @@
                   "seq": 56,
                   "type": "cluster_consult",
                   "resumeSessionId": null,
-                  "tokensIn": 427,
+                  "tokensIn": 428,
                   "tokensOut": 13,
-                  "cost": 0.001476
+                  "cost": 0.001479
                 },
                 {
                   "seq": 57,
                   "type": "cluster_consult",
                   "resumeSessionId": null,
-                  "tokensIn": 428,
+                  "tokensIn": 427,
                   "tokensOut": 13,
-                  "cost": 0.001479
+                  "cost": 0.001476
                 },
                 {
                   "seq": 58,
@@ -1191,7 +1191,7 @@
                   "cost": 0.001479
                 },
                 {
-                  "seq": 61,
+                  "seq": 60,
                   "type": "cluster_consult",
                   "resumeSessionId": null,
                   "tokensIn": 428,
@@ -1199,7 +1199,7 @@
                   "cost": 0.001479
                 },
                 {
-                  "seq": 60,
+                  "seq": 61,
                   "type": "cluster_consult",
                   "resumeSessionId": null,
                   "tokensIn": 428,
@@ -1274,9 +1274,9 @@
                   "seq": 70,
                   "type": "shadow_direct",
                   "resumeSessionId": null,
-                  "tokensIn": 184,
+                  "tokensIn": 183,
                   "tokensOut": 14,
-                  "cost": 0.000762
+                  "cost": 0.000759
                 },
                 {
                   "seq": 71,
@@ -1290,9 +1290,9 @@
                   "seq": 72,
                   "type": "shadow_direct",
                   "resumeSessionId": null,
-                  "tokensIn": 184,
+                  "tokensIn": 183,
                   "tokensOut": 14,
-                  "cost": 0.000762
+                  "cost": 0.000759
                 },
                 {
                   "seq": 73,
@@ -1354,17 +1354,25 @@
                   "seq": 80,
                   "type": "shadow_direct",
                   "resumeSessionId": null,
-                  "tokensIn": 183,
+                  "tokensIn": 184,
                   "tokensOut": 14,
-                  "cost": 0.000759
+                  "cost": 0.000762
                 },
                 {
                   "seq": 81,
                   "type": "shadow_direct",
                   "resumeSessionId": null,
-                  "tokensIn": 183,
+                  "tokensIn": 184,
                   "tokensOut": 14,
-                  "cost": 0.000759
+                  "cost": 0.000762
+                },
+                {
+                  "seq": 81,
+                  "type": "shadow_direct",
+                  "resumeSessionId": null,
+                  "tokensIn": 184,
+                  "tokensOut": 14,
+                  "cost": 0.000762
                 },
                 {
                   "seq": 82,
@@ -1392,11 +1400,11 @@
                 },
                 {
                   "seq": 85,
-                  "type": "shadow_direct",
+                  "type": "judge",
                   "resumeSessionId": null,
-                  "tokensIn": 184,
-                  "tokensOut": 14,
-                  "cost": 0.000762
+                  "tokensIn": 1160,
+                  "tokensOut": 42,
+                  "cost": 0.00411
                 },
                 {
                   "seq": 86,
@@ -1408,11 +1416,11 @@
                 },
                 {
                   "seq": 87,
-                  "type": "shadow_direct",
+                  "type": "judge",
                   "resumeSessionId": null,
-                  "tokensIn": 184,
-                  "tokensOut": 14,
-                  "cost": 0.000762
+                  "tokensIn": 1160,
+                  "tokensOut": 42,
+                  "cost": 0.00411
                 },
                 {
                   "seq": 88,
@@ -1488,11 +1496,11 @@
                 },
                 {
                   "seq": 97,
-                  "type": "judge",
+                  "type": "shadow_direct",
                   "resumeSessionId": null,
-                  "tokensIn": 1160,
-                  "tokensOut": 42,
-                  "cost": 0.00411
+                  "tokensIn": 184,
+                  "tokensOut": 14,
+                  "cost": 0.000762
                 },
                 {
                   "seq": 98,
@@ -1557,14 +1565,6 @@
                   "tokensIn": 1160,
                   "tokensOut": 42,
                   "cost": 0.00411
-                },
-                {
-                  "seq": 106,
-                  "type": "judge",
-                  "resumeSessionId": null,
-                  "tokensIn": 1160,
-                  "tokensOut": 42,
-                  "cost": 0.00411
                 }
               ]
             },
@@ -1616,7 +1616,7 @@
               "factsheet_status": "static_verified",
               "trust_state": null,
               "metrics": {
-                "duration_ms": 36,
+                "duration_ms": 39,
                 "tokens_in": 444,
                 "tokens_out": 13,
                 "cost_usd": 0.001527,
@@ -1637,7 +1637,7 @@
               "cost_usd": 0.006498,
               "calls": [
                 {
-                  "seq": 107,
+                  "seq": 106,
                   "type": "cluster_consult",
                   "resumeSessionId": null,
                   "tokensIn": 444,
@@ -1645,7 +1645,7 @@
                   "cost": 0.001527
                 },
                 {
-                  "seq": 108,
+                  "seq": 107,
                   "type": "shadow_direct",
                   "resumeSessionId": null,
                   "tokensIn": 200,
@@ -1653,7 +1653,7 @@
                   "cost": 0.00081
                 },
                 {
-                  "seq": 109,
+                  "seq": 108,
                   "type": "judge",
                   "resumeSessionId": null,
                   "tokensIn": 1177,
@@ -1692,7 +1692,7 @@
                   "session_update"
                 ],
                 "selected_path": null,
-                "session_id": "session_154880d0-e1f8-482b-a160-60e7c4233ed5",
+                "session_id": "session_e6883358-109b-4264-9e25-a064af643e65",
                 "cluster_id": null,
                 "factsheet_status": null,
                 "trust_state": null,
@@ -1712,7 +1712,7 @@
                   "session_update"
                 ],
                 "selected_path": null,
-                "session_id": "session_154880d0-e1f8-482b-a160-60e7c4233ed5",
+                "session_id": "session_e6883358-109b-4264-9e25-a064af643e65",
                 "cluster_id": null,
                 "factsheet_status": null,
                 "trust_state": null,
@@ -1732,7 +1732,7 @@
                   "session_update"
                 ],
                 "selected_path": null,
-                "session_id": "session_154880d0-e1f8-482b-a160-60e7c4233ed5",
+                "session_id": "session_e6883358-109b-4264-9e25-a064af643e65",
                 "cluster_id": null,
                 "factsheet_status": null,
                 "trust_state": null,
@@ -1752,7 +1752,7 @@
                   "session_update"
                 ],
                 "selected_path": null,
-                "session_id": "session_154880d0-e1f8-482b-a160-60e7c4233ed5",
+                "session_id": "session_e6883358-109b-4264-9e25-a064af643e65",
                 "cluster_id": null,
                 "factsheet_status": null,
                 "trust_state": null,
@@ -1772,7 +1772,7 @@
                   "session_update"
                 ],
                 "selected_path": null,
-                "session_id": "session_154880d0-e1f8-482b-a160-60e7c4233ed5",
+                "session_id": "session_e6883358-109b-4264-9e25-a064af643e65",
                 "cluster_id": null,
                 "factsheet_status": null,
                 "trust_state": null,
@@ -1965,32 +1965,32 @@
               {
                 "event_type": "cluster_created",
                 "details": null,
-                "created_at": "2026-05-16T15:26:36.629Z"
+                "created_at": "2026-05-16T17:56:45.479Z"
               },
               {
                 "event_type": "factsheet_static_verified",
                 "details": {
-                  "factsheet_id": "factsheet_e1bdbef5-ee12-4d12-9a96-9f7850fc0c48",
+                  "factsheet_id": "factsheet_7d70f7ac-753e-4f59-a414-464452231758",
                   "version": 1,
                   "file_hashes": 1
                 },
-                "created_at": "2026-05-16T15:26:36.633Z"
+                "created_at": "2026-05-16T17:56:45.484Z"
               },
               {
                 "event_type": "cluster_refresh_required",
                 "details": {
-                  "factsheet_id": "factsheet_e1bdbef5-ee12-4d12-9a96-9f7850fc0c48",
+                  "factsheet_id": "factsheet_7d70f7ac-753e-4f59-a414-464452231758",
                   "factsheet_version": 1,
                   "changed_files": [
                     "src/evidence.ts"
                   ]
                 },
-                "created_at": "2026-05-16T15:26:36.708Z"
+                "created_at": "2026-05-16T17:56:45.556Z"
               },
               {
                 "event_type": "evidence_revalidation_failed",
                 "details": {
-                  "factsheet_id": "factsheet_e1bdbef5-ee12-4d12-9a96-9f7850fc0c48",
+                  "factsheet_id": "factsheet_7d70f7ac-753e-4f59-a414-464452231758",
                   "factsheet_version": 1,
                   "original_facts": 1,
                   "revalidated_facts": 0,
@@ -2004,7 +2004,7 @@
                     }
                   ]
                 },
-                "created_at": "2026-05-16T15:26:36.710Z"
+                "created_at": "2026-05-16T17:56:45.558Z"
               },
               {
                 "event_type": "cluster_fallback_to_claude_consult",
@@ -2016,7 +2016,7 @@
                     "cluster_id": "rate-limit-stale",
                     "details": {
                       "reason": "evidence revalidation failed; not all required evidence still matches current files",
-                      "factsheet_id": "factsheet_e1bdbef5-ee12-4d12-9a96-9f7850fc0c48",
+                      "factsheet_id": "factsheet_7d70f7ac-753e-4f59-a414-464452231758",
                       "factsheet_version": 1,
                       "original_facts": 1,
                       "revalidated_facts": 0,
@@ -2032,296 +2032,296 @@
                       "suggested_action": "Recreate the cluster with cluster_prepare or use claude_consult for fresh exploration."
                     }
                   },
-                  "fallback_session_id": "session_154880d0-e1f8-482b-a160-60e7c4233ed5",
+                  "fallback_session_id": "session_e6883358-109b-4264-9e25-a064af643e65",
                   "fallback_claude_session_id": "fake-5"
                 },
-                "created_at": "2026-05-16T15:26:36.759Z"
+                "created_at": "2026-05-16T17:56:45.607Z"
               },
               {
                 "event_type": "evidence_revalidation_suppressed",
                 "details": {
                   "reason": "Cluster factsheet evidence changed and automatic evidence revalidation could not prove the factsheet is still valid.",
-                  "cooldown_until_ms": 1778945256711
+                  "cooldown_until_ms": 1778954265560
                 },
-                "created_at": "2026-05-16T15:26:36.762Z"
+                "created_at": "2026-05-16T17:56:45.610Z"
               },
               {
                 "event_type": "cluster_fallback_to_claude_consult",
                 "details": {
-                  "reason": "Cluster factsheet is stale. Run cluster_refresh before consulting.",
+                  "reason": "Internal cluster evidence signal: scoped factsheet evidence changed; caller-facing tools revalidate or fall back before returning an answer.",
                   "revalidation_error": {
                     "code": "CLUSTER_FACTSHEET_STALE",
-                    "message": "Cluster factsheet is stale. Run cluster_refresh before consulting.",
+                    "message": "Internal cluster evidence signal: scoped factsheet evidence changed; caller-facing tools revalidate or fall back before returning an answer.",
                     "cluster_id": "rate-limit-stale",
                     "details": {
-                      "factsheet_id": "factsheet_e1bdbef5-ee12-4d12-9a96-9f7850fc0c48",
+                      "factsheet_id": "factsheet_7d70f7ac-753e-4f59-a414-464452231758",
                       "factsheet_version": 1
                     }
                   },
-                  "fallback_session_id": "session_154880d0-e1f8-482b-a160-60e7c4233ed5",
+                  "fallback_session_id": "session_e6883358-109b-4264-9e25-a064af643e65",
                   "fallback_claude_session_id": "fake-5"
                 },
-                "created_at": "2026-05-16T15:26:36.807Z"
+                "created_at": "2026-05-16T17:56:45.652Z"
               },
               {
                 "event_type": "evidence_revalidation_suppressed",
                 "details": {
                   "reason": "Cluster factsheet evidence changed and automatic evidence revalidation could not prove the factsheet is still valid.",
-                  "cooldown_until_ms": 1778945256711
+                  "cooldown_until_ms": 1778954265560
                 },
-                "created_at": "2026-05-16T15:26:36.810Z"
+                "created_at": "2026-05-16T17:56:45.656Z"
               },
               {
                 "event_type": "cluster_fallback_to_claude_consult",
                 "details": {
-                  "reason": "Cluster factsheet is stale. Run cluster_refresh before consulting.",
+                  "reason": "Internal cluster evidence signal: scoped factsheet evidence changed; caller-facing tools revalidate or fall back before returning an answer.",
                   "revalidation_error": {
                     "code": "CLUSTER_FACTSHEET_STALE",
-                    "message": "Cluster factsheet is stale. Run cluster_refresh before consulting.",
+                    "message": "Internal cluster evidence signal: scoped factsheet evidence changed; caller-facing tools revalidate or fall back before returning an answer.",
                     "cluster_id": "rate-limit-stale",
                     "details": {
-                      "factsheet_id": "factsheet_e1bdbef5-ee12-4d12-9a96-9f7850fc0c48",
+                      "factsheet_id": "factsheet_7d70f7ac-753e-4f59-a414-464452231758",
                       "factsheet_version": 1
                     }
                   },
-                  "fallback_session_id": "session_154880d0-e1f8-482b-a160-60e7c4233ed5",
+                  "fallback_session_id": "session_e6883358-109b-4264-9e25-a064af643e65",
                   "fallback_claude_session_id": "fake-5"
                 },
-                "created_at": "2026-05-16T15:26:36.853Z"
+                "created_at": "2026-05-16T17:56:45.696Z"
               },
               {
                 "event_type": "evidence_revalidation_suppressed",
                 "details": {
                   "reason": "Cluster factsheet evidence changed and automatic evidence revalidation could not prove the factsheet is still valid.",
-                  "cooldown_until_ms": 1778945256711
+                  "cooldown_until_ms": 1778954265560
                 },
-                "created_at": "2026-05-16T15:26:36.857Z"
+                "created_at": "2026-05-16T17:56:45.700Z"
               },
               {
                 "event_type": "cluster_fallback_to_claude_consult",
                 "details": {
-                  "reason": "Cluster factsheet is stale. Run cluster_refresh before consulting.",
+                  "reason": "Internal cluster evidence signal: scoped factsheet evidence changed; caller-facing tools revalidate or fall back before returning an answer.",
                   "revalidation_error": {
                     "code": "CLUSTER_FACTSHEET_STALE",
-                    "message": "Cluster factsheet is stale. Run cluster_refresh before consulting.",
+                    "message": "Internal cluster evidence signal: scoped factsheet evidence changed; caller-facing tools revalidate or fall back before returning an answer.",
                     "cluster_id": "rate-limit-stale",
                     "details": {
-                      "factsheet_id": "factsheet_e1bdbef5-ee12-4d12-9a96-9f7850fc0c48",
+                      "factsheet_id": "factsheet_7d70f7ac-753e-4f59-a414-464452231758",
                       "factsheet_version": 1
                     }
                   },
-                  "fallback_session_id": "session_154880d0-e1f8-482b-a160-60e7c4233ed5",
+                  "fallback_session_id": "session_e6883358-109b-4264-9e25-a064af643e65",
                   "fallback_claude_session_id": "fake-5"
                 },
-                "created_at": "2026-05-16T15:26:36.903Z"
+                "created_at": "2026-05-16T17:56:45.748Z"
               },
               {
                 "event_type": "evidence_revalidation_suppressed",
                 "details": {
                   "reason": "Cluster factsheet evidence changed and automatic evidence revalidation could not prove the factsheet is still valid.",
-                  "cooldown_until_ms": 1778945256711
+                  "cooldown_until_ms": 1778954265560
                 },
-                "created_at": "2026-05-16T15:26:36.907Z"
+                "created_at": "2026-05-16T17:56:45.754Z"
               },
               {
                 "event_type": "cluster_fallback_to_claude_consult",
                 "details": {
-                  "reason": "Cluster factsheet is stale. Run cluster_refresh before consulting.",
+                  "reason": "Internal cluster evidence signal: scoped factsheet evidence changed; caller-facing tools revalidate or fall back before returning an answer.",
                   "revalidation_error": {
                     "code": "CLUSTER_FACTSHEET_STALE",
-                    "message": "Cluster factsheet is stale. Run cluster_refresh before consulting.",
+                    "message": "Internal cluster evidence signal: scoped factsheet evidence changed; caller-facing tools revalidate or fall back before returning an answer.",
                     "cluster_id": "rate-limit-stale",
                     "details": {
-                      "factsheet_id": "factsheet_e1bdbef5-ee12-4d12-9a96-9f7850fc0c48",
+                      "factsheet_id": "factsheet_7d70f7ac-753e-4f59-a414-464452231758",
                       "factsheet_version": 1
                     }
                   },
-                  "fallback_session_id": "session_154880d0-e1f8-482b-a160-60e7c4233ed5",
+                  "fallback_session_id": "session_e6883358-109b-4264-9e25-a064af643e65",
                   "fallback_claude_session_id": "fake-5"
                 },
-                "created_at": "2026-05-16T15:26:36.949Z"
+                "created_at": "2026-05-16T17:56:45.802Z"
               },
               {
                 "event_type": "evidence_revalidation_suppressed",
                 "details": {
                   "reason": "Cluster factsheet evidence changed and automatic evidence revalidation could not prove the factsheet is still valid.",
-                  "cooldown_until_ms": 1778945256711
+                  "cooldown_until_ms": 1778954265560
                 },
-                "created_at": "2026-05-16T15:26:36.952Z"
+                "created_at": "2026-05-16T17:56:45.805Z"
               },
               {
                 "event_type": "cluster_fallback_failed",
                 "details": {
-                  "reason": "Cluster factsheet is stale. Run cluster_refresh before consulting.",
+                  "reason": "Internal cluster evidence signal: scoped factsheet evidence changed; caller-facing tools revalidate or fall back before returning an answer.",
                   "revalidation_error": {
                     "code": "CLUSTER_FACTSHEET_STALE",
-                    "message": "Cluster factsheet is stale. Run cluster_refresh before consulting.",
+                    "message": "Internal cluster evidence signal: scoped factsheet evidence changed; caller-facing tools revalidate or fall back before returning an answer.",
                     "cluster_id": "rate-limit-stale",
                     "details": {
-                      "factsheet_id": "factsheet_e1bdbef5-ee12-4d12-9a96-9f7850fc0c48",
+                      "factsheet_id": "factsheet_7d70f7ac-753e-4f59-a414-464452231758",
                       "factsheet_version": 1
                     }
                   },
                   "fallback_session_id": null,
                   "fallback_claude_session_id": null
                 },
-                "created_at": "2026-05-16T15:26:36.958Z"
+                "created_at": "2026-05-16T17:56:45.810Z"
               },
               {
                 "event_type": "evidence_revalidation_suppressed",
                 "details": {
                   "reason": "Cluster factsheet evidence changed and automatic evidence revalidation could not prove the factsheet is still valid.",
-                  "cooldown_until_ms": 1778945256711
+                  "cooldown_until_ms": 1778954265560
                 },
-                "created_at": "2026-05-16T15:26:36.962Z"
+                "created_at": "2026-05-16T17:56:45.814Z"
               },
               {
                 "event_type": "cluster_fallback_failed",
                 "details": {
-                  "reason": "Cluster factsheet is stale. Run cluster_refresh before consulting.",
+                  "reason": "Internal cluster evidence signal: scoped factsheet evidence changed; caller-facing tools revalidate or fall back before returning an answer.",
                   "revalidation_error": {
                     "code": "CLUSTER_FACTSHEET_STALE",
-                    "message": "Cluster factsheet is stale. Run cluster_refresh before consulting.",
+                    "message": "Internal cluster evidence signal: scoped factsheet evidence changed; caller-facing tools revalidate or fall back before returning an answer.",
                     "cluster_id": "rate-limit-stale",
                     "details": {
-                      "factsheet_id": "factsheet_e1bdbef5-ee12-4d12-9a96-9f7850fc0c48",
+                      "factsheet_id": "factsheet_7d70f7ac-753e-4f59-a414-464452231758",
                       "factsheet_version": 1
                     }
                   },
                   "fallback_session_id": null,
                   "fallback_claude_session_id": null
                 },
-                "created_at": "2026-05-16T15:26:36.967Z"
+                "created_at": "2026-05-16T17:56:45.817Z"
               },
               {
                 "event_type": "evidence_revalidation_suppressed",
                 "details": {
                   "reason": "Cluster factsheet evidence changed and automatic evidence revalidation could not prove the factsheet is still valid.",
-                  "cooldown_until_ms": 1778945256711
+                  "cooldown_until_ms": 1778954265560
                 },
-                "created_at": "2026-05-16T15:26:36.971Z"
+                "created_at": "2026-05-16T17:56:45.822Z"
               },
               {
                 "event_type": "cluster_fallback_failed",
                 "details": {
-                  "reason": "Cluster factsheet is stale. Run cluster_refresh before consulting.",
+                  "reason": "Internal cluster evidence signal: scoped factsheet evidence changed; caller-facing tools revalidate or fall back before returning an answer.",
                   "revalidation_error": {
                     "code": "CLUSTER_FACTSHEET_STALE",
-                    "message": "Cluster factsheet is stale. Run cluster_refresh before consulting.",
+                    "message": "Internal cluster evidence signal: scoped factsheet evidence changed; caller-facing tools revalidate or fall back before returning an answer.",
                     "cluster_id": "rate-limit-stale",
                     "details": {
-                      "factsheet_id": "factsheet_e1bdbef5-ee12-4d12-9a96-9f7850fc0c48",
+                      "factsheet_id": "factsheet_7d70f7ac-753e-4f59-a414-464452231758",
                       "factsheet_version": 1
                     }
                   },
                   "fallback_session_id": null,
                   "fallback_claude_session_id": null
                 },
-                "created_at": "2026-05-16T15:26:36.975Z"
+                "created_at": "2026-05-16T17:56:45.829Z"
               },
               {
                 "event_type": "evidence_revalidation_suppressed",
                 "details": {
                   "reason": "Cluster factsheet evidence changed and automatic evidence revalidation could not prove the factsheet is still valid.",
-                  "cooldown_until_ms": 1778945256711
+                  "cooldown_until_ms": 1778954265560
                 },
-                "created_at": "2026-05-16T15:26:36.979Z"
+                "created_at": "2026-05-16T17:56:45.832Z"
               },
               {
                 "event_type": "cluster_fallback_failed",
                 "details": {
-                  "reason": "Cluster factsheet is stale. Run cluster_refresh before consulting.",
+                  "reason": "Internal cluster evidence signal: scoped factsheet evidence changed; caller-facing tools revalidate or fall back before returning an answer.",
                   "revalidation_error": {
                     "code": "CLUSTER_FACTSHEET_STALE",
-                    "message": "Cluster factsheet is stale. Run cluster_refresh before consulting.",
+                    "message": "Internal cluster evidence signal: scoped factsheet evidence changed; caller-facing tools revalidate or fall back before returning an answer.",
                     "cluster_id": "rate-limit-stale",
                     "details": {
-                      "factsheet_id": "factsheet_e1bdbef5-ee12-4d12-9a96-9f7850fc0c48",
+                      "factsheet_id": "factsheet_7d70f7ac-753e-4f59-a414-464452231758",
                       "factsheet_version": 1
                     }
                   },
                   "fallback_session_id": null,
                   "fallback_claude_session_id": null
                 },
-                "created_at": "2026-05-16T15:26:36.985Z"
+                "created_at": "2026-05-16T17:56:45.836Z"
               },
               {
                 "event_type": "evidence_revalidation_suppressed",
                 "details": {
                   "reason": "Cluster factsheet evidence changed and automatic evidence revalidation could not prove the factsheet is still valid.",
-                  "cooldown_until_ms": 1778945256711
+                  "cooldown_until_ms": 1778954265560
                 },
-                "created_at": "2026-05-16T15:26:36.989Z"
+                "created_at": "2026-05-16T17:56:45.839Z"
               },
               {
                 "event_type": "cluster_fallback_failed",
                 "details": {
-                  "reason": "Cluster factsheet is stale. Run cluster_refresh before consulting.",
+                  "reason": "Internal cluster evidence signal: scoped factsheet evidence changed; caller-facing tools revalidate or fall back before returning an answer.",
                   "revalidation_error": {
                     "code": "CLUSTER_FACTSHEET_STALE",
-                    "message": "Cluster factsheet is stale. Run cluster_refresh before consulting.",
+                    "message": "Internal cluster evidence signal: scoped factsheet evidence changed; caller-facing tools revalidate or fall back before returning an answer.",
                     "cluster_id": "rate-limit-stale",
                     "details": {
-                      "factsheet_id": "factsheet_e1bdbef5-ee12-4d12-9a96-9f7850fc0c48",
+                      "factsheet_id": "factsheet_7d70f7ac-753e-4f59-a414-464452231758",
                       "factsheet_version": 1
                     }
                   },
                   "fallback_session_id": null,
                   "fallback_claude_session_id": null
                 },
-                "created_at": "2026-05-16T15:26:36.993Z"
+                "created_at": "2026-05-16T17:56:45.843Z"
               },
               {
                 "event_type": "evidence_revalidation_suppressed",
                 "details": {
                   "reason": "Cluster factsheet evidence changed and automatic evidence revalidation could not prove the factsheet is still valid.",
-                  "cooldown_until_ms": 1778945256711
+                  "cooldown_until_ms": 1778954265560
                 },
-                "created_at": "2026-05-16T15:26:36.996Z"
+                "created_at": "2026-05-16T17:56:45.845Z"
               },
               {
                 "event_type": "cluster_fallback_failed",
                 "details": {
-                  "reason": "Cluster factsheet is stale. Run cluster_refresh before consulting.",
+                  "reason": "Internal cluster evidence signal: scoped factsheet evidence changed; caller-facing tools revalidate or fall back before returning an answer.",
                   "revalidation_error": {
                     "code": "CLUSTER_FACTSHEET_STALE",
-                    "message": "Cluster factsheet is stale. Run cluster_refresh before consulting.",
+                    "message": "Internal cluster evidence signal: scoped factsheet evidence changed; caller-facing tools revalidate or fall back before returning an answer.",
                     "cluster_id": "rate-limit-stale",
                     "details": {
-                      "factsheet_id": "factsheet_e1bdbef5-ee12-4d12-9a96-9f7850fc0c48",
+                      "factsheet_id": "factsheet_7d70f7ac-753e-4f59-a414-464452231758",
                       "factsheet_version": 1
                     }
                   },
                   "fallback_session_id": null,
                   "fallback_claude_session_id": null
                 },
-                "created_at": "2026-05-16T15:26:37.000Z"
+                "created_at": "2026-05-16T17:56:45.850Z"
               },
               {
                 "event_type": "evidence_revalidation_suppressed",
                 "details": {
                   "reason": "Cluster factsheet evidence changed and automatic evidence revalidation could not prove the factsheet is still valid.",
-                  "cooldown_until_ms": 1778945256711
+                  "cooldown_until_ms": 1778954265560
                 },
-                "created_at": "2026-05-16T15:26:37.002Z"
+                "created_at": "2026-05-16T17:56:45.852Z"
               },
               {
                 "event_type": "cluster_fallback_failed",
                 "details": {
-                  "reason": "Cluster factsheet is stale. Run cluster_refresh before consulting.",
+                  "reason": "Internal cluster evidence signal: scoped factsheet evidence changed; caller-facing tools revalidate or fall back before returning an answer.",
                   "revalidation_error": {
                     "code": "CLUSTER_FACTSHEET_STALE",
-                    "message": "Cluster factsheet is stale. Run cluster_refresh before consulting.",
+                    "message": "Internal cluster evidence signal: scoped factsheet evidence changed; caller-facing tools revalidate or fall back before returning an answer.",
                     "cluster_id": "rate-limit-stale",
                     "details": {
-                      "factsheet_id": "factsheet_e1bdbef5-ee12-4d12-9a96-9f7850fc0c48",
+                      "factsheet_id": "factsheet_7d70f7ac-753e-4f59-a414-464452231758",
                       "factsheet_version": 1
                     }
                   },
                   "fallback_session_id": null,
                   "fallback_claude_session_id": null
                 },
-                "created_at": "2026-05-16T15:26:37.005Z"
+                "created_at": "2026-05-16T17:56:45.856Z"
               }
             ]
           }
@@ -2332,22 +2332,22 @@
   "suites": [
     {
       "name": "main",
-      "project_dir": "/tmp/asr-adversarial-main-FfoSj1/project",
-      "db_path": "/tmp/asr-adversarial-main-FfoSj1/project/.claude-session-router/sessions.sqlite",
+      "project_dir": "/tmp/asr-adversarial-main-Q1hyL5/project",
+      "db_path": "/tmp/asr-adversarial-main-Q1hyL5/project/.claude-session-router/sessions.sqlite",
       "shadow_mode": true,
       "max_consults_per_hour": 1000,
       "max_consults_per_day": 5000,
-      "server_stderr": "{\"ts\":\"2026-05-16T15:26:31.826Z\",\"level\":\"warn\",\"message\":\"unknown_claude_version\",\"detected_version\":\"2.1.92 (Claude Code)\",\"tested_versions\":[]}\n"
+      "server_stderr": "{\"ts\":\"2026-05-16T17:56:40.274Z\",\"level\":\"warn\",\"message\":\"unknown_claude_version\",\"detected_version\":\"2.1.92 (Claude Code)\",\"tested_versions\":[]}\n"
     },
     {
       "name": "rate-limit",
-      "project_dir": "/tmp/asr-adversarial-rate-limit-Z5mAFQ/project",
-      "db_path": "/tmp/asr-adversarial-rate-limit-Z5mAFQ/project/.claude-session-router/sessions.sqlite",
+      "project_dir": "/tmp/asr-adversarial-rate-limit-kxngWz/project",
+      "db_path": "/tmp/asr-adversarial-rate-limit-kxngWz/project/.claude-session-router/sessions.sqlite",
       "shadow_mode": false,
       "max_consults_per_hour": 5,
       "max_consults_per_day": 20,
-      "server_stderr": "{\"ts\":\"2026-05-16T15:26:36.611Z\",\"level\":\"warn\",\"message\":\"unknown_claude_version\",\"detected_version\":\"2.1.92 (Claude Code)\",\"tested_versions\":[]}\n"
+      "server_stderr": "{\"ts\":\"2026-05-16T17:56:45.462Z\",\"level\":\"warn\",\"message\":\"unknown_claude_version\",\"detected_version\":\"2.1.92 (Claude Code)\",\"tested_versions\":[]}\n"
     }
   ],
-  "finished_at": "2026-05-16T15:26:37.020Z"
+  "finished_at": "2026-05-16T17:56:45.873Z"
 }

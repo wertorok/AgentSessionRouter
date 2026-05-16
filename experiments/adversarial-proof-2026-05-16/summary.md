@@ -1,32 +1,9 @@
 # Adversarial Proof Matrix
 
-Started: 2026-05-16T15:26:31.562Z
-Finished: 2026-05-16T15:26:37.020Z
+Started: 2026-05-16T17:56:39.994Z
+Finished: 2026-05-16T17:56:45.873Z
 
 ## Findings
-
-## Found And Fixed During Review
-
-The final proof run has `BROKEN=0`, but the review did find one real bug before
-the final rerun:
-
-- BROKEN in the first completed proof run: 2 script assertions, 0 confirmed MCP
-  behavior failures. The two red rows were harness mistakes: `comparison_rejudge`
-  returns `processed`, not `rejudged`, and an absent call-count bucket needed to
-  be treated as 0.
-- Confirmed MCP issue found by the proof data: profile availability probes were
-  repeated under burst load. In the stale 10-call race, fallback coalescing
-  worked, but profile availability detection produced 20 profile probes before
-  the runtime fix.
-- Fix applied during review: `RouterRuntime.getProfileAvailability()` now
-  coalesces concurrent detection through a shared in-flight promise.
-- Final rerun result for the same stale 10-call race: 2 profile probes, 1
-  fallback consult, 9 suppressed revalidations, 9 coalesced fallbacks.
-
-That profile-probe leak was the only application fix made between the first
-completed proof run and the final proof run. Earlier failed attempts were
-script setup errors (wrong DB column name; stale fixture file not reset before a
-later zone), not MCP behavior failures.
 
 ### ZONE 1: Caller sends malformed or huge input
 
@@ -55,7 +32,7 @@ later zone), not MCP behavior failures.
 - HELD: two_hundred_sessions_routing_scale
   - input: Create 200 sessions through claude_consult, then run router_dry_run/router_consult probes.
   - edge: Routing should not catastrophically slow down or pick unrelated sessions only because N is large.
-  - latency: before=4ms, after=63ms
+  - latency: before=3ms, after=66ms
   - scale: seeded=200, total_sessions=202
 
 ### ZONE 4: Stale / revalidation / fallback

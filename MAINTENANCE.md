@@ -45,6 +45,27 @@ Use `router_monitor` as the first diagnostic entry point. Treat its output as
 the information monitor for what works, what fails, why it failed, and what to
 inspect next.
 
+## Deferred Technical Debt
+
+The current refactor plan intentionally does not touch these areas until the
+MCP wiring and monitor modules are stabilized:
+
+- `tests/tools.test.ts` split: keep the large integration safety net intact
+  during production-code extraction. Split only after behavior-preserving
+  refactors are proven.
+- `src/db.ts` split: monitor queries, lifecycle, and registry storage are large
+  but not the current highest-risk change surface.
+- Stringly monitor telemetry: `match_reason` parsing and regex-derived monitor
+  fields are a separate risk project because the format is stored in SQLite.
+- Legacy config knobs:
+  - `matching.use_embeddings` is a placeholder and currently not used by route
+    scoring.
+  - `cluster.auto_refresh_min_retained_ratio` is effectively strict while any
+    rejected fact fails evidence revalidation.
+  - `cluster.auto_refresh` now gates strict evidence revalidation plus fallback,
+    not the old full-refresh semantics.
+- `scripts/*.mjs`: experiment and benchmark harnesses are not production path.
+
 ## Storage Health Diagnostics
 
 As of v2.8, `router_status.storage` and `router_monitor.health.storage` expose
