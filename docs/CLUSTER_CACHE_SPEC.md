@@ -1287,6 +1287,79 @@ Gate 6 may safely start with a verifier report artifact only. Durable promotion
 is a later step that must name the source-of-truth file/import location before
 writing any `active` memory item.
 
+#### Field-Population Semantics (Gate 7 Design)
+
+Status: proposed, not implemented. Gate 7 names the future diffable
+source-of-truth documents and defines how missing durable fields are populated.
+It does not create active entries, promote candidates, write clusters, or add a
+runtime serving path.
+
+Gate 6 showed that static verification can prove provenance for candidates, but
+that no candidate is promotion-eligible yet because the Gate 5 artifacts do not
+populate durable fields such as `applies_when`, `revisit_when`, `rationale`, and
+`project_scope`.
+
+Future source-of-truth documents:
+
+| Memory product | Future file | Role |
+| --- | --- | --- |
+| `engineering-principles` | `docs/ENGINEERING_PRINCIPLES.md` | Canonical diffable source for transferable principles. A future cluster may index or serve this file, but the file remains the authority. |
+| `project-architecture` | `docs/PROJECT_ARCHITECTURE.md` | Canonical diffable source for project-scoped decisions and rationale. It does not travel across projects unless explicitly imported. |
+
+These file names are reserved by the spec. Gate 7 does not create or populate
+them with active records. Creating them as empty templates is allowed only when
+the next gate needs a destination artifact for dry-run output.
+
+Field-population rules for `engineering-principles`:
+
+| Field | Populated by | Rule |
+| --- | --- | --- |
+| `statement` | Codex | Use the candidate text or the lead-reviewed wording. Do not generalize beyond the source text. |
+| `applies_when` | Codex proposes, lead reviews | Convert the lead review `scope_condition` into one or more explicit applicability conditions. If only a broad scope condition exists, the candidate remains not promotion-eligible. |
+| `revisit_when` | Codex proposes, lead reviews | Add at least one concrete trigger for re-review, usually derived from verifier/monitor risks, caller-contract changes, or counter-evidence risk. |
+| `provenance` | Codex | Copy source ref, derived date, derived_by, and reviewed_by from Gate 4/6 artifacts. |
+| `status` | Promotion step | Remains `proposed` until the future promotion gate explicitly activates it. |
+
+Field-population rules for `project-architecture`:
+
+| Field | Populated by | Rule |
+| --- | --- | --- |
+| `decision` | Codex | Use the candidate decision text verbatim. |
+| `rationale` | Codex proposes, lead reviews | Prefer explicit rationale from the source. If absent, derive a conservative rationale from surrounding phase artifacts and mark it as derived. |
+| `project_scope.project_id` | Codex | Use the project id from the dry-run report. |
+| `project_scope.boundary_ref` | Codex | Use stable git remote/package identity when available; do not rely on transient process cwd alone. |
+| `provenance` | Codex | Copy source ref/date/type from Gate 4/6 artifacts. |
+| `status` | Promotion step | Remains `proposed` until the future promotion gate explicitly activates it. |
+
+Lead-session role:
+
+- Codex may populate draft fields mechanically.
+- The durable Claude lead session reviews the populated fields through a bounded
+  `router_consult` request.
+- The lead session may return `APPROVED_FIELDS`, `REQUEST_CHANGES`, or
+  `SUSPEND`.
+- Field approval is not promotion. It only allows a future promotion gate to
+  consider the candidate.
+
+Gate 7 non-goals:
+
+- no active entries in `docs/ENGINEERING_PRINCIPLES.md`
+- no active entries in `docs/PROJECT_ARCHITECTURE.md`
+- no runtime serving or import
+- no cluster writes
+- no hidden global memory
+- no promotion based only on field population
+
+Gate 7 acceptance criteria:
+
+1. `docs/CLUSTER_CACHE_SPEC.md` names the future source-of-truth files.
+2. Field-population rules exist for `applies_when`, `revisit_when`,
+   `rationale`, and `project_scope`.
+3. The spec distinguishes field approval from promotion.
+4. The spec keeps all runtime serving/import work out of Gate 7.
+5. The human owner remains outside the curation loop; only a phase-end summary
+   is required.
+
 Non-goals:
 
 - no implementation in this decision step
@@ -1309,7 +1382,7 @@ Implementation gates:
 5. Closed: compile a non-authoritative factsheet dry-run artifact.
 6. Closed: define verifier/promotion semantics and add a static verifier report
    artifact.
-7. Future: design and name the durable source-of-truth document/import location
+7. Closed: design and name the durable source-of-truth document/import location
    for active project-architecture and engineering-principle records.
 8. Future: populate durable `applies_when`, `revisit_when`,
    `rationale`, and `project_scope` fields for promotion candidates.

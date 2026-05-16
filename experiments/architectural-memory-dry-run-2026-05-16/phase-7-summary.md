@@ -81,3 +81,22 @@ evidence, provenance, and verification.
 Phase 7 is therefore complete for this iteration as a dry-run/staging pipeline.
 Future work starts from Gate 6 only after verifier and promotion semantics are
 designed separately.
+
+## Addendum: Gates 6-7 Resumed
+
+After the original Gate 5 closure, work resumed by explicit operator direction
+and durable lead-session approval. The phase was extended without changing the
+core boundary: artifacts remain non-authoritative and no memory is promoted or
+served at runtime.
+
+Additional closed gates:
+
+| Gate | Status | Artifacts |
+| --- | --- | --- |
+| Gate 6: Static verifier and promotion semantics | closed | `verification-report.md`, `verification-report.json`, `gate-6-summary.md` |
+| Gate 7: Source-of-truth and field-population semantics | closed | `gate-7-summary.md`, `docs/CLUSTER_CACHE_SPEC.md` |
+
+Gate 6 added a deterministic verifier report. Gate 7 named the future
+diffable source-of-truth files and documented field-population semantics.
+Neither gate creates active memory, writes clusters, or adds a runtime serving
+path.
