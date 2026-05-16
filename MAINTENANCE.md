@@ -19,8 +19,10 @@ As of 2026-05-16, the production MCP baseline is:
   - no active direct wins after grounded judge
   - one historical active-cluster `NOT IN CONTEXT` sample remains in the recent
     window; inspect the judged sample before treating it as a coverage issue
-  - no active stale or `needs_prepare` clusters after re-preparing the active
-    codebase cluster
+  - no active stale or `needs_prepare` clusters after re-preparing and then
+    restoring semantic coverage on the active codebase cluster
+  - no unresolved `reprepare_coverage_drops` after restoring
+    `agentsessionrouter-codebase` to 17 verified facts
   - `router_monitor.route_health` is available and records `router_consult`
     selected-path samples
   - 2026-05-15 live route sampling found stale codebase evidence after
@@ -83,6 +85,12 @@ Verified on 2026-05-16:
   the current factsheet still has 14 facts while the pre-drop source had 17.
   `router_monitor` should suppress a reprepare coverage-drop recommendation
   only after a later factsheet restores at least the original fact count.
+- Follow-up `cluster_prepare` restored `agentsessionrouter-codebase` to
+  factsheet version 17 with `llm_verified`, 17 verified facts, 0 rejected facts,
+  0 evidence mismatches, and no unresolved `reprepare_coverage_drops`. The
+  restored facts use direct evidence for the session collision benchmark being
+  offline, shadow eval not affecting parent-agent answers, and the
+  `router_monitor` information-monitor scope.
 - Auto-reprepare remains deferred; monitor cost signals are the current trigger
   for deciding when `cluster_reprepare` or a broader `cluster_prepare` is worth
   running.
