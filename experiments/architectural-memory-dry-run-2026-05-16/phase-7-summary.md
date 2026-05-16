@@ -111,7 +111,7 @@ Gate 11 materialized 88 field-approved records as `status: proposed` in the
 diffable source-of-truth docs. These gates do not create active memory, write
 clusters, or add a runtime serving path.
 
-Operational finding: after these review gates, the durable lead session can hit
-`COST_LIMIT_EXCEEDED` on broad review prompts. Future promotion work needs a
-smaller review protocol or lead-session context maintenance before asking for
-large approvals.
+Operational finding: broad artifact-paste review prompts can hit
+`COST_LIMIT_EXCEEDED`. Compact proof-style review prompts work and received
+Gate 11 approval, but durable lead-session token anomalies remain visible and
+should be monitored before large future approvals.

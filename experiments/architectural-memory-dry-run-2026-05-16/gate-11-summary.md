@@ -43,9 +43,12 @@ documents as proposed records only.
 - Active-record grep found no active records.
 - The durable lead session approved the safe Gate 11 scope before
   implementation: proposed records only, no `status: active`.
-- A post-materialization lead review attempt returned `COST_LIMIT_EXCEEDED`
-  because the durable lead session is now too large for another broad review.
-  This is an operational finding for the next phase, not a hidden success.
+- A broad post-materialization review attempt returned `COST_LIMIT_EXCEEDED`
+  because the review prompt included too much artifact text.
+- A compact post-materialization review then returned `APPROVE`.
+- The compact review still reported a token anomaly
+  (`actual_tokens_in` much larger than estimated prompt tokens), so durable
+  lead-session resume cost remains an operational risk to monitor.
 
 ## Next Boundary
 
@@ -53,6 +56,6 @@ Next work, if continued, is a separate promotion-design gate. It must decide
 whether any proposed records become active. Runtime import/serving remains a
 separate gate after promotion.
 
-Operational prerequisite before promotion: address durable lead-session context
-growth or use a smaller review protocol, because broad review calls can now hit
-`max_tokens_per_consult`.
+Operational prerequisite before promotion: use compact proof-style review
+requests by default, and monitor durable lead-session token anomalies. Broad
+artifact-paste reviews can hit `max_tokens_per_consult`.
