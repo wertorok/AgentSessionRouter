@@ -1,0 +1,2471 @@
+{
+  "generated_at": "2026-05-16T20:50:24.130Z",
+  "source_dry_run_report": "experiments/architectural-memory-dry-run-2026-05-16/dry-run-report.json",
+  "source_lead_review": "experiments/architectural-memory-dry-run-2026-05-16/lead-session-review.json",
+  "status": "dry_run_only",
+  "non_authoritative": true,
+  "project_architecture_carry_forward": [
+    {
+      "id": "PA-SD-000009",
+      "topic": "v2.1 shadow eval architecture",
+      "decision": "rand_assign committed to DB before either prompt fires for deterministic auditable assignment",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11d18ee8-3799-443f-8f5f-ecd866db9e57;decision:9",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 1,
+      "transferable_score": 0,
+      "primary_signal": "current_project_session",
+      "confidence": "medium",
+      "project_signals": [
+        "current_project_session"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000010",
+      "topic": "v2.1 shadow eval architecture",
+      "decision": "Single shadowJudge.ts function, not a class",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11d18ee8-3799-443f-8f5f-ecd866db9e57;decision:10",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 2,
+      "transferable_score": 0,
+      "primary_signal": "project_file_path",
+      "confidence": "high",
+      "project_signals": [
+        "project_file_path",
+        "current_project_session"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000012",
+      "topic": "v2.1 shadow eval architecture",
+      "decision": "shadowEvalRate config knob in DEFAULT_CONFIG not overridable via tool input",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11d18ee8-3799-443f-8f5f-ecd866db9e57;decision:12",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 1,
+      "transferable_score": 0,
+      "primary_signal": "current_project_session",
+      "confidence": "medium",
+      "project_signals": [
+        "current_project_session"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000013",
+      "topic": "project roadmap after v2.3.1",
+      "decision": "Add cost_usd field to ClusterConsultSuccess and forward from Claude adapter response",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_e65145e0-1911-4a87-ad7d-8477254bdbb2;decision:13",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 1,
+      "transferable_score": 0,
+      "primary_signal": "current_project_session",
+      "confidence": "medium",
+      "project_signals": [
+        "current_project_session"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000014",
+      "topic": "project roadmap after v2.3.1",
+      "decision": "Investigate A3 variance by testing with stripped factsheet before adding facts",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_e65145e0-1911-4a87-ad7d-8477254bdbb2;decision:14",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 2,
+      "transferable_score": 0,
+      "primary_signal": "current_project_session",
+      "confidence": "high",
+      "project_signals": [
+        "current_project_session",
+        "repo_feature_name"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000015",
+      "topic": "project roadmap after v2.3.1",
+      "decision": "Add shadow eval loss alert: cluster_consult loses to direct_resume 2+ times in rolling window",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_e65145e0-1911-4a87-ad7d-8477254bdbb2;decision:15",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 2,
+      "transferable_score": 0,
+      "primary_signal": "current_project_session",
+      "confidence": "high",
+      "project_signals": [
+        "current_project_session",
+        "repo_feature_name"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000016",
+      "topic": "project roadmap after v2.3.1",
+      "decision": "Document B1/B2 reasoning boundary explicitly in tools.ts cluster_consult tool comment and CLUSTER_CACHE_SPEC.md caller-facing section",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_e65145e0-1911-4a87-ad7d-8477254bdbb2;decision:16",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 3,
+      "transferable_score": 2,
+      "primary_signal": "project_file_path",
+      "confidence": "medium",
+      "project_signals": [
+        "project_file_path",
+        "current_project_session",
+        "repo_feature_name"
+      ],
+      "transferable_signals": [
+        "generic_agent_or_router_pattern",
+        "generic_contract_language"
+      ]
+    },
+    {
+      "id": "PA-SD-000017",
+      "topic": "v2.1 shadow eval architecture",
+      "decision": "shadow answer column cap at 4096 chars with CHECK constraint and truncate-at-insert",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11d18ee8-3799-443f-8f5f-ecd866db9e57;decision:17",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 1,
+      "transferable_score": 0,
+      "primary_signal": "current_project_session",
+      "confidence": "medium",
+      "project_signals": [
+        "current_project_session"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000018",
+      "topic": "v2.1 shadow eval architecture",
+      "decision": "judge failure records error string in judge_result JSON, not NULL",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11d18ee8-3799-443f-8f5f-ecd866db9e57;decision:18",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 1,
+      "transferable_score": 0,
+      "primary_signal": "current_project_session",
+      "confidence": "medium",
+      "project_signals": [
+        "current_project_session"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000019",
+      "topic": "v2.1 shadow eval architecture",
+      "decision": "NOT IN CONTEXT from cluster_consult is a terminal signal; parent agent continues without retrying",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11d18ee8-3799-443f-8f5f-ecd866db9e57;decision:19",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 2,
+      "transferable_score": 1,
+      "primary_signal": "current_project_session",
+      "confidence": "medium",
+      "project_signals": [
+        "current_project_session",
+        "repo_feature_name"
+      ],
+      "transferable_signals": [
+        "generic_agent_or_router_pattern"
+      ]
+    },
+    {
+      "id": "PA-SD-000021",
+      "topic": "v2.1 shadow eval architecture",
+      "decision": "claude_consult is the default entry point for all parent agents",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11d18ee8-3799-443f-8f5f-ecd866db9e57;decision:21",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 2,
+      "transferable_score": 1,
+      "primary_signal": "current_project_session",
+      "confidence": "medium",
+      "project_signals": [
+        "current_project_session",
+        "repo_feature_name"
+      ],
+      "transferable_signals": [
+        "generic_agent_or_router_pattern"
+      ]
+    },
+    {
+      "id": "PA-SD-000022",
+      "topic": "v2.1 shadow eval architecture",
+      "decision": "cluster_consult is secondary; only used when a verified factsheet cluster already exists",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11d18ee8-3799-443f-8f5f-ecd866db9e57;decision:22",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 2,
+      "transferable_score": 0,
+      "primary_signal": "current_project_session",
+      "confidence": "high",
+      "project_signals": [
+        "current_project_session",
+        "repo_feature_name"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000023",
+      "topic": "v2.1 shadow eval architecture",
+      "decision": "Auto routing is gated on A3 variance resolution and stable cluster_consult vs direct_resume quality gap across all tiers, not just aggregate",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11d18ee8-3799-443f-8f5f-ecd866db9e57;decision:23",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 2,
+      "transferable_score": 0,
+      "primary_signal": "current_project_session",
+      "confidence": "high",
+      "project_signals": [
+        "current_project_session",
+        "repo_feature_name"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000025",
+      "topic": "v2.1 shadow eval architecture",
+      "decision": "claude_consult is used directly when no verified factsheet cluster exists or when explicit session_id routing is required",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11d18ee8-3799-443f-8f5f-ecd866db9e57;decision:25",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 2,
+      "transferable_score": 1,
+      "primary_signal": "current_project_session",
+      "confidence": "medium",
+      "project_signals": [
+        "current_project_session",
+        "repo_feature_name"
+      ],
+      "transferable_signals": [
+        "normative_language"
+      ]
+    },
+    {
+      "id": "PA-SD-000027",
+      "topic": "v2.1 shadow eval architecture",
+      "decision": "route_health as a concept does not exist in v2.3.1; existing monitoring uses degradedMode and session_events quality metrics",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11d18ee8-3799-443f-8f5f-ecd866db9e57;decision:27",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 2,
+      "transferable_score": 0,
+      "primary_signal": "current_project_session",
+      "confidence": "high",
+      "project_signals": [
+        "current_project_session",
+        "version_or_phase_marker"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000028",
+      "topic": "v2.1 shadow eval architecture",
+      "decision": "A cluster requires re-prepare when any tracked file's hash or size differs from the stored cluster_file_hashes entry",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11d18ee8-3799-443f-8f5f-ecd866db9e57;decision:28",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 1,
+      "transferable_score": 0,
+      "primary_signal": "current_project_session",
+      "confidence": "medium",
+      "project_signals": [
+        "current_project_session"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000029",
+      "topic": "router consult cache maintenance sample",
+      "decision": "Re-prepare cluster on package.json/lockfile changes that alter import topology",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4;decision:29",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 2,
+      "transferable_score": 0,
+      "primary_signal": "project_file_path",
+      "confidence": "high",
+      "project_signals": [
+        "project_file_path",
+        "current_project_session"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000030",
+      "topic": "router consult cache maintenance sample",
+      "decision": "Re-prepare cluster when consult failure rates exceed sanity threshold",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4;decision:30",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 1,
+      "transferable_score": 0,
+      "primary_signal": "current_project_session",
+      "confidence": "medium",
+      "project_signals": [
+        "current_project_session"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000031",
+      "topic": "router consult cache maintenance sample",
+      "decision": "Default consult entry point is the sanity/ready check, not full routing",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4;decision:31",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 1,
+      "transferable_score": 0,
+      "primary_signal": "current_project_session",
+      "confidence": "medium",
+      "project_signals": [
+        "current_project_session"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000032",
+      "topic": "router consult cache maintenance sample",
+      "decision": "Full routing only proceeds after sanity endpoint confirms cluster health",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4;decision:32",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 1,
+      "transferable_score": 0,
+      "primary_signal": "current_project_session",
+      "confidence": "medium",
+      "project_signals": [
+        "current_project_session"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000033",
+      "topic": "router consult cache maintenance sample",
+      "decision": "Auto routing requires confirmed metadata freshness from health snapshots",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4;decision:33",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 1,
+      "transferable_score": 0,
+      "primary_signal": "current_project_session",
+      "confidence": "medium",
+      "project_signals": [
+        "current_project_session"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000034",
+      "topic": "router consult cache maintenance sample",
+      "decision": "Auto routing requires routing latency within acceptable tolerance",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4;decision:34",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 1,
+      "transferable_score": 0,
+      "primary_signal": "current_project_session",
+      "confidence": "medium",
+      "project_signals": [
+        "current_project_session"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000037",
+      "topic": "router consult cache maintenance sample",
+      "decision": "Fallback to claude_consult when sanity endpoint fails or times out",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4;decision:37",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 2,
+      "transferable_score": 1,
+      "primary_signal": "current_project_session",
+      "confidence": "medium",
+      "project_signals": [
+        "current_project_session",
+        "repo_feature_name"
+      ],
+      "transferable_signals": [
+        "generic_agent_or_router_pattern"
+      ]
+    },
+    {
+      "id": "PA-SD-000038",
+      "topic": "router consult cache maintenance sample",
+      "decision": "Bypass cluster when routing latency exceeds acceptable threshold",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4;decision:38",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 1,
+      "transferable_score": 0,
+      "primary_signal": "current_project_session",
+      "confidence": "medium",
+      "project_signals": [
+        "current_project_session"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000042",
+      "topic": "router consult cache maintenance sample",
+      "decision": "claude_consult fallback is mandatory when sanity check fails",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4;decision:42",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 2,
+      "transferable_score": 1,
+      "primary_signal": "current_project_session",
+      "confidence": "medium",
+      "project_signals": [
+        "current_project_session",
+        "repo_feature_name"
+      ],
+      "transferable_signals": [
+        "generic_agent_or_router_pattern"
+      ]
+    },
+    {
+      "id": "PA-SD-000043",
+      "topic": "router consult cache maintenance sample",
+      "decision": "route_health is derived from sanity check, metadata freshness, and latency tolerance",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4;decision:43",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 1,
+      "transferable_score": 0,
+      "primary_signal": "current_project_session",
+      "confidence": "medium",
+      "project_signals": [
+        "current_project_session"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000044",
+      "topic": "router consult cache maintenance sample",
+      "decision": "route_health=false forces mandatory claude_consult fallback",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4;decision:44",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 2,
+      "transferable_score": 1,
+      "primary_signal": "current_project_session",
+      "confidence": "medium",
+      "project_signals": [
+        "current_project_session",
+        "repo_feature_name"
+      ],
+      "transferable_signals": [
+        "generic_agent_or_router_pattern"
+      ]
+    },
+    {
+      "id": "PA-SD-000045",
+      "topic": "router consult cache maintenance sample",
+      "decision": "Re-prepare on package.json/lockfile changes that alter import topology",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4;decision:45",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 2,
+      "transferable_score": 0,
+      "primary_signal": "project_file_path",
+      "confidence": "high",
+      "project_signals": [
+        "project_file_path",
+        "current_project_session"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000046",
+      "topic": "router consult cache maintenance sample",
+      "decision": "Re-prepare when consult failure rates exceed sanity threshold",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4;decision:46",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 1,
+      "transferable_score": 0,
+      "primary_signal": "current_project_session",
+      "confidence": "medium",
+      "project_signals": [
+        "current_project_session"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000047",
+      "topic": "router consult route telemetry sample",
+      "decision": "inspect active session-route mapping before chasing downstream route health metrics",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_570b63cb-efa6-4345-96bc-84d875385637;decision:47",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 1,
+      "transferable_score": 0,
+      "primary_signal": "current_project_session",
+      "confidence": "medium",
+      "project_signals": [
+        "current_project_session"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000054",
+      "topic": "cluster fallback claude-code-live-workload",
+      "decision": "Route conservative fallback when cluster factsheet evidence fails strict revalidation",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_9e3540b3-5451-442f-af26-03c888b7e859;decision:54",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 2,
+      "transferable_score": 1,
+      "primary_signal": "current_project_session",
+      "confidence": "medium",
+      "project_signals": [
+        "current_project_session",
+        "repo_feature_name"
+      ],
+      "transferable_signals": [
+        "generic_agent_or_router_pattern"
+      ]
+    },
+    {
+      "id": "PA-SD-000056",
+      "topic": "cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-targeted-v3",
+      "decision": "Operator signal is the snapshot's `verifiedAt` timestamp",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_e04a3fed-2a53-44f2-92ea-695d2e3e193e;decision:56",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 1,
+      "transferable_score": 0,
+      "primary_signal": "current_project_session",
+      "confidence": "medium",
+      "project_signals": [
+        "current_project_session"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000057",
+      "topic": "cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-full",
+      "decision": "prompt.ts consult export is the default entry point for route sample sessions",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_63fec26d-9e40-4981-80ce-5b7311daa01c;decision:57",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 2,
+      "transferable_score": 0,
+      "primary_signal": "project_file_path",
+      "confidence": "high",
+      "project_signals": [
+        "project_file_path",
+        "current_project_session"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000058",
+      "topic": "cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-full",
+      "decision": "Auto routing requires confirmed fresh cluster facts plus clear operator signal",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_63fec26d-9e40-4981-80ce-5b7311daa01c;decision:58",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 1,
+      "transferable_score": 0,
+      "primary_signal": "current_project_session",
+      "confidence": "medium",
+      "project_signals": [
+        "current_project_session"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000059",
+      "topic": "cluster fallback claude-code-live-workload",
+      "decision": "Do not reuse prior session route sample matrix for claude-code-live-workload without revalidation",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_9e3540b3-5451-442f-af26-03c888b7e859;decision:59",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 2,
+      "transferable_score": 0,
+      "primary_signal": "current_project_session",
+      "confidence": "high",
+      "project_signals": [
+        "current_project_session",
+        "version_or_phase_marker"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000063",
+      "topic": "cluster fallback agentsessionrouter-codebase-reprepared-2026-05-15-full",
+      "decision": "route_health composite status gates routing readiness",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_63fec26d-9e40-4981-80ce-5b7311daa01c;decision:63",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 1,
+      "transferable_score": 0,
+      "primary_signal": "current_project_session",
+      "confidence": "medium",
+      "project_signals": [
+        "current_project_session"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000115",
+      "topic": "test",
+      "decision": "Use npm test for standard test runs",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_bff3152b-7854-41b0-814f-39461a95685a;decision:115",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 1,
+      "transferable_score": 0,
+      "primary_signal": "current_project_session",
+      "confidence": "medium",
+      "project_signals": [
+        "current_project_session"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000119",
+      "topic": "cluster fallback race-test-cluster",
+      "decision": "Use fallback routing for race-test-cluster until factsheet revalidation passes",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_116e5b9d-bebf-41a0-a173-2c94e094238a;decision:119",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 2,
+      "transferable_score": 1,
+      "primary_signal": "current_project_session",
+      "confidence": "medium",
+      "project_signals": [
+        "current_project_session",
+        "repo_feature_name"
+      ],
+      "transferable_signals": [
+        "generic_agent_or_router_pattern"
+      ]
+    },
+    {
+      "id": "PA-SD-000169",
+      "topic": "claude lead operatorless engineering workflow",
+      "decision": "Workers used only for parallel test authoring, doc drafting, benchmarks, and shadow eval",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:169",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 1,
+      "transferable_score": 0,
+      "primary_signal": "current_project_session",
+      "confidence": "medium",
+      "project_signals": [
+        "current_project_session"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000171",
+      "topic": "claude lead operatorless engineering workflow",
+      "decision": "Decision ledger in docs/DECISIONS.md provides continuity across stateless Codex sessions",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:171",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 2,
+      "transferable_score": 0,
+      "primary_signal": "project_file_path",
+      "confidence": "high",
+      "project_signals": [
+        "project_file_path",
+        "current_project_session"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000172",
+      "topic": "claude lead operatorless engineering workflow",
+      "decision": "Escalation requires mechanical threshold triggers, not open-ended uncertainty",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:172",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 1,
+      "transferable_score": 0,
+      "primary_signal": "current_project_session",
+      "confidence": "medium",
+      "project_signals": [
+        "current_project_session"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000173",
+      "topic": "claude lead operatorless engineering workflow",
+      "decision": "Phase gates are deterministic pass/fail via gate_criteria.json checked by Codex",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:173",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 2,
+      "transferable_score": 0,
+      "primary_signal": "project_file_path",
+      "confidence": "high",
+      "project_signals": [
+        "project_file_path",
+        "current_project_session"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000174",
+      "topic": "claude lead operatorless engineering workflow",
+      "decision": "Workers are firewalled from human contact by architecture, not policy",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:174",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 1,
+      "transferable_score": 0,
+      "primary_signal": "current_project_session",
+      "confidence": "medium",
+      "project_signals": [
+        "current_project_session"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000176",
+      "topic": "claude lead operatorless engineering workflow",
+      "decision": "Decision ledger entries include expiry, valid_while conditions, and reconsider_on triggers",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:176",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 1,
+      "transferable_score": 0,
+      "primary_signal": "current_project_session",
+      "confidence": "medium",
+      "project_signals": [
+        "current_project_session"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000177",
+      "topic": "claude lead operatorless engineering workflow",
+      "decision": "Escalation queue requires Codex proposed resolution to bound the response",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:177",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 1,
+      "transferable_score": 0,
+      "primary_signal": "current_project_session",
+      "confidence": "medium",
+      "project_signals": [
+        "current_project_session"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000178",
+      "topic": "claude lead operatorless engineering workflow",
+      "decision": "Codex proceeds alone when routeDecision.ts contracts unchanged, router_monitor green, tests pass, and change is additive",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:178",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 3,
+      "transferable_score": 2,
+      "primary_signal": "project_file_path",
+      "confidence": "medium",
+      "project_signals": [
+        "project_file_path",
+        "current_project_session",
+        "repo_feature_name"
+      ],
+      "transferable_signals": [
+        "generic_agent_or_router_pattern",
+        "generic_contract_language"
+      ]
+    },
+    {
+      "id": "PA-SD-000179",
+      "topic": "claude lead operatorless engineering workflow",
+      "decision": "router_consult for route-level conflicts; cluster_consult for cache invalidation ambiguity",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:179",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 2,
+      "transferable_score": 1,
+      "primary_signal": "current_project_session",
+      "confidence": "medium",
+      "project_signals": [
+        "current_project_session",
+        "repo_feature_name"
+      ],
+      "transferable_signals": [
+        "generic_agent_or_router_pattern"
+      ]
+    },
+    {
+      "id": "PA-SD-000180",
+      "topic": "claude lead operatorless engineering workflow",
+      "decision": "Workers are existing test runners run in background, NOT separate Codex sessions",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:180",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 1,
+      "transferable_score": 0,
+      "primary_signal": "current_project_session",
+      "confidence": "medium",
+      "project_signals": [
+        "current_project_session"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000181",
+      "topic": "claude lead operatorless engineering workflow",
+      "decision": "Phase bundle uses existing docs (EXPERIMENTS.md, CLUSTER_CACHE_SPEC.md, SHADOW_EVAL_SPEC.md) plus PR descriptions as artifacts",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:181",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 3,
+      "transferable_score": 0,
+      "primary_signal": "project_file_path",
+      "confidence": "high",
+      "project_signals": [
+        "project_file_path",
+        "current_project_session",
+        "repo_feature_name"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000182",
+      "topic": "claude lead operatorless engineering workflow",
+      "decision": "Single human touchpoint is the PR description; human reads only, mid-phase replies become new issues",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:182",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 1,
+      "transferable_score": 0,
+      "primary_signal": "current_project_session",
+      "confidence": "medium",
+      "project_signals": [
+        "current_project_session"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000185",
+      "topic": "claude lead operatorless engineering workflow",
+      "decision": "docs/DECISIONS.md and phase state location should be named explicitly in the section",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:185",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 2,
+      "transferable_score": 1,
+      "primary_signal": "project_file_path",
+      "confidence": "medium",
+      "project_signals": [
+        "project_file_path",
+        "current_project_session"
+      ],
+      "transferable_signals": [
+        "normative_language"
+      ]
+    },
+    {
+      "id": "PA-SD-000189",
+      "topic": "claude lead operatorless engineering workflow",
+      "decision": "Phase 7 distill is consistent with prior deferral — now has concrete trigger: Phase 4 handoff produces transferable insight",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:189",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 2,
+      "transferable_score": 0,
+      "primary_signal": "current_project_session",
+      "confidence": "high",
+      "project_signals": [
+        "current_project_session",
+        "version_or_phase_marker"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000190",
+      "topic": "claude lead operatorless engineering workflow",
+      "decision": "Bootstrap via docs/ARCHITECTURE_LESSONS.md manual seed, then auto-populate via distill pipeline; fully manual forever rejected",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:190",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 2,
+      "transferable_score": 0,
+      "primary_signal": "project_file_path",
+      "confidence": "high",
+      "project_signals": [
+        "project_file_path",
+        "current_project_session"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000194",
+      "topic": "claude lead operatorless engineering workflow",
+      "decision": "Phase 7 distill triggered at Phase 4 handoff when insight is marked transferable — consistent with prior deferral",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:194",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 2,
+      "transferable_score": 0,
+      "primary_signal": "current_project_session",
+      "confidence": "high",
+      "project_signals": [
+        "current_project_session",
+        "version_or_phase_marker"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000195",
+      "topic": "claude lead operatorless engineering workflow",
+      "decision": "Hybrid bootstrap: docs/ARCHITECTURE_LESSONS.md manual seed, then auto-distill; fully manual forever rejected",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:195",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 2,
+      "transferable_score": 0,
+      "primary_signal": "project_file_path",
+      "confidence": "high",
+      "project_signals": [
+        "project_file_path",
+        "current_project_session"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000196",
+      "topic": "claude lead operatorless engineering workflow",
+      "decision": "Bootstrap is Codex-derived from existing MAINTENANCE.md and CLUSTER_CACHE_SPEC.md content — no human seed curation",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:196",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 2,
+      "transferable_score": 0,
+      "primary_signal": "project_file_path",
+      "confidence": "high",
+      "project_signals": [
+        "project_file_path",
+        "current_project_session"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000197",
+      "topic": "claude lead operatorless engineering workflow",
+      "decision": "Project isolation preserved via Option A: imported cluster template with canonical URL in MAINTENANCE.md; fallback to per-user global if URL undefined",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:197",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 2,
+      "transferable_score": 1,
+      "primary_signal": "project_file_path",
+      "confidence": "medium",
+      "project_signals": [
+        "project_file_path",
+        "current_project_session"
+      ],
+      "transferable_signals": [
+        "generic_agent_or_router_pattern"
+      ]
+    },
+    {
+      "id": "PA-SD-000199",
+      "topic": "claude lead operatorless engineering workflow",
+      "decision": "Durable decision artifacts are MAINTENANCE.md, docs/CLUSTER_CACHE_SPEC.md, docs/SHADOW_EVAL_SPEC.md, docs/EXPERIMENTS.md — docs/DECISIONS.md does not exist",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:199",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 3,
+      "transferable_score": 0,
+      "primary_signal": "project_file_path",
+      "confidence": "high",
+      "project_signals": [
+        "project_file_path",
+        "current_project_session",
+        "repo_feature_name"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000200",
+      "topic": "claude lead operatorless engineering workflow",
+      "decision": "Phase number must be Phase 7 consistently across all docs or explicitly reconciled with MAINTENANCE.md",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:200",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 3,
+      "transferable_score": 1,
+      "primary_signal": "project_file_path",
+      "confidence": "high",
+      "project_signals": [
+        "project_file_path",
+        "current_project_session",
+        "version_or_phase_marker"
+      ],
+      "transferable_signals": [
+        "normative_language"
+      ]
+    },
+    {
+      "id": "PA-SD-000201",
+      "topic": "claude lead operatorless engineering workflow",
+      "decision": "session_decisions must be confirmed as a readable persistent artifact or distill input redefined as phase summaries + existing docs only",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:201",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 2,
+      "transferable_score": 1,
+      "primary_signal": "current_project_session",
+      "confidence": "medium",
+      "project_signals": [
+        "current_project_session",
+        "repo_feature_name"
+      ],
+      "transferable_signals": [
+        "normative_language"
+      ]
+    },
+    {
+      "id": "PA-SD-000203",
+      "topic": "claude lead operatorless engineering workflow",
+      "decision": "Phase 7 now consistent across section header and MAINTENANCE.md",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:203",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 3,
+      "transferable_score": 0,
+      "primary_signal": "project_file_path",
+      "confidence": "high",
+      "project_signals": [
+        "project_file_path",
+        "current_project_session",
+        "version_or_phase_marker"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000204",
+      "topic": "claude lead operatorless engineering workflow",
+      "decision": "session_decisions confirmed as SQLite table — not ambiguous artifact",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:204",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 2,
+      "transferable_score": 0,
+      "primary_signal": "current_project_session",
+      "confidence": "high",
+      "project_signals": [
+        "current_project_session",
+        "repo_feature_name"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000205",
+      "topic": "claude lead operatorless engineering workflow",
+      "decision": "Non-goals sentence complete: no hidden model-memory authority clause resolved",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:205",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 1,
+      "transferable_score": 0,
+      "primary_signal": "current_project_session",
+      "confidence": "medium",
+      "project_signals": [
+        "current_project_session"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000206",
+      "topic": "claude lead operatorless engineering workflow",
+      "decision": "Gate 1 is documentation-only: spec defines data shapes, not extraction logic or storage",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:206",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 2,
+      "transferable_score": 0,
+      "primary_signal": "current_project_session",
+      "confidence": "high",
+      "project_signals": [
+        "current_project_session",
+        "version_or_phase_marker"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000207",
+      "topic": "claude lead operatorless engineering workflow",
+      "decision": "No LLM/extraction prompts, no cluster writes, no src/schema.ts changes, no applies_when evaluation",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:207",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 2,
+      "transferable_score": 0,
+      "primary_signal": "project_file_path",
+      "confidence": "high",
+      "project_signals": [
+        "project_file_path",
+        "current_project_session"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000208",
+      "topic": "claude lead operatorless engineering workflow",
+      "decision": "Primary artifact is new subsection in CLUSTER_CACHE_SPEC.md; secondary is dry-run template in EXPERIMENTS.md",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:208",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 2,
+      "transferable_score": 0,
+      "primary_signal": "project_file_path",
+      "confidence": "high",
+      "project_signals": [
+        "project_file_path",
+        "current_project_session"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000209",
+      "topic": "claude lead operatorless engineering workflow",
+      "decision": "Proof of gate close: 6 criteria including field-complete schemas, state machine completeness, no extraction logic, no cross-references to src/",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:209",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 1,
+      "transferable_score": 0,
+      "primary_signal": "current_project_session",
+      "confidence": "medium",
+      "project_signals": [
+        "current_project_session"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000210",
+      "topic": "claude lead operatorless engineering workflow",
+      "decision": "Phase 7 Gate 1 closed — Data/Model Spec in CLUSTER_CACHE_SPEC.md and dry-run template in EXPERIMENTS.md are complete and correct",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:210",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 3,
+      "transferable_score": 0,
+      "primary_signal": "project_file_path",
+      "confidence": "high",
+      "project_signals": [
+        "project_file_path",
+        "current_project_session",
+        "version_or_phase_marker"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000211",
+      "topic": "claude lead operatorless engineering workflow",
+      "decision": "Phase 7 Gate 1 closed — no remaining issues",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:211",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 2,
+      "transferable_score": 0,
+      "primary_signal": "current_project_session",
+      "confidence": "high",
+      "project_signals": [
+        "current_project_session",
+        "version_or_phase_marker"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000212",
+      "topic": "claude lead operatorless engineering workflow",
+      "decision": "Gate 2 is a deterministic skeleton report: verbatim decision_text as statement, auto-filled provenance, mechanical classification only, no LLM",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:212",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 2,
+      "transferable_score": 1,
+      "primary_signal": "current_project_session",
+      "confidence": "medium",
+      "project_signals": [
+        "current_project_session",
+        "version_or_phase_marker"
+      ],
+      "transferable_signals": [
+        "generic_contract_language"
+      ]
+    },
+    {
+      "id": "PA-SD-000213",
+      "topic": "claude lead operatorless engineering workflow",
+      "decision": "Script: scripts/architectural-memory-dry-run.mjs reads SQLite + docs, writes report to docs/EXPERIMENTS.md",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:213",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 3,
+      "transferable_score": 0,
+      "primary_signal": "project_file_path",
+      "confidence": "high",
+      "project_signals": [
+        "project_file_path",
+        "current_project_session",
+        "repo_feature_name"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000214",
+      "topic": "claude lead operatorless engineering workflow",
+      "decision": "Gate 2 closes when script runs without error, all decision_text appears verbatim, no durable memory written, report in EXPERIMENTS.md",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:214",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 3,
+      "transferable_score": 0,
+      "primary_signal": "project_file_path",
+      "confidence": "high",
+      "project_signals": [
+        "project_file_path",
+        "current_project_session",
+        "version_or_phase_marker"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000215",
+      "topic": "claude lead operatorless engineering workflow",
+      "decision": "Phase 7 Gate 2 closed — dry-run script operates correctly within Option B scope",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:215",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 2,
+      "transferable_score": 1,
+      "primary_signal": "current_project_session",
+      "confidence": "medium",
+      "project_signals": [
+        "current_project_session",
+        "version_or_phase_marker"
+      ],
+      "transferable_signals": [
+        "generic_contract_language"
+      ]
+    },
+    {
+      "id": "PA-SD-000216",
+      "topic": "claude lead operatorless engineering workflow",
+      "decision": "Gate 3 is both: extended dry-run script with scoring functions AND documented rubric in CLUSTER_CACHE_SPEC.md",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:216",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 3,
+      "transferable_score": 0,
+      "primary_signal": "project_file_path",
+      "confidence": "high",
+      "project_signals": [
+        "project_file_path",
+        "current_project_session",
+        "version_or_phase_marker"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000217",
+      "topic": "claude lead operatorless engineering workflow",
+      "decision": "Mechanical scoring: project signals (+1 each) vs transferable signals (+1 each), difference determines classification, confidence from score gap",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:217",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 1,
+      "transferable_score": 0,
+      "primary_signal": "current_project_session",
+      "confidence": "medium",
+      "project_signals": [
+        "current_project_session"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000218",
+      "topic": "claude lead operatorless engineering workflow",
+      "decision": "No LLM, no extraction — signals are keyword/path-based only",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:218",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 1,
+      "transferable_score": 0,
+      "primary_signal": "current_project_session",
+      "confidence": "medium",
+      "project_signals": [
+        "current_project_session"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-SD-000219",
+      "topic": "claude lead operatorless engineering workflow",
+      "decision": "Allowed statuses after Gate 3 scoring: project-architecture, engineering-principles, ambiguous, rejected_no_signal, rejected_too_short, rejected_duplicate",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:219",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 2,
+      "transferable_score": 1,
+      "primary_signal": "current_project_session",
+      "confidence": "medium",
+      "project_signals": [
+        "current_project_session",
+        "version_or_phase_marker"
+      ],
+      "transferable_signals": [
+        "normative_language"
+      ]
+    },
+    {
+      "id": "PA-SD-000220",
+      "topic": "claude lead operatorless engineering workflow",
+      "decision": "Phase 7 Gate 3 closed — scoring rubric and implementation match scope; spec_source signal gap is non-blocking follow-up",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:220",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 2,
+      "transferable_score": 1,
+      "primary_signal": "current_project_session",
+      "confidence": "medium",
+      "project_signals": [
+        "current_project_session",
+        "version_or_phase_marker"
+      ],
+      "transferable_signals": [
+        "generic_contract_language"
+      ]
+    },
+    {
+      "id": "PA-SD-000221",
+      "topic": "claude lead operatorless engineering workflow",
+      "decision": "Gate 3 follow-up on spec_source was a false positive and is withdrawn",
+      "provenance_source_type": "session_decision",
+      "provenance_source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:221",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 2,
+      "transferable_score": 0,
+      "primary_signal": "current_project_session",
+      "confidence": "high",
+      "project_signals": [
+        "current_project_session",
+        "version_or_phase_marker"
+      ],
+      "transferable_signals": []
+    },
+    {
+      "id": "PA-DOC-0001",
+      "topic": "`cluster_consult`",
+      "decision": "`cluster_consult`: Consults Claude using a verified factsheet. Phase 4 does not use fork sessions; fork support is Phase 5.",
+      "provenance_source_type": "spec",
+      "provenance_source_ref": "docs:docs/CLUSTER_CACHE_SPEC.md#cluster-consult",
+      "status": "proposed",
+      "classification": "project-architecture",
+      "project_score": 2,
+      "transferable_score": 1,
+      "primary_signal": "repo_feature_name",
+      "confidence": "medium",
+      "project_signals": [
+        "repo_feature_name",
+        "version_or_phase_marker"
+      ],
+      "transferable_signals": [
+        "spec_source"
+      ]
+    }
+  ],
+  "gate4_approved_project_architecture": [],
+  "gate4_approved_engineering_principles": [
+    {
+      "id": "AMB-SD-000007",
+      "lead_decision": "APPROVED",
+      "effective_classification": "engineering-principles",
+      "scope_condition": "Apply as advisory guidance; verify against target project's namespace isolation pattern.",
+      "reason": "Shadow namespace isolation via parameterized 'shadow:${projectId}' is a generic cluster isolation pattern, not an AgentSessionRouter-specific artifact.",
+      "counter_evidence": "",
+      "candidate": {
+        "id": "AMB-SD-000007",
+        "text": "Shadow must use dedicated lock namespace (shadow:${projectId}) separate from production locks",
+        "provenance_source_type": "session_decision",
+        "provenance_source_ref": "session:session_11d18ee8-3799-443f-8f5f-ecd866db9e57;decision:7",
+        "status": "proposed",
+        "classification": "ambiguous",
+        "project_score": 1,
+        "transferable_score": 1,
+        "primary_signal": "current_project_session",
+        "confidence": "low",
+        "project_signals": [
+          "current_project_session"
+        ],
+        "transferable_signals": [
+          "normative_language"
+        ]
+      }
+    },
+    {
+      "id": "AMB-SD-000035",
+      "lead_decision": "APPROVED",
+      "effective_classification": "engineering-principles",
+      "scope_condition": "Apply as advisory observability principle; verify target project's internal metrics boundary.",
+      "reason": "Uses generic 'router-internal' language without referencing AgentSessionRouter-specific emit mechanisms or signal names.",
+      "counter_evidence": "",
+      "candidate": {
+        "id": "AMB-SD-000035",
+        "text": "Cluster health metrics are router-internal only",
+        "provenance_source_type": "session_decision",
+        "provenance_source_ref": "session:session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4;decision:35",
+        "status": "proposed",
+        "classification": "ambiguous",
+        "project_score": 1,
+        "transferable_score": 1,
+        "primary_signal": "current_project_session",
+        "confidence": "low",
+        "project_signals": [
+          "current_project_session"
+        ],
+        "transferable_signals": [
+          "generic_agent_or_router_pattern"
+        ]
+      }
+    },
+    {
+      "id": "AMB-SD-000039",
+      "lead_decision": "APPROVED",
+      "effective_classification": "engineering-principles",
+      "scope_condition": "Apply universally to any session management system.",
+      "reason": "Session lifecycle transparency — 'dead sessions are never silently reused' — is a universal invariant with no project-specific artifact references.",
+      "counter_evidence": "",
+      "candidate": {
+        "id": "AMB-SD-000039",
+        "text": "Orphaned session replacement must remain transparent; dead sessions are never silently reused",
+        "provenance_source_type": "session_decision",
+        "provenance_source_ref": "session:session_11d18ee8-3799-443f-8f5f-ecd866db9e57;decision:39",
+        "status": "proposed",
+        "classification": "ambiguous",
+        "project_score": 1,
+        "transferable_score": 1,
+        "primary_signal": "current_project_session",
+        "confidence": "low",
+        "project_signals": [
+          "current_project_session"
+        ],
+        "transferable_signals": [
+          "normative_language"
+        ]
+      }
+    },
+    {
+      "id": "AMB-SD-000041",
+      "lead_decision": "APPROVED",
+      "effective_classification": "engineering-principles",
+      "scope_condition": "Apply as universal auto-routing safety constraint.",
+      "reason": "Unhealthy cluster must never receive production traffic is a universal routing safety invariant; no project-specific artifact references.",
+      "counter_evidence": "",
+      "candidate": {
+        "id": "AMB-SD-000041",
+        "text": "Unhealthy cluster must never receive production auto routing traffic",
+        "provenance_source_type": "session_decision",
+        "provenance_source_ref": "session:session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4;decision:41",
+        "status": "proposed",
+        "classification": "ambiguous",
+        "project_score": 1,
+        "transferable_score": 1,
+        "primary_signal": "current_project_session",
+        "confidence": "low",
+        "project_signals": [
+          "current_project_session"
+        ],
+        "transferable_signals": [
+          "normative_language"
+        ]
+      }
+    },
+    {
+      "id": "AMB-SD-000050",
+      "lead_decision": "APPROVED",
+      "effective_classification": "engineering-principles",
+      "scope_condition": "Apply as default conservative fallback strategy for any cluster-based router.",
+      "reason": "Conservative stale fallback is a universal routing pattern; no AgentSessionRouter-specific artifacts referenced.",
+      "counter_evidence": "",
+      "candidate": {
+        "id": "AMB-SD-000050",
+        "text": "Stale cluster fallback defaults to conservative routing strategy",
+        "provenance_source_type": "session_decision",
+        "provenance_source_ref": "session:session_e04a3fed-2a53-44f2-92ea-695d2e3e193e;decision:50",
+        "status": "proposed",
+        "classification": "ambiguous",
+        "project_score": 1,
+        "transferable_score": 1,
+        "primary_signal": "current_project_session",
+        "confidence": "low",
+        "project_signals": [
+          "current_project_session"
+        ],
+        "transferable_signals": [
+          "generic_agent_or_router_pattern"
+        ]
+      }
+    },
+    {
+      "id": "AMB-SD-000051",
+      "lead_decision": "APPROVED",
+      "effective_classification": "engineering-principles",
+      "scope_condition": "Apply as universal data quality principle for any facts/metadata system.",
+      "reason": "Facts re-validation is a universal data quality invariant; no AgentSessionRouter-specific artifact references in text.",
+      "counter_evidence": "",
+      "candidate": {
+        "id": "AMB-SD-000051",
+        "text": "Unverified facts must be re-validated against live metadata before use",
+        "provenance_source_type": "session_decision",
+        "provenance_source_ref": "session:session_e04a3fed-2a53-44f2-92ea-695d2e3e193e;decision:51",
+        "status": "proposed",
+        "classification": "ambiguous",
+        "project_score": 1,
+        "transferable_score": 1,
+        "primary_signal": "current_project_session",
+        "confidence": "low",
+        "project_signals": [
+          "current_project_session"
+        ],
+        "transferable_signals": [
+          "normative_language"
+        ]
+      }
+    },
+    {
+      "id": "AMB-SD-000060",
+      "lead_decision": "APPROVED",
+      "effective_classification": "engineering-principles",
+      "scope_condition": "Apply as universal routing safety principle for session-based routing.",
+      "reason": "Metadata health verification before session facts use is a universal routing safety invariant.",
+      "counter_evidence": "",
+      "candidate": {
+        "id": "AMB-SD-000060",
+        "text": "Secondary session routing must verify metadata health snapshot before using session facts",
+        "provenance_source_type": "session_decision",
+        "provenance_source_ref": "session:session_e04a3fed-2a53-44f2-92ea-695d2e3e193e;decision:60",
+        "status": "proposed",
+        "classification": "ambiguous",
+        "project_score": 1,
+        "transferable_score": 1,
+        "primary_signal": "current_project_session",
+        "confidence": "low",
+        "project_signals": [
+          "current_project_session"
+        ],
+        "transferable_signals": [
+          "normative_language"
+        ]
+      }
+    },
+    {
+      "id": "AMB-SD-000061",
+      "lead_decision": "APPROVED",
+      "effective_classification": "engineering-principles",
+      "scope_condition": "Apply universally to any session management system with stale memory risk.",
+      "reason": "Stale-memory risk transparency is a universal safety principle; no project-specific artifact references.",
+      "counter_evidence": "",
+      "candidate": {
+        "id": "AMB-SD-000061",
+        "text": "Stale-memory risk must be surfaced, not silently suppressed, for older sessions",
+        "provenance_source_type": "session_decision",
+        "provenance_source_ref": "session:session_e04a3fed-2a53-44f2-92ea-695d2e3e193e;decision:61",
+        "status": "proposed",
+        "classification": "ambiguous",
+        "project_score": 1,
+        "transferable_score": 1,
+        "primary_signal": "current_project_session",
+        "confidence": "low",
+        "project_signals": [
+          "current_project_session"
+        ],
+        "transferable_signals": [
+          "normative_language"
+        ]
+      }
+    },
+    {
+      "id": "AMB-SD-000116",
+      "lead_decision": "APPROVED",
+      "effective_classification": "engineering-principles",
+      "scope_condition": "Apply as universal input validation security principle for any system handling SQL queries.",
+      "reason": "SQL metacharacter rejection at input boundaries is a universal security principle; no project-specific artifact references.",
+      "counter_evidence": "",
+      "candidate": {
+        "id": "AMB-SD-000116",
+        "text": "Reject cluster names containing SQL metacharacters (; \" --) at input validation boundary",
+        "provenance_source_type": "session_decision",
+        "provenance_source_ref": "session:session_5d398351-9c4a-4670-b70c-49398e6ba477;decision:116",
+        "status": "proposed",
+        "classification": "ambiguous",
+        "project_score": 1,
+        "transferable_score": 1,
+        "primary_signal": "current_project_session",
+        "confidence": "low",
+        "project_signals": [
+          "current_project_session"
+        ],
+        "transferable_signals": [
+          "generic_contract_language"
+        ]
+      }
+    },
+    {
+      "id": "AMB-SD-000121",
+      "lead_decision": "APPROVED",
+      "effective_classification": "engineering-principles",
+      "scope_condition": "Apply as universal routing consistency principle for parallel query systems.",
+      "reason": "Consistent fallback routing until revalidation is a universal distributed systems pattern; no project-specific artifacts.",
+      "counter_evidence": "",
+      "candidate": {
+        "id": "AMB-SD-000121",
+        "text": "Consistent fallback routing for all parallel queries until cluster-level revalidation succeeds",
+        "provenance_source_type": "session_decision",
+        "provenance_source_ref": "session:session_116e5b9d-bebf-41a0-a173-2c94e094238a;decision:121",
+        "status": "proposed",
+        "classification": "ambiguous",
+        "project_score": 1,
+        "transferable_score": 1,
+        "primary_signal": "current_project_session",
+        "confidence": "low",
+        "project_signals": [
+          "current_project_session"
+        ],
+        "transferable_signals": [
+          "generic_agent_or_router_pattern"
+        ]
+      }
+    },
+    {
+      "id": "AMB-SD-000122",
+      "lead_decision": "APPROVED",
+      "effective_classification": "engineering-principles",
+      "scope_condition": "Apply as universal fallback continuation principle for parallel query systems.",
+      "reason": "Continue fallback until cluster revalidation is a universal distributed systems pattern.",
+      "counter_evidence": "",
+      "candidate": {
+        "id": "AMB-SD-000122",
+        "text": "Continue fallback routing for all remaining parallel queries until cluster revalidation",
+        "provenance_source_type": "session_decision",
+        "provenance_source_ref": "session:session_116e5b9d-bebf-41a0-a173-2c94e094238a;decision:122",
+        "status": "proposed",
+        "classification": "ambiguous",
+        "project_score": 1,
+        "transferable_score": 1,
+        "primary_signal": "current_project_session",
+        "confidence": "low",
+        "project_signals": [
+          "current_project_session"
+        ],
+        "transferable_signals": [
+          "generic_agent_or_router_pattern"
+        ]
+      }
+    },
+    {
+      "id": "AMB-SD-000123",
+      "lead_decision": "APPROVED",
+      "effective_classification": "engineering-principles",
+      "scope_condition": "Apply as universal state-maintenance principle during resource repreparation.",
+      "reason": "Maintain fallback during reprepare is a universal resilience pattern; no project-specific artifacts.",
+      "counter_evidence": "",
+      "candidate": {
+        "id": "AMB-SD-000123",
+        "text": "Maintain fallback during reprepare until successful completion",
+        "provenance_source_type": "session_decision",
+        "provenance_source_ref": "session:session_116e5b9d-bebf-41a0-a173-2c94e094238a;decision:123",
+        "status": "proposed",
+        "classification": "ambiguous",
+        "project_score": 1,
+        "transferable_score": 1,
+        "primary_signal": "current_project_session",
+        "confidence": "low",
+        "project_signals": [
+          "current_project_session"
+        ],
+        "transferable_signals": [
+          "generic_agent_or_router_pattern"
+        ]
+      }
+    },
+    {
+      "id": "AMB-DOC-0008",
+      "lead_decision": "APPROVED",
+      "effective_classification": "engineering-principles",
+      "scope_condition": "Apply as generic rubric/scorer design principle; verify against specific project context.",
+      "reason": "Doc-sourced; describes rubric design for a classification pipeline — generic pattern, not AgentSessionRouter-specific.",
+      "counter_evidence": "",
+      "candidate": {
+        "id": "AMB-DOC-0008",
+        "text": "Scorer/Rubric Rules (Gate 3): Gate 3 makes the Gate 2 classification explicit and auditable. It adds",
+        "provenance_source_type": "spec",
+        "provenance_source_ref": "docs:docs/CLUSTER_CACHE_SPEC.md#scorer-rubric-rules-gate-3",
+        "status": "proposed",
+        "classification": "ambiguous",
+        "project_score": 1,
+        "transferable_score": 1,
+        "primary_signal": "version_or_phase_marker",
+        "confidence": "low",
+        "project_signals": [
+          "version_or_phase_marker"
+        ],
+        "transferable_signals": [
+          "spec_source"
+        ]
+      }
+    }
+  ],
+  "gate4_suspended": [
+    {
+      "id": "AMB-SD-000036",
+      "lead_decision": "SUSPENDED",
+      "effective_classification": null,
+      "scope_condition": "Only valid if current router sanity-check contract and exposed metrics surface still match this statement.",
+      "reason": "References 'exposed metrics' and 'sanity check' as an external client contract — AgentSessionRouter-specific interface semantics may have evolved.",
+      "counter_evidence": "Current sanity endpoint and metrics exposure surface may differ from older session_decisions record.",
+      "candidate": {
+        "id": "AMB-SD-000036",
+        "text": "External clients must not bypass sanity check based on exposed metrics",
+        "provenance_source_type": "session_decision",
+        "provenance_source_ref": "session:session_e6f7ab2c-d59c-49c1-b223-4ec7477b77e4;decision:36",
+        "status": "proposed",
+        "classification": "ambiguous",
+        "project_score": 1,
+        "transferable_score": 1,
+        "primary_signal": "current_project_session",
+        "confidence": "low",
+        "project_signals": [
+          "current_project_session"
+        ],
+        "transferable_signals": [
+          "normative_language"
+        ]
+      }
+    },
+    {
+      "id": "AMB-DOC-0019",
+      "lead_decision": "SUSPENDED",
+      "effective_classification": null,
+      "scope_condition": "Full section text needed; only version header visible.",
+      "reason": "Candidate text is a version snapshot header with no substantive principle content — cannot classify without the full section.",
+      "counter_evidence": "",
+      "candidate": {
+        "id": "AMB-DOC-0019",
+        "text": "v2.7 Observe-Only Routing Snapshot: Verified on 2026-05-16:",
+        "provenance_source_type": "spec",
+        "provenance_source_ref": "docs:MAINTENANCE.md#v2-7-observe-only-routing-snapshot",
+        "status": "proposed",
+        "classification": "ambiguous",
+        "project_score": 1,
+        "transferable_score": 1,
+        "primary_signal": "version_or_phase_marker",
+        "confidence": "low",
+        "project_signals": [
+          "version_or_phase_marker"
+        ],
+        "transferable_signals": [
+          "spec_source"
+        ]
+      }
+    },
+    {
+      "id": "AMB-DOC-0020",
+      "lead_decision": "SUSPENDED",
+      "effective_classification": null,
+      "scope_condition": "Full section text needed; only version header visible.",
+      "reason": "Candidate text is a version snapshot header with no substantive principle content — cannot classify without the full section.",
+      "counter_evidence": "",
+      "candidate": {
+        "id": "AMB-DOC-0020",
+        "text": "v2.6 Metadata-Rich Routing Snapshot: Verified on 2026-05-15:",
+        "provenance_source_type": "spec",
+        "provenance_source_ref": "docs:MAINTENANCE.md#v2-6-metadata-rich-routing-snapshot",
+        "status": "proposed",
+        "classification": "ambiguous",
+        "project_score": 1,
+        "transferable_score": 1,
+        "primary_signal": "version_or_phase_marker",
+        "confidence": "low",
+        "project_signals": [
+          "version_or_phase_marker"
+        ],
+        "transferable_signals": [
+          "spec_source"
+        ]
+      }
+    }
+  ],
+  "gate4_rejected": [
+    {
+      "id": "AMB-SD-000008",
+      "lead_decision": "REJECTED",
+      "effective_classification": null,
+      "scope_condition": null,
+      "reason": "Mentions 'shadow_comparisons table', 'cluster_events', and 'session_events' — all AgentSessionRouter-specific database schema artifacts.",
+      "counter_evidence": "shadow_comparisons table is an AgentSessionRouter schema implementation detail.",
+      "candidate": {
+        "id": "AMB-SD-000008",
+        "text": "New shadow_comparisons table only; shadow data never mixes with cluster_events or session_events",
+        "provenance_source_type": "session_decision",
+        "provenance_source_ref": "session:session_11d18ee8-3799-443f-8f5f-ecd866db9e57;decision:8",
+        "status": "proposed",
+        "classification": "ambiguous",
+        "project_score": 1,
+        "transferable_score": 1,
+        "primary_signal": "current_project_session",
+        "confidence": "low",
+        "project_signals": [
+          "current_project_session"
+        ],
+        "transferable_signals": [
+          "normative_language"
+        ]
+      }
+    },
+    {
+      "id": "AMB-SD-000040",
+      "lead_decision": "REJECTED",
+      "effective_classification": null,
+      "scope_condition": null,
+      "reason": "Mentions 'exact-topic session deduplication' — AgentSessionRouter-specific session matching mechanism not found in generic routers.",
+      "counter_evidence": "Exact-topic deduplication is an AgentSessionRouter session design choice.",
+      "candidate": {
+        "id": "AMB-SD-000040",
+        "text": "Exact-topic session deduplication must be preserved across explicit session_id routing",
+        "provenance_source_type": "session_decision",
+        "provenance_source_ref": "session:session_11d18ee8-3799-443f-8f5f-ecd866db9e57;decision:40",
+        "status": "proposed",
+        "classification": "ambiguous",
+        "project_score": 1,
+        "transferable_score": 1,
+        "primary_signal": "current_project_session",
+        "confidence": "low",
+        "project_signals": [
+          "current_project_session"
+        ],
+        "transferable_signals": [
+          "normative_language"
+        ]
+      }
+    },
+    {
+      "id": "AMB-SD-000052",
+      "lead_decision": "REJECTED",
+      "effective_classification": null,
+      "scope_condition": null,
+      "reason": "Mentions 'stale cluster signal' — AgentSessionRouter-specific emit mechanism in cluster.ts fallback logic.",
+      "counter_evidence": "The 'stale cluster signal' emit is an AgentSessionRouter cluster monitoring implementation detail.",
+      "candidate": {
+        "id": "AMB-SD-000052",
+        "text": "Fallback path emits stale cluster signal, not silent degradation",
+        "provenance_source_type": "session_decision",
+        "provenance_source_ref": "session:session_63fec26d-9e40-4981-80ce-5b7311daa01c;decision:52",
+        "status": "proposed",
+        "classification": "ambiguous",
+        "project_score": 1,
+        "transferable_score": 1,
+        "primary_signal": "current_project_session",
+        "confidence": "low",
+        "project_signals": [
+          "current_project_session"
+        ],
+        "transferable_signals": [
+          "generic_agent_or_router_pattern"
+        ]
+      }
+    },
+    {
+      "id": "AMB-SD-000053",
+      "lead_decision": "REJECTED",
+      "effective_classification": null,
+      "scope_condition": null,
+      "reason": "Mentions 'stale cluster' halt-and-emit behavior — AgentSessionRouter-specific cluster state machine.",
+      "counter_evidence": "The halt-on-stale-cluster pattern is an AgentSessionRouter implementation detail.",
+      "candidate": {
+        "id": "AMB-SD-000053",
+        "text": "Fallback halts on stale cluster, emits signal for operator to resolve",
+        "provenance_source_type": "session_decision",
+        "provenance_source_ref": "session:session_63fec26d-9e40-4981-80ce-5b7311daa01c;decision:53",
+        "status": "proposed",
+        "classification": "ambiguous",
+        "project_score": 1,
+        "transferable_score": 1,
+        "primary_signal": "current_project_session",
+        "confidence": "low",
+        "project_signals": [
+          "current_project_session"
+        ],
+        "transferable_signals": [
+          "generic_agent_or_router_pattern"
+        ]
+      }
+    },
+    {
+      "id": "AMB-SD-000062",
+      "lead_decision": "REJECTED",
+      "effective_classification": null,
+      "scope_condition": null,
+      "reason": "Uses 'halt with signal' language that maps directly to AgentSessionRouter's specific cluster state machine semantics.",
+      "counter_evidence": "'Halt with signal' is an AgentSessionRouter cluster fallback implementation pattern.",
+      "candidate": {
+        "id": "AMB-SD-000062",
+        "text": "Stale facts = halt with signal, never silent degradation",
+        "provenance_source_type": "session_decision",
+        "provenance_source_ref": "session:session_63fec26d-9e40-4981-80ce-5b7311daa01c;decision:62",
+        "status": "proposed",
+        "classification": "ambiguous",
+        "project_score": 1,
+        "transferable_score": 1,
+        "primary_signal": "current_project_session",
+        "confidence": "low",
+        "project_signals": [
+          "current_project_session"
+        ],
+        "transferable_signals": [
+          "normative_language"
+        ]
+      }
+    },
+    {
+      "id": "AMB-SD-000089",
+      "lead_decision": "REJECTED",
+      "effective_classification": null,
+      "scope_condition": null,
+      "reason": "Explicitly references 'MAINTENANCE.md' and 'router answer-hygiene rule' — AgentSessionRouter-specific operational contract.",
+      "counter_evidence": "Answer-hygiene rules are specific to AgentSessionRouter's shadow eval integration.",
+      "candidate": {
+        "id": "AMB-SD-000089",
+        "text": "MAINTENANCE.md contains router answer-hygiene rule; never let shadow eval affect caller answers",
+        "provenance_source_type": "session_decision",
+        "provenance_source_ref": "session:session_e5feff70-5233-4395-906d-0ecb13bbbb69;decision:89",
+        "status": "proposed",
+        "classification": "ambiguous",
+        "project_score": 2,
+        "transferable_score": 2,
+        "primary_signal": "project_file_path",
+        "confidence": "low",
+        "project_signals": [
+          "project_file_path",
+          "current_project_session"
+        ],
+        "transferable_signals": [
+          "normative_language",
+          "generic_agent_or_router_pattern"
+        ]
+      }
+    },
+    {
+      "id": "AMB-SD-000090",
+      "lead_decision": "REJECTED",
+      "effective_classification": null,
+      "scope_condition": null,
+      "reason": "Explicitly names 'MAINTENANCE.md' as authoritative for AgentSessionRouter answer-hygiene rules.",
+      "counter_evidence": "MAINTENANCE.md answer-hygiene rules are AgentSessionRouter-specific operational policies.",
+      "candidate": {
+        "id": "AMB-SD-000090",
+        "text": "MAINTENANCE.md is authoritative for router answer-hygiene rules; shadow eval must not affect caller answers",
+        "provenance_source_type": "session_decision",
+        "provenance_source_ref": "session:session_e5feff70-5233-4395-906d-0ecb13bbbb69;decision:90",
+        "status": "proposed",
+        "classification": "ambiguous",
+        "project_score": 2,
+        "transferable_score": 2,
+        "primary_signal": "project_file_path",
+        "confidence": "low",
+        "project_signals": [
+          "project_file_path",
+          "current_project_session"
+        ],
+        "transferable_signals": [
+          "normative_language",
+          "generic_agent_or_router_pattern"
+        ]
+      }
+    },
+    {
+      "id": "AMB-SD-000114",
+      "lead_decision": "REJECTED",
+      "effective_classification": null,
+      "scope_condition": null,
+      "reason": "Explicitly names 'MAINTENANCE.md' as authoritative for AgentSessionRouter answer-hygiene rules.",
+      "counter_evidence": "MAINTENANCE.md answer-hygiene rules are AgentSessionRouter-specific operational policies.",
+      "candidate": {
+        "id": "AMB-SD-000114",
+        "text": "MAINTENANCE.md is authoritative; shadow eval must not affect caller answers",
+        "provenance_source_type": "session_decision",
+        "provenance_source_ref": "session:session_e5feff70-5233-4395-906d-0ecb13bbbb69;decision:114",
+        "status": "proposed",
+        "classification": "ambiguous",
+        "project_score": 2,
+        "transferable_score": 2,
+        "primary_signal": "project_file_path",
+        "confidence": "low",
+        "project_signals": [
+          "project_file_path",
+          "current_project_session"
+        ],
+        "transferable_signals": [
+          "normative_language",
+          "generic_agent_or_router_pattern"
+        ]
+      }
+    },
+    {
+      "id": "AMB-SD-000167",
+      "lead_decision": "REJECTED",
+      "effective_classification": null,
+      "scope_condition": null,
+      "reason": "Describes the AgentSessionRouter-specific phase gate model workflow; not a transferable engineering pattern.",
+      "counter_evidence": "Phase gate model with artifact bundles is an AgentSessionRouter operational convention.",
+      "candidate": {
+        "id": "AMB-SD-000167",
+        "text": "Phase gate model with explicit artifact bundles required per phase",
+        "provenance_source_type": "session_decision",
+        "provenance_source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:167",
+        "status": "proposed",
+        "classification": "ambiguous",
+        "project_score": 1,
+        "transferable_score": 1,
+        "primary_signal": "current_project_session",
+        "confidence": "low",
+        "project_signals": [
+          "current_project_session"
+        ],
+        "transferable_signals": [
+          "normative_language"
+        ]
+      }
+    },
+    {
+      "id": "AMB-SD-000168",
+      "lead_decision": "REJECTED",
+      "effective_classification": null,
+      "scope_condition": null,
+      "reason": "Describes the AgentSessionRouter operatorless workflow escalation rule; project-specific governance.",
+      "counter_evidence": "Escalation-to-lead workflow is AgentSessionRouter-specific operational policy.",
+      "candidate": {
+        "id": "AMB-SD-000168",
+        "text": "Codex must escalate architectural conflicts, ambiguous reqs, risk crossing, and design reversals to lead",
+        "provenance_source_type": "session_decision",
+        "provenance_source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:168",
+        "status": "proposed",
+        "classification": "ambiguous",
+        "project_score": 1,
+        "transferable_score": 1,
+        "primary_signal": "current_project_session",
+        "confidence": "low",
+        "project_signals": [
+          "current_project_session"
+        ],
+        "transferable_signals": [
+          "normative_language"
+        ]
+      }
+    },
+    {
+      "id": "AMB-SD-000175",
+      "lead_decision": "REJECTED",
+      "effective_classification": null,
+      "scope_condition": null,
+      "reason": "Describes the AgentSessionRouter human-in-loop contract; project-specific workflow governance.",
+      "counter_evidence": "Phase summaries read-only contract is an AgentSessionRouter operatorless workflow rule.",
+      "candidate": {
+        "id": "AMB-SD-000175",
+        "text": "Phase summaries are read-only by explicit workflow contract; human replies become new issues",
+        "provenance_source_type": "session_decision",
+        "provenance_source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:175",
+        "status": "proposed",
+        "classification": "ambiguous",
+        "project_score": 1,
+        "transferable_score": 1,
+        "primary_signal": "current_project_session",
+        "confidence": "low",
+        "project_signals": [
+          "current_project_session"
+        ],
+        "transferable_signals": [
+          "generic_contract_language"
+        ]
+      }
+    },
+    {
+      "id": "AMB-SD-000184",
+      "lead_decision": "REJECTED",
+      "effective_classification": null,
+      "scope_condition": null,
+      "reason": "References 'Human Touchpoint' — an AgentSessionRouter operatorless workflow concept defined in MAINTENANCE.md.",
+      "counter_evidence": "Human Touchpoint is an AgentSessionRouter-specific workflow governance concept.",
+      "candidate": {
+        "id": "AMB-SD-000184",
+        "text": "Security patches requiring human sign-off should be explicit exception in Human Touchpoint",
+        "provenance_source_type": "session_decision",
+        "provenance_source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:184",
+        "status": "proposed",
+        "classification": "ambiguous",
+        "project_score": 1,
+        "transferable_score": 1,
+        "primary_signal": "current_project_session",
+        "confidence": "low",
+        "project_signals": [
+          "current_project_session"
+        ],
+        "transferable_signals": [
+          "normative_language"
+        ]
+      }
+    },
+    {
+      "id": "AMB-SD-000186",
+      "lead_decision": "REJECTED",
+      "effective_classification": null,
+      "scope_condition": null,
+      "reason": "Describes the AgentSessionRouter two-pass classification pipeline with staging cluster for global population.",
+      "counter_evidence": "Two-pass staging cluster architecture is an AgentSessionRouter implementation design.",
+      "candidate": {
+        "id": "AMB-SD-000186",
+        "text": "Two-pass auto-classification with staging cluster for global population — not mandatory human review, not fully automatic",
+        "provenance_source_type": "session_decision",
+        "provenance_source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:186",
+        "status": "proposed",
+        "classification": "ambiguous",
+        "project_score": 1,
+        "transferable_score": 1,
+        "primary_signal": "current_project_session",
+        "confidence": "low",
+        "project_signals": [
+          "current_project_session"
+        ],
+        "transferable_signals": [
+          "generic_contract_language"
+        ]
+      }
+    },
+    {
+      "id": "AMB-SD-000187",
+      "lead_decision": "REJECTED",
+      "effective_classification": null,
+      "scope_condition": null,
+      "reason": "Describes the AgentSessionRouter principle format design — applicability clauses and lead session rejection mechanism.",
+      "counter_evidence": "Principle format with applicability clauses is an AgentSessionRouter architectural pattern.",
+      "candidate": {
+        "id": "AMB-SD-000187",
+        "text": "Every principle stores applicability clause and lead session rejection mechanism to prevent dogmatization",
+        "provenance_source_type": "session_decision",
+        "provenance_source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:187",
+        "status": "proposed",
+        "classification": "ambiguous",
+        "project_score": 1,
+        "transferable_score": 1,
+        "primary_signal": "current_project_session",
+        "confidence": "low",
+        "project_signals": [
+          "current_project_session"
+        ],
+        "transferable_signals": [
+          "normative_language"
+        ]
+      }
+    },
+    {
+      "id": "AMB-SD-000191",
+      "lead_decision": "REJECTED",
+      "effective_classification": null,
+      "scope_condition": null,
+      "reason": "Describes the AgentSessionRouter two-cluster memory architecture (project-architecture + engineering-principles).",
+      "counter_evidence": "Two-cluster memory architecture is an AgentSessionRouter design choice.",
+      "candidate": {
+        "id": "AMB-SD-000191",
+        "text": "Two-cluster memory via existing cluster mechanism: project-architecture + engineering-principles",
+        "provenance_source_type": "session_decision",
+        "provenance_source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:191",
+        "status": "proposed",
+        "classification": "ambiguous",
+        "project_score": 1,
+        "transferable_score": 1,
+        "primary_signal": "current_project_session",
+        "confidence": "low",
+        "project_signals": [
+          "current_project_session"
+        ],
+        "transferable_signals": [
+          "normative_language"
+        ]
+      }
+    },
+    {
+      "id": "AMB-SD-000192",
+      "lead_decision": "REJECTED",
+      "effective_classification": null,
+      "scope_condition": null,
+      "reason": "Describes the AgentSessionRouter two-pass auto-classification mechanism with Codex self-review.",
+      "counter_evidence": "Two-pass classification with Codex self-review is an AgentSessionRouter operational design.",
+      "candidate": {
+        "id": "AMB-SD-000192",
+        "text": "Two-pass auto-classification: project vs. transferable candidate via staging cluster, Codex self-reviews",
+        "provenance_source_type": "session_decision",
+        "provenance_source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:192",
+        "status": "proposed",
+        "classification": "ambiguous",
+        "project_score": 1,
+        "transferable_score": 1,
+        "primary_signal": "current_project_session",
+        "confidence": "low",
+        "project_signals": [
+          "current_project_session"
+        ],
+        "transferable_signals": [
+          "generic_contract_language"
+        ]
+      }
+    },
+    {
+      "id": "AMB-SD-000198",
+      "lead_decision": "REJECTED",
+      "effective_classification": null,
+      "scope_condition": null,
+      "reason": "Describes the AgentSessionRouter gate approach where phase gates are documentation milestones.",
+      "counter_evidence": "Phase gate as documentation milestone is an AgentSessionRouter design convention.",
+      "candidate": {
+        "id": "AMB-SD-000198",
+        "text": "All phase gates are documentation milestones — no code required for decision record acceptance",
+        "provenance_source_type": "session_decision",
+        "provenance_source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:198",
+        "status": "proposed",
+        "classification": "ambiguous",
+        "project_score": 1,
+        "transferable_score": 1,
+        "primary_signal": "current_project_session",
+        "confidence": "low",
+        "project_signals": [
+          "current_project_session"
+        ],
+        "transferable_signals": [
+          "normative_language"
+        ]
+      }
+    },
+    {
+      "id": "AMB-SD-000202",
+      "lead_decision": "REJECTED",
+      "effective_classification": null,
+      "scope_condition": null,
+      "reason": "References a specific non-goals sentence from the AgentSessionRouter CLUSTER_CACHE_SPEC.md decision record.",
+      "counter_evidence": "Non-goals sentence is part of the AgentSessionRouter architectural memory pipeline spec.",
+      "candidate": {
+        "id": "AMB-SD-000202",
+        "text": "Non-goals sentence must be completed: 'no hidden model-memory authority without a diffable artifact' is syntactically incomplete",
+        "provenance_source_type": "session_decision",
+        "provenance_source_ref": "session:session_11b3d81c-f9e6-4848-88f9-a44adba36b2a;decision:202",
+        "status": "proposed",
+        "classification": "ambiguous",
+        "project_score": 1,
+        "transferable_score": 1,
+        "primary_signal": "current_project_session",
+        "confidence": "low",
+        "project_signals": [
+          "current_project_session"
+        ],
+        "transferable_signals": [
+          "normative_language"
+        ]
+      }
+    },
+    {
+      "id": "AMB-DOC-0018",
+      "lead_decision": "REJECTED",
+      "effective_classification": null,
+      "scope_condition": null,
+      "reason": "Mentions 'factsheet cache' — AgentSessionRouter-specific verified factsheet architecture; not a generic pattern.",
+      "counter_evidence": "Verified factsheet cache is an AgentSessionRouter-specific storage mechanism.",
+      "candidate": {
+        "id": "AMB-DOC-0018",
+        "text": "Decisions: - Use verified factsheet cache as source of truth. Do not use opaque Claude session state as the only source of truth.",
+        "provenance_source_type": "spec",
+        "provenance_source_ref": "docs:docs/EXPERIMENTS.md#decisions",
+        "status": "proposed",
+        "classification": "ambiguous",
+        "project_score": 1,
+        "transferable_score": 1,
+        "primary_signal": "repo_feature_name",
+        "confidence": "low",
+        "project_signals": [
+          "repo_feature_name"
+        ],
+        "transferable_signals": [
+          "spec_source"
+        ]
+      }
+    },
+    {
+      "id": "AMB-DOC-0026",
+      "lead_decision": "REJECTED",
+      "effective_classification": null,
+      "scope_condition": null,
+      "reason": "Mentions 'cluster factsheets' and 're-prepare' — AgentSessionRouter-specific cluster factsheet management mechanism.",
+      "counter_evidence": "Cluster factsheet re-prepare is an AgentSessionRouter cluster management operation.",
+      "candidate": {
+        "id": "AMB-DOC-0026",
+        "text": "Cluster Factsheet Re-Prepare: Re-prepare affected cluster factsheets after any architectural PR that changes:",
+        "provenance_source_type": "spec",
+        "provenance_source_ref": "docs:MAINTENANCE.md#cluster-factsheet-re-prepare",
+        "status": "proposed",
+        "classification": "ambiguous",
+        "project_score": 1,
+        "transferable_score": 1,
+        "primary_signal": "repo_feature_name",
+        "confidence": "low",
+        "project_signals": [
+          "repo_feature_name"
+        ],
+        "transferable_signals": [
+          "spec_source"
+        ]
+      }
+    }
+  ],
+  "gate3_rejected": [
+    {
+      "id": "DOC-0010",
+      "source_ref": "docs:docs/EXPERIMENTS.md#project-architecture-candidates",
+      "text": "Project-Architecture Candidates",
+      "rejection_code": "rejected_duplicate",
+      "reason": "candidate text exactly duplicates an earlier candidate in this dry run",
+      "project_score": 0,
+      "transferable_score": 2,
+      "primary_signal": "spec_source",
+      "confidence": "high"
+    },
+    {
+      "id": "DOC-0011",
+      "source_ref": "docs:docs/EXPERIMENTS.md#engineering-principle-candidates",
+      "text": "Engineering-Principle Candidates",
+      "rejection_code": "rejected_duplicate",
+      "reason": "candidate text exactly duplicates an earlier candidate in this dry run",
+      "project_score": 0,
+      "transferable_score": 3,
+      "primary_signal": "normative_language",
+      "confidence": "high"
+    },
+    {
+      "id": "DOC-0013",
+      "source_ref": "docs:docs/EXPERIMENTS.md#source-inventory",
+      "text": "Source Inventory",
+      "rejection_code": "rejected_too_short",
+      "reason": "candidate text is shorter than 20 characters",
+      "project_score": 0,
+      "transferable_score": 2,
+      "primary_signal": "spec_source",
+      "confidence": "high"
+    },
+    {
+      "id": "DOC-0017",
+      "source_ref": "docs:docs/EXPERIMENTS.md#rejected-candidates",
+      "text": "Rejected Candidates",
+      "rejection_code": "rejected_too_short",
+      "reason": "candidate text is shorter than 20 characters",
+      "project_score": 0,
+      "transferable_score": 2,
+      "primary_signal": "spec_source",
+      "confidence": "high"
+    }
+  ],
+  "notes": [
+    "This artifact compiles reviewed/staged candidates only.",
+    "It is not a durable memory store and must not be served as authoritative factsheet evidence.",
+    "No LLM verifier or factsheet verifier ran in Gate 5."
+  ]
+}

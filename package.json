@@ -39,6 +39,7 @@
     "session:collision": "node scripts/session-routing-collision.mjs",
     "memory:dry-run": "node scripts/architectural-memory-dry-run.mjs",
     "memory:lead-review": "node scripts/architectural-memory-lead-review.mjs",
+    "memory:factsheet-dry-run": "node scripts/architectural-memory-factsheet-dry-run.mjs",
     "monitor:snapshot": "node scripts/router-monitor-snapshot.mjs",
     "mcp:workload": "node scripts/mcp-workload-matrix.mjs",
     "mcp:workload:live": "node scripts/mcp-workload-matrix.mjs --live"
