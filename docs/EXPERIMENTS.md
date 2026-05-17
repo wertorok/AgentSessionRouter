@@ -405,6 +405,22 @@ Remaining MAINTENANCE.md disciplines that are still docs-only are listed in
 `process-guardrail-gap-analysis.md`. They must not be batch-promoted without the
 same staged candidate, lead review, and targeted seed-selection proof.
 
+### Cross-Project Architectural Memory Governance Review
+
+Artifact:
+
+- `experiments/cross-project-architectural-memory-2026-05-17/`
+
+This review asks how the global `engineering-principles` corpus should evolve
+across multiple projects. The result is a policy decision, not an implementation.
+
+Decision: freeze global promotion pending a dedicated cross-project governance
+spec. New projects may consume the global corpus as seed input, but must not
+promote into it automatically or directly. Silent global distill remains
+forbidden. Cross-project promotion requires a future steward model,
+deduplication manifest, contradiction-resolution path, substantive
+`applies_when` criteria, and corruption-recovery plan.
+
 ### Architectural Memory Distill Dry-Run Template
 
 This is a placeholder report shape for Phase 7 Gate 1. It documents what a
