@@ -1,0 +1,76 @@
+{
+  "generated_at": "2026-05-17T07:21:28.892Z",
+  "staged_candidates": {
+    "generated_at": "2026-05-17T00:00:00.000Z",
+    "gate": "gate-13-process-guardrail-promotion",
+    "scope": {
+      "runtime_serving_toggle_changed": false,
+      "serving_code_changed": false,
+      "classifier_algorithm_changed": false,
+      "requires_lead_review": true
+    },
+    "candidates": [
+      {
+        "id": "AMB-RESCUE-0006",
+        "proposed_classification": "engineering-principles",
+        "statement": "Single successful runs do not prove behavior that can vary; quality, latency, routing, scorer, and benchmark claims require a baseline plus repeated runs before promotion.",
+        "applies_when": "Apply when using tests, benchmarks, evaluations, or monitor observations to approve quality, latency, routing decisions, scorer behavior, model answers, or any behavior affected by stochastic, external, concurrency, timing, or context variance.",
+        "revisit_when": "When the behavior is deterministic by construction and covered exhaustively.; When the change is a pure documentation edit.; When the cost of repetition exceeds the risk and the claim is explicitly downgraded to a smoke check.",
+        "counter_evidence": "If a change is provably deterministic and has exhaustive coverage, one confirming run may be sufficient; never use a single run as proof for quality, latency, routing behavior, model behavior, or any path with known variance.",
+        "provenance": "operator-review:AgentSessionRouter-v2.x; docs:docs/CLUSTER_CACHE_SPEC.md#structural-risk-constraint-do-not-recreate-v2-discovery-failure; docs:docs/EXPERIMENTS.md#gate-13-post-serving-targeted-continuity"
+      },
+      {
+        "id": "AMB-RESCUE-0007",
+        "proposed_classification": "engineering-principles",
+        "statement": "Extract is not improve: behavior-preserving refactors must be separated from logic changes, and any behavior change needs its own proof after the mechanical move.",
+        "applies_when": "Apply when splitting files, extracting modules, moving code, renaming internals, or performing any refactor described as behavior-preserving.",
+        "revisit_when": "When the current behavior is wrong, unsafe, or impossible to preserve.; When a required behavior fix is intentionally scoped as a separate change immediately after extraction.; When tests reveal the extraction was not mechanical.",
+        "counter_evidence": "If the existing behavior is a confirmed bug or security risk, do not preserve it blindly; label the change as behavioral, isolate it from mechanical extraction where practical, and prove it with targeted regression/adversarial checks.",
+        "provenance": "operator-review:AgentSessionRouter-v2.x; docs:MAINTENANCE.md#deferred-technical-debt; docs:MAINTENANCE.md#post-refactor-proof-2026-05-16"
+      }
+    ]
+  },
+  "route_decision": {
+    "selected_path": "claude_consult_existing_session",
+    "reason": "Exact normalized topic match; routing to existing session before allowing a new session.",
+    "session_id": "session_11b3d81c-f9e6-4848-88f9-a44adba36b2a",
+    "match_score": 1,
+    "topic_hint": "claude lead operatorless engineering workflow",
+    "metadata_quality": {
+      "score": 1,
+      "topic_hint_source": "caller",
+      "missing": [],
+      "related_files_count": 4,
+      "tags_count": 6,
+      "generic_tags_count": 0,
+      "task_type": "review"
+    },
+    "auto_cluster_routing": "disabled_read_only"
+  },
+  "session_id": "session_11b3d81c-f9e6-4848-88f9-a44adba36b2a",
+  "architectural_memory_seed": null,
+  "raw_answer": "**AMB-RESCUE-0006 — APPROVED**\n\nThe statement is a universal invariant about stochastic systems. It does not name AgentSessionRouter, describe its architecture, or reference its internal mechanisms. The scope is bounded to claims about quality, latency, routing, scorer, model behavior, or any path with known variance — all of which are domain-agnostic properties. The counter-evidence correctly carves out the exception: deterministic + exhaustive coverage may bypass repetition. The provenance documents the trigger sources (CLUSTER_CACHE_SPEC.md structural risk section, EXPERIMENTS.md gate-13 continuity section) without binding the principle itself to this project. This is transferable.\n\n**AMB-RESCUE-0007 — REJECTED**\n\nThe statement describes AgentSessionRouter-specific refactoring workflow conventions: separate extract from logic change, prove behavior after mechanical move. The provenance explicitly traces to MAINTENANCE.md deferred-technical-debt and post-refactor-proof entries — project-specific operational guidance. While the underlying concern (behavior changes need their own proof) is transferable in the abstract, the prescriptive \"extract must be separated from logic change\" framing is a local governance convention, not a universal invariant. The counter-evidence reinforces this: it directly quotes the MAINTENANCE.md post-refactor-proof entry. Not suitable for runtime serving as bounded guidance for other projects.\n\n```json\n{\"gate\":\"gate-13-process-guardrail-promotion\",\"decisions\":[{\"id\":\"AMB-RESCUE-0006\",\"lead_decision\":\"APPROVED\",\"effective_classification\":\"engineering-principles\",\"reason\":\"Universal invariant: single runs do not prove behavior on stochastic/_latency/routing paths. Operationally sharp, counter-evidence correct, provenance documents trigger sources without binding to AgentSessionRouter internals.\",\"scope_condition\":\"Apply when using tests, benchmarks, evaluations, or monitor observations to approve quality, latency, routing, scorer, model behavior, or any path with known variance.\",\"counter_evidence\":\"If behavior is provably deterministic with exhaustive coverage, one confirming run may suffice — never use single run as proof for quality, latency, routing, model behavior, or paths with known variance.\"},{\"id\":\"AMB-RESCUE-0007\",\"lead_decision\":\"REJECTED\",\"effective_classification\":null,\"reason\":\"Provenance explicitly traces to MAINTENANCE.md deferred-technical-debt and post-refactor-proof workflow conventions. Prescriptive extract/improve separation is AgentSessionRouter-specific governance, not a universal invariant. Not transferable beyond this project's refactoring conventions.\",\"scope_condition\":\"N/A — rejected\",\"counter_evidence\":\"N/A — rejected\"}],\"remaining_ambiguous\":[]}",
+  "review": {
+    "gate": "gate-13-process-guardrail-promotion",
+    "decisions": [
+      {
+        "id": "AMB-RESCUE-0006",
+        "lead_decision": "APPROVED",
+        "effective_classification": "engineering-principles",
+        "reason": "Universal invariant: single runs do not prove behavior on stochastic/_latency/routing paths. Operationally sharp, counter-evidence correct, provenance documents trigger sources without binding to AgentSessionRouter internals.",
+        "scope_condition": "Apply when using tests, benchmarks, evaluations, or monitor observations to approve quality, latency, routing, scorer, model behavior, or any path with known variance.",
+        "counter_evidence": "If behavior is provably deterministic with exhaustive coverage, one confirming run may suffice — never use single run as proof for quality, latency, routing, model behavior, or paths with known variance."
+      },
+      {
+        "id": "AMB-RESCUE-0007",
+        "lead_decision": "REJECTED",
+        "effective_classification": null,
+        "reason": "Provenance explicitly traces to MAINTENANCE.md deferred-technical-debt and post-refactor-proof workflow conventions. Prescriptive extract/improve separation is AgentSessionRouter-specific governance, not a universal invariant. Not transferable beyond this project's refactoring conventions.",
+        "scope_condition": "N/A — rejected",
+        "counter_evidence": "N/A — rejected"
+      }
+    ],
+    "remaining_ambiguous": []
+  },
+  "normalized_from_unclosed_fenced_json": true
+}

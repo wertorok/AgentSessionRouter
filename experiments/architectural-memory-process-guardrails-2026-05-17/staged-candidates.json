@@ -1,0 +1,30 @@
+{
+  "generated_at": "2026-05-17T00:00:00.000Z",
+  "gate": "gate-13-process-guardrail-promotion",
+  "scope": {
+    "runtime_serving_toggle_changed": false,
+    "serving_code_changed": false,
+    "classifier_algorithm_changed": false,
+    "requires_lead_review": true
+  },
+  "candidates": [
+    {
+      "id": "AMB-RESCUE-0006",
+      "proposed_classification": "engineering-principles",
+      "statement": "Single successful runs do not prove behavior that can vary; quality, latency, routing, scorer, and benchmark claims require a baseline plus repeated runs before promotion.",
+      "applies_when": "Apply when using tests, benchmarks, evaluations, or monitor observations to approve quality, latency, routing decisions, scorer behavior, model answers, or any behavior affected by stochastic, external, concurrency, timing, or context variance.",
+      "revisit_when": "When the behavior is deterministic by construction and covered exhaustively.; When the change is a pure documentation edit.; When the cost of repetition exceeds the risk and the claim is explicitly downgraded to a smoke check.",
+      "counter_evidence": "If a change is provably deterministic and has exhaustive coverage, one confirming run may be sufficient; never use a single run as proof for quality, latency, routing behavior, model behavior, or any path with known variance.",
+      "provenance": "operator-review:AgentSessionRouter-v2.x; docs:docs/CLUSTER_CACHE_SPEC.md#structural-risk-constraint-do-not-recreate-v2-discovery-failure; docs:docs/EXPERIMENTS.md#gate-13-post-serving-targeted-continuity"
+    },
+    {
+      "id": "AMB-RESCUE-0007",
+      "proposed_classification": "engineering-principles",
+      "statement": "Extract is not improve: behavior-preserving refactors must be separated from logic changes, and any behavior change needs its own proof after the mechanical move.",
+      "applies_when": "Apply when splitting files, extracting modules, moving code, renaming internals, or performing any refactor described as behavior-preserving.",
+      "revisit_when": "When the current behavior is wrong, unsafe, or impossible to preserve.; When a required behavior fix is intentionally scoped as a separate change immediately after extraction.; When tests reveal the extraction was not mechanical.",
+      "counter_evidence": "If the existing behavior is a confirmed bug or security risk, do not preserve it blindly; label the change as behavioral, isolate it from mechanical extraction where practical, and prove it with targeted regression/adversarial checks.",
+      "provenance": "operator-review:AgentSessionRouter-v2.x; docs:MAINTENANCE.md#deferred-technical-debt; docs:MAINTENANCE.md#post-refactor-proof-2026-05-16"
+    }
+  ]
+}

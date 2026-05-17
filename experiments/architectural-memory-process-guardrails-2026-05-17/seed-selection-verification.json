@@ -1,0 +1,50 @@
+{
+  "generated_at": "2026-05-17T07:25:08.390Z",
+  "purpose": "Verify promoted process guardrails are selectable by Gate 13 deterministic seed prefilter on relevant lead-session topics.",
+  "expected_records": [
+    "AMB-RESCUE-0006",
+    "AMB-RESCUE-0007"
+  ],
+  "results": [
+    {
+      "id": "single-run-insufficient-selection",
+      "project_id": "AgentSessionRouter-gate13-single-run-selection-2026-05-17",
+      "route": "claude_consult_new_session",
+      "session_id": "session_81bf7dc8-d247-41bd-a888-c67f02cc9560",
+      "seed_record_ids": [
+        "AMB-RESCUE-0006",
+        "AMB-DOC-0008",
+        "PA-SD-000181",
+        "PA-SD-000199",
+        "PA-SD-000208",
+        "AMB-RESCUE-0003",
+        "AMB-SD-000041",
+        "AMB-SD-000050"
+      ],
+      "injected_token_count": 927,
+      "seed_signature": "sha256:e1e08b870dacd4371251653b00e1c82ad4424deb8e3f31a155f3d9eccf4769b3",
+      "selected_expected": true,
+      "answer_preview": "**No.** Per AMB-RESCUE-0006, single successful runs do not prove behavior that can vary. Quality, latency, routing, scorer, and benchmark claims require a baseline plus repeated runs before promotion.\n\nThe counter-exception (provably deterministic + exhaustive coverage) almost never applies to benchmark, scorer, or routing behavior — those are inherently subject to variance. Treat one passing run as a signal to investigate further, not as proof suitable for promotion."
+    },
+    {
+      "id": "extract-not-improve-selection",
+      "project_id": "AgentSessionRouter-gate13-extract-selection-2026-05-17",
+      "route": "claude_consult_new_session",
+      "session_id": "session_bb130213-88eb-4f15-be69-4ac6496ca1dc",
+      "seed_record_ids": [
+        "AMB-RESCUE-0007",
+        "AMB-DOC-0008",
+        "AMB-RESCUE-0004",
+        "AMB-RESCUE-0006",
+        "PA-SD-000199",
+        "PA-SD-000200",
+        "PA-SD-000209"
+      ],
+      "injected_token_count": 894,
+      "seed_signature": "sha256:c1c18830e46e456f3b48f66dd7aa00864cfdba23168e3e579b39facf6b17886d",
+      "selected_expected": true,
+      "answer_preview": "**Direct answer:** Separate it. AMB-RESCUE-0007 is explicit — a refactor label must not smuggle semantic change. If code movement, extraction, or renaming changes behavior, treat that behavior change as a separate claim and prove it separately. The counter-field on AMB-RESCUE-0007 does not protect you here: it only says \"don't preserve it blindly if the existing behavior is wrong or unsafe\" — that means you acknowledge the wrongness explicitly and label it as a behavior change, not that you absorb it into a refactor PR.\n\nPractical rule from the seeded record: mechanical-only PRs get mechanical-only review. Any logic modification, even if framed as \"also while we're in there,\" is a second cla"
+    }
+  ],
+  "all_expected_selected": true
+}

@@ -380,6 +380,31 @@ process guardrails, but they are not currently active engineering-principle
 records. Runtime serving cannot select them until they are promoted into the
 active memory corpus.
 
+### Gate 13 Process Guardrail Promotion
+
+Artifact:
+
+- `experiments/architectural-memory-process-guardrails-2026-05-17/`
+
+This follow-up closes the known post-serving gap where two process guardrails
+were documented but not seedable by architectural-memory serving.
+
+Promoted active records:
+
+| Record | Lead-review result | Seed-selection verification |
+| --- | --- | --- |
+| `AMB-RESCUE-0006` single-run-insufficient | Approved on first review | selected for benchmark/repeated-runs lead-session topic |
+| `AMB-RESCUE-0007` refactor/extract semantic-change boundary | First wording rejected; revision 2 approved | selected for refactor/semantic-change lead-session topic |
+
+Targeted live verification created new lead sessions through `router_consult`.
+`AMB-RESCUE-0006` was seeded at 927 tokens for the benchmark topic, and
+`AMB-RESCUE-0007` was seeded at 894 tokens for the refactor topic. Runtime
+serving toggle and serving code were not changed.
+
+Remaining MAINTENANCE.md disciplines that are still docs-only are listed in
+`process-guardrail-gap-analysis.md`. They must not be batch-promoted without the
+same staged candidate, lead review, and targeted seed-selection proof.
+
 ### Architectural Memory Distill Dry-Run Template
 
 This is a placeholder report shape for Phase 7 Gate 1. It documents what a

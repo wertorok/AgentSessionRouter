@@ -1,0 +1,59 @@
+{
+  "generated_at": "2026-05-17T07:23:21.475Z",
+  "staged_candidates": {
+    "generated_at": "2026-05-17T00:00:00.000Z",
+    "gate": "gate-13-process-guardrail-promotion-revision-2",
+    "revision_reason": "First lead review rejected the original AMB-RESCUE-0007 wording as too close to AgentSessionRouter-specific refactoring governance. Revision 2 generalizes the transferable core: do not hide semantic change behind a refactor label.",
+    "scope": {
+      "runtime_serving_toggle_changed": false,
+      "serving_code_changed": false,
+      "classifier_algorithm_changed": false,
+      "requires_lead_review": true
+    },
+    "candidates": [
+      {
+        "id": "AMB-RESCUE-0007",
+        "proposed_classification": "engineering-principles",
+        "statement": "A refactor label must not smuggle semantic change: if code movement, extraction, or renaming changes behavior, treat that behavior change as a separate claim and prove it separately.",
+        "applies_when": "Apply when a change is described as mechanical, behavior-preserving, extraction-only, cleanup, split, rename, or refactor, especially when reviewers or agents may assume the old behavior is unchanged.",
+        "revisit_when": "When the intended goal is explicitly to change behavior.; When preserving current behavior would keep a confirmed bug or security issue.; When tests prove the mechanical move changed behavior and the work must be reclassified.",
+        "counter_evidence": "If the existing behavior is wrong or unsafe, do not preserve it blindly; explicitly label the behavior change, keep it separate from mechanical movement where practical, and verify it with targeted regression/adversarial checks.",
+        "provenance": "operator-review:AgentSessionRouter-v2.x; docs:MAINTENANCE.md#post-refactor-proof-2026-05-16; docs:MAINTENANCE.md#deferred-technical-debt"
+      }
+    ]
+  },
+  "route_decision": {
+    "selected_path": "claude_consult_existing_session",
+    "reason": "Exact normalized topic match; routing to existing session before allowing a new session.",
+    "session_id": "session_11b3d81c-f9e6-4848-88f9-a44adba36b2a",
+    "match_score": 1,
+    "topic_hint": "claude lead operatorless engineering workflow",
+    "metadata_quality": {
+      "score": 1,
+      "topic_hint_source": "caller",
+      "missing": [],
+      "related_files_count": 3,
+      "tags_count": 6,
+      "generic_tags_count": 0,
+      "task_type": "review"
+    },
+    "auto_cluster_routing": "disabled_read_only"
+  },
+  "session_id": "session_11b3d81c-f9e6-4848-88f9-a44adba36b2a",
+  "architectural_memory_seed": null,
+  "raw_answer": "**AMB-RESCUE-0007 (revised) — APPROVED**\n\nThe revised wording removed the project-specific governance framing and kept the transferable core. The statement is domain-agnostic: \"refactor label,\" \"code movement,\" \"extraction,\" \"renaming,\" and \"semantic change\" are universal programming concepts applicable to any codebase. The principle states a universal claim-checking discipline — behavior changes hidden under mechanical labels must be separated and proven separately — which is true in any language, framework, or system.\n\n**What changed from v1 to v2:**\n- v1 framed \"extract must be separated from logic change\" as a prescriptive workflow rule (AgentSessionRouter-specific governance convention)\n- v2 frames \"do not smuggle semantic change under refactor label\" as a claim-validation discipline (universal invariant)\n\n**applies_when** is sharp: applies when reviewers or agents may assume old behavior is unchanged — this is a cross-project failure mode.\n\n**counter_evidence** is correct and non-dogmatic: it explicitly carves out the exception where preserving current behavior would keep a confirmed bug or security issue. This prevents blind preservation.\n\n**Provenance** still traces to MAINTENANCE.md entries, but that is the trigger source, not the binding constraint. The record itself does not depend on AgentSessionRouter-specific conventions to be applied elsewhere.\n\n```json\n{\"gate\":\"gate-13-process-guardrail-promotion-revision-2\",\"decisions\":[{\"id\":\"AMB-RESCUE-0007\",\"lead_decision\":\"APPROVED\",\"effective_classification\":\"engineering-principles\",\"reason\":\"Universal invariant: do not smuggle semantic change under refactor/mechanical label. Operationally sharp, domain-agnostic concepts, counter-evidence correctly carves out bug/security exception. transferable to any codebase.\",\"scope_condition\":\"Apply when a change is described as mechanical, behavior-preserving, extraction-only, cleanup, split, rename, or refactor, especially when reviewers or agents may assume the old behavior is unchanged.\",\"counter_evidence\":\"If the existing behavior is wrong or unsafe, do not preserve it blindly; explicitly label the behavior change, keep it separate from mechanical movement where practical, and verify it with targeted regression/adversarial checks.\"}],\"remaining_ambiguous\":[]}",
+  "review": {
+    "gate": "gate-13-process-guardrail-promotion-revision-2",
+    "decisions": [
+      {
+        "id": "AMB-RESCUE-0007",
+        "lead_decision": "APPROVED",
+        "effective_classification": "engineering-principles",
+        "reason": "Universal invariant: do not smuggle semantic change under refactor/mechanical label. Operationally sharp, domain-agnostic concepts, counter-evidence correctly carves out bug/security exception. transferable to any codebase.",
+        "scope_condition": "Apply when a change is described as mechanical, behavior-preserving, extraction-only, cleanup, split, rename, or refactor, especially when reviewers or agents may assume the old behavior is unchanged.",
+        "counter_evidence": "If the existing behavior is wrong or unsafe, do not preserve it blindly; explicitly label the behavior change, keep it separate from mechanical movement where practical, and verify it with targeted regression/adversarial checks."
+      }
+    ],
+    "remaining_ambiguous": []
+  }
+}
