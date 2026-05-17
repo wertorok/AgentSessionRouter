@@ -202,7 +202,7 @@ try {
   );
 } finally {
   if (!keepTemp) {
-    rmSync(tempRoot, { recursive: true, force: true });
+    await removeTempRoot(tempRoot);
   }
 }
 
@@ -485,6 +485,24 @@ function buildInstallSummary(ok, hostClaudeCli) {
       "Optionally rerun `npm run smoke:postinstall:live` after authentication."
     ]
   };
+}
+
+async function removeTempRoot(root) {
+  for (let attempt = 1; attempt <= 5; attempt += 1) {
+    try {
+      rmSync(root, { recursive: true, force: true });
+      return;
+    } catch (error) {
+      if (attempt === 5 || !isWindowsBusyError(error)) {
+        throw error;
+      }
+      await new Promise((resolve) => setTimeout(resolve, attempt * 250));
+    }
+  }
+}
+
+function isWindowsBusyError(error) {
+  return process.platform === "win32" && error && typeof error === "object" && "code" in error && error.code === "EBUSY";
 }
 
 function valueAfter(flag) {

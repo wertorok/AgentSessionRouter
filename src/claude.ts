@@ -214,21 +214,23 @@ function objectField(source: Record<string, unknown>, key: string): Record<strin
   return isObject(value) ? value : {};
 }
 
-export function buildCommandSpawnOptions(platform: NodeJS.Platform): {
+export function buildCommandSpawnOptions(platform: NodeJS.Platform, command = ""): {
   stdio: ["pipe", "pipe", "pipe"];
   windowsHide: boolean;
   shell?: boolean;
 } {
+  const useWindowsShell = platform === "win32" && isWindowsCommandShim(command);
   return {
     stdio: ["pipe", "pipe", "pipe"],
     windowsHide: true,
-    ...(platform === "win32" ? { shell: true } : {})
+    ...(useWindowsShell ? { shell: true } : {})
   };
 }
 
 function runCommand(command: string, args: string[], timeoutMs: number): Promise<string> {
   return new Promise((resolve, reject) => {
-    const child = spawn(command, normalizeArgsForSpawn(args, process.platform), buildCommandSpawnOptions(process.platform));
+    const options = buildCommandSpawnOptions(process.platform, command);
+    const child = spawn(command, normalizeArgsForSpawn(args, process.platform, Boolean(options.shell)), options);
 
     let stdout = "";
     let stderr = "";
@@ -290,11 +292,16 @@ function runCommand(command: string, args: string[], timeoutMs: number): Promise
   });
 }
 
-function normalizeArgsForSpawn(args: string[], platform: NodeJS.Platform): string[] {
-  if (platform !== "win32") {
+function normalizeArgsForSpawn(args: string[], platform: NodeJS.Platform, shell: boolean): string[] {
+  if (platform !== "win32" || !shell) {
     return args;
   }
   return args.map(quoteWindowsShellArg);
+}
+
+function isWindowsCommandShim(command: string): boolean {
+  const extension = path.extname(command).toLowerCase();
+  return extension === ".cmd" || extension === ".bat";
 }
 
 function quoteWindowsShellArg(arg: string): string {

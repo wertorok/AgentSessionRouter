@@ -446,15 +446,23 @@ Extra text from Claude.`);
   });
 
   it("uses a Windows shell only for Windows Claude command shims", () => {
-    expect(buildCommandSpawnOptions("linux")).toEqual({
+    expect(buildCommandSpawnOptions("linux", "claude")).toEqual({
       stdio: ["pipe", "pipe", "pipe"],
       windowsHide: true
     });
-    expect(buildCommandSpawnOptions("darwin")).toEqual({
+    expect(buildCommandSpawnOptions("darwin", "claude")).toEqual({
       stdio: ["pipe", "pipe", "pipe"],
       windowsHide: true
     });
-    expect(buildCommandSpawnOptions("win32")).toEqual({
+    expect(buildCommandSpawnOptions("win32", "claude")).toEqual({
+      stdio: ["pipe", "pipe", "pipe"],
+      windowsHide: true
+    });
+    expect(buildCommandSpawnOptions("win32", "C:\\Tools\\claude.exe")).toEqual({
+      stdio: ["pipe", "pipe", "pipe"],
+      windowsHide: true
+    });
+    expect(buildCommandSpawnOptions("win32", "C:\\Tools\\fake-claude.cmd")).toEqual({
       stdio: ["pipe", "pipe", "pipe"],
       windowsHide: true,
       shell: true
