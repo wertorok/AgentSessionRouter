@@ -31,7 +31,7 @@ export function buildRouterStatusPayload(
 ): object {
   const sinceIso = isoHoursAgo(runtime.clock, recentHours);
   const fallbackCountLast24h = runtime.db.getClusterFallbackCount(projectId, isoHoursAgo(runtime.clock, 24));
-  const architecturalMemory = buildArchitecturalMemoryTelemetry(runtime.cwd);
+  const architecturalMemory = buildArchitecturalMemoryTelemetry(runtime.cwd, runtime.db, projectId);
   const storageHealth = buildStorageHealth(runtime);
   const staleClusters = runtime.db.listStaleClusters(projectId, warningsLimit);
   const sessionErrors = runtime.db.getRecentSessionErrorCounts(projectId, sinceIso);
@@ -130,7 +130,7 @@ export function buildRouterMonitorPayload(
     projectId,
     isoHoursAgo(runtime.clock, 24)
   );
-  const architecturalMemory = buildArchitecturalMemoryTelemetry(runtime.cwd);
+  const architecturalMemory = buildArchitecturalMemoryTelemetry(runtime.cwd, runtime.db, projectId);
   const storageHealth = buildStorageHealth(runtime);
   const clusterAttention = runtime.db.getRecentClusterAttentionCounts(projectId, sinceIso);
   const clusterAttentionByCluster = runtime.db.getRecentClusterAttentionCountsByCluster(projectId, sinceIso);

@@ -1,6 +1,6 @@
 ---
 # Canonical source of truth for transferable engineering invariants.
-# Active source-of-truth records. Runtime serving/import is not enabled.
+# Active source-of-truth records. Runtime serving is enabled only through bounded one-time lead-session seeding.
 # See docs/CLUSTER_CACHE_SPEC.md Phase 7 architectural memory gates.
 memory_product: engineering-principles
 status: promoted_source_of_truth
@@ -12,7 +12,7 @@ active_records: 13
 
 # Engineering Principles
 
-> Active source-of-truth records only. These entries are not imported or served by the router.
+> Active source-of-truth records only. Runtime use is limited to deterministic, capped one-time lead-session seeding; normal consult turns do not retrieve this corpus.
 
 | id | status | active_date | field_review_status | statement | applies_when | revisit_when | counter_evidence | provenance | promotion_requirements |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |

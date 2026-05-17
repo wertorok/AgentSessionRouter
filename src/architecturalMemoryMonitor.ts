@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { ARCHITECTURAL_MEMORY_SERVING_LIMITS } from "./architecturalMemoryServing.js";
+import type { ArchitecturalMemorySeedView, RouterDatabase } from "./db.js";
 
 export interface ArchitecturalMemoryDocStats {
   memory_product: string;
@@ -14,7 +15,7 @@ export interface ArchitecturalMemoryDocStats {
 
 export interface ArchitecturalMemoryTelemetry {
   enabled: true;
-  runtime_import_serving_enabled: false;
+  runtime_import_serving_enabled: boolean;
   serving_preflight: {
     selection_llm_input_tokens: 0;
     per_consult_architectural_memory_tokens: 0;
@@ -23,6 +24,12 @@ export interface ArchitecturalMemoryTelemetry {
     absolute_seed_tokens: number;
     min_post_serving_continuity_runs: number;
     adversarial_broken_zero_sufficient: false;
+  };
+  serving_runtime: {
+    seeded_sessions_total: number;
+    latest_seed_token_count: number | null;
+    max_seed_token_count: number | null;
+    latest_seeded_sessions: ArchitecturalMemorySeedView[];
   };
   active_records: number;
   proposed_records: number;
@@ -57,7 +64,11 @@ const MEMORY_DOCS = [
 
 const EXPERIMENT_DIR = path.join("experiments", "architectural-memory-dry-run-2026-05-16");
 
-export function buildArchitecturalMemoryTelemetry(cwd: string): ArchitecturalMemoryTelemetry {
+export function buildArchitecturalMemoryTelemetry(
+  cwd: string,
+  db?: RouterDatabase,
+  projectId?: string
+): ArchitecturalMemoryTelemetry {
   const sourceDocs = MEMORY_DOCS.map((doc) => readMemoryDocStats(cwd, doc.memory_product, doc.relativePath));
   const requestChangesPath = path.join(cwd, EXPERIMENT_DIR, "request-changes-resolution.json");
   const verificationReportPath = path.join(cwd, EXPERIMENT_DIR, "verification-report.json");
@@ -69,10 +80,12 @@ export function buildArchitecturalMemoryTelemetry(cwd: string): ArchitecturalMem
   const warnings = buildWarnings(sourceDocs, activePromotionPath);
   const rejectedAuditRecords = numberAt(verificationReport, ["summary", "by_bucket", "gate4_rejected"]);
   const rescuedFromRejectedRecords = numberAt(classificationCorrection, ["counts", "rescued_engineering_principles"]);
+  const seededSessions = db && projectId ? db.listArchitecturalMemorySeeds(projectId, 10) : [];
+  const seededSessionsTotal = db && projectId ? db.countArchitecturalMemorySeeds(projectId) : 0;
 
   return {
     enabled: true,
-    runtime_import_serving_enabled: false,
+    runtime_import_serving_enabled: ARCHITECTURAL_MEMORY_SERVING_LIMITS.runtimeImportServingEnabled,
     serving_preflight: {
       selection_llm_input_tokens: ARCHITECTURAL_MEMORY_SERVING_LIMITS.selectionLlmInputTokens,
       per_consult_architectural_memory_tokens:
@@ -82,6 +95,13 @@ export function buildArchitecturalMemoryTelemetry(cwd: string): ArchitecturalMem
       absolute_seed_tokens: ARCHITECTURAL_MEMORY_SERVING_LIMITS.absoluteSeedTokens,
       min_post_serving_continuity_runs: ARCHITECTURAL_MEMORY_SERVING_LIMITS.minPostServingContinuityRuns,
       adversarial_broken_zero_sufficient: ARCHITECTURAL_MEMORY_SERVING_LIMITS.adversarialBrokenZeroSufficient
+    },
+    serving_runtime: {
+      seeded_sessions_total: seededSessionsTotal,
+      latest_seed_token_count: seededSessions[0]?.injected_token_count ?? null,
+      max_seed_token_count:
+        seededSessions.length > 0 ? Math.max(...seededSessions.map((seed) => seed.injected_token_count)) : null,
+      latest_seeded_sessions: seededSessions
     },
     active_records: sum(sourceDocs.map((doc) => doc.active_records)),
     proposed_records: sum(sourceDocs.map((doc) => doc.proposed_records)),

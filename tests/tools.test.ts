@@ -529,6 +529,73 @@ describe("cluster MCP tools", () => {
     fixture.cleanup();
   });
 
+  it("seeds architectural memory once when creating an architectural lead session", async () => {
+    const claude = new FakeClaude();
+    const fixture = createToolFixture(claude);
+    const server = new FakeServer();
+    registerTools(server as unknown as McpServer, fixture.runtime);
+    writeArchitecturalMemoryDocs(fixture.dir);
+
+    const first = parseToolJson(
+      await server.call("router_consult", {
+        project_id: "project",
+        topic_hint: "gate 13 lead architecture",
+        task_type: "architectural",
+        tags: ["architecture", "project-lead", "stale"],
+        related_files: ["src/consult.ts"],
+        question: "Should this architectural lead session receive bounded active principles before answering?"
+      })
+    );
+    const seededPrompt = claude.prompts[0] ?? "";
+    const statusAfterSeed = parseToolJson(await server.call("router_status", { project_id: "project" }));
+
+    expect(first.routing.was_new_session).toBe(true);
+    expect(first.architectural_memory_seed).toMatchObject({
+      injected: true,
+      dedup_reason: "no_existing_manifest"
+    });
+    expect(first.architectural_memory_seed.injected_token_count).toBeGreaterThan(0);
+    expect(first.architectural_memory_seed.injected_token_count).toBeLessThanOrEqual(1200);
+    expect(first.architectural_memory_seed.record_ids).toEqual(expect.arrayContaining(["EP-ACTIVE", "PA-ACTIVE"]));
+    expect(seededPrompt).toContain("Architectural memory seed (one-time, active records only)");
+    expect(seededPrompt).toContain("EP-ACTIVE");
+    expect(seededPrompt).toContain("PA-ACTIVE");
+    expect(seededPrompt).not.toContain("EP-SUSPENDED");
+    expect(statusAfterSeed.architectural_memory).toMatchObject({
+      runtime_import_serving_enabled: true,
+      serving_runtime: {
+        seeded_sessions_total: 1,
+        latest_seed_token_count: first.architectural_memory_seed.injected_token_count
+      }
+    });
+    expect(statusAfterSeed.architectural_memory.serving_runtime.latest_seeded_sessions[0]).toMatchObject({
+      session_id: first.session_id,
+      record_ids: first.architectural_memory_seed.record_ids,
+      injected_token_count: first.architectural_memory_seed.injected_token_count,
+      seed_signature: first.architectural_memory_seed.seed_signature
+    });
+
+    claude.prompts = [];
+    const second = parseToolJson(
+      await server.call("router_consult", {
+        project_id: "project",
+        topic_hint: "gate 13 lead architecture",
+        task_type: "architectural",
+        tags: ["architecture", "project-lead", "stale"],
+        related_files: ["src/consult.ts"],
+        question: "Continue the same lead session without reinjecting the architectural memory seed."
+      })
+    );
+    const statusAfterReuse = parseToolJson(await server.call("router_status", { project_id: "project" }));
+
+    expect(second.session_id).toBe(first.session_id);
+    expect(second.routing.was_new_session).toBe(false);
+    expect(second.architectural_memory_seed).toBeUndefined();
+    expect(claude.prompts[0]).not.toContain("Architectural memory seed");
+    expect(statusAfterReuse.architectural_memory.serving_runtime.seeded_sessions_total).toBe(1);
+    fixture.cleanup();
+  });
+
   it("rejects oversized router_consult input before invoking Claude", async () => {
     const claude = new FakeClaude();
     const fixture = createToolFixture(claude);
@@ -1485,7 +1552,7 @@ describe("cluster MCP tools", () => {
     );
 
     expect(status.architectural_memory).toMatchObject({
-      runtime_import_serving_enabled: false,
+      runtime_import_serving_enabled: true,
       serving_preflight: {
         selection_llm_input_tokens: 0,
         per_consult_architectural_memory_tokens: 0,
@@ -1494,6 +1561,12 @@ describe("cluster MCP tools", () => {
         absolute_seed_tokens: 1200,
         min_post_serving_continuity_runs: 3,
         adversarial_broken_zero_sufficient: false
+      },
+      serving_runtime: {
+        seeded_sessions_total: 0,
+        latest_seed_token_count: null,
+        max_seed_token_count: null,
+        latest_seeded_sessions: []
       },
       active_records: 2,
       proposed_records: 1,
@@ -1508,7 +1581,7 @@ describe("cluster MCP tools", () => {
       warnings: []
     });
     expect(monitor.health.architectural_memory).toMatchObject({
-      runtime_import_serving_enabled: false,
+      runtime_import_serving_enabled: true,
       serving_preflight: {
         selection_llm_input_tokens: 0,
         per_consult_architectural_memory_tokens: 0,
@@ -1517,6 +1590,12 @@ describe("cluster MCP tools", () => {
         absolute_seed_tokens: 1200,
         min_post_serving_continuity_runs: 3,
         adversarial_broken_zero_sufficient: false
+      },
+      serving_runtime: {
+        seeded_sessions_total: 0,
+        latest_seed_token_count: null,
+        max_seed_token_count: null,
+        latest_seeded_sessions: []
       },
       active_records: 2,
       proposed_records: 1,
@@ -2297,6 +2376,7 @@ class FakeServer {
 
 class FakeClaude implements ClaudeAdapter {
   lastOptions: ClaudePromptOptions | undefined;
+  prompts: string[] = [];
   runPromptCalls = 0;
   runPromptWithOptionsCalls = 0;
 
@@ -2311,6 +2391,7 @@ class FakeClaude implements ClaudeAdapter {
 
   async runPrompt(_prompt: string, resumeSessionId?: string): Promise<ClaudeJsonResponse> {
     this.runPromptCalls += 1;
+    this.prompts.push(_prompt);
     if (this.options.failRunPrompt) {
       throw new Error("claude unavailable");
     }
@@ -2424,6 +2505,33 @@ function createToolFixture(
       rmSync(dir, { recursive: true, force: true });
     }
   };
+}
+
+function writeArchitecturalMemoryDocs(dir: string): void {
+  mkdirSync(path.join(dir, "docs"), { recursive: true });
+  mkdirSync(path.join(dir, "experiments", "architectural-memory-dry-run-2026-05-16"), { recursive: true });
+  writeFileSync(
+    path.join(dir, "docs", "ENGINEERING_PRINCIPLES.md"),
+    [
+      "| id | status | active_date | field_review_status | statement | applies_when | revisit_when | counter_evidence | provenance |",
+      "| --- | --- | --- | --- | --- | --- | --- | --- | --- |",
+      "| EP-ACTIVE | status: active | 2026-05-17 | APPROVED_FIELDS | Stale evidence must signal and fallback. | Apply to architectural stale evidence routing. | When stale policy changes. | If evidence is fully revalidated, signal can remain internal. | docs:active |",
+      "| EP-SUSPENDED | suspended |  | SUSPEND | Suspended memory must not serve. | Apply to memory. | When status changes. | Never serve while suspended. | docs:suspended |"
+    ].join("\n")
+  );
+  writeFileSync(
+    path.join(dir, "docs", "PROJECT_ARCHITECTURE.md"),
+    [
+      "| id | status | active_date | field_review_status | decision | rationale | project_scope | provenance | promotion_requirements |",
+      "| --- | --- | --- | --- | --- | --- | --- | --- | --- |",
+      "| PA-ACTIVE | status: active | 2026-05-17 | APPROVED_FIELDS | Project lead sessions use router status before changing serving. | Applies to this test project. | project_id=project | docs:project | Gate 13 |",
+      "| PA-PROPOSED | proposed |  | APPROVED_FIELDS | Proposed project memory must not serve. | Not active. | project_id=project | docs:project | Gate 13 |"
+    ].join("\n")
+  );
+  writeFileSync(
+    path.join(dir, "experiments", "architectural-memory-dry-run-2026-05-16", "active-promotion.json"),
+    JSON.stringify({ status: "active_source_of_truth_promoted" })
+  );
 }
 
 async function prepareExtraArgsCluster(server: FakeServer): Promise<void> {

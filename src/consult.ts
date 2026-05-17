@@ -1,5 +1,10 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import {
+  ARCHITECTURAL_MEMORY_SERVING_LIMITS,
+  buildArchitecturalMemorySeedPayload,
+  type ArchitecturalMemorySeedPayload
+} from "./architecturalMemoryServing.js";
 import { ERROR_CODES } from "./constants.js";
 import { isoHoursAgo, isoMinutesAgo } from "./clock.js";
 import type { SessionInspectView, SessionRecord, SessionUpdateData } from "./db.js";
@@ -44,6 +49,13 @@ export interface ConsultSuccess {
   };
   diagnostics?: {
     token_anomaly?: TokenAnomalyDiagnostic;
+  };
+  architectural_memory_seed?: {
+    injected: boolean;
+    injected_token_count: number;
+    record_ids: string[];
+    seed_signature: string;
+    dedup_reason: string;
   };
 }
 
@@ -121,7 +133,11 @@ export class ConsultService {
   }
 
   private async invokeClaude(input: ClaudeConsultInput, route: RouteResolution): Promise<ConsultResult> {
-    const context = route.bootstrapContext ?? buildSessionContext(route.selectedView);
+    const architecturalMemorySeed = this.prepareArchitecturalMemorySeed(input, route);
+    const context = appendArchitecturalMemorySeed(
+      route.bootstrapContext ?? buildSessionContext(route.selectedView),
+      architecturalMemorySeed
+    );
     const prompt = buildConsultPrompt({
       projectId: input.projectId,
       topicHint: input.topicHint,
@@ -169,6 +185,23 @@ export class ConsultService {
           dormantAfterDays: this.runtime.config.lifecycle.defaultDormantAfterDays,
           archiveAfterDays: this.runtime.config.lifecycle.defaultArchiveAfterDays
         });
+        if (architecturalMemorySeed?.dedup.should_inject) {
+          this.runtime.db.insertArchitecturalMemorySeed({
+            sessionId,
+            projectId: input.projectId,
+            manifest: architecturalMemorySeed.manifest,
+            injectedTokenCount: architecturalMemorySeed.injected_token_count
+          });
+          this.runtime.db.logEvent({
+            sessionId,
+            projectId: input.projectId,
+            eventType: "architectural_memory_seeded",
+            answerSummary: architecturalMemorySeed.manifest.record_ids.join(","),
+            matchReason: architecturalMemorySeed.manifest.seed_signature,
+            tokensIn: architecturalMemorySeed.injected_token_count,
+            tokensOut: 0
+          });
+        }
       } else {
         this.runtime.db.updateSessionLastUsed(route.selectedSession.id);
       }
@@ -228,7 +261,18 @@ export class ConsultService {
         },
         ...(parsedUpdate.update ? { session_update: parsedUpdate.update } : {}),
         ...(parsedUpdate.warning ? { warning: parsedUpdate.warning } : {}),
-        ...(tokenAnomaly ? { diagnostics: { token_anomaly: tokenAnomaly } } : {})
+        ...(tokenAnomaly ? { diagnostics: { token_anomaly: tokenAnomaly } } : {}),
+        ...(architecturalMemorySeed?.dedup.should_inject
+          ? {
+              architectural_memory_seed: {
+                injected: true,
+                injected_token_count: architecturalMemorySeed.injected_token_count,
+                record_ids: architecturalMemorySeed.manifest.record_ids,
+                seed_signature: architecturalMemorySeed.manifest.seed_signature,
+                dedup_reason: architecturalMemorySeed.dedup.reason
+              }
+            }
+          : {})
       };
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
@@ -599,6 +643,31 @@ export class ConsultService {
       min_delta: minDelta
     };
   }
+
+  private prepareArchitecturalMemorySeed(
+    input: ClaudeConsultInput,
+    route: RouteResolution
+  ): ArchitecturalMemorySeedPayload | null {
+    if (!ARCHITECTURAL_MEMORY_SERVING_LIMITS.runtimeImportServingEnabled || route.selectedSession) {
+      return null;
+    }
+    if (!isArchitecturalLeadSeedCandidate(input)) {
+      return null;
+    }
+
+    const payload = buildArchitecturalMemorySeedPayload(this.runtime.cwd, {
+      session_kind: "project_lead",
+      task_type: input.taskType ?? undefined,
+      topic_hint: input.topicHint,
+      tags: input.tags ?? [],
+      related_files: input.relatedFiles ?? [],
+      project_scoped: true
+    });
+    if (!payload?.dedup.should_inject || payload.text.trim().length === 0) {
+      return null;
+    }
+    return payload;
+  }
 }
 
 const EMPTY_CALLER_ANSWER_MESSAGE =
@@ -613,6 +682,28 @@ function normalizeHintTags(tags: string[]): string[] {
         .map((tag) => tag.replace(/\s+/g, "-"))
     )
   );
+}
+
+function appendArchitecturalMemorySeed(context: string, seed: ArchitecturalMemorySeedPayload | null): string {
+  if (!seed?.dedup.should_inject || seed.text.trim().length === 0) {
+    return context;
+  }
+  return `${context}\n\n${seed.text}`;
+}
+
+function isArchitecturalLeadSeedCandidate(input: ClaudeConsultInput): boolean {
+  const taskType = (input.taskType ?? "").toLowerCase();
+  if (["architectural", "architecture", "review", "planning"].includes(taskType)) {
+    return true;
+  }
+  const tokens = [
+    input.topicHint,
+    input.task,
+    ...(input.tags ?? [])
+  ]
+    .join(" ")
+    .toLowerCase();
+  return /\b(architecture|architectural|planning|roadmap|lead|review|operatorless)\b/.test(tokens);
 }
 
 interface RouteResolution {

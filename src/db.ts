@@ -1,6 +1,7 @@
 import { mkdirSync } from "node:fs";
 import path from "node:path";
 import Database from "better-sqlite3";
+import type { ArchitecturalMemorySeedManifest } from "./architecturalMemoryServing.js";
 import type { Clock } from "./clock.js";
 import { daysBetweenIso } from "./clock.js";
 import { CONSULT_LIKE_EVENT_TYPES, type SessionStatus } from "./constants.js";
@@ -352,6 +353,41 @@ export interface ShadowEvalHealth {
   last_judged_at: string | null;
 }
 
+export interface ArchitecturalMemorySeedInsert {
+  sessionId: string;
+  projectId: string;
+  manifest: ArchitecturalMemorySeedManifest;
+  injectedTokenCount: number;
+}
+
+export interface ArchitecturalMemorySeedRecord {
+  id: number;
+  session_id: string;
+  project_id: string;
+  seed_kind: "engineering_principles";
+  seed_signature: string;
+  record_ids_json: string;
+  record_hashes_json: string;
+  selection_reason_json: string;
+  source_docs_json: string;
+  injected_token_count: number;
+  selected_record_count: number;
+  created_at: string;
+}
+
+export interface ArchitecturalMemorySeedView {
+  id: number;
+  session_id: string;
+  project_id: string;
+  topic: string | null;
+  seed_kind: "engineering_principles";
+  seed_signature: string;
+  record_ids: string[];
+  injected_token_count: number;
+  selected_record_count: number;
+  created_at: string;
+}
+
 export class RouterDatabase {
   constructor(
     readonly db: Database.Database,
@@ -606,6 +642,88 @@ export class RouterDatabase {
         now,
         now
       );
+  }
+
+  insertArchitecturalMemorySeed(input: ArchitecturalMemorySeedInsert): void {
+    this.db
+      .prepare(
+        `INSERT OR IGNORE INTO session_architectural_memory_seeds (
+          session_id,
+          project_id,
+          seed_kind,
+          seed_signature,
+          record_ids_json,
+          record_hashes_json,
+          selection_reason_json,
+          source_docs_json,
+          injected_token_count,
+          selected_record_count,
+          created_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      )
+      .run(
+        input.sessionId,
+        input.projectId,
+        input.manifest.seed_kind,
+        input.manifest.seed_signature,
+        JSON.stringify(input.manifest.record_ids),
+        JSON.stringify(input.manifest.record_hashes),
+        JSON.stringify(input.manifest.selection_reason),
+        JSON.stringify(input.manifest.source_docs),
+        input.injectedTokenCount,
+        input.manifest.record_ids.length,
+        this.clock.nowIso()
+      );
+  }
+
+  getLatestArchitecturalMemorySeed(sessionId: string): ArchitecturalMemorySeedRecord | null {
+    const row = this.db
+      .prepare(
+        `SELECT *
+         FROM session_architectural_memory_seeds
+         WHERE session_id = ?
+         ORDER BY id DESC
+         LIMIT 1`
+      )
+      .get(sessionId) as ArchitecturalMemorySeedRecord | undefined;
+    return row ?? null;
+  }
+
+  listArchitecturalMemorySeeds(projectId: string, limit: number): ArchitecturalMemorySeedView[] {
+    const rows = this.db
+      .prepare(
+        `SELECT seeds.*, sessions.topic AS topic
+         FROM session_architectural_memory_seeds seeds
+         LEFT JOIN sessions ON sessions.id = seeds.session_id
+         WHERE seeds.project_id = ?
+         ORDER BY seeds.id DESC
+         LIMIT ?`
+      )
+      .all(projectId, limit) as Array<ArchitecturalMemorySeedRecord & { topic: string | null }>;
+
+    return rows.map((row) => ({
+      id: row.id,
+      session_id: row.session_id,
+      project_id: row.project_id,
+      topic: row.topic,
+      seed_kind: row.seed_kind,
+      seed_signature: row.seed_signature,
+      record_ids: parseJsonArray(row.record_ids_json),
+      injected_token_count: row.injected_token_count,
+      selected_record_count: row.selected_record_count,
+      created_at: row.created_at
+    }));
+  }
+
+  countArchitecturalMemorySeeds(projectId: string): number {
+    const row = this.db
+      .prepare(
+        `SELECT COUNT(*) AS count
+         FROM session_architectural_memory_seeds
+         WHERE project_id = ?`
+      )
+      .get(projectId) as { count: number };
+    return row.count;
   }
 
   updateSessionLastUsed(sessionId: string): void {
@@ -1787,6 +1905,21 @@ function parseJsonObject(source: string | null): Record<string, unknown> {
     return {};
   }
   return {};
+}
+
+function parseJsonArray(source: string | null): string[] {
+  if (!source) {
+    return [];
+  }
+  try {
+    const parsed = JSON.parse(source) as unknown;
+    if (Array.isArray(parsed)) {
+      return parsed.filter((item): item is string => typeof item === "string");
+    }
+  } catch {
+    return [];
+  }
+  return [];
 }
 
 function numberFromUnknown(value: unknown): number {

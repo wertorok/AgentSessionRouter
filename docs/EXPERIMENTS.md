@@ -303,13 +303,41 @@ targeted set. It made the lead answers auditable by grounding decisions in
 specific active principles, while the unseeded control generally reached the
 same high-level decision through generic reasoning. This is a proof-of-value
 signal only; Gate 13 enablement still requires the separate post-serving
-`session:continuity` regression proof and runtime serving remains off.
+`session:continuity` regression proof.
 
 Tool-choice note: shadow-style A/B judging is appropriate for this proof of
 value because it is a fan-out comparison of two independent answers to the same
 question. It is not appropriate for the Gate 13 quiet-quality-regression
 guardrail, where the axis is chain memory and `session:continuity` is the
 correct instrument.
+
+### Gate 13 Controlled Enablement Smoke
+
+Artifact:
+
+- `experiments/gate13-controlled-enablement-2026-05-17/live-verification.json`
+
+This is the first runtime enablement of architectural-memory serving. It is not
+the post-serving quality proof. The smoke checks that the serving path is
+enabled only for one-time lead-session creation and that the six cost/safety
+guardrails are visible on the live system.
+
+Observed live result:
+
+| Check | Result |
+| --- | --- |
+| `runtime_import_serving_enabled` | `true` |
+| First lead-session call | new durable session created and seeded |
+| Actual injected seed tokens | 872 |
+| Selected records | 8 total: max-7 engineering-principle path plus project add-on within cap |
+| Selection LLM tokens | 0 |
+| Per-consult architectural-memory tokens after seed | 0 |
+| Second exact-topic call | reused same session, no seed reinjection |
+| `seed_signature` dedup | confirmed by unchanged session and absent second seed |
+
+Next required proof remains separate: run at least 3 post-serving
+`session:continuity` repetitions against the stored pre-serving baseline before
+claiming quality approval.
 
 ### Architectural Memory Distill Dry-Run Template
 

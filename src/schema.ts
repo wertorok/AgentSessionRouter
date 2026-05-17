@@ -110,6 +110,28 @@ ON session_events(project_id, created_at);
 CREATE INDEX IF NOT EXISTS idx_session_events_type_created
 ON session_events(event_type, created_at);
 
+CREATE TABLE IF NOT EXISTS session_architectural_memory_seeds (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  session_id TEXT NOT NULL,
+  project_id TEXT NOT NULL,
+  seed_kind TEXT NOT NULL,
+  seed_signature TEXT NOT NULL,
+  record_ids_json TEXT NOT NULL,
+  record_hashes_json TEXT NOT NULL,
+  selection_reason_json TEXT NOT NULL,
+  source_docs_json TEXT NOT NULL,
+  injected_token_count INTEGER NOT NULL,
+  selected_record_count INTEGER NOT NULL,
+  created_at TEXT NOT NULL,
+  FOREIGN KEY(session_id) REFERENCES sessions(id)
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_session_architectural_memory_seed_signature
+ON session_architectural_memory_seeds(session_id, seed_signature);
+
+CREATE INDEX IF NOT EXISTS idx_session_architectural_memory_seeds_project_created
+ON session_architectural_memory_seeds(project_id, created_at);
+
 CREATE TABLE IF NOT EXISTS clusters (
   id TEXT PRIMARY KEY,
   project_id TEXT NOT NULL,

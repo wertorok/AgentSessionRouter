@@ -1575,22 +1575,25 @@ Gate 12.5 non-goals:
 - no router behavior changes
 - no classifier algorithm changes
 
-#### Runtime Serving Design (Gate 13 Design, Not Implemented)
+#### Runtime Serving Design (Gate 13 Controlled Enablement)
 
-Status: design captured, not implemented. Gate 13 is not an on/off switch for
-architectural memory. It is the design boundary for how active
-`engineering-principles` may later be served without recreating the discovery
-token bloat that the router exists to avoid.
+Status: controlled enablement implemented on 2026-05-17. Gate 13 is not a
+general per-consult retrieval switch for architectural memory. It is the
+boundary for serving active `engineering-principles` through bounded one-time
+lead-session seeding without recreating the discovery token bloat that the
+router exists to avoid.
 
 Current state after Gate 12.5:
 
 - 13 active `engineering-principles`.
 - 80 active `project-architecture` records.
 - 93 active source-of-truth records total.
-- `runtime_import_serving_enabled: false`.
+- `runtime_import_serving_enabled: true` for seed-at-session-creation only.
 
-Gate 13 does not enable runtime serving. Implementation still requires a
-separate explicit sign-off on the canonical import boundary before router use.
+Runtime serving is enabled only for the seed-at-session-creation path. Per-turn
+architectural-memory retrieval remains forbidden by default. Gate 13 still
+requires a separate post-serving `session:continuity` regression proof before
+the change can be treated as quality-approved rather than merely enabled.
 
 ##### Structural Risk Constraint: Do Not Recreate v2 Discovery Failure
 
@@ -1674,7 +1677,7 @@ Disallowed triggers:
 
 ##### Deterministic Relevant-Subset Selection
 
-The future serving path must not run an LLM over all active records to choose a
+The serving path must not run an LLM over all active records to choose a
 subset. Selection is a deterministic prefilter similar to routing.
 
 Default candidate pool:
@@ -1713,7 +1716,7 @@ Selection algorithm:
 7. If no record clears the minimum deterministic score, seed nothing.
 
 The selection result must be auditable: selected record ids, scores, matched
-signals, and skipped-over-threshold reasons are recorded in the future seed
+signals, and skipped-over-threshold reasons are recorded in the seed
 manifest. This design intentionally does not fix the Gate 12.5 classifier
 weakness; it only constrains runtime serving to deterministic, inspectable
 selection.
@@ -1734,7 +1737,7 @@ Injecting all active records is forbidden. It would cost roughly 13k input
 tokens, risks turning architectural memory into another discovery blob, and
 would be repeated context the lead session does not need.
 
-Future seed budget:
+Seed budget:
 
 | Budget item | Limit |
 | --- | ---: |
@@ -1758,14 +1761,13 @@ Long provenance strings, promotion requirements, audit notes, and full
 by the compact projection. The diffable source-of-truth documents remain the
 authority.
 
-Gate 13 implementation is blocked unless a proof shows that a typical lead
-session seed stays under 1k tokens once and does not add architectural-memory
-tokens on normal turns.
+Gate 13 serving must show that a typical lead session seed stays under 1k
+tokens once and does not add architectural-memory tokens on normal turns.
 
 ##### Deduplication And Reseed Semantics
 
-A future serving implementation must store a seed manifest in session metadata
-or an append-only session decision. The manifest is the dedup authority, not
+The serving implementation stores a seed manifest in
+`session_architectural_memory_seeds`. The manifest is the dedup authority, not
 model memory.
 
 Seed manifest fields:
@@ -1793,27 +1795,31 @@ This prevents reinjecting principles that the durable lead session already
 holds and keeps repeated architectural-memory serving from becoming hidden
 context bloat.
 
-##### Gate 13 Acceptance Criteria Before Implementation
+##### Gate 13 Controlled Enablement State
 
-Before any runtime import/serving code is written:
+Implemented:
 
-1. This design must be reviewed by the durable lead session.
-2. The canonical import boundary must be explicitly signed off.
-3. The implementation plan must prove one-time seed cost under 1k tokens for a
-   typical lead session and absolute seed cost under 1,200 tokens.
-4. The implementation plan must keep per-consult architectural-memory retrieval
-   off by default.
-5. Deduplication must be based on a seed manifest, not on assumptions about
-   model memory.
-6. Normal caller answer behavior must remain unchanged when architectural
-   memory serving is disabled.
-7. The six v2 discovery-regression failure classes above must each have an
-   explicit mechanism and numeric budget/proof.
-8. `session:continuity` must be captured before implementation and repeated at
-   least 3 times after disabled/test-mode serving is added; one successful run
-   is not sufficient.
-9. Adversarial `BROKEN=0` remains required, but cannot substitute for quality
-   continuity checks.
+1. Deterministic source-doc parsing and record scoring over active records.
+2. Seed injection only when creating an architectural lead/project-lead session.
+3. `selection_llm_input_tokens = 0`.
+4. `per_consult_architectural_memory_tokens = 0`.
+5. Max 7 engineering-principle records.
+6. Max 3 project-architecture add-on records and max 300 add-on tokens.
+7. Target seed budget 900 tokens; absolute cap 1,200 tokens.
+8. Status gate: non-active records are skipped.
+9. Seed manifest storage in `session_architectural_memory_seeds`.
+10. Dedup/reuse: exact-topic follow-up reuses the durable session and does not
+    reinject the seed.
+11. `router_status` and `router_monitor` expose runtime serving state and
+    per-session actual injected seed token counts.
+
+Not done in this enablement step:
+
+1. No per-consult architectural-memory retrieval.
+2. No continuity benchmark in the same iteration.
+3. No claim that serving is quality-approved. The required next proof is the
+   separate post-serving `session:continuity` comparison against the stored
+   pre-serving baseline.
 
 Non-goals:
 

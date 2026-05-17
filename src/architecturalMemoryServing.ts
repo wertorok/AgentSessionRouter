@@ -1,7 +1,9 @@
 import { createHash } from "node:crypto";
+import { existsSync, readFileSync } from "node:fs";
+import path from "node:path";
 
 export const ARCHITECTURAL_MEMORY_SERVING_LIMITS = {
-  runtimeImportServingEnabled: false,
+  runtimeImportServingEnabled: true,
   selectionLlmInputTokens: 0,
   maxEngineeringPrinciples: 7,
   maxProjectArchitectureRecords: 3,
@@ -12,6 +14,17 @@ export const ARCHITECTURAL_MEMORY_SERVING_LIMITS = {
   adversarialBrokenZeroSufficient: false,
   perConsultArchitecturalMemoryTokens: 0
 } as const;
+
+export const ARCHITECTURAL_MEMORY_SOURCE_DOCS = [
+  {
+    memoryProduct: "engineering-principles" as const,
+    relativePath: path.join("docs", "ENGINEERING_PRINCIPLES.md")
+  },
+  {
+    memoryProduct: "project-architecture" as const,
+    relativePath: path.join("docs", "PROJECT_ARCHITECTURE.md")
+  }
+] as const;
 
 export type ArchitecturalMemoryProduct = "engineering-principles" | "project-architecture";
 export type ArchitecturalMemoryStatus = "active" | "proposed" | "suspended" | "superseded" | "rejected" | "excluded" | "unknown";
@@ -88,6 +101,14 @@ export interface ArchitecturalMemorySeedDedupResult {
   delta_record_ids: string[];
 }
 
+export interface ArchitecturalMemorySeedPayload {
+  text: string;
+  manifest: ArchitecturalMemorySeedManifest;
+  selection: ArchitecturalMemorySeedSelection;
+  injected_token_count: number;
+  dedup: ArchitecturalMemorySeedDedupResult;
+}
+
 const STOPWORDS = new Set([
   "and",
   "are",
@@ -116,6 +137,80 @@ export function parseArchitecturalMemoryMarkdown(
   return rows
     .map((row) => rowToRecord(row, memoryProduct, sourcePath))
     .filter((record): record is ArchitecturalMemoryRecord => record !== null);
+}
+
+export function loadArchitecturalMemorySourceDocs(cwd: string): Array<{
+  path: string;
+  content: string;
+  memoryProduct: ArchitecturalMemoryProduct;
+}> {
+  return ARCHITECTURAL_MEMORY_SOURCE_DOCS.flatMap((doc) => {
+    const absolutePath = path.join(cwd, doc.relativePath);
+    if (!existsSync(absolutePath)) {
+      return [];
+    }
+    return [
+      {
+        path: doc.relativePath,
+        content: readFileSync(absolutePath, "utf8"),
+        memoryProduct: doc.memoryProduct
+      }
+    ];
+  });
+}
+
+export function loadArchitecturalMemoryRecords(cwd: string): {
+  records: ArchitecturalMemoryRecord[];
+  sourceDocs: Array<{ path: string; content: string }>;
+} {
+  const sourceDocs = loadArchitecturalMemorySourceDocs(cwd);
+  return {
+    records: sourceDocs.flatMap((doc) => parseArchitecturalMemoryMarkdown(doc.content, doc.memoryProduct, doc.path)),
+    sourceDocs: sourceDocs.map((doc) => ({ path: doc.path, content: doc.content }))
+  };
+}
+
+export function buildArchitecturalMemorySeedPayload(
+  cwd: string,
+  request: ArchitecturalMemorySeedRequest,
+  existingManifest: ArchitecturalMemorySeedManifest | null = null
+): ArchitecturalMemorySeedPayload | null {
+  const loaded = loadArchitecturalMemoryRecords(cwd);
+  if (loaded.records.length === 0 || loaded.sourceDocs.length === 0) {
+    return null;
+  }
+
+  let selection = selectArchitecturalMemorySeed(loaded.records, request);
+  let text = renderArchitecturalMemorySeedText(selection);
+  while (
+    estimateTokens(text) > ARCHITECTURAL_MEMORY_SERVING_LIMITS.absoluteSeedTokens &&
+    selection.selected.length > 0
+  ) {
+    selection = {
+      ...selection,
+      selected: selection.selected.slice(0, -1),
+      skipped: [
+        ...selection.skipped,
+        {
+          id: selection.selected[selection.selected.length - 1]?.record.id ?? "unknown",
+          reason: "absolute_seed_token_cap_rendered",
+          score: selection.selected[selection.selected.length - 1]?.score ?? 0
+        }
+      ],
+      estimated_seed_tokens: selection.selected.slice(0, -1).reduce((sum, item) => sum + item.estimated_tokens, 0)
+    };
+    text = renderArchitecturalMemorySeedText(selection);
+  }
+
+  const manifest = buildArchitecturalMemorySeedManifest(selection, loaded.sourceDocs);
+  const dedup = shouldInjectArchitecturalMemorySeed(existingManifest, manifest);
+  return {
+    text,
+    manifest,
+    selection,
+    injected_token_count: estimateTokens(text),
+    dedup
+  };
 }
 
 export function selectArchitecturalMemorySeed(
@@ -266,6 +361,17 @@ export function shouldInjectArchitecturalMemorySeed(
   };
 }
 
+export function renderArchitecturalMemorySeedText(selection: ArchitecturalMemorySeedSelection): string {
+  if (selection.selected.length === 0) {
+    return "";
+  }
+  return [
+    "Architectural memory seed (one-time, active records only):",
+    "Use these principles as bounded guidance. Apply their Applies/Counter fields; do not treat them as unconditional rules.",
+    ...selection.selected.map((selected) => selected.compact_text)
+  ].join("\n");
+}
+
 function scoreRecord(
   record: ArchitecturalMemoryRecord,
   requestTokens: Set<string>,
@@ -308,9 +414,11 @@ function compactRecordText(record: ArchitecturalMemoryRecord): string {
   ].join("\n");
 }
 
-function estimateTokens(text: string): number {
+export function estimateArchitecturalMemoryTokens(text: string): number {
   return Math.max(1, Math.ceil(text.length / 4));
 }
+
+const estimateTokens = estimateArchitecturalMemoryTokens;
 
 function parseMarkdownTable(text: string): Array<Record<string, string>> {
   const lines = text.split("\n");

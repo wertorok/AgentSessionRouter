@@ -1,6 +1,6 @@
 ---
 # Canonical source of truth for project-scoped architecture decisions.
-# Active source-of-truth records. Runtime serving/import is not enabled.
+# Active source-of-truth records. Runtime serving is enabled only as a bounded project-scoped add-on to one-time lead-session seeding.
 # See docs/CLUSTER_CACHE_SPEC.md Phase 7 architectural memory gates.
 memory_product: project-architecture
 status: promoted_source_of_truth
@@ -12,7 +12,7 @@ active_records: 80
 
 # Project Architecture
 
-> Active source-of-truth records only. These entries are not imported or served by the router.
+> Active source-of-truth records only. Runtime use is limited to deterministic, capped project-scoped add-ons during one-time lead-session seeding; normal consult turns do not retrieve this corpus.
 
 | id | status | active_date | field_review_status | decision | rationale | project_scope | provenance | promotion_requirements |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |

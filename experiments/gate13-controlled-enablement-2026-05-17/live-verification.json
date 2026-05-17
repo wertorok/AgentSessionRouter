@@ -1,0 +1,303 @@
+{
+  "captured_at": "2026-05-17T06:58:19.006Z",
+  "project_id": "AgentSessionRouter-gate13-controlled-enable-1779001077576",
+  "topic": "gate 13 controlled enablement lead architecture",
+  "runtime_serving_before": true,
+  "runtime_serving_after": true,
+  "first": {
+    "session_id": "session_fa83be36-fb57-4961-b0d9-8da8be498336",
+    "was_new_session": true,
+    "route_decision": {
+      "selected_path": "claude_consult_new_session",
+      "reason": "No exact or usable existing session match; router starts a new durable session. No eligible active or dormant sessions in project.",
+      "match_score": 0,
+      "candidate_gap": null,
+      "force_new_session": true,
+      "topic_hint": "gate 13 controlled enablement lead architecture",
+      "metadata_quality": {
+        "score": 1,
+        "topic_hint_source": "caller",
+        "missing": [],
+        "related_files_count": 3,
+        "tags_count": 4,
+        "generic_tags_count": 0,
+        "task_type": "architectural"
+      },
+      "auto_cluster_routing": "disabled_read_only"
+    },
+    "architectural_memory_seed": {
+      "injected": true,
+      "injected_token_count": 872,
+      "record_ids": [
+        "PA-SD-000219",
+        "AMB-SD-000007",
+        "AMB-SD-000116",
+        "AMB-DOC-0008",
+        "AMB-RESCUE-0004",
+        "AMB-SD-000050",
+        "AMB-SD-000035",
+        "AMB-SD-000039"
+      ],
+      "seed_signature": "sha256:2ca9d1b5bc47ffc73f6294928e9cfe85205fac6709b2e4ff47546235587b4c90",
+      "dedup_reason": "no_existing_manifest"
+    }
+  },
+  "second": {
+    "session_id": "session_fa83be36-fb57-4961-b0d9-8da8be498336",
+    "was_new_session": false,
+    "route_decision": {
+      "selected_path": "claude_consult_existing_session",
+      "reason": "Exact normalized topic match; routing to existing session before allowing a new session.",
+      "session_id": "session_fa83be36-fb57-4961-b0d9-8da8be498336",
+      "match_score": 1,
+      "topic_hint": "gate 13 controlled enablement lead architecture",
+      "metadata_quality": {
+        "score": 1,
+        "topic_hint_source": "caller",
+        "missing": [],
+        "related_files_count": 3,
+        "tags_count": 4,
+        "generic_tags_count": 0,
+        "task_type": "architectural"
+      },
+      "auto_cluster_routing": "disabled_read_only"
+    },
+    "architectural_memory_seed": null
+  },
+  "status_after_first": {
+    "enabled": true,
+    "runtime_import_serving_enabled": true,
+    "serving_preflight": {
+      "selection_llm_input_tokens": 0,
+      "per_consult_architectural_memory_tokens": 0,
+      "max_engineering_principles": 7,
+      "target_seed_tokens": 900,
+      "absolute_seed_tokens": 1200,
+      "min_post_serving_continuity_runs": 3,
+      "adversarial_broken_zero_sufficient": false
+    },
+    "serving_runtime": {
+      "seeded_sessions_total": 1,
+      "latest_seed_token_count": 872,
+      "max_seed_token_count": 872,
+      "latest_seeded_sessions": [
+        {
+          "id": 2,
+          "session_id": "session_fa83be36-fb57-4961-b0d9-8da8be498336",
+          "project_id": "AgentSessionRouter-gate13-controlled-enable-1779001077576",
+          "topic": "gate 13 controlled enablement lead architecture",
+          "seed_kind": "engineering_principles",
+          "seed_signature": "sha256:2ca9d1b5bc47ffc73f6294928e9cfe85205fac6709b2e4ff47546235587b4c90",
+          "record_ids": [
+            "PA-SD-000219",
+            "AMB-SD-000007",
+            "AMB-SD-000116",
+            "AMB-DOC-0008",
+            "AMB-RESCUE-0004",
+            "AMB-SD-000050",
+            "AMB-SD-000035",
+            "AMB-SD-000039"
+          ],
+          "injected_token_count": 872,
+          "selected_record_count": 8,
+          "created_at": "2026-05-17T06:58:14.413Z"
+        }
+      ]
+    },
+    "active_records": 93,
+    "proposed_records": 0,
+    "suspended_records": 0,
+    "suspended_audit_records": 3,
+    "rejected_audit_records": 20,
+    "remaining_rejected_audit_records": 15,
+    "rescued_from_rejected_records": 5,
+    "reclassified_to_project_architecture_records": 5,
+    "excluded_records": 5,
+    "rejected_or_suspended_audit_records": 23,
+    "source_docs": [
+      {
+        "memory_product": "engineering-principles",
+        "path": "docs/ENGINEERING_PRINCIPLES.md",
+        "exists": true,
+        "active_records": 13,
+        "proposed_records": 0,
+        "suspended_records": 0,
+        "active_date_records": 13
+      },
+      {
+        "memory_product": "project-architecture",
+        "path": "docs/PROJECT_ARCHITECTURE.md",
+        "exists": true,
+        "active_records": 80,
+        "proposed_records": 0,
+        "suspended_records": 0,
+        "active_date_records": 80
+      }
+    ],
+    "audit_artifacts": {
+      "active_promotion": "experiments/architectural-memory-dry-run-2026-05-16/active-promotion.json",
+      "classification_correction": "experiments/architectural-memory-dry-run-2026-05-16/classification-correction.json",
+      "request_changes_resolution": "experiments/architectural-memory-dry-run-2026-05-16/request-changes-resolution.json",
+      "verification_report": "experiments/architectural-memory-dry-run-2026-05-16/verification-report.json"
+    },
+    "warnings": []
+  },
+  "status_after_second": {
+    "enabled": true,
+    "runtime_import_serving_enabled": true,
+    "serving_preflight": {
+      "selection_llm_input_tokens": 0,
+      "per_consult_architectural_memory_tokens": 0,
+      "max_engineering_principles": 7,
+      "target_seed_tokens": 900,
+      "absolute_seed_tokens": 1200,
+      "min_post_serving_continuity_runs": 3,
+      "adversarial_broken_zero_sufficient": false
+    },
+    "serving_runtime": {
+      "seeded_sessions_total": 1,
+      "latest_seed_token_count": 872,
+      "max_seed_token_count": 872,
+      "latest_seeded_sessions": [
+        {
+          "id": 2,
+          "session_id": "session_fa83be36-fb57-4961-b0d9-8da8be498336",
+          "project_id": "AgentSessionRouter-gate13-controlled-enable-1779001077576",
+          "topic": "gate 13 controlled enablement lead architecture",
+          "seed_kind": "engineering_principles",
+          "seed_signature": "sha256:2ca9d1b5bc47ffc73f6294928e9cfe85205fac6709b2e4ff47546235587b4c90",
+          "record_ids": [
+            "PA-SD-000219",
+            "AMB-SD-000007",
+            "AMB-SD-000116",
+            "AMB-DOC-0008",
+            "AMB-RESCUE-0004",
+            "AMB-SD-000050",
+            "AMB-SD-000035",
+            "AMB-SD-000039"
+          ],
+          "injected_token_count": 872,
+          "selected_record_count": 8,
+          "created_at": "2026-05-17T06:58:14.413Z"
+        }
+      ]
+    },
+    "active_records": 93,
+    "proposed_records": 0,
+    "suspended_records": 0,
+    "suspended_audit_records": 3,
+    "rejected_audit_records": 20,
+    "remaining_rejected_audit_records": 15,
+    "rescued_from_rejected_records": 5,
+    "reclassified_to_project_architecture_records": 5,
+    "excluded_records": 5,
+    "rejected_or_suspended_audit_records": 23,
+    "source_docs": [
+      {
+        "memory_product": "engineering-principles",
+        "path": "docs/ENGINEERING_PRINCIPLES.md",
+        "exists": true,
+        "active_records": 13,
+        "proposed_records": 0,
+        "suspended_records": 0,
+        "active_date_records": 13
+      },
+      {
+        "memory_product": "project-architecture",
+        "path": "docs/PROJECT_ARCHITECTURE.md",
+        "exists": true,
+        "active_records": 80,
+        "proposed_records": 0,
+        "suspended_records": 0,
+        "active_date_records": 80
+      }
+    ],
+    "audit_artifacts": {
+      "active_promotion": "experiments/architectural-memory-dry-run-2026-05-16/active-promotion.json",
+      "classification_correction": "experiments/architectural-memory-dry-run-2026-05-16/classification-correction.json",
+      "request_changes_resolution": "experiments/architectural-memory-dry-run-2026-05-16/request-changes-resolution.json",
+      "verification_report": "experiments/architectural-memory-dry-run-2026-05-16/verification-report.json"
+    },
+    "warnings": []
+  },
+  "monitor_architectural_memory": {
+    "enabled": true,
+    "runtime_import_serving_enabled": true,
+    "serving_preflight": {
+      "selection_llm_input_tokens": 0,
+      "per_consult_architectural_memory_tokens": 0,
+      "max_engineering_principles": 7,
+      "target_seed_tokens": 900,
+      "absolute_seed_tokens": 1200,
+      "min_post_serving_continuity_runs": 3,
+      "adversarial_broken_zero_sufficient": false
+    },
+    "serving_runtime": {
+      "seeded_sessions_total": 1,
+      "latest_seed_token_count": 872,
+      "max_seed_token_count": 872,
+      "latest_seeded_sessions": [
+        {
+          "id": 2,
+          "session_id": "session_fa83be36-fb57-4961-b0d9-8da8be498336",
+          "project_id": "AgentSessionRouter-gate13-controlled-enable-1779001077576",
+          "topic": "gate 13 controlled enablement lead architecture",
+          "seed_kind": "engineering_principles",
+          "seed_signature": "sha256:2ca9d1b5bc47ffc73f6294928e9cfe85205fac6709b2e4ff47546235587b4c90",
+          "record_ids": [
+            "PA-SD-000219",
+            "AMB-SD-000007",
+            "AMB-SD-000116",
+            "AMB-DOC-0008",
+            "AMB-RESCUE-0004",
+            "AMB-SD-000050",
+            "AMB-SD-000035",
+            "AMB-SD-000039"
+          ],
+          "injected_token_count": 872,
+          "selected_record_count": 8,
+          "created_at": "2026-05-17T06:58:14.413Z"
+        }
+      ]
+    },
+    "active_records": 93,
+    "proposed_records": 0,
+    "suspended_records": 0,
+    "suspended_audit_records": 3,
+    "rejected_audit_records": 20,
+    "remaining_rejected_audit_records": 15,
+    "rescued_from_rejected_records": 5,
+    "reclassified_to_project_architecture_records": 5,
+    "excluded_records": 5,
+    "rejected_or_suspended_audit_records": 23,
+    "source_docs": [
+      {
+        "memory_product": "engineering-principles",
+        "path": "docs/ENGINEERING_PRINCIPLES.md",
+        "exists": true,
+        "active_records": 13,
+        "proposed_records": 0,
+        "suspended_records": 0,
+        "active_date_records": 13
+      },
+      {
+        "memory_product": "project-architecture",
+        "path": "docs/PROJECT_ARCHITECTURE.md",
+        "exists": true,
+        "active_records": 80,
+        "proposed_records": 0,
+        "suspended_records": 0,
+        "active_date_records": 80
+      }
+    ],
+    "audit_artifacts": {
+      "active_promotion": "experiments/architectural-memory-dry-run-2026-05-16/active-promotion.json",
+      "classification_correction": "experiments/architectural-memory-dry-run-2026-05-16/classification-correction.json",
+      "request_changes_resolution": "experiments/architectural-memory-dry-run-2026-05-16/request-changes-resolution.json",
+      "verification_report": "experiments/architectural-memory-dry-run-2026-05-16/verification-report.json"
+    },
+    "warnings": []
+  },
+  "dedup_confirmed": true,
+  "server_stderr": ""
+}

@@ -138,7 +138,7 @@ describe("architectural memory serving preflight", () => {
   it("codifies the Gate 13 quality proof requirements", () => {
     expect(ARCHITECTURAL_MEMORY_SERVING_LIMITS.minPostServingContinuityRuns).toBe(3);
     expect(ARCHITECTURAL_MEMORY_SERVING_LIMITS.adversarialBrokenZeroSufficient).toBe(false);
-    expect(ARCHITECTURAL_MEMORY_SERVING_LIMITS.runtimeImportServingEnabled).toBe(false);
+    expect(ARCHITECTURAL_MEMORY_SERVING_LIMITS.runtimeImportServingEnabled).toBe(true);
   });
 });
 
