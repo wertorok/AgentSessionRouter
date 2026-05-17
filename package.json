@@ -34,6 +34,7 @@
     "smoke:postinstall:live": "node scripts/post-install-smoke.mjs --live",
     "mcp:config": "node scripts/mcp-config-print.mjs",
     "print-codex-config": "node scripts/mcp-config-print.mjs --format toml",
+    "setup:codex": "node scripts/install-codex-mcp.mjs",
     "env:diagnose": "node scripts/env-diagnose.mjs",
     "claude:profile-audit": "node scripts/claude-profile-audit.mjs",
     "router:sanity": "node scripts/router-consult-sanity.mjs",

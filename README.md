@@ -139,12 +139,43 @@ claude -p --output-format json "ping"
 
 ## Install
 
-Clone the repository, then run the build from the repo root:
+Clone the repository:
 
 ```bash
 git clone https://github.com/wertorok/AgentSessionRouter.git
 cd AgentSessionRouter
 ```
+
+Recommended Codex CLI setup is one command from the repo root. It installs npm dependencies, builds the server, prepares the Codex MCP TOML block with the correct absolute server path and target project `cwd`, then runs the post-install smoke test.
+
+Dry-run first:
+
+```bash
+npm run setup:codex -- --project-cwd /path/to/your-project
+```
+
+Write/update the Codex CLI config:
+
+```bash
+npm run setup:codex -- --project-cwd /path/to/your-project --write
+```
+
+On Windows PowerShell:
+
+```powershell
+npm run setup:codex -- --project-cwd "C:\path\to\your-project" --write
+```
+
+This writes only the Codex CLI config:
+
+- Linux/macOS: `~/.codex/config.toml`
+- Windows: `C:\Users\<User>\.codex\config.toml`
+
+Do not put this router config in Claude Code `.claude.json` or Claude Desktop `claude_desktop_config.json`; Codex CLI will not read those files.
+
+If the setup finds an existing unmarked `claude-session-router` entry, it refuses to append a duplicate TOML table. Inspect the file, then either edit it manually or rerun with `--force` to replace that existing table with the managed block.
+
+Manual install/build path:
 
 ```bash
 npm install
@@ -319,7 +350,13 @@ Those files are for different products. If you put the router there, Codex CLI w
 
 ### Generate The Codex Config Block
 
-After `npm run build`, print a ready-to-paste Codex TOML block with the current absolute server path:
+Prefer the managed setup command from the install section:
+
+```bash
+npm run setup:codex -- --project-cwd /path/to/your-project --write
+```
+
+If you only want to print a ready-to-paste Codex TOML block after `npm run build`, use:
 
 ```bash
 npm run print-codex-config -- --project-cwd /path/to/your-project
