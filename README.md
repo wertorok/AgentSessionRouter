@@ -298,43 +298,40 @@ Use a fresh Claude exploration when:
 
 ## MCP Client Configuration
 
-Use the built server entry point:
+### Where To Register
 
-```txt
-node <repo-root>\dist\src\index.js
-```
+AgentSessionRouter is intended to be registered in the **Codex CLI** MCP config when Codex is the parent agent.
 
-After `npm run build`, generate a client config snippet with the current absolute server path instead of hand-editing it:
+Register here:
+
+- Linux/macOS: `~/.codex/config.toml`
+- Windows: `C:\Users\<User>\.codex\config.toml`
+- Format: TOML, under `[mcp_servers.<name>]`
+
+Do **not** register this Codex integration in these similar-looking configs:
+
+- Claude Code: `~/.claude.json` or `~/.claude/settings.json`
+- Claude Desktop:
+  - Windows: `%APPDATA%\Claude\claude_desktop_config.json`
+  - macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
+
+Those files are for different products. If you put the router there, Codex CLI will not see it.
+
+### Generate The Codex Config Block
+
+After `npm run build`, print a ready-to-paste Codex TOML block with the current absolute server path:
 
 ```bash
-npm run mcp:config -- --project-cwd /path/to/your-project --format toml
+npm run print-codex-config -- --project-cwd /path/to/your-project
 ```
 
-For JSON-style MCP clients:
+Paste the entire block into `~/.codex/config.toml` or `C:\Users\<User>\.codex\config.toml`.
 
-```bash
-npm run mcp:config -- --project-cwd /path/to/your-project --format json
-```
+`cwd` is required. The router derives the target project from the MCP process cwd when `project_id` is omitted. Do not leave `cwd` at your home directory.
 
-Generic MCP server config shape:
+`codex mcp add` is not sufficient by itself for this router because it writes `command` and `args` but does not add the required project `cwd`. Use the generated block, or add `cwd` manually.
 
-```json
-{
-  "mcpServers": {
-    "claude-session-router": {
-      "command": "node",
-      "args": [
-        "C:\\path\\to\\AgentSessionRouter\\dist\\src\\index.js"
-      ],
-      "cwd": "C:\\path\\to\\your-project"
-    }
-  }
-}
-```
-
-For project-specific behavior, start the MCP server with its working directory set to the project you want to route for. If `project_id` is omitted in tool calls, the server derives it from the Git root directory name, or from the cwd basename if no Git root exists.
-
-For global clients such as Codex, do not leave the MCP `cwd` at your home directory. Configure each MCP entry with the repository directory it should serve:
+Example shape:
 
 ```toml
 [mcp_servers.claude-session-router]
@@ -344,7 +341,15 @@ cwd = "/root/projects/your-project"
 startup_timeout_sec = 180
 ```
 
-Prefer the generated snippet above; the hardcoded path here is only an example.
+The hardcoded paths above are examples. Prefer the generated snippet so Windows backslashes, spaces, and absolute paths are escaped correctly.
+
+To diagnose a local machine before registration:
+
+```bash
+npm run env:diagnose
+```
+
+This prints which `claude` executable the router will use, its version compatibility, the Codex CLI config path, and warnings if Claude Code or Claude Desktop configs are present and might be confused with the Codex config.
 
 If you need the router available in several projects, run one MCP server entry per project with a distinct `cwd`. A shared SQLite registry is supported by using absolute `storage.db_path` and `storage.raw_logs_dir`, but routing remains project-scoped by `project_id`.
 

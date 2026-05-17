@@ -8,6 +8,7 @@ const format = valueAfter("--format") ?? "toml";
 const projectCwd = path.resolve(valueAfter("--project-cwd") ?? process.cwd());
 const startupTimeoutSec = Number(valueAfter("--startup-timeout-sec") ?? "180");
 const serverEntry = path.resolve(valueAfter("--server-entry") ?? path.join(repoRoot, "dist", "src", "index.js"));
+const comments = !process.argv.includes("--no-comments");
 
 if (!Number.isFinite(startupTimeoutSec) || startupTimeoutSec <= 0) {
   fail("--startup-timeout-sec must be a positive number.");
@@ -34,7 +35,17 @@ if (format === "json") {
     )
   );
 } else if (format === "toml") {
-  console.log(`[mcp_servers.${tomlKey(serverName)}]
+  const prefix = comments
+    ? [
+        "# Paste this whole block into Codex CLI config:",
+        `#   ${codexConfigPath()}`,
+        "# Do not put this in Claude Code .claude.json or Claude Desktop claude_desktop_config.json.",
+        "# `cwd` is required: AgentSessionRouter derives the target project from this directory.",
+        "# `codex mcp add` is not sufficient for this router unless you also add cwd manually.",
+        ""
+      ].join("\n")
+    : "";
+  console.log(`${prefix}[mcp_servers.${tomlKey(serverName)}]
 command = "node"
 args = ["${escapeToml(serverEntry)}"]
 cwd = "${escapeToml(projectCwd)}"
@@ -54,6 +65,14 @@ function escapeToml(value) {
 
 function tomlKey(value) {
   return `"${escapeToml(value)}"`;
+}
+
+function codexConfigPath() {
+  if (process.platform === "win32") {
+    const home = process.env.USERPROFILE ?? "%USERPROFILE%";
+    return `${home}\\.codex\\config.toml`;
+  }
+  return path.join(process.env.HOME ?? "~", ".codex", "config.toml");
 }
 
 function fail(message) {

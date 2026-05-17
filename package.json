@@ -33,6 +33,8 @@
     "smoke:postinstall": "node scripts/post-install-smoke.mjs",
     "smoke:postinstall:live": "node scripts/post-install-smoke.mjs --live",
     "mcp:config": "node scripts/mcp-config-print.mjs",
+    "print-codex-config": "node scripts/mcp-config-print.mjs --format toml",
+    "env:diagnose": "node scripts/env-diagnose.mjs",
     "router:sanity": "node scripts/router-consult-sanity.mjs",
     "router:sample": "node scripts/router-route-sample.mjs",
     "route:calibration": "node scripts/route-calibration-report.mjs",
