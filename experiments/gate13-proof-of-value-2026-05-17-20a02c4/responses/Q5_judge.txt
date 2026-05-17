@@ -1,0 +1,11 @@
+**Judge Analysis:**
+
+Both answers correctly conclude that hidden session memory cannot serve as the long-term source of truth for architectural knowledge.
+
+**Answer A** is structurally sound — it identifies the core problems (ephemerality, non-reviewability, no cross-session portability) and notes the control branch's explicit preference for documented boundaries. However, it does not cite AMB-RESCUE-0005 and relies on its own reasoning rather than anchoring to the principle.
+
+**Answer B** explicitly cites AMB-RESCUE-0005 and applies it directly: durable architectural memory must be diffable and auditable. It correctly identifies the specific failure mode (drift, contradiction, silent loss) and provides concrete guidance (keep ENGINEERING_PRINCIPLES.md as the source of truth). It is also more concise while being more precise.
+
+**Preferred: B**
+
+Answer B wins because it uses the principle rather than just elaborating on the same points at greater length. Citing and applying a named principle demonstrates the architectural reasoning is grounded in established policy, not ad hoc intuition. This is the safer architecture decision.

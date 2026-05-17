@@ -1,0 +1,9 @@
+**Decision: No — hidden session memory alone cannot serve as long-term source of truth.**
+
+Session memory is ephemeral and non-reviewable. It lives inside a specific lead session lifecycle: it cannot be diffed by other agents, audited by humans, referenced across sessions without re-invoking the same agent, or enforced programmatically. Provenance, reviewability, and cross-session accessibility are foundational requirements for durable architectural knowledge — all of which session memory structurally lacks.
+
+**The specific risk:** If `ENGINEERING_PRINCIPLES.md` is abandoned and only session memory holds lessons, subsequent sessions start with zero architectural context unless the exact same lead session is re-invoked. That breaks portability and makes the codebase dependent on memory provenance that has no external artifact.
+
+**What the project already acknowledges:** The control branch decision to operate without an architectural-memory seed reflects an explicit preference for explicit documented boundaries over implicit session carryover.
+
+**What would need to change for session memory to be authoritative:** A durable, diffable, externally stored artifact — not hidden session state.

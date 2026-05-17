@@ -1,0 +1,15 @@
+**Preferred: B**
+
+Both answers reach the correct "No" decision, but Answer B is materially stronger:
+
+1. **Principle application**: Answer B explicitly cites and applies AMB-RESCUE-0001, framing the shadow evaluator as an observation/telemetry path whose role is to measure, not override. Answer A reasons from experiment integrity and non-determinism — valid points, but no principle citation despite the question flagging AMB-RESCUE-0001 as expected.
+
+2. **Nuance on promotion**: Answer B distinguishes "forbidden now" from "never allowed" — AMB-RESCUE-0001 forbids the direct mid-request switch but explicitly does not preclude future policy that defines safe promotion criteria through separate evaluation cycles. Answer A conflates the immediate prohibition with a broader validation concern.
+
+3. **Counter-evidence path**: Answer B addresses the edge case where a caller explicitly requests evaluation output (a different product contract), which Answer A does not consider.
+
+4. **Missing context**: Both note missing success criteria, but Answer B's framing is more actionable — it focuses on whether documented thresholds/policies exist, versus Answer A's general "experiment integrity" framing.
+
+Answer A is longer but length without principle anchoring is not a virtue. Answer B uses the principle rather than just reasoning around it.
+
+---

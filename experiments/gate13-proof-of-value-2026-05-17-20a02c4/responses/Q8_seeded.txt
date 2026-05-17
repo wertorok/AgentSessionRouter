@@ -1,0 +1,7 @@
+**Decision: No.** Do not enable serving yet.
+
+**Reasoning:** Two principles apply. AMB-RESCUE-0004 is frontmost: the seeded memory has no post-serving continuity benchmark, which means there is no validated applicability condition for going live. One smoke test under a static BROKEN=0 flag does not establish that the seeded memory remains correct across sessions, load, or drift scenarios. The counter-evidence path — "what breaks this in production" — has not been exercised.
+
+AMB-RESCUE-0002 is also relevant: the absence of a continuity benchmark means the evidence base for serving is untrusted/stale relative to what would be needed to certify live traffic.
+
+**What is missing:** A post-serving continuity benchmark that validates the seeded memory holds under representative conditions and adversarial flags (BROKEN=1, session churn, evidence drift). Until that benchmark exists and passes, keep the gate closed.

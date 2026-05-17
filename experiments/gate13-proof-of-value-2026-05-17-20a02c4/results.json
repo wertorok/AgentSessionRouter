@@ -1,0 +1,1205 @@
+{
+  "kind": "gate13_seed_proof_of_value",
+  "started_at": "2026-05-17T06:33:31.115Z",
+  "commit": "20a02c4",
+  "base_project_id": "AgentSessionRouter-gate13-proof-of-value-2026-05-17-20a02c4",
+  "project_ids": {
+    "seeded": "AgentSessionRouter-gate13-proof-of-value-2026-05-17-20a02c4-seeded",
+    "control": "AgentSessionRouter-gate13-proof-of-value-2026-05-17-20a02c4-control"
+  },
+  "runtime_import_serving_enabled": false,
+  "serving_enabled": false,
+  "seed_principles": [
+    {
+      "id": "AMB-RESCUE-0001",
+      "statement": "Evaluation and telemetry paths must not affect caller-facing answers; observation must remain separate from production response behavior.",
+      "applies": "Apply to shadow evaluation, telemetry, benchmarking, and monitoring paths beside production answer path.",
+      "counter": "If caller explicitly requests comparison/evaluation output, expose it as product contract, not hidden telemetry."
+    },
+    {
+      "id": "AMB-RESCUE-0002",
+      "statement": "Untrusted or stale evidence must produce an explicit signal and safe fallback, not silent use of stale data.",
+      "applies": "Apply to caches, factsheets, session memory, evidence stores, and derived context that can drift.",
+      "counter": "If evidence can be fully revalidated before use, signal may remain internal; never silently use unrevalidated evidence."
+    },
+    {
+      "id": "AMB-RESCUE-0003",
+      "statement": "Verified evidence artifacts should be the operational source of truth; opaque model or session state must not be the only authority.",
+      "applies": "Apply when an agent/router chooses between verified artifacts and opaque conversational state for durable decisions.",
+      "counter": "If artifact is stale or lower trust than current source data, revalidate or regenerate before treating it as authority."
+    },
+    {
+      "id": "AMB-RESCUE-0004",
+      "statement": "Runtime-served principles need applicability conditions and an explicit rejection or counter-evidence path to avoid dogmatization.",
+      "applies": "Apply to durable principles, policies, or memory items that may influence future agent behavior at runtime.",
+      "counter": "If a principle lacks applicability and counter-evidence fields, keep it advisory/docs-only and do not serve it as normative runtime memory."
+    },
+    {
+      "id": "AMB-RESCUE-0005",
+      "statement": "Durable architectural memory must have diffable provenance; hidden model-memory must not become the authority.",
+      "applies": "Apply when architectural memory persists across sessions, projects, agents, or release phases.",
+      "counter": "If no diffable artifact or explicit provenance exists, treat memory as transient context only and do not promote or serve it."
+    },
+    {
+      "id": "AMB-DOC-0008",
+      "statement": "Classification rubrics should make scoring explicit and auditable by documenting deterministic signals, scoring formulas, rejection rules, and lifecycle/status boundaries without adding runtime evaluation.",
+      "applies": "Apply as a generic rubric/scorer design principle for classification pipelines.",
+      "counter": "If classification is subjective and lacks auditable deterministic signals, redesign the rubric before treating scores as evidence."
+    },
+    {
+      "id": "AMB-SD-000039",
+      "statement": "Orphaned session replacement must remain transparent; dead sessions are never silently reused.",
+      "applies": "Apply universally to any session management system.",
+      "counter": "Forensic inspection may read dead sessions, but production answering must avoid silently reusing them."
+    }
+  ],
+  "questions": [
+    {
+      "id": "Q1",
+      "principle_ids": [
+        "AMB-RESCUE-0001"
+      ],
+      "question": "Architecture review: a shadow evaluator found that direct_resume beats cluster_consult on one answer. Should the router immediately switch the caller-facing answer to the shadow result inside the same request? Give the decision and reasoning."
+    },
+    {
+      "id": "Q2",
+      "principle_ids": [
+        "AMB-RESCUE-0002",
+        "AMB-RESCUE-0003"
+      ],
+      "question": "Architecture review: a factsheet selector still exists but the snippet hash changed. It is probably a harmless refactor and serving the cached fact would be faster. Should the router serve it silently, return an internal error to caller, or do something else?"
+    },
+    {
+      "id": "Q3",
+      "principle_ids": [
+        "AMB-RESCUE-0003"
+      ],
+      "question": "Architecture review: a lead session remembers that fallback_count is cheap, but the diffable experiment artifact says fallback cost rose after the last refactor. Which source should drive the next decision and what should happen before treating either as authority?"
+    },
+    {
+      "id": "Q4",
+      "principle_ids": [
+        "AMB-RESCUE-0004"
+      ],
+      "question": "Architecture review: we want to runtime-serve a new engineering principle, but it has only a statement and provenance. applies_when and counter_evidence are empty. Is it safe to seed it into lead sessions?"
+    },
+    {
+      "id": "Q5",
+      "principle_ids": [
+        "AMB-RESCUE-0005"
+      ],
+      "question": "Architecture review: instead of maintaining ENGINEERING_PRINCIPLES.md, we can rely on the durable Claude lead session to remember all architectural lessons. Is hidden session memory enough as the long-term source of truth?"
+    },
+    {
+      "id": "Q6",
+      "principle_ids": [
+        "AMB-DOC-0008"
+      ],
+      "question": "Architecture review: a new classifier rejects candidates with a score below 0.6, but the signals, weights, and rejection rules are not documented because the code is short. Is that acceptable before promotion?"
+    },
+    {
+      "id": "Q7",
+      "principle_ids": [
+        "AMB-SD-000039"
+      ],
+      "question": "Architecture review: a persisted session record points to a missing Claude .jsonl file. To preserve speed, can production routing keep using the DB session id as if it were alive and only log a warning later?"
+    },
+    {
+      "id": "Q8",
+      "principle_ids": [
+        "AMB-RESCUE-0002",
+        "AMB-RESCUE-0004"
+      ],
+      "question": "Architecture review: Gate 13 passed one successful smoke test with seeded memory. There is no post-serving continuity benchmark yet, but adversarial BROKEN=0. Should we enable serving now?"
+    }
+  ],
+  "sessions": {
+    "seeded": "session_fd0c1109-4828-4956-8065-5cc15ee201a9",
+    "control": "session_be6b20b0-72ff-4e4d-b156-f30b6f365d51"
+  },
+  "calls": [
+    {
+      "label": "A_seed_init",
+      "tool": "router_consult",
+      "ok": true,
+      "duration_ms": 29294,
+      "session_id": "session_fd0c1109-4828-4956-8065-5cc15ee201a9",
+      "route_decision": {
+        "selected_path": "claude_consult_new_session",
+        "reason": "No exact or usable existing session match; router starts a new durable session. No eligible active or dormant sessions in project.",
+        "match_score": 0,
+        "candidate_gap": null,
+        "force_new_session": true,
+        "topic_hint": "gate thirteen proof value seeded lead isolated",
+        "metadata_quality": {
+          "score": 1,
+          "topic_hint_source": "caller",
+          "missing": [],
+          "related_files_count": 2,
+          "tags_count": 3,
+          "generic_tags_count": 0,
+          "task_type": "architectural"
+        },
+        "auto_cluster_routing": "disabled_read_only"
+      },
+      "response_path": "experiments/gate13-proof-of-value-2026-05-17-20a02c4/responses/A_seed_init.txt",
+      "error": null
+    },
+    {
+      "label": "B_control_init",
+      "tool": "router_consult",
+      "ok": true,
+      "duration_ms": 7143,
+      "session_id": "session_be6b20b0-72ff-4e4d-b156-f30b6f365d51",
+      "route_decision": {
+        "selected_path": "claude_consult_new_session",
+        "reason": "No exact or usable existing session match; router starts a new durable session. No eligible active or dormant sessions in project.",
+        "match_score": 0,
+        "candidate_gap": null,
+        "force_new_session": true,
+        "topic_hint": "gate thirteen proof value control lead isolated",
+        "metadata_quality": {
+          "score": 1,
+          "topic_hint_source": "caller",
+          "missing": [],
+          "related_files_count": 2,
+          "tags_count": 3,
+          "generic_tags_count": 0,
+          "task_type": "architectural"
+        },
+        "auto_cluster_routing": "disabled_read_only"
+      },
+      "response_path": "experiments/gate13-proof-of-value-2026-05-17-20a02c4/responses/B_control_init.txt",
+      "error": null
+    },
+    {
+      "label": "Q1_seeded",
+      "tool": "router_consult",
+      "ok": true,
+      "duration_ms": 19928,
+      "session_id": "session_fd0c1109-4828-4956-8065-5cc15ee201a9",
+      "route_decision": {
+        "selected_path": "claude_consult_explicit_session",
+        "reason": "Explicit session_id provided by caller.",
+        "session_id": "session_fd0c1109-4828-4956-8065-5cc15ee201a9",
+        "match_score": 1,
+        "topic_hint": "gate thirteen proof value seeded lead isolated",
+        "metadata_quality": {
+          "score": 1,
+          "topic_hint_source": "caller",
+          "missing": [],
+          "related_files_count": 2,
+          "tags_count": 3,
+          "generic_tags_count": 0,
+          "task_type": "architectural"
+        },
+        "auto_cluster_routing": "disabled_read_only"
+      },
+      "response_path": "experiments/gate13-proof-of-value-2026-05-17-20a02c4/responses/Q1_seeded.txt",
+      "error": null
+    },
+    {
+      "label": "Q1_control",
+      "tool": "router_consult",
+      "ok": true,
+      "duration_ms": 16930,
+      "session_id": "session_be6b20b0-72ff-4e4d-b156-f30b6f365d51",
+      "route_decision": {
+        "selected_path": "claude_consult_explicit_session",
+        "reason": "Explicit session_id provided by caller.",
+        "session_id": "session_be6b20b0-72ff-4e4d-b156-f30b6f365d51",
+        "match_score": 1,
+        "topic_hint": "gate thirteen proof value control lead isolated",
+        "metadata_quality": {
+          "score": 1,
+          "topic_hint_source": "caller",
+          "missing": [],
+          "related_files_count": 2,
+          "tags_count": 3,
+          "generic_tags_count": 0,
+          "task_type": "architectural"
+        },
+        "auto_cluster_routing": "disabled_read_only"
+      },
+      "response_path": "experiments/gate13-proof-of-value-2026-05-17-20a02c4/responses/Q1_control.txt",
+      "error": null
+    },
+    {
+      "label": "Q1_judge",
+      "tool": "router_consult",
+      "ok": true,
+      "duration_ms": 26020,
+      "session_id": "session_f933a007-4c16-439e-8ad5-9f08d17c83e1",
+      "route_decision": {
+        "selected_path": "claude_consult_new_session",
+        "reason": "No exact or usable existing session match; router starts a new durable session. No eligible active or dormant sessions in project.",
+        "match_score": 0,
+        "candidate_gap": null,
+        "force_new_session": true,
+        "topic_hint": "gate thirteen proof value judge Q1",
+        "metadata_quality": {
+          "score": 1,
+          "topic_hint_source": "caller",
+          "missing": [],
+          "related_files_count": 1,
+          "tags_count": 3,
+          "generic_tags_count": 0,
+          "task_type": "review"
+        },
+        "auto_cluster_routing": "disabled_read_only"
+      },
+      "response_path": "experiments/gate13-proof-of-value-2026-05-17-20a02c4/responses/Q1_judge.txt",
+      "error": null
+    },
+    {
+      "label": "Q2_seeded",
+      "tool": "router_consult",
+      "ok": true,
+      "duration_ms": 24831,
+      "session_id": "session_fd0c1109-4828-4956-8065-5cc15ee201a9",
+      "route_decision": {
+        "selected_path": "claude_consult_explicit_session",
+        "reason": "Explicit session_id provided by caller.",
+        "session_id": "session_fd0c1109-4828-4956-8065-5cc15ee201a9",
+        "match_score": 1,
+        "topic_hint": "gate thirteen proof value seeded lead isolated",
+        "metadata_quality": {
+          "score": 1,
+          "topic_hint_source": "caller",
+          "missing": [],
+          "related_files_count": 2,
+          "tags_count": 4,
+          "generic_tags_count": 0,
+          "task_type": "architectural"
+        },
+        "auto_cluster_routing": "disabled_read_only"
+      },
+      "response_path": "experiments/gate13-proof-of-value-2026-05-17-20a02c4/responses/Q2_seeded.txt",
+      "error": null
+    },
+    {
+      "label": "Q2_control",
+      "tool": "router_consult",
+      "ok": true,
+      "duration_ms": 14284,
+      "session_id": "session_be6b20b0-72ff-4e4d-b156-f30b6f365d51",
+      "route_decision": {
+        "selected_path": "claude_consult_explicit_session",
+        "reason": "Explicit session_id provided by caller.",
+        "session_id": "session_be6b20b0-72ff-4e4d-b156-f30b6f365d51",
+        "match_score": 1,
+        "topic_hint": "gate thirteen proof value control lead isolated",
+        "metadata_quality": {
+          "score": 1,
+          "topic_hint_source": "caller",
+          "missing": [],
+          "related_files_count": 2,
+          "tags_count": 4,
+          "generic_tags_count": 0,
+          "task_type": "architectural"
+        },
+        "auto_cluster_routing": "disabled_read_only"
+      },
+      "response_path": "experiments/gate13-proof-of-value-2026-05-17-20a02c4/responses/Q2_control.txt",
+      "error": null
+    },
+    {
+      "label": "Q2_judge",
+      "tool": "router_consult",
+      "ok": true,
+      "duration_ms": 31846,
+      "session_id": "session_bb3de33f-12e9-4719-afad-a1b9e9759701",
+      "route_decision": {
+        "selected_path": "claude_consult_new_session",
+        "reason": "No exact or usable existing session match; router starts a new durable session. No eligible active or dormant sessions in project.",
+        "match_score": 0,
+        "candidate_gap": null,
+        "force_new_session": true,
+        "topic_hint": "gate thirteen proof value judge Q2",
+        "metadata_quality": {
+          "score": 1,
+          "topic_hint_source": "caller",
+          "missing": [],
+          "related_files_count": 1,
+          "tags_count": 3,
+          "generic_tags_count": 0,
+          "task_type": "review"
+        },
+        "auto_cluster_routing": "disabled_read_only"
+      },
+      "response_path": "experiments/gate13-proof-of-value-2026-05-17-20a02c4/responses/Q2_judge.txt",
+      "error": null
+    },
+    {
+      "label": "Q3_seeded",
+      "tool": "router_consult",
+      "ok": true,
+      "duration_ms": 19850,
+      "session_id": "session_fd0c1109-4828-4956-8065-5cc15ee201a9",
+      "route_decision": {
+        "selected_path": "claude_consult_explicit_session",
+        "reason": "Explicit session_id provided by caller.",
+        "session_id": "session_fd0c1109-4828-4956-8065-5cc15ee201a9",
+        "match_score": 1,
+        "topic_hint": "gate thirteen proof value seeded lead isolated",
+        "metadata_quality": {
+          "score": 1,
+          "topic_hint_source": "caller",
+          "missing": [],
+          "related_files_count": 2,
+          "tags_count": 3,
+          "generic_tags_count": 0,
+          "task_type": "architectural"
+        },
+        "auto_cluster_routing": "disabled_read_only"
+      },
+      "response_path": "experiments/gate13-proof-of-value-2026-05-17-20a02c4/responses/Q3_seeded.txt",
+      "error": null
+    },
+    {
+      "label": "Q3_control",
+      "tool": "router_consult",
+      "ok": true,
+      "duration_ms": 13103,
+      "session_id": "session_be6b20b0-72ff-4e4d-b156-f30b6f365d51",
+      "route_decision": {
+        "selected_path": "claude_consult_explicit_session",
+        "reason": "Explicit session_id provided by caller.",
+        "session_id": "session_be6b20b0-72ff-4e4d-b156-f30b6f365d51",
+        "match_score": 1,
+        "topic_hint": "gate thirteen proof value control lead isolated",
+        "metadata_quality": {
+          "score": 1,
+          "topic_hint_source": "caller",
+          "missing": [],
+          "related_files_count": 2,
+          "tags_count": 3,
+          "generic_tags_count": 0,
+          "task_type": "architectural"
+        },
+        "auto_cluster_routing": "disabled_read_only"
+      },
+      "response_path": "experiments/gate13-proof-of-value-2026-05-17-20a02c4/responses/Q3_control.txt",
+      "error": null
+    },
+    {
+      "label": "Q3_judge",
+      "tool": "router_consult",
+      "ok": true,
+      "duration_ms": 20939,
+      "session_id": "session_f1869e6e-655b-4b08-b3b0-47efad7b61de",
+      "route_decision": {
+        "selected_path": "claude_consult_new_session",
+        "reason": "No exact or usable existing session match; router starts a new durable session. No eligible active or dormant sessions in project.",
+        "match_score": 0,
+        "candidate_gap": null,
+        "force_new_session": true,
+        "topic_hint": "gate thirteen proof value judge Q3",
+        "metadata_quality": {
+          "score": 1,
+          "topic_hint_source": "caller",
+          "missing": [],
+          "related_files_count": 1,
+          "tags_count": 3,
+          "generic_tags_count": 0,
+          "task_type": "review"
+        },
+        "auto_cluster_routing": "disabled_read_only"
+      },
+      "response_path": "experiments/gate13-proof-of-value-2026-05-17-20a02c4/responses/Q3_judge.txt",
+      "error": null
+    },
+    {
+      "label": "Q4_seeded",
+      "tool": "router_consult",
+      "ok": true,
+      "duration_ms": 15844,
+      "session_id": "session_fd0c1109-4828-4956-8065-5cc15ee201a9",
+      "route_decision": {
+        "selected_path": "claude_consult_explicit_session",
+        "reason": "Explicit session_id provided by caller.",
+        "session_id": "session_fd0c1109-4828-4956-8065-5cc15ee201a9",
+        "match_score": 1,
+        "topic_hint": "gate thirteen proof value seeded lead isolated",
+        "metadata_quality": {
+          "score": 1,
+          "topic_hint_source": "caller",
+          "missing": [],
+          "related_files_count": 2,
+          "tags_count": 3,
+          "generic_tags_count": 0,
+          "task_type": "architectural"
+        },
+        "auto_cluster_routing": "disabled_read_only"
+      },
+      "response_path": "experiments/gate13-proof-of-value-2026-05-17-20a02c4/responses/Q4_seeded.txt",
+      "error": null
+    },
+    {
+      "label": "Q4_control",
+      "tool": "router_consult",
+      "ok": true,
+      "duration_ms": 10226,
+      "session_id": "session_be6b20b0-72ff-4e4d-b156-f30b6f365d51",
+      "route_decision": {
+        "selected_path": "claude_consult_explicit_session",
+        "reason": "Explicit session_id provided by caller.",
+        "session_id": "session_be6b20b0-72ff-4e4d-b156-f30b6f365d51",
+        "match_score": 1,
+        "topic_hint": "gate thirteen proof value control lead isolated",
+        "metadata_quality": {
+          "score": 1,
+          "topic_hint_source": "caller",
+          "missing": [],
+          "related_files_count": 2,
+          "tags_count": 3,
+          "generic_tags_count": 0,
+          "task_type": "architectural"
+        },
+        "auto_cluster_routing": "disabled_read_only"
+      },
+      "response_path": "experiments/gate13-proof-of-value-2026-05-17-20a02c4/responses/Q4_control.txt",
+      "error": null
+    },
+    {
+      "label": "Q4_judge",
+      "tool": "router_consult",
+      "ok": true,
+      "duration_ms": 12045,
+      "session_id": "session_96ee0e2e-ce8d-48e5-a8f8-87e51c3da335",
+      "route_decision": {
+        "selected_path": "claude_consult_new_session",
+        "reason": "No exact or usable existing session match; router starts a new durable session. No eligible active or dormant sessions in project.",
+        "match_score": 0,
+        "candidate_gap": null,
+        "force_new_session": true,
+        "topic_hint": "gate thirteen proof value judge Q4",
+        "metadata_quality": {
+          "score": 1,
+          "topic_hint_source": "caller",
+          "missing": [],
+          "related_files_count": 1,
+          "tags_count": 3,
+          "generic_tags_count": 0,
+          "task_type": "review"
+        },
+        "auto_cluster_routing": "disabled_read_only"
+      },
+      "response_path": "experiments/gate13-proof-of-value-2026-05-17-20a02c4/responses/Q4_judge.txt",
+      "error": null
+    },
+    {
+      "label": "Q5_seeded",
+      "tool": "router_consult",
+      "ok": true,
+      "duration_ms": 18641,
+      "session_id": "session_fd0c1109-4828-4956-8065-5cc15ee201a9",
+      "route_decision": {
+        "selected_path": "claude_consult_explicit_session",
+        "reason": "Explicit session_id provided by caller.",
+        "session_id": "session_fd0c1109-4828-4956-8065-5cc15ee201a9",
+        "match_score": 1,
+        "topic_hint": "gate thirteen proof value seeded lead isolated",
+        "metadata_quality": {
+          "score": 1,
+          "topic_hint_source": "caller",
+          "missing": [],
+          "related_files_count": 2,
+          "tags_count": 3,
+          "generic_tags_count": 0,
+          "task_type": "architectural"
+        },
+        "auto_cluster_routing": "disabled_read_only"
+      },
+      "response_path": "experiments/gate13-proof-of-value-2026-05-17-20a02c4/responses/Q5_seeded.txt",
+      "error": null
+    },
+    {
+      "label": "Q5_control",
+      "tool": "router_consult",
+      "ok": true,
+      "duration_ms": 10099,
+      "session_id": "session_be6b20b0-72ff-4e4d-b156-f30b6f365d51",
+      "route_decision": {
+        "selected_path": "claude_consult_explicit_session",
+        "reason": "Explicit session_id provided by caller.",
+        "session_id": "session_be6b20b0-72ff-4e4d-b156-f30b6f365d51",
+        "match_score": 1,
+        "topic_hint": "gate thirteen proof value control lead isolated",
+        "metadata_quality": {
+          "score": 1,
+          "topic_hint_source": "caller",
+          "missing": [],
+          "related_files_count": 2,
+          "tags_count": 3,
+          "generic_tags_count": 0,
+          "task_type": "architectural"
+        },
+        "auto_cluster_routing": "disabled_read_only"
+      },
+      "response_path": "experiments/gate13-proof-of-value-2026-05-17-20a02c4/responses/Q5_control.txt",
+      "error": null
+    },
+    {
+      "label": "Q5_judge",
+      "tool": "router_consult",
+      "ok": true,
+      "duration_ms": 7974,
+      "session_id": "session_73ea8fb7-d742-4d0b-a0d5-7c55730b7ce5",
+      "route_decision": {
+        "selected_path": "claude_consult_new_session",
+        "reason": "No exact or usable existing session match; router starts a new durable session. No eligible active or dormant sessions in project.",
+        "match_score": 0,
+        "candidate_gap": null,
+        "force_new_session": true,
+        "topic_hint": "gate thirteen proof value judge Q5",
+        "metadata_quality": {
+          "score": 1,
+          "topic_hint_source": "caller",
+          "missing": [],
+          "related_files_count": 1,
+          "tags_count": 3,
+          "generic_tags_count": 0,
+          "task_type": "review"
+        },
+        "auto_cluster_routing": "disabled_read_only"
+      },
+      "response_path": "experiments/gate13-proof-of-value-2026-05-17-20a02c4/responses/Q5_judge.txt",
+      "error": null
+    },
+    {
+      "label": "Q6_seeded",
+      "tool": "router_consult",
+      "ok": true,
+      "duration_ms": 21593,
+      "session_id": "session_fd0c1109-4828-4956-8065-5cc15ee201a9",
+      "route_decision": {
+        "selected_path": "claude_consult_explicit_session",
+        "reason": "Explicit session_id provided by caller.",
+        "session_id": "session_fd0c1109-4828-4956-8065-5cc15ee201a9",
+        "match_score": 1,
+        "topic_hint": "gate thirteen proof value seeded lead isolated",
+        "metadata_quality": {
+          "score": 1,
+          "topic_hint_source": "caller",
+          "missing": [],
+          "related_files_count": 2,
+          "tags_count": 3,
+          "generic_tags_count": 0,
+          "task_type": "architectural"
+        },
+        "auto_cluster_routing": "disabled_read_only"
+      },
+      "response_path": "experiments/gate13-proof-of-value-2026-05-17-20a02c4/responses/Q6_seeded.txt",
+      "error": null
+    },
+    {
+      "label": "Q6_control",
+      "tool": "router_consult",
+      "ok": true,
+      "duration_ms": 14683,
+      "session_id": "session_be6b20b0-72ff-4e4d-b156-f30b6f365d51",
+      "route_decision": {
+        "selected_path": "claude_consult_explicit_session",
+        "reason": "Explicit session_id provided by caller.",
+        "session_id": "session_be6b20b0-72ff-4e4d-b156-f30b6f365d51",
+        "match_score": 1,
+        "topic_hint": "gate thirteen proof value control lead isolated",
+        "metadata_quality": {
+          "score": 1,
+          "topic_hint_source": "caller",
+          "missing": [],
+          "related_files_count": 2,
+          "tags_count": 3,
+          "generic_tags_count": 0,
+          "task_type": "architectural"
+        },
+        "auto_cluster_routing": "disabled_read_only"
+      },
+      "response_path": "experiments/gate13-proof-of-value-2026-05-17-20a02c4/responses/Q6_control.txt",
+      "error": null
+    },
+    {
+      "label": "Q6_judge",
+      "tool": "router_consult",
+      "ok": true,
+      "duration_ms": 7159,
+      "session_id": "session_bc3ae1f6-1807-4ca2-ac0e-f20a368db533",
+      "route_decision": {
+        "selected_path": "claude_consult_new_session",
+        "reason": "No exact or usable existing session match; router starts a new durable session. No eligible active or dormant sessions in project.",
+        "match_score": 0,
+        "candidate_gap": null,
+        "force_new_session": true,
+        "topic_hint": "gate thirteen proof value judge Q6",
+        "metadata_quality": {
+          "score": 1,
+          "topic_hint_source": "caller",
+          "missing": [],
+          "related_files_count": 1,
+          "tags_count": 3,
+          "generic_tags_count": 0,
+          "task_type": "review"
+        },
+        "auto_cluster_routing": "disabled_read_only"
+      },
+      "response_path": "experiments/gate13-proof-of-value-2026-05-17-20a02c4/responses/Q6_judge.txt",
+      "error": null
+    },
+    {
+      "label": "Q7_seeded",
+      "tool": "router_consult",
+      "ok": true,
+      "duration_ms": 16842,
+      "session_id": "session_fd0c1109-4828-4956-8065-5cc15ee201a9",
+      "route_decision": {
+        "selected_path": "claude_consult_explicit_session",
+        "reason": "Explicit session_id provided by caller.",
+        "session_id": "session_fd0c1109-4828-4956-8065-5cc15ee201a9",
+        "match_score": 1,
+        "topic_hint": "gate thirteen proof value seeded lead isolated",
+        "metadata_quality": {
+          "score": 1,
+          "topic_hint_source": "caller",
+          "missing": [],
+          "related_files_count": 2,
+          "tags_count": 3,
+          "generic_tags_count": 0,
+          "task_type": "architectural"
+        },
+        "auto_cluster_routing": "disabled_read_only"
+      },
+      "response_path": "experiments/gate13-proof-of-value-2026-05-17-20a02c4/responses/Q7_seeded.txt",
+      "error": null
+    },
+    {
+      "label": "Q7_control",
+      "tool": "router_consult",
+      "ok": true,
+      "duration_ms": 28187,
+      "session_id": "session_be6b20b0-72ff-4e4d-b156-f30b6f365d51",
+      "route_decision": {
+        "selected_path": "claude_consult_explicit_session",
+        "reason": "Explicit session_id provided by caller.",
+        "session_id": "session_be6b20b0-72ff-4e4d-b156-f30b6f365d51",
+        "match_score": 1,
+        "topic_hint": "gate thirteen proof value control lead isolated",
+        "metadata_quality": {
+          "score": 1,
+          "topic_hint_source": "caller",
+          "missing": [],
+          "related_files_count": 2,
+          "tags_count": 3,
+          "generic_tags_count": 0,
+          "task_type": "architectural"
+        },
+        "auto_cluster_routing": "disabled_read_only"
+      },
+      "response_path": "experiments/gate13-proof-of-value-2026-05-17-20a02c4/responses/Q7_control.txt",
+      "error": null
+    },
+    {
+      "label": "Q7_judge",
+      "tool": "router_consult",
+      "ok": true,
+      "duration_ms": 37425,
+      "session_id": "session_9d3f941c-9b27-420f-a031-bf68f8aa9bad",
+      "route_decision": {
+        "selected_path": "claude_consult_new_session",
+        "reason": "No exact or usable existing session match; router starts a new durable session. No eligible active or dormant sessions in project.",
+        "match_score": 0,
+        "candidate_gap": null,
+        "force_new_session": true,
+        "topic_hint": "gate thirteen proof value judge Q7",
+        "metadata_quality": {
+          "score": 1,
+          "topic_hint_source": "caller",
+          "missing": [],
+          "related_files_count": 1,
+          "tags_count": 3,
+          "generic_tags_count": 0,
+          "task_type": "review"
+        },
+        "auto_cluster_routing": "disabled_read_only"
+      },
+      "response_path": "experiments/gate13-proof-of-value-2026-05-17-20a02c4/responses/Q7_judge.txt",
+      "error": null
+    },
+    {
+      "label": "Q8_seeded",
+      "tool": "router_consult",
+      "ok": true,
+      "duration_ms": 20872,
+      "session_id": "session_fd0c1109-4828-4956-8065-5cc15ee201a9",
+      "route_decision": {
+        "selected_path": "claude_consult_explicit_session",
+        "reason": "Explicit session_id provided by caller.",
+        "session_id": "session_fd0c1109-4828-4956-8065-5cc15ee201a9",
+        "match_score": 1,
+        "topic_hint": "gate thirteen proof value seeded lead isolated",
+        "metadata_quality": {
+          "score": 1,
+          "topic_hint_source": "caller",
+          "missing": [],
+          "related_files_count": 2,
+          "tags_count": 4,
+          "generic_tags_count": 0,
+          "task_type": "architectural"
+        },
+        "auto_cluster_routing": "disabled_read_only"
+      },
+      "response_path": "experiments/gate13-proof-of-value-2026-05-17-20a02c4/responses/Q8_seeded.txt",
+      "error": null
+    },
+    {
+      "label": "Q8_control",
+      "tool": "router_consult",
+      "ok": true,
+      "duration_ms": 14475,
+      "session_id": "session_be6b20b0-72ff-4e4d-b156-f30b6f365d51",
+      "route_decision": {
+        "selected_path": "claude_consult_explicit_session",
+        "reason": "Explicit session_id provided by caller.",
+        "session_id": "session_be6b20b0-72ff-4e4d-b156-f30b6f365d51",
+        "match_score": 1,
+        "topic_hint": "gate thirteen proof value control lead isolated",
+        "metadata_quality": {
+          "score": 1,
+          "topic_hint_source": "caller",
+          "missing": [],
+          "related_files_count": 2,
+          "tags_count": 4,
+          "generic_tags_count": 0,
+          "task_type": "architectural"
+        },
+        "auto_cluster_routing": "disabled_read_only"
+      },
+      "response_path": "experiments/gate13-proof-of-value-2026-05-17-20a02c4/responses/Q8_control.txt",
+      "error": null
+    },
+    {
+      "label": "Q8_judge",
+      "tool": "router_consult",
+      "ok": true,
+      "duration_ms": 6825,
+      "session_id": "session_a2cef8e1-dbb2-4ad3-8b0e-99f4ff721907",
+      "route_decision": {
+        "selected_path": "claude_consult_new_session",
+        "reason": "No exact or usable existing session match; router starts a new durable session. No eligible active or dormant sessions in project.",
+        "match_score": 0,
+        "candidate_gap": null,
+        "force_new_session": true,
+        "topic_hint": "gate thirteen proof value judge Q8",
+        "metadata_quality": {
+          "score": 1,
+          "topic_hint_source": "caller",
+          "missing": [],
+          "related_files_count": 1,
+          "tags_count": 3,
+          "generic_tags_count": 0,
+          "task_type": "review"
+        },
+        "auto_cluster_routing": "disabled_read_only"
+      },
+      "response_path": "experiments/gate13-proof-of-value-2026-05-17-20a02c4/responses/Q8_judge.txt",
+      "error": null
+    }
+  ],
+  "judgments": [
+    {
+      "question_id": "Q1",
+      "expected_principle_ids": [
+        "AMB-RESCUE-0001"
+      ],
+      "labels": {
+        "seeded": "b",
+        "control": "a"
+      },
+      "seeded_cites_expected_principle": true,
+      "control_cites_expected_principle": false,
+      "preferred_branch": "seeded",
+      "principle_helped": true,
+      "parse_method": "regex/raw",
+      "judge_json": null,
+      "raw_judge_answer_path": "experiments/gate13-proof-of-value-2026-05-17-20a02c4/responses/Q1_judge.txt"
+    },
+    {
+      "question_id": "Q2",
+      "expected_principle_ids": [
+        "AMB-RESCUE-0002",
+        "AMB-RESCUE-0003"
+      ],
+      "labels": {
+        "seeded": "a",
+        "control": "b"
+      },
+      "seeded_cites_expected_principle": true,
+      "control_cites_expected_principle": false,
+      "preferred_branch": "seeded",
+      "principle_helped": true,
+      "parse_method": "regex/raw",
+      "judge_json": null,
+      "raw_judge_answer_path": "experiments/gate13-proof-of-value-2026-05-17-20a02c4/responses/Q2_judge.txt"
+    },
+    {
+      "question_id": "Q3",
+      "expected_principle_ids": [
+        "AMB-RESCUE-0003"
+      ],
+      "labels": {
+        "seeded": "b",
+        "control": "a"
+      },
+      "seeded_cites_expected_principle": true,
+      "control_cites_expected_principle": false,
+      "preferred_branch": "seeded",
+      "principle_helped": true,
+      "parse_method": "regex/raw",
+      "judge_json": null,
+      "raw_judge_answer_path": "experiments/gate13-proof-of-value-2026-05-17-20a02c4/responses/Q3_judge.txt"
+    },
+    {
+      "question_id": "Q4",
+      "expected_principle_ids": [
+        "AMB-RESCUE-0004"
+      ],
+      "labels": {
+        "seeded": "a",
+        "control": "b"
+      },
+      "seeded_cites_expected_principle": true,
+      "control_cites_expected_principle": false,
+      "preferred_branch": "seeded",
+      "principle_helped": true,
+      "parse_method": "regex/raw",
+      "judge_json": null,
+      "raw_judge_answer_path": "experiments/gate13-proof-of-value-2026-05-17-20a02c4/responses/Q4_judge.txt"
+    },
+    {
+      "question_id": "Q5",
+      "expected_principle_ids": [
+        "AMB-RESCUE-0005"
+      ],
+      "labels": {
+        "seeded": "b",
+        "control": "a"
+      },
+      "seeded_cites_expected_principle": true,
+      "control_cites_expected_principle": false,
+      "preferred_branch": "seeded",
+      "principle_helped": true,
+      "parse_method": "regex/raw",
+      "judge_json": null,
+      "raw_judge_answer_path": "experiments/gate13-proof-of-value-2026-05-17-20a02c4/responses/Q5_judge.txt"
+    },
+    {
+      "question_id": "Q6",
+      "expected_principle_ids": [
+        "AMB-DOC-0008"
+      ],
+      "labels": {
+        "seeded": "a",
+        "control": "b"
+      },
+      "seeded_cites_expected_principle": true,
+      "control_cites_expected_principle": false,
+      "preferred_branch": "seeded",
+      "principle_helped": true,
+      "parse_method": "regex/raw",
+      "judge_json": null,
+      "raw_judge_answer_path": "experiments/gate13-proof-of-value-2026-05-17-20a02c4/responses/Q6_judge.txt"
+    },
+    {
+      "question_id": "Q7",
+      "expected_principle_ids": [
+        "AMB-SD-000039"
+      ],
+      "labels": {
+        "seeded": "b",
+        "control": "a"
+      },
+      "seeded_cites_expected_principle": true,
+      "control_cites_expected_principle": false,
+      "preferred_branch": "seeded",
+      "principle_helped": true,
+      "parse_method": "regex/raw",
+      "judge_json": null,
+      "raw_judge_answer_path": "experiments/gate13-proof-of-value-2026-05-17-20a02c4/responses/Q7_judge.txt"
+    },
+    {
+      "question_id": "Q8",
+      "expected_principle_ids": [
+        "AMB-RESCUE-0002",
+        "AMB-RESCUE-0004"
+      ],
+      "labels": {
+        "seeded": "a",
+        "control": "b"
+      },
+      "seeded_cites_expected_principle": true,
+      "control_cites_expected_principle": false,
+      "preferred_branch": "seeded",
+      "principle_helped": true,
+      "parse_method": "regex/raw",
+      "judge_json": null,
+      "raw_judge_answer_path": "experiments/gate13-proof-of-value-2026-05-17-20a02c4/responses/Q8_judge.txt"
+    }
+  ],
+  "invalid_attempt_note": "Previous local attempt was discarded because seeded/control routed to same session and judge JSON did not parse.",
+  "status_before": {
+    "project_id": "AgentSessionRouter-gate13-proof-of-value-2026-05-17-20a02c4",
+    "checked_at": "2026-05-17T06:33:33.262Z",
+    "mode": "normal",
+    "degraded_reason": null,
+    "uptime_hours": 0,
+    "claude": {
+      "detected_version": "2.1.92 (Claude Code)",
+      "tested_versions": [
+        "\"2.1.138 (Claude Code)\"",
+        "\"2.1.92 (Claude Code)\""
+      ]
+    },
+    "v1_sessions": {
+      "active": 2,
+      "dormant": 0,
+      "archived": 0,
+      "orphaned": 0,
+      "total": 2
+    },
+    "v2_clusters": {
+      "active": 0,
+      "stale": 0,
+      "needs_prepare": 0,
+      "invalidated": 0,
+      "archived": 0,
+      "total": 0,
+      "fallback_count_last_24h": 0,
+      "stale_clusters": []
+    },
+    "recent_window_hours": 24,
+    "recent_errors": {
+      "session_events": [],
+      "slow_session_events": [],
+      "cluster_events": []
+    },
+    "shadow_eval": {
+      "enabled": true,
+      "total": 0,
+      "judged": 0,
+      "pending": 0,
+      "ok_unjudged": 0,
+      "failed_auth": 0,
+      "failed_timeout": 0,
+      "failed_other": 0,
+      "last_created_at": null,
+      "last_judged_at": null
+    },
+    "architectural_memory": {
+      "enabled": true,
+      "runtime_import_serving_enabled": false,
+      "serving_preflight": {
+        "selection_llm_input_tokens": 0,
+        "per_consult_architectural_memory_tokens": 0,
+        "max_engineering_principles": 7,
+        "target_seed_tokens": 900,
+        "absolute_seed_tokens": 1200,
+        "min_post_serving_continuity_runs": 3,
+        "adversarial_broken_zero_sufficient": false
+      },
+      "active_records": 93,
+      "proposed_records": 0,
+      "suspended_records": 0,
+      "suspended_audit_records": 3,
+      "rejected_audit_records": 20,
+      "remaining_rejected_audit_records": 15,
+      "rescued_from_rejected_records": 5,
+      "reclassified_to_project_architecture_records": 5,
+      "excluded_records": 5,
+      "rejected_or_suspended_audit_records": 23,
+      "source_docs": [
+        {
+          "memory_product": "engineering-principles",
+          "path": "docs/ENGINEERING_PRINCIPLES.md",
+          "exists": true,
+          "active_records": 13,
+          "proposed_records": 0,
+          "suspended_records": 0,
+          "active_date_records": 13
+        },
+        {
+          "memory_product": "project-architecture",
+          "path": "docs/PROJECT_ARCHITECTURE.md",
+          "exists": true,
+          "active_records": 80,
+          "proposed_records": 0,
+          "suspended_records": 0,
+          "active_date_records": 80
+        }
+      ],
+      "audit_artifacts": {
+        "active_promotion": "experiments/architectural-memory-dry-run-2026-05-16/active-promotion.json",
+        "classification_correction": "experiments/architectural-memory-dry-run-2026-05-16/classification-correction.json",
+        "request_changes_resolution": "experiments/architectural-memory-dry-run-2026-05-16/request-changes-resolution.json",
+        "verification_report": "experiments/architectural-memory-dry-run-2026-05-16/verification-report.json"
+      },
+      "warnings": []
+    },
+    "storage": {
+      "ok": true,
+      "database": {
+        "path": "/root/projects/AgentSessionRouter/.claude-session-router/sessions.sqlite",
+        "exists": true,
+        "readable": true,
+        "writable": true,
+        "schema_ok": true,
+        "quick_check_ok": true,
+        "write_check_ok": true,
+        "errors": []
+      },
+      "raw_logs": {
+        "path": "/root/projects/AgentSessionRouter/.claude-session-router/raw",
+        "exists": true,
+        "is_directory": true,
+        "readable": true,
+        "writable": true,
+        "errors": []
+      }
+    },
+    "warnings": []
+  },
+  "final_status": {
+    "project_id": "AgentSessionRouter-gate13-proof-of-value-2026-05-17-20a02c4",
+    "checked_at": "2026-05-17T06:41:20.333Z",
+    "mode": "normal",
+    "degraded_reason": null,
+    "uptime_hours": 0.13,
+    "claude": {
+      "detected_version": "2.1.92 (Claude Code)",
+      "tested_versions": [
+        "\"2.1.138 (Claude Code)\"",
+        "\"2.1.92 (Claude Code)\""
+      ]
+    },
+    "v1_sessions": {
+      "active": 2,
+      "dormant": 0,
+      "archived": 0,
+      "orphaned": 0,
+      "total": 2
+    },
+    "v2_clusters": {
+      "active": 0,
+      "stale": 0,
+      "needs_prepare": 0,
+      "invalidated": 0,
+      "archived": 0,
+      "total": 0,
+      "fallback_count_last_24h": 0,
+      "stale_clusters": []
+    },
+    "recent_window_hours": 24,
+    "recent_errors": {
+      "session_events": [],
+      "slow_session_events": [],
+      "cluster_events": []
+    },
+    "shadow_eval": {
+      "enabled": true,
+      "total": 0,
+      "judged": 0,
+      "pending": 0,
+      "ok_unjudged": 0,
+      "failed_auth": 0,
+      "failed_timeout": 0,
+      "failed_other": 0,
+      "last_created_at": null,
+      "last_judged_at": null
+    },
+    "architectural_memory": {
+      "enabled": true,
+      "runtime_import_serving_enabled": false,
+      "serving_preflight": {
+        "selection_llm_input_tokens": 0,
+        "per_consult_architectural_memory_tokens": 0,
+        "max_engineering_principles": 7,
+        "target_seed_tokens": 900,
+        "absolute_seed_tokens": 1200,
+        "min_post_serving_continuity_runs": 3,
+        "adversarial_broken_zero_sufficient": false
+      },
+      "active_records": 93,
+      "proposed_records": 0,
+      "suspended_records": 0,
+      "suspended_audit_records": 3,
+      "rejected_audit_records": 20,
+      "remaining_rejected_audit_records": 15,
+      "rescued_from_rejected_records": 5,
+      "reclassified_to_project_architecture_records": 5,
+      "excluded_records": 5,
+      "rejected_or_suspended_audit_records": 23,
+      "source_docs": [
+        {
+          "memory_product": "engineering-principles",
+          "path": "docs/ENGINEERING_PRINCIPLES.md",
+          "exists": true,
+          "active_records": 13,
+          "proposed_records": 0,
+          "suspended_records": 0,
+          "active_date_records": 13
+        },
+        {
+          "memory_product": "project-architecture",
+          "path": "docs/PROJECT_ARCHITECTURE.md",
+          "exists": true,
+          "active_records": 80,
+          "proposed_records": 0,
+          "suspended_records": 0,
+          "active_date_records": 80
+        }
+      ],
+      "audit_artifacts": {
+        "active_promotion": "experiments/architectural-memory-dry-run-2026-05-16/active-promotion.json",
+        "classification_correction": "experiments/architectural-memory-dry-run-2026-05-16/classification-correction.json",
+        "request_changes_resolution": "experiments/architectural-memory-dry-run-2026-05-16/request-changes-resolution.json",
+        "verification_report": "experiments/architectural-memory-dry-run-2026-05-16/verification-report.json"
+      },
+      "warnings": []
+    },
+    "storage": {
+      "ok": true,
+      "database": {
+        "path": "/root/projects/AgentSessionRouter/.claude-session-router/sessions.sqlite",
+        "exists": true,
+        "readable": true,
+        "writable": true,
+        "schema_ok": true,
+        "quick_check_ok": true,
+        "write_check_ok": true,
+        "errors": []
+      },
+      "raw_logs": {
+        "path": "/root/projects/AgentSessionRouter/.claude-session-router/raw",
+        "exists": true,
+        "is_directory": true,
+        "readable": true,
+        "writable": true,
+        "errors": []
+      }
+    },
+    "warnings": []
+  },
+  "runtime_import_serving_enabled_after": false,
+  "finished_at": "2026-05-17T06:41:20.334Z",
+  "server_stderr": "",
+  "aggregate": {
+    "total": 8,
+    "seeded_wins": 8,
+    "control_wins": 0,
+    "ties": 0,
+    "unknown": 0,
+    "seeded_cites_expected_principle": 8,
+    "control_cites_expected_principle": 0,
+    "principle_helped_and_seeded_won": 8,
+    "success_threshold_met": true
+  }
+}

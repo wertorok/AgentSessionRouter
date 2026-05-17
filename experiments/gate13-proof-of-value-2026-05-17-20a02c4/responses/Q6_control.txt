@@ -1,0 +1,12 @@
+**Decision: No — code brevity does not substitute for documented decision boundaries.**
+
+A 0.6 rejection threshold is a hard decision gate. Without documented signals, weights, and rejection rules, the classifier cannot be audited, replicated across sessions, or verified during POV analysis. "The code is short" is not a justification — it is a warning that the boundary logic is invisible to review.
+
+**Why it fails the POV bar:** During proof-of-value validation, rejected candidates must be explainable. If a candidate is rejected and the classifier's logic is not documented, there is no way to determine whether the rejection is correct, biased, or a bug — only that it happened.
+
+**Specific risks:**
+- Future sessions cannot replicate the classifier's behavior without reading and parsing the code
+- Experiment analysis cannot attribute rejection patterns to intentional thresholds vs. unintended drift
+- Promotion would bake in undocumented gate logic with no off-ramp or counter-evidence documentation
+
+**What is missing:** A written specification of signals, weight contributions, threshold rationale, and known failure modes. Until that exists, the classifier should not be promoted regardless of code size.

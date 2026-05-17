@@ -1,0 +1,12 @@
+**Decision: The diffable experiment artifact takes precedence — but neither is authoritative until verified.**
+
+A lead session's memory ("fallback_count is cheap") is a snapshot from a prior state. The experiment artifact explicitly records a cost increase after the refactor. For a POV experiment, the tracked artifact carries more weight because it is diffable, timestamped, and reflects post-change conditions.
+
+**What must happen before treating either as authority:**
+1. **Probe current fallback cost directly** — run a live measurement against the current codebase, not a retroactive log or a stored assumption
+2. **Reconcile the discrepancy** — if live measurement confirms the artifact's cost increase, the lead session memory is stale and should be updated; if live measurement contradicts the artifact, the artifact may be recording a different code path than current serving uses
+3. **Record the measurement result** in the experiment log before any policy decision
+
+**Why not just trust the artifact:** POV experiments require current state, not historical record. The artifact could be measuring a code path that was since re-altered, or measuring under different load conditions.
+
+**What is missing:** The current fallback cost measurement. Without it, no decision should drive policy.

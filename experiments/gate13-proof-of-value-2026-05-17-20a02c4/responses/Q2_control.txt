@@ -1,0 +1,12 @@
+**Decision: Serve silently, log the hash discrepancy for audit.**
+
+A snippet hash drift with an intact selector is almost certainly a refactor artifact — renamed fields, reformatted strings, whitespace normalization. For a POV experiment running under `serving OFF`, speed and cache continuity outweigh strict hash fidelity, especially when no semantic divergence in answers has been observed.
+
+**Pattern:**
+- Serve the cached fact silently to the caller
+- Emit an internal hash-delta event to the experiment log
+- Flag the selector for post-POV reconciliation (hash recompute or cache warm)
+
+**Why not return an error:** The caller cannot act on an internal cache artifact mismatch. Erroring out punishes the caller for a backend refactor that likely has zero impact on answer quality.
+
+**What is missing:** Whether a content-semantic-equivalence check exists or whether hash is the sole cache invalidation signal. If hash alone drives invalidation and no semantic diff tooling is in place, the cache could drift silently on content changes too — that distinction matters for whether this is truly low-risk or needs immediate recompute.

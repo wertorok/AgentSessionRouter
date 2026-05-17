@@ -1,0 +1,7 @@
+**Decision: No.** Hidden session memory is not sufficient as the long-term source of truth.
+
+**Reasoning:** AMB-RESCUE-0005 applies directly. Durable architectural memory that persists across sessions, projects, or release phases must have diffable provenance. Hidden model-memory is opaque — it cannot be audited, diffed, or verified against a commit. It must not become the sole authority.
+
+If session memory is the only record, nothing prevents drift, contradiction, or silent loss across sessions. The principle explicitly prohibits promoting opaque state to authority for durable decisions.
+
+**What to do:** Keep ENGINEERING_PRINCIPLES.md (or a comparable diffable artifact) as the source of truth. Session memory can carry transient context, but architectural lessons belong in version-controlled, auditable artifacts with explicit provenance.

@@ -1,0 +1,14 @@
+Acknowledged. Seeding isolated lead session with 8 principles for gate-13 proof-of-value scope.
+
+**Seeded principle IDs:**
+- AMB-RESCUE-0001 (evaluation/telemetry separation)
+- AMB-RESCUE-0002 (stale evidence signal + fallback)
+- AMB-RESCUE-0003 (verified artifacts as authority vs opaque state)
+- AMB-RESCUE-0004 (runtime-served principle applicability + counter-evidence required)
+- AMB-RESCUE-0005 (diffable provenance for durable architectural memory)
+- AMB-DOC-0008 (explicit auditable classification rubrics)
+- AMB-SD-000039 (orphaned session transparency — dead sessions never silently reused)
+
+**Session boundary:** Isolated to these IDs only. No invented additions. Citations will be explicit when a principle applies to future architecture reviews. Counter-evidence paths are required for each principle at serve time per AMB-RESCUE-0004.
+
+**Gap noted:** No prior registry context for this topic. If later work touches session memory, cache, or evidence store patterns, AMB-RESCUE-0002 and AMB-RESCUE-0003 are the primary applicable guards.

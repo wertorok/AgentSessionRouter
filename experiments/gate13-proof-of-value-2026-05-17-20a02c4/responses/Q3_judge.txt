@@ -1,0 +1,17 @@
+**Preferred: B**
+
+**Why Answer B is better:**
+
+Both answers converge on the same practical outcome — neither source is authoritative until current state is measured. But Answer B is materially superior for three reasons:
+
+1. **It cites the expected principle ID.** AMB-RESCUE-0003 is explicitly named and used to structure the reasoning, not just mentioned in passing.
+
+2. **It applies the principle, not just acknowledges it.** Answer B correctly identifies that AMB-RESCUE-0003 establishes verified artifacts (diffable provenance) as the governing evidence class over opaque session state. It describes the "counter-evidence path" under the principle — the artifact is a hypothesis requiring confirmation, not a ruling. Answer A is longer but principle-free.
+
+3. **It correctly classifies the session memory.** Answer B calls the lead session memory what it is under AMB-RESCUE-0003: opaque model state that cannot serve as authority against a verified evidence artifact. Answer A vaguely calls it "a snapshot from a prior state" without anchoring why that matters structurally.
+
+**What both get right:** The mandatory live measurement before any policy decision. This is the correct pre-authority step.
+
+**The decisive gap in both:** Neither answer specifies who runs the live measurement, against which code path, or what the pass/fail threshold is. That's an open question for the caller.
+
+---

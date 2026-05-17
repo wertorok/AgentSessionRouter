@@ -250,6 +250,7 @@ Continuity artifacts:
 - `experiments/session-continuity-2026-05-15-v5/`
 - `experiments/session-continuity-2026-05-16/`
 - `experiments/session-continuity-2026-05-16-rerun/`
+- `experiments/session-continuity-2026-05-17-gate13-baseline-a8fa199/`
 
 Known scorer artifact: the T5 synthesis row can score `2` even when the answer is substantively correct. This is the third known scorer-calibration class after `NOT IN CONTEXT` caveats and honest-refusal handling: the scorer narrowly matches wording instead of the full semantic answer. The T5 scorer requires the final synthesis answer to match one of these wording patterns for the `session-benchmark` requirement:
 
@@ -268,8 +269,47 @@ Established baseline for `router_exact_topic` after the latest pre-refactor cont
 | `2026-05-15-v5` | `3/3/2` | Pre-refactor baseline; T5 missed only `session-benchmark` wording. |
 | `2026-05-16` | `3/3/2` | Post-refactor proof; same T5 scorer artifact, memory probes intact. |
 | `2026-05-16-rerun` | `3/3/2` | Isolated rerun confirmed this is stable scorer behavior, not extract-regression variance. |
+| `2026-05-17-gate13-baseline-a8fa199` | `3/3/2` | Gate 13 pre-serving baseline on the disabled scaffold. Runtime serving remained off. |
 
 Operational rule: compare future `router_exact_topic` synthesis runs against `3/3/2` as the current correct baseline unless the T5 scorer rubric is deliberately changed. Do not treat `3/3/2` as a regression by itself and do not try to restore a `3/3/3` baseline by changing router behavior. Treat it as a regression only if memory probes fall below `3/3`, route reuse stops using one session, or T5 loses the substantive `ALPHA-17`/`BETA-29` reasoning rather than just the exact `session-benchmark` wording.
+
+### Gate 13 Architectural Memory Proof Of Value
+
+Artifact:
+
+- `experiments/gate13-proof-of-value-2026-05-17-20a02c4/`
+
+This experiment tests whether seeded engineering-principle memory is useful,
+not whether it regresses session continuity. Runtime serving remained disabled.
+Two isolated durable lead sessions were created: one received a manual
+test-mode seed of 7 active engineering-principles, the other received no seed.
+Eight architecture-review questions were answered by both sessions and judged
+blind.
+
+Aggregate result:
+
+| Metric | Result |
+| --- | ---: |
+| Questions | 8 |
+| Seeded wins | 8 |
+| Control wins | 0 |
+| Ties | 0 |
+| Seeded cited expected principle | 8 |
+| Control cited expected principle | 0 |
+| Principle helped and seeded won | 8 |
+
+Finding: test-mode seeded architectural memory showed measurable value on this
+targeted set. It made the lead answers auditable by grounding decisions in
+specific active principles, while the unseeded control generally reached the
+same high-level decision through generic reasoning. This is a proof-of-value
+signal only; Gate 13 enablement still requires the separate post-serving
+`session:continuity` regression proof and runtime serving remains off.
+
+Tool-choice note: shadow-style A/B judging is appropriate for this proof of
+value because it is a fan-out comparison of two independent answers to the same
+question. It is not appropriate for the Gate 13 quiet-quality-regression
+guardrail, where the axis is chain memory and `session:continuity` is the
+correct instrument.
 
 ### Architectural Memory Distill Dry-Run Template
 

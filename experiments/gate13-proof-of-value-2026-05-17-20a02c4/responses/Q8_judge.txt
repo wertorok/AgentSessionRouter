@@ -1,0 +1,7 @@
+**Preferred: A**
+
+Answer A is materially better despite being shorter because it explicitly cites and applies the expected principle IDs (AMB-RESCUE-0004 and AMB-RESCUE-0002), grounding the decision in the documented architectural framework. It correctly identifies AMB-RESCUE-0004 as frontmost (missing continuity benchmark = no validated applicability condition) and AMB-RESCUE-0002 as secondary (untrusted/stale evidence base).
+
+Answer B is longer but generic—it never names the governing principles, so it cannot demonstrate traceability to the architecture decision record. Its reasoning is sound but disconnected from the actual guardrails that should constrain this decision.
+
+The length difference in Answer B adds no structural value over Answer A's more targeted application of named principles. In an architecture review, principle citation is evidence of reasoning discipline, not decoration.

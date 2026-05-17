@@ -1,0 +1,19 @@
+**Preferred: A**
+
+**Analysis:**
+
+Both answers correctly decide "No" — do not seed. But the answers differ in architectural reasoning quality:
+
+**Answer A** directly cites and applies AMB-RESCUE-0004, connecting the principle's missing fields to the concrete failure mode (dogmatization — no rejection path for downstream agents). The recommendation is principled and actionable: keep it advisory, not normative, until fields are populated. It stays within established architectural decision boundaries.
+
+**Answer B** is longer and raises valid concerns about unconditional principles and control branch integrity, but it does not cite AMB-RESCUE-0004 or any other principle. It reasons from first principles about control branches rather than applying the documented principle that was explicitly called out as expected. The POV control branch context is relevant but secondary to the primary architectural risk the principle is meant to address.
+
+**Why A wins:**
+1. Actually cites AMB-RESCUE-0004 as expected — B never names it
+2. Applies the principle rather than re-deriving the risk from scratch
+3. Keeps the reasoning at the architectural-memory boundary level, not general policy level
+4. More concise without sacrificing rigor
+
+B is not wrong, but A is materially better because it uses the principle rather than just being longer.
+
+---

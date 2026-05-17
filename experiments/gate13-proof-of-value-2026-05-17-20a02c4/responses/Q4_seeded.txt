@@ -1,0 +1,5 @@
+**Decision: No.** Do not seed it into lead sessions as runtime-served memory.
+
+**Reasoning:** AMB-RESCUE-0004 applies directly. A principle without applicability conditions and counter-evidence lacks the fields required to avoid dogmatization at runtime. Without an explicit rejection path, downstream agents cannot distinguish when the principle should not apply — leading to mechanical or incorrect adherence.
+
+The principle can remain in documentation as advisory content. It must not be promoted to normative runtime memory in lead sessions until both fields are populated.

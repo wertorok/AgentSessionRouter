@@ -1,0 +1,12 @@
+**Decision: No — do not enable serving yet.**
+
+One smoke test passing with seeded memory is a single data point, not a proof of value. The absent post-serving continuity benchmark is the blocking gap — that measurement is foundational to any POV experiment. Without it, there is no baseline to detect whether serving introduces behavioral drift, degraded accuracy, or state divergence.
+
+**Why BROKEN=0 is insufficient:** Adversarial=0 confirms no immediate crash or rejection in one run — it says the system did not fail in that configuration. It does not say the system behaves correctly, consistently, or within acceptable parameters across serving boundaries over time.
+
+**What must exist before flipping serving ON:**
+1. A post-serving continuity benchmark that captures latency, answer accuracy, and session state integrity after serving transitions
+2. A defined success threshold against that benchmark
+3. Aggregated results across multiple runs, not a single smoke test
+
+**What this means for the control branch:** The branch was initialized with serving OFF and no seed. Those boundaries should hold until the continuity benchmark is established and validated. Flipping serving prematurely would bake in an unmeasured behavior with no fallback if drift is detected.

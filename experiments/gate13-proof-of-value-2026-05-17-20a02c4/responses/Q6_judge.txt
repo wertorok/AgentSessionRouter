@@ -1,0 +1,7 @@
+**Preferred: A**
+
+Answer A explicitly cites and applies AMB-DOC-0008 as the basis for the decision, grounding the reasoning in the documented principle rather than general concerns. Answer B reaches the same correct conclusion but does not reference the expected principle ID, weakening its architectural authority.
+
+Answer A is also stronger because it directly refutes the "code is short" counter-argument (short code may make documentation *easier*, not harder) and provides a clear "What to do" remediation path. Answer B's POV framing is contextually relevant but secondary to the principle-based justification the question appears to expect.
+
+---

@@ -1,0 +1,7 @@
+**Decision: No.** Do not silently reuse a dead session. The orphaned session is unusable for production routing.
+
+**Reasoning:** AMB-SD-000039 applies directly. A missing .jsonl file means the session artifact is gone — the session is dead, not just stale. The principle is explicit: dead sessions are never silently reused. Logging a warning and continuing as if the session is alive is exactly the silent reuse this principle prohibits.
+
+**What to do:** The production path must either surface the failure explicitly to the caller or initiate a fresh session. The orphaned session record should be flagged for forensic inspection, not repurposed as a live routing context. Forensic inspection may read the dead session; production answering must not route through it.
+
+**Missing context:** What fallback session mechanism exists when an orphaned session is detected — that determines the actual recovery path, but reuse of the dead session is off the table regardless.

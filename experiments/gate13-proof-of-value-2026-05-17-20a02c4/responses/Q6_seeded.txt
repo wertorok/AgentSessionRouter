@@ -1,0 +1,7 @@
+**Decision: No.** Code brevity does not substitute for documentation. The classifier must not be promoted without documented signals, weights, and rejection rules.
+
+**Reasoning:** AMB-DOC-0008 applies. The principle requires scoring to be explicit and auditable — deterministic signals, formula, rejection rules, and status boundaries must be documented as a precondition for promotion. This is not about runtime evaluation complexity; it is about making the classification auditable by humans and future systems before it influences production behavior.
+
+Short code is not a counter-argument — it may make the documentation easier, not harder. The documentation requirement exists precisely to prevent opaque or uninspectable behavior from becoming normalized through brevity.
+
+**What to do:** Add a rubric document or inline annotation listing signals, weight summary, threshold rationale, and rejection boundary conditions. Then promote.

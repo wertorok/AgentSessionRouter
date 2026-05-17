@@ -1,0 +1,18 @@
+## Blind Judge Evaluation: Q7
+
+**Both answers reach the correct architectural decision: No.**
+
+### Principle Application
+- **Answer B** explicitly invokes AMB-SD-000039 and explains *why* the missing `.jsonl` triggers that principle's prohibition on silent reuse of dead sessions. The principle is not just mentioned—it is applied.
+- **Answer A** does not cite AMB-SD-000039, despite it being the expected reference. It arrives at the same correct conclusion through structural reasoning but misses the opportunity to anchor to the documented principle.
+
+### Architectural Depth
+- **Answer A** is more operationally complete: it identifies verification steps, partial-state recovery paths, and flags what audit is needed before any routing decision.
+- **Answer B** is shorter but precisely targets the principle violation.
+
+### Material Difference
+The gap is not length—it is principle engagement. Answer B demonstrates the principle is known and used as the normative foundation. Answer A provides richer recovery guidance but operates without explicit principle grounding, which matters for auditability and cross-team alignment on documented standards.
+
+**Preferred: B**
+
+---

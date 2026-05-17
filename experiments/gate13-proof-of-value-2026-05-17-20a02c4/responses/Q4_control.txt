@@ -1,0 +1,12 @@
+**Decision: No — do not seed an incomplete principle into lead sessions.**
+
+A principle with a statement and provenance but empty `applies_when` and `counter_evidence` is effectively unconditional and unguardrailed. It will fire silently across all matching contexts with no documented off-ramp and no verifiable boundaries. That is the opposite of safe for a POV control branch that was explicitly initialized without a seed.
+
+**Why it matters here:** The control branch already operates under the decision that no architectural-memory seed is provided. Introducing an incomplete principle violates that boundary and risks the new principle silently overriding other decisions during the experiment with no way to validate or constrain it.
+
+**What would make it safe to seed:**
+- `applies_when` conditions that scope when the principle is active
+- `counter_evidence` documenting known failure modes or boundaries
+- At minimum, a validation pass confirming the principle does not conflict with existing decisions
+
+**What is missing:** The principle's scope, activation conditions, and any known counter-indications. Without these, it cannot be evaluated or safely deployed.

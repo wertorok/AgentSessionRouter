@@ -1,0 +1,16 @@
+**Decision: No — do not treat the session as alive without verifying state integrity.**
+
+A DB session ID is a reference to state, not the state itself. When the referenced `.jsonl` is missing, you have a structural inconsistency: the DB says the session exists but its state store is gone. Continuing as if the session is valid risks silent state divergence, where future operations assume session continuity that has a hole in it.
+
+**Why not just log a warning and proceed:**
+- The caller receives routing based on a session with unknown integrity
+- Downstream operations expecting session history may produce incorrect results with no error surfaced
+- The missing `.jsonl` could indicate a partial write, a failed persistence, or data corruption — not just a cleanup artifact
+- Warning without resolution hides the failure from operational visibility
+
+**What must happen first:**
+- Verify whether partial state exists in DB, memory, or an alternative store
+- If no recoverable state exists, the session is effectively dead — route to a fresh session and flag for reconciliation
+- If partial state is recoverable, establish the boundary of what is missing before continuing
+
+**What is missing:** The session's actual state integrity and whether any recovery path exists. This cannot be resolved by the router alone — it requires a state audit before any routing decision is made.

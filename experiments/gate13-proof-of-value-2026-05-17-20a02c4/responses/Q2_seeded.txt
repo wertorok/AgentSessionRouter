@@ -1,0 +1,9 @@
+**Decision: Do not serve silently. Treat the hash mismatch as a stale-evidence signal and fall back.**
+
+**Reasoning:** AMB-RESCUE-0002 applies. The hash change means the cached fact's integrity is no longer verified — it may be harmless refactoring or it may be drift. Either way, it is now untrusted or stale evidence. Silent use is prohibited. AMB-RESCUE-0003 reinforces this: when an artifact's verified state diverges, it should be revalidated before serving as authoritative.
+
+**Prescribed path:** The router should surface an explicit internal signal (e.g., revalidate-or-fallback branch), serve a safe fallback answer, and log the mismatch for forensic review. The caller receives a valid answer; the system does not silently use unverified content.
+
+**What not to do:** Return a hard error to the caller for what may be a harmless refactor. The signal is internal, the fallback is seamless.
+
+**Missing context:** Whether revalidation can be attempted inline (rehash and compare) or requires an external call. If inline revalidation is possible, AMB-RESCUE-0002 allows continued use after successful recheck — but not without it.

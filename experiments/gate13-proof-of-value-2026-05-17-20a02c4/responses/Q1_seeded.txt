@@ -1,0 +1,7 @@
+**Decision: No.** The router must not switch the caller-facing answer to the shadow result within the same request.
+
+**Reasoning:** AMB-RESCUE-0001 applies directly. The shadow evaluator is an observation and telemetry path. Its role is to measure, not to override the live answer path. Switching mid-request merges observation into production behavior, violating the required separation. If the shadow result is genuinely better, that signal should feed into a durable routing policy update through normal evaluation cycles—not be injected retroactively into the in-flight answer.
+
+**Counter-evidence path:** If the caller explicitly requested a comparison or evaluation output, that would be a product contract and different from hidden telemetry. But the question describes an internal shadow finding, not an explicit caller request.
+
+**Missing context:** Whether there is a documented threshold or policy governing when shadow results promote to production. AMB-RESCUE-0001 forbids the direct switch but does not preclude future policy that defines safe promotion criteria through separate evaluation cycles.

@@ -1,0 +1,7 @@
+**Decision: The diffable experiment artifact drives the next decision — but neither source is authority until revalidation completes.**
+
+**Reasoning:** AMB-RESCUE-0003 applies. The diffable artifact is a verified evidence artifact with provenance. The lead session memory is opaque model state. Verified artifacts take precedence over opaque session state for durable decisions. AMB-RESCUE-0005 reinforces this — diffable provenance is required for architectural memory to be treated as authoritative, not hidden session state.
+
+**Pre-authority step:** The cost rise claim in the artifact must be revalidated against the current runtime state before the router treats it as the governing fact. This is the counter-evidence path under AMB-RESCUE-0003. Until revalidated, treat the artifact as a hypothesis requiring confirmation and the session memory as stale relative to it.
+
+**What should happen:** Run a fresh measurement against the current codebase. If cost genuinely rose, update the routing policy. If the measurement shows the artifact is stale, regenerate it before promoting it.

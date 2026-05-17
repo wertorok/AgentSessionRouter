@@ -1,0 +1,19 @@
+## Blind Judge Evaluation: Q2
+
+**Preferred: A**
+
+**Why Answer A wins:**
+
+1. **Principle citation and application**: Answer A explicitly cites and applies AMB-RESCUE-0002 and AMB-RESCUE-0003, the expected principle IDs. Answer B cites zero principles — it reasons from pragmatic preference rather than from the governing framework.
+
+2. **Safer architecture decision**: A hash mismatch is an integrity signal. Serving unverified content violates the trust model regardless of hypothesized cause ("almost certainly a refactor"). Answer A correctly treats this as stale-evidence requiring fallback, not as a silent-serve opportunity.
+
+3. **Doesn't punish the caller**: Answer A explicitly rejects hard errors. It distinguishes between surfacing an internal signal (fallback) and burdening the caller with an internal problem. Answer B conflates "don't error to caller" with "serve silently" — these are not the same path.
+
+4. **Addresses the hash-vs-semantics gap**: Both answers note the missing context ("is hash the only invalidation signal?"). Answer A explicitly says this gap means you cannot serve silently without revalidation. Answer B uses this gap as cover to serve silently, which is the opposite conclusion.
+
+5. **Performance argument is out-of-scope**: Answer B's "speed and cache continuity outweigh strict hash fidelity for POV experiment running under serving OFF" injects a mode constraint not present in the question. The principles apply regardless.
+
+**Answer B's core flaw**: It argues from the conclusion backward ("silence is fine because probably harmless") rather than applying the principles to derive the conclusion. The phrase "almost certainly a refactor" is exactly the kind of assumption AMB-RESCUE-0002 blocks — integrity signals are not resolved by probability.
+
+**What both answers correctly identify**: The missing context of whether inline revalidation exists. This is a genuine gap the implementer must resolve.

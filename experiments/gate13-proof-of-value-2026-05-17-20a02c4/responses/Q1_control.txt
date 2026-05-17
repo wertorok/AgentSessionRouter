@@ -1,0 +1,13 @@
+**Decision: No — do not switch mid-request.**
+
+One shadow win is insufficient signal. In a POV experiment, you are validating whether `direct_resume` outperforms `cluster_consult` — a single comparison establishes a data point, not a verdict. Switching immediately based on one result undermines the experiment's integrity and introduces non-determinism into the caller-facing path.
+
+The correct pattern for shadow evaluation during a POV:
+1. Execute both paths, return the established baseline answer (`cluster_consult`)
+2. Log the shadow result (`direct_resume`) for later comparison
+3. Aggregate across many requests to build statistical confidence
+4. Only flip the serving behavior after explicit validation against a success threshold
+
+Mid-request substitution would also blur accountability: callers receiving `direct_resume` on request N and `cluster_consult` on request N+1 — with no configured policy change — creates invisible behavioral drift.
+
+**What is missing from registry context:** The POV experiment's success criteria — win rate threshold, sample size gate, and flip authorization — are not recorded. Without these, no automated decision should be made.
