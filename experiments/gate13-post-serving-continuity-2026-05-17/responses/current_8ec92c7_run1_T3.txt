@@ -1,0 +1,13 @@
+## ALPHA-17 + BETA-29 Benchmark Decisions
+
+**Existing decision (ALPHA-17):**
+Router answers the caller when Claude is available. Telemetry and monitoring are operator-facing only — they do not gate or influence the caller's answer path.
+
+**New decision (BETA-29):**
+`BETA-29` = "factsheet evidence must be revalidated before use; if revalidation cannot prove current facts, the router falls back internally instead of asking the caller to recover"
+
+**Operational meaning:** When the router uses a factsheet as evidence for routing, it must have a current, verified version or a revalidation path. If revalidation fails (stale, untrusted, orphaned factsheet), the router performs an internal safe fallback — it does not expose the stale evidence to the caller or ask the caller to resolve the gap. The caller gets a correct answer; the operator gets the failure telemetry.
+
+This preserves both ALPHA-17 (caller always gets answered) and BETA-29 (stale factsheet never silently drives the answer).
+
+---

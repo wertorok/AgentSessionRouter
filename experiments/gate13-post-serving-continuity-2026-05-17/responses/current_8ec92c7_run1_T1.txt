@@ -1,0 +1,10 @@
+## ALPHA-17 Benchmark Decision
+
+**Codeword definition:** `ALPHA-17` = "the router must answer the caller when Claude is available; monitor telemetry is for the operator, not for caller recovery"
+
+- **ALPHA-17**: When Claude is available, the router answers the caller directly. Telemetry and monitoring are operator-facing only — they do not gate or influence the caller's answer path.
+- **Supporting rule** (AMB-RESCUE-0001): Evaluation and telemetry paths must not affect caller-facing answers. Observation remains separate from production response behavior.
+
+This resolves the stale/orphaned session question: a dead or orphaned session still gets answered if Claude is available, because the answer authority rests on current availability, not on the session's provenance chain.
+
+---

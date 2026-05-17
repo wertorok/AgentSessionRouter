@@ -1,0 +1,4 @@
+**From Session Memory (Benchmark Turn 1):**
+
+- **Codeword**: ALPHA-17
+- **Caller/Operator Rule**: The router must answer the caller when Claude is available. Monitor/operator telemetry is out-of-band instrumentation for the operator's own recovery — it is **not** a caller-facing fallback path and must not influence caller routing or introduce caller-visible latency.

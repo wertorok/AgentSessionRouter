@@ -1,0 +1,7 @@
+**BETA-29 benchmark decision established:**
+
+- **Codeword BETA-29**: Factsheet evidence must be revalidated before use. If revalidation cannot prove the facts are current and valid, the router falls back internally — it never asks the caller to recover the session state.
+- **Operational meaning**: Stale factsheet data is untrusted evidence. The router must run a current-state check (diffable, provenance-traced) before presenting any factsheet-derived routing decision. On failure to revalidate, the router chooses safe-mode internally and answers the caller from the last verified artifact, not from the stale factsheet.
+
+**Combined with ALPHA-17 from prior turns:**
+The router answers the caller on available Claude (ALPHA-17), and when it does, the content of that answer is constrained to revalidated factsheet evidence only (BETA-29). Caller recovery is never on the table.

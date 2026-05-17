@@ -1,0 +1,4 @@
+**From benchmark turn 1 — ALPHA-17:**
+
+- **Codeword ALPHA-17**: The router must answer the caller when Claude is available.
+- **Caller/Operator rule**: Monitoring telemetry is for the operator only — it is never a caller-facing recovery path. Stale or orphaned session telemetry must never block the caller answer contract.

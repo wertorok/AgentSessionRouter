@@ -1,0 +1,11 @@
+**Why cluster_consult vs. direct_fresh is insufficient as a sole benchmark:**
+
+ALPHA-17 governs *when* the router answers (on Claude availability, not on telemetry confirmation). BETA-29 governs *what* the router answers with (revalidated factsheet evidence only). A binary comparison between cluster_consult and direct_fresh tests path selection, but it tests neither gate.
+
+**The missing benchmarks:**
+
+1. **Stale-factsheet fallback**: Test what happens when cluster_consult delivers factsheet evidence that fails revalidation (BETA-29). The router must fall back to the last verified artifact without caller-facing stall. This is a distinct scenario from direct_fresh, which assumes fresh evidence exists.
+
+2. **Orphaned dead session under ALPHA-17**: Test what happens when the session is orphaned or dead midstream — the router must still answer the caller (ALPHA-17) and fall back internally. Comparing cluster_consult to direct_fresh says nothing about this dead-session recovery path.
+
+**The practical gap**: The current two-way comparison validates that direct_fresh is preferred over cluster_consult, but it does not validate that the router handles stale evidence gracefully (BETA-29) or that it keeps the caller answer contract when telemetry is dead (ALPHA-17). A three-way benchmark is needed: direct_fresh, cluster_consult_with_revalidation_pass, and cluster_consult_with_revalidation_failure — where the third leg proves the internal fallback path.

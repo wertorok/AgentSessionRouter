@@ -1,0 +1,5 @@
+`cluster_consult` vs. `direct_fresh` only tests one axis: cluster routing versus direct routing when both are healthy. It does not test the failure modes governed by ALPHA-17 and BETA-29.
+
+ALPHA-17 means the router must serve the caller even when telemetry suggests degraded cluster state — a `direct_fresh` baseline would not reveal whether the router incorrectly gates the caller because of monitor telemetry. BETA-29 means the router must detect stale factsheet evidence and fall back internally — a `direct_fresh` comparison would never exercise that path because it has no factsheet to revalidate.
+
+**The missing benchmark leg**: `cluster_stale_factsheet` — cluster routing where the factsheet evidence is known to be stale and revalidation fails. This is the scenario where the router must silently fall back (BETA-29) while still answering the caller (ALPHA-17). Without it, there is no proof that the router handles orphaned or dead session evidence correctly.

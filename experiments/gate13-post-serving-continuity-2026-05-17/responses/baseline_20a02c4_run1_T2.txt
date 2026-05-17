@@ -1,0 +1,8 @@
+**From benchmark turn 1 — recalled from session memory:**
+
+- **Codeword ALPHA-17**: The router MUST answer the caller when Claude is available.
+- **Caller/operator rule**: Monitor telemetry is operator-only instrumentation — it is not a caller-facing recovery path. The router owns the caller's contract, not the telemetry subsystem.
+
+**Open question carried forward**: What is the exact fallback behavior when Claude is NOT available — silent drop or explicit unavailable signal?
+
+---

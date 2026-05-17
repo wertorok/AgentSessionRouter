@@ -1,0 +1,16 @@
+## Why cluster_consult vs. direct_fresh Is Insufficient
+
+**The gap:** Comparing `cluster_consult` against `direct_fresh` only measures *routing strategy accuracy* — it does not measure the *factsheet revalidation path* that BETA-29 requires, nor does it confirm *caller answer priority* that ALPHA-17 guarantees.
+
+**BETA-29 implication:** When `cluster_consult` uses a factsheet, the benchmark must also measure whether revalidation succeeded or triggered an internal fallback. A `cluster_consult` that silently uses a stale factsheet would pass the `direct_fresh` comparison but violate BETA-29. The comparison misses the revalidation signal.
+
+**ALPHA-17 implication:** The benchmark must also confirm the caller receives an answer regardless of cluster health or telemetry state. `direct_fresh` passing does not prove `cluster_consult` would have answered the caller correctly under orphaned/dead session conditions.
+
+**What extra benchmark is needed:** A third leg — `cluster_consult_with_revalidation` — that measures:
+1. Factsheet revalidation success vs. fallback trigger rate
+2. Caller answer delivery regardless of cluster provenance state
+3. Operator telemetry completeness (not caller-facing)
+
+Without that third leg, the comparison validates routing strategy but not evidence integrity or caller continuity.
+
+---

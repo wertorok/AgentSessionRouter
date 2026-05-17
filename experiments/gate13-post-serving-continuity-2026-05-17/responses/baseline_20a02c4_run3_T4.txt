@@ -1,0 +1,7 @@
+## ALPHA-17 + BETA-29 — Combined Recall
+
+**ALPHA-17**: Router answers the caller when Claude is available. Monitor telemetry is operator-facing only — it never becomes a recovery path for the caller.
+
+**BETA-29**: Factsheet evidence must be revalidated before use. If revalidation cannot prove the current facts, the router falls back internally rather than asking the caller to recover.
+
+**Combined operational meaning**: The caller is never exposed to operational uncertainty. ALPHA-17 handles runtime availability gaps; BETA-29 handles evidence provenance gaps. Both enforce the same design contract — the router protects the caller-facing surface, not the other way around.

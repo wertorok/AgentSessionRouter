@@ -339,6 +339,47 @@ Next required proof remains separate: run at least 3 post-serving
 `session:continuity` repetitions against the stored pre-serving baseline before
 claiming quality approval.
 
+### Gate 13 Post-Serving Targeted Continuity
+
+Artifact:
+
+- `experiments/gate13-post-serving-continuity-2026-05-17/`
+
+This run checks the quiet-quality-regression guardrail after controlled
+enablement. It uses a separate baseline worktree at commit `20a02c4` and the
+current controlled-enabled commit `8ec92c7`, with identical architectural
+metadata. The metadata is proof-of-value aligned so the post-serving seed
+contains the principles that were useful in the A/B proof instead of measuring
+an unrelated topic seed.
+
+Aggregate result:
+
+| Metric | Baseline `20a02c4` | Current `8ec92c7` |
+| --- | ---: | ---: |
+| Repetitions | 3 | 3 |
+| Calls | 15 | 15 |
+| Failed calls | 0 | 0 |
+| Seeded calls | 0 | 3 |
+| Seed token counts | n/a | 892, 892, 892 |
+| Avg score all turns | 2.80 | 2.87 |
+| Avg memory probes | 3.00 | 3.00 |
+| Avg memory+synthesis | 2.67 | 2.78 |
+| T5 scores | 2, 2, 2 | 3, 2, 2 |
+
+Finding: no continuity regression from seed-at-session-creation serving.
+Persistent memory probes stayed perfect across all baseline and post-serving
+repetitions. The seeded run selected `AMB-RESCUE-0002`, `AMB-DOC-0008`,
+`AMB-RESCUE-0003`, `AMB-RESCUE-0004`, `AMB-SD-000050`,
+`AMB-RESCUE-0001`, and `AMB-RESCUE-0005`; this deliberately covers the
+proof-of-value principles around stale evidence, verified artifacts,
+caller-facing telemetry isolation, runtime principle counter-evidence,
+provenance, and auditable classification.
+
+Known gap: `single-run-insufficient` and `extract != improve` are documented as
+process guardrails, but they are not currently active engineering-principle
+records. Runtime serving cannot select them until they are promoted into the
+active memory corpus.
+
 ### Architectural Memory Distill Dry-Run Template
 
 This is a placeholder report shape for Phase 7 Gate 1. It documents what a

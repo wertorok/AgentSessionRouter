@@ -1,0 +1,3 @@
+- **ALPHA-17**: The router **must** answer the caller when Claude is available. Monitor telemetry serves the operator only — it is not a caller recovery mechanism and must not gate or delay caller-facing responses.
+
+This decision is bounded by AMB-RESCUE-0001 (telemetry separation from production answers) and AMB-SD-000050 (conservative fallback when cluster state is stale). If the router cannot reach Claude, the caller gets an explicit failure signal — not a telemetry-induced retry or shadow deferral. Telemetry observes; it never substitutes.

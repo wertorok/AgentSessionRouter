@@ -1,0 +1,6 @@
+**Session Continuity Benchmark Summary (Turns 1–4):**
+
+- **ALPHA-17**: Router answers the caller when Claude is available. Monitor/operator telemetry is out-of-band for the operator's own observability — it is **not** a caller-facing fallback path and must not introduce caller-visible latency or routing changes.
+- **BETA-29**: Factsheet evidence must be revalidated before use. If revalidation cannot prove the facts are current, the router falls back **internally** — it never asks the caller to recover or validate stale evidence. The caller experience is silent and continuous; evidence freshness is the router's responsibility.
+
+**Combined operational intent**: The router owns both availability (ALPHA-17) and evidence trust (BETA-29) as internal concerns. The caller receives a clean, continuous session with no awareness of internal revalidation or telemetry fallbacks.

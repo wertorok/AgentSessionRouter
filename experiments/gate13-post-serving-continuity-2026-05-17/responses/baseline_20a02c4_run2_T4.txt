@@ -1,0 +1,7 @@
+**Benchmark summary from prior turns:**
+
+- **ALPHA-17**: Router answers the caller on Claude availability. Telemetry is operator-facing only — it is never a caller recovery mechanism. Stale or dead telemetry must never block the caller answer contract.
+
+- **BETA-29**: Factsheet evidence requires revalidation before use. If revalidation cannot prove the facts current, the router falls back to the last verified artifact internally. It never asks the caller to recover or revalidate evidence.
+
+**Operational combined meaning**: The router has a two-gate contract with the caller — gate one (ALPHA-17) answers promptly on Claude availability; gate two (BETA-29) ensures the answered content is sourced from revalidated, provenance-traced facts. Both gates operate internally. The caller sees no degradation surface.

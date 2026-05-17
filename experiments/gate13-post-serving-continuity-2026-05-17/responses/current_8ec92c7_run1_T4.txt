@@ -1,0 +1,9 @@
+## Session Continuity Benchmark Summary
+
+**ALPHA-17:** Router answers the caller when Claude is available. Telemetry and monitoring are operator-facing only — they do not gate or influence the caller's answer path.
+
+**BETA-29:** Factsheet evidence must be revalidated before use. If revalidation cannot prove current facts, the router performs an internal safe fallback — it does not expose stale evidence to the caller or ask the caller to recover.
+
+Together: the caller always gets answered (ALPHA-17), and stale/untrusted factsheet evidence never silently drives that answer (BETA-29).
+
+---

@@ -1,0 +1,2769 @@
+{
+  "started_at": "2026-05-17T07:05:40.041Z",
+  "finished_at": "2026-05-17T07:13:04.727Z",
+  "purpose": "Gate 13 post-serving targeted session continuity: compare current seed-at-lead-session-creation against baseline commit 20a02c4 using identical architectural metadata that selects proof-of-value principles.",
+  "baseline_commit": "20a02c4",
+  "current_commit": "8ec92c7",
+  "repetitions": 3,
+  "turns": [
+    {
+      "id": "T1",
+      "kind": "seed",
+      "question": "Session continuity benchmark turn 1. Establish and remember this benchmark decision: codeword ALPHA-17 means 'the router must answer the caller when Claude is available; monitor telemetry is for the operator, not for caller recovery'. Reply with the codeword and rule in two bullets.",
+      "requirements": [
+        [
+          "alpha",
+          {}
+        ],
+        [
+          "caller-answer",
+          {},
+          {}
+        ],
+        [
+          "operator-monitor",
+          {},
+          {}
+        ]
+      ]
+    },
+    {
+      "id": "T2",
+      "kind": "memory_probe",
+      "question": "Session continuity benchmark turn 2. Without inventing, what codeword and caller/operator rule did we establish in the previous turn? Do not search files; answer from session memory.",
+      "requirements": [
+        [
+          "alpha",
+          {}
+        ],
+        [
+          "caller-answer",
+          {},
+          {}
+        ],
+        [
+          "operator-monitor",
+          {},
+          {}
+        ]
+      ]
+    },
+    {
+      "id": "T3",
+      "kind": "seed",
+      "question": "Session continuity benchmark turn 3. Add and remember a second benchmark decision: codeword BETA-29 means 'factsheet evidence must be revalidated before use; if revalidation cannot prove current facts, the router falls back internally instead of asking the caller to recover'. Reply with both the new codeword and the operational meaning.",
+      "requirements": [
+        [
+          "beta",
+          {}
+        ],
+        [
+          "revalidation",
+          {}
+        ],
+        [
+          "internal-fallback",
+          {},
+          {}
+        ]
+      ]
+    },
+    {
+      "id": "T4",
+      "kind": "memory_probe",
+      "question": "Session continuity benchmark turn 4. Summarize both benchmark codewords and their meanings from earlier turns. Do not infer from this prompt; use session memory.",
+      "requirements": [
+        [
+          "alpha",
+          {}
+        ],
+        [
+          "beta",
+          {}
+        ],
+        [
+          "caller-answer",
+          {},
+          {}
+        ],
+        [
+          "revalidation-fallback",
+          {},
+          {}
+        ]
+      ]
+    },
+    {
+      "id": "T5",
+      "kind": "synthesis",
+      "question": "Session continuity benchmark turn 5. Based on the two remembered benchmark decisions, explain why comparing cluster_consult only against direct_fresh is insufficient for this project. The answer must reference both codewords and say what extra benchmark is needed.",
+      "requirements": [
+        [
+          "alpha",
+          {}
+        ],
+        [
+          "beta",
+          {}
+        ],
+        [
+          "direct-fresh-insufficient",
+          {},
+          {}
+        ],
+        [
+          "session-benchmark",
+          {},
+          {},
+          {},
+          {}
+        ]
+      ]
+    }
+  ],
+  "seed_metadata": {
+    "task_type": "architectural",
+    "tags": [
+      "untrusted",
+      "stale",
+      "evidence",
+      "safe",
+      "fallback",
+      "silent",
+      "caller-facing",
+      "telemetry",
+      "verified",
+      "artifact",
+      "runtime",
+      "counter-evidence",
+      "diffable",
+      "provenance",
+      "classification",
+      "rubric",
+      "orphaned",
+      "dead"
+    ],
+    "related_files": [
+      "docs/ENGINEERING_PRINCIPLES.md"
+    ],
+    "relevant_code": "Gate 13 architectural memory serving, session continuity, caller-facing routing, stale evidence, proof-of-value principles.",
+    "task": "Answer as an AgentSessionRouter architectural lead. Preserve and use prior benchmark turns. Do not emit XML/bracketed pseudo tool calls."
+  },
+  "results": [
+    {
+      "label": "baseline_20a02c4",
+      "root": "/tmp/asr-baseline-20a02c4",
+      "commit": "20a02c4",
+      "stderr": "",
+      "calls": [
+        {
+          "label": "baseline_20a02c4",
+          "commit": "20a02c4",
+          "repetition": 1,
+          "turn_id": "T1",
+          "turn_kind": "seed",
+          "ok": true,
+          "duration_ms": 17720,
+          "session_id": "session_a0248df5-eead-4cf6-ad91-9562933004b2",
+          "selected_path": "claude_consult_new_session",
+          "was_new_session": true,
+          "architectural_memory_seed": null,
+          "score": 3,
+          "matched_requirements": [
+            "alpha",
+            "caller-answer",
+            "operator-monitor"
+          ],
+          "missing_requirements": [],
+          "answer_chars": 885,
+          "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/baseline_20a02c4_run1_T1.txt",
+          "answer_preview": "**ALPHA-17 benchmark decision established:**\n\n- **ALPHA-17**: The router MUST answer the caller directly when Claude is available. Monitor telemetry serves the operator's observability needs only — it is not a caller-facing recovery mechanism.\n- **Continuity principle**: Stale evidence or orphaned sessions do not trigger silent caller-side fallback; the router remains the authoritative session bou",
+          "error": null
+        },
+        {
+          "label": "baseline_20a02c4",
+          "commit": "20a02c4",
+          "repetition": 1,
+          "turn_id": "T2",
+          "turn_kind": "memory_probe",
+          "ok": true,
+          "duration_ms": 6342,
+          "session_id": "session_a0248df5-eead-4cf6-ad91-9562933004b2",
+          "selected_path": "claude_consult_existing_session",
+          "was_new_session": false,
+          "architectural_memory_seed": null,
+          "score": 3,
+          "matched_requirements": [
+            "alpha",
+            "caller-answer",
+            "operator-monitor"
+          ],
+          "missing_requirements": [],
+          "answer_chars": 485,
+          "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/baseline_20a02c4_run1_T2.txt",
+          "answer_preview": "**From benchmark turn 1 — recalled from session memory:**\n\n- **Codeword ALPHA-17**: The router MUST answer the caller when Claude is available.\n- **Caller/operator rule**: Monitor telemetry is operator-only instrumentation — it is not a caller-facing recovery path. The router owns the caller's contract, not the telemetry subsystem.\n\n**Open question carried forward**: What is the exact fallback beh",
+          "error": null
+        },
+        {
+          "label": "baseline_20a02c4",
+          "commit": "20a02c4",
+          "repetition": 1,
+          "turn_id": "T3",
+          "turn_kind": "seed",
+          "ok": true,
+          "duration_ms": 6740,
+          "session_id": "session_a0248df5-eead-4cf6-ad91-9562933004b2",
+          "selected_path": "claude_consult_existing_session",
+          "was_new_session": false,
+          "architectural_memory_seed": null,
+          "score": 3,
+          "matched_requirements": [
+            "beta",
+            "revalidation",
+            "internal-fallback"
+          ],
+          "missing_requirements": [],
+          "answer_chars": 872,
+          "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/baseline_20a02c4_run1_T3.txt",
+          "answer_preview": "**Benchmark decisions recalled + extended:**\n\n- **ALPHA-17** (existing): Router must answer the caller when Claude is available. Monitor telemetry is operator-only — not a caller recovery path.\n- **BETA-29** (new): Factsheet evidence must be revalidated against live runtime before use. If revalidation cannot prove the facts are current, the router falls back **internally** — it does not ask the ca",
+          "error": null
+        },
+        {
+          "label": "baseline_20a02c4",
+          "commit": "20a02c4",
+          "repetition": 1,
+          "turn_id": "T4",
+          "turn_kind": "memory_probe",
+          "ok": true,
+          "duration_ms": 6217,
+          "session_id": "session_a0248df5-eead-4cf6-ad91-9562933004b2",
+          "selected_path": "claude_consult_existing_session",
+          "was_new_session": false,
+          "architectural_memory_seed": null,
+          "score": 3,
+          "matched_requirements": [
+            "alpha",
+            "beta",
+            "caller-answer",
+            "revalidation-fallback"
+          ],
+          "missing_requirements": [],
+          "answer_chars": 630,
+          "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/baseline_20a02c4_run1_T4.txt",
+          "answer_preview": "**Both benchmark codewords from session memory:**\n\n- **ALPHA-17**: The router MUST answer the caller when Claude is available. Monitor telemetry serves the operator only — it is not a caller recovery path.\n- **BETA-29**: Factsheet evidence must be revalidated before use. If revalidation cannot prove current facts, the router falls back internally — it does not ask the caller to recover the session",
+          "error": null
+        },
+        {
+          "label": "baseline_20a02c4",
+          "commit": "20a02c4",
+          "repetition": 1,
+          "turn_id": "T5",
+          "turn_kind": "synthesis",
+          "ok": true,
+          "duration_ms": 10182,
+          "session_id": "session_a0248df5-eead-4cf6-ad91-9562933004b2",
+          "selected_path": "claude_consult_existing_session",
+          "was_new_session": false,
+          "architectural_memory_seed": null,
+          "score": 2,
+          "matched_requirements": [
+            "alpha",
+            "beta",
+            "direct-fresh-insufficient"
+          ],
+          "missing_requirements": [
+            "session-benchmark"
+          ],
+          "answer_chars": 1349,
+          "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/baseline_20a02c4_run1_T5.txt",
+          "answer_preview": "**Why cluster_consult vs. direct_fresh alone is insufficient:**\n\nComparing those two paths only exercises **ALPHA-17** (caller answer speed). It entirely skips **BETA-29** (factsheet revalidation before evidence use).\n\n- **direct_fresh** bypasses the factsheet entirely — it answers the caller from live runtime without touching stale evidence. BETA-29 is not triggered or tested by this comparison.\n",
+          "error": null
+        },
+        {
+          "label": "baseline_20a02c4",
+          "commit": "20a02c4",
+          "repetition": 2,
+          "turn_id": "T1",
+          "turn_kind": "seed",
+          "ok": true,
+          "duration_ms": 20621,
+          "session_id": "session_086314b2-49a5-41a2-9cd9-ffd19a88a080",
+          "selected_path": "claude_consult_new_session",
+          "was_new_session": true,
+          "architectural_memory_seed": null,
+          "score": 3,
+          "matched_requirements": [
+            "alpha",
+            "caller-answer",
+            "operator-monitor"
+          ],
+          "missing_requirements": [],
+          "answer_chars": 1342,
+          "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/baseline_20a02c4_run2_T1.txt",
+          "answer_preview": "**ALPHA-17 benchmark decision established:**\n\n- **Codeword ALPHA-17**: Router must answer the caller directly when Claude is available; monitoring telemetry is operator-facing only, not caller-recovery infrastructure.\n- **Rationale**: Caller-facing silence when Claude is ready is a regression. Telemetry drift or staleness must never block the primary path. The router owns the answer contract; obse",
+          "error": null
+        },
+        {
+          "label": "baseline_20a02c4",
+          "commit": "20a02c4",
+          "repetition": 2,
+          "turn_id": "T2",
+          "turn_kind": "memory_probe",
+          "ok": true,
+          "duration_ms": 15106,
+          "session_id": "session_086314b2-49a5-41a2-9cd9-ffd19a88a080",
+          "selected_path": "claude_consult_existing_session",
+          "was_new_session": false,
+          "architectural_memory_seed": null,
+          "score": 3,
+          "matched_requirements": [
+            "alpha",
+            "caller-answer",
+            "operator-monitor"
+          ],
+          "missing_requirements": [],
+          "answer_chars": 323,
+          "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/baseline_20a02c4_run2_T2.txt",
+          "answer_preview": "**From benchmark turn 1 — ALPHA-17:**\n\n- **Codeword ALPHA-17**: The router must answer the caller when Claude is available.\n- **Caller/Operator rule**: Monitoring telemetry is for the operator only — it is never a caller-facing recovery path. Stale or orphaned session telemetry must never block the caller answer contract.",
+          "error": null
+        },
+        {
+          "label": "baseline_20a02c4",
+          "commit": "20a02c4",
+          "repetition": 2,
+          "turn_id": "T3",
+          "turn_kind": "seed",
+          "ok": true,
+          "duration_ms": 20839,
+          "session_id": "session_086314b2-49a5-41a2-9cd9-ffd19a88a080",
+          "selected_path": "claude_consult_existing_session",
+          "was_new_session": false,
+          "architectural_memory_seed": null,
+          "score": 3,
+          "matched_requirements": [
+            "beta",
+            "revalidation",
+            "internal-fallback"
+          ],
+          "missing_requirements": [],
+          "answer_chars": 881,
+          "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/baseline_20a02c4_run2_T3.txt",
+          "answer_preview": "**BETA-29 benchmark decision established:**\n\n- **Codeword BETA-29**: Factsheet evidence must be revalidated before use. If revalidation cannot prove the facts are current and valid, the router falls back internally — it never asks the caller to recover the session state.\n- **Operational meaning**: Stale factsheet data is untrusted evidence. The router must run a current-state check (diffable, prov",
+          "error": null
+        },
+        {
+          "label": "baseline_20a02c4",
+          "commit": "20a02c4",
+          "repetition": 2,
+          "turn_id": "T4",
+          "turn_kind": "memory_probe",
+          "ok": true,
+          "duration_ms": 19635,
+          "session_id": "session_086314b2-49a5-41a2-9cd9-ffd19a88a080",
+          "selected_path": "claude_consult_existing_session",
+          "was_new_session": false,
+          "architectural_memory_seed": null,
+          "score": 3,
+          "matched_requirements": [
+            "alpha",
+            "beta",
+            "caller-answer",
+            "revalidation-fallback"
+          ],
+          "missing_requirements": [],
+          "answer_chars": 815,
+          "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/baseline_20a02c4_run2_T4.txt",
+          "answer_preview": "**Benchmark summary from prior turns:**\n\n- **ALPHA-17**: Router answers the caller on Claude availability. Telemetry is operator-facing only — it is never a caller recovery mechanism. Stale or dead telemetry must never block the caller answer contract.\n\n- **BETA-29**: Factsheet evidence requires revalidation before use. If revalidation cannot prove the facts current, the router falls back to the l",
+          "error": null
+        },
+        {
+          "label": "baseline_20a02c4",
+          "commit": "20a02c4",
+          "repetition": 2,
+          "turn_id": "T5",
+          "turn_kind": "synthesis",
+          "ok": true,
+          "duration_ms": 27450,
+          "session_id": "session_086314b2-49a5-41a2-9cd9-ffd19a88a080",
+          "selected_path": "claude_consult_existing_session",
+          "was_new_session": false,
+          "architectural_memory_seed": null,
+          "score": 2,
+          "matched_requirements": [
+            "alpha",
+            "beta",
+            "direct-fresh-insufficient"
+          ],
+          "missing_requirements": [
+            "session-benchmark"
+          ],
+          "answer_chars": 1464,
+          "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/baseline_20a02c4_run2_T5.txt",
+          "answer_preview": "**Why cluster_consult vs. direct_fresh is insufficient as a sole benchmark:**\n\nALPHA-17 governs *when* the router answers (on Claude availability, not on telemetry confirmation). BETA-29 governs *what* the router answers with (revalidated factsheet evidence only). A binary comparison between cluster_consult and direct_fresh tests path selection, but it tests neither gate.\n\n**The missing benchmarks",
+          "error": null
+        },
+        {
+          "label": "baseline_20a02c4",
+          "commit": "20a02c4",
+          "repetition": 3,
+          "turn_id": "T1",
+          "turn_kind": "seed",
+          "ok": true,
+          "duration_ms": 15685,
+          "session_id": "session_231e691c-6916-49b0-8134-d4ada37d106e",
+          "selected_path": "claude_consult_new_session",
+          "was_new_session": true,
+          "architectural_memory_seed": null,
+          "score": 3,
+          "matched_requirements": [
+            "alpha",
+            "caller-answer",
+            "operator-monitor"
+          ],
+          "missing_requirements": [],
+          "answer_chars": 957,
+          "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/baseline_20a02c4_run3_T1.txt",
+          "answer_preview": "## ALPHA-17 Benchmark Decision\n\n- **Codeword ALPHA-17**: Session continuity fallback — router answers caller directly when Claude is available; monitor telemetry serves operator oversight only, never caller recovery.\n- **Rule**: Caller-facing routing must not depend on telemetry availability. The router's job is to answer the caller with available intelligence, not to wait for proof-of-value confi",
+          "error": null
+        },
+        {
+          "label": "baseline_20a02c4",
+          "commit": "20a02c4",
+          "repetition": 3,
+          "turn_id": "T2",
+          "turn_kind": "memory_probe",
+          "ok": true,
+          "duration_ms": 7869,
+          "session_id": "session_231e691c-6916-49b0-8134-d4ada37d106e",
+          "selected_path": "claude_consult_existing_session",
+          "was_new_session": false,
+          "architectural_memory_seed": null,
+          "score": 3,
+          "matched_requirements": [
+            "alpha",
+            "caller-answer",
+            "operator-monitor"
+          ],
+          "missing_requirements": [],
+          "answer_chars": 350,
+          "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/baseline_20a02c4_run3_T2.txt",
+          "answer_preview": "## ALPHA-17 Recall — Turn 2\n\n**Codeword**: ALPHA-17\n\n**Caller rule**: Router answers the caller when Claude is available — no waiting for telemetry confirmation.\n\n**Operator rule**: Monitor telemetry is operator-facing only. It never becomes a recovery path for the caller.\n\n---\n\nThis is the same ALPHA-17 decision from turn 1. Nothing new to invent.",
+          "error": null
+        },
+        {
+          "label": "baseline_20a02c4",
+          "commit": "20a02c4",
+          "repetition": 3,
+          "turn_id": "T3",
+          "turn_kind": "seed",
+          "ok": true,
+          "duration_ms": 12006,
+          "session_id": "session_231e691c-6916-49b0-8134-d4ada37d106e",
+          "selected_path": "claude_consult_existing_session",
+          "was_new_session": false,
+          "architectural_memory_seed": null,
+          "score": 3,
+          "matched_requirements": [
+            "beta",
+            "revalidation",
+            "internal-fallback"
+          ],
+          "missing_requirements": [],
+          "answer_chars": 1001,
+          "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/baseline_20a02c4_run3_T3.txt",
+          "answer_preview": "## BETA-29 — Second Benchmark Decision\n\n**New codeword**: BETA-29\n\n**Rule**: Factsheet evidence must be revalidated before use. If revalidation cannot prove the current facts, the router falls back **internally** — it does not prompt the caller to recover.\n\n**Operational meaning**: The caller never sees evidence gaps. The router either has fresh proof or silently falls back to a safe internal path",
+          "error": null
+        },
+        {
+          "label": "baseline_20a02c4",
+          "commit": "20a02c4",
+          "repetition": 3,
+          "turn_id": "T4",
+          "turn_kind": "memory_probe",
+          "ok": true,
+          "duration_ms": 14880,
+          "session_id": "session_231e691c-6916-49b0-8134-d4ada37d106e",
+          "selected_path": "claude_consult_existing_session",
+          "was_new_session": false,
+          "architectural_memory_seed": null,
+          "score": 3,
+          "matched_requirements": [
+            "alpha",
+            "beta",
+            "caller-answer",
+            "revalidation-fallback"
+          ],
+          "missing_requirements": [],
+          "answer_chars": 677,
+          "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/baseline_20a02c4_run3_T4.txt",
+          "answer_preview": "## ALPHA-17 + BETA-29 — Combined Recall\n\n**ALPHA-17**: Router answers the caller when Claude is available. Monitor telemetry is operator-facing only — it never becomes a recovery path for the caller.\n\n**BETA-29**: Factsheet evidence must be revalidated before use. If revalidation cannot prove the current facts, the router falls back internally rather than asking the caller to recover.\n\n**Combined ",
+          "error": null
+        },
+        {
+          "label": "baseline_20a02c4",
+          "commit": "20a02c4",
+          "repetition": 3,
+          "turn_id": "T5",
+          "turn_kind": "synthesis",
+          "ok": true,
+          "duration_ms": 12148,
+          "session_id": "session_231e691c-6916-49b0-8134-d4ada37d106e",
+          "selected_path": "claude_consult_existing_session",
+          "was_new_session": false,
+          "architectural_memory_seed": null,
+          "score": 2,
+          "matched_requirements": [
+            "alpha",
+            "beta",
+            "direct-fresh-insufficient"
+          ],
+          "missing_requirements": [
+            "session-benchmark"
+          ],
+          "answer_chars": 1536,
+          "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/baseline_20a02c4_run3_T5.txt",
+          "answer_preview": "## Why cluster_consult vs. direct_fresh Is a Partial Benchmark\n\nA two-way comparison misses half of ALPHA-17 and BETA-29.\n\n**ALPHA-17 gap**: `direct_fresh` assumes a fully available, fully fresh path to the caller. But in orphaned/dead sessions, that path may not exist. The comparison `cluster_consult vs. direct_fresh` has no answer for what cluster_consult does when neither direct nor fresh is av",
+          "error": null
+        }
+      ],
+      "statuses": [
+        {
+          "label": "baseline_20a02c4",
+          "repetition": 1,
+          "project_id": "AgentSessionRouter-gate13-continuity-baseline_20a02c4-1-1779001546828",
+          "status": {
+            "project_id": "AgentSessionRouter-gate13-continuity-baseline_20a02c4-1-1779001546828",
+            "checked_at": "2026-05-17T07:06:34.036Z",
+            "mode": "normal",
+            "degraded_reason": null,
+            "uptime_hours": 0.01,
+            "claude": {
+              "detected_version": "2.1.92 (Claude Code)",
+              "tested_versions": [
+                "\"2.1.138 (Claude Code)\"",
+                "\"2.1.92 (Claude Code)\""
+              ]
+            },
+            "v1_sessions": {
+              "active": 1,
+              "dormant": 0,
+              "archived": 0,
+              "orphaned": 0,
+              "total": 1
+            },
+            "v2_clusters": {
+              "active": 0,
+              "stale": 0,
+              "needs_prepare": 0,
+              "invalidated": 0,
+              "archived": 0,
+              "total": 0,
+              "fallback_count_last_24h": 0,
+              "stale_clusters": []
+            },
+            "recent_window_hours": 24,
+            "recent_errors": {
+              "session_events": [
+                {
+                  "event_type": "token_anomaly",
+                  "count": 1,
+                  "latest_created_at": "2026-05-17T07:06:10.886Z"
+                }
+              ],
+              "slow_session_events": [],
+              "cluster_events": []
+            },
+            "shadow_eval": {
+              "enabled": false,
+              "total": 0,
+              "judged": 0,
+              "pending": 0,
+              "ok_unjudged": 0,
+              "failed_auth": 0,
+              "failed_timeout": 0,
+              "failed_other": 0,
+              "last_created_at": null,
+              "last_judged_at": null
+            },
+            "architectural_memory": {
+              "enabled": true,
+              "runtime_import_serving_enabled": false,
+              "serving_preflight": {
+                "selection_llm_input_tokens": 0,
+                "per_consult_architectural_memory_tokens": 0,
+                "max_engineering_principles": 7,
+                "target_seed_tokens": 900,
+                "absolute_seed_tokens": 1200,
+                "min_post_serving_continuity_runs": 3,
+                "adversarial_broken_zero_sufficient": false
+              },
+              "active_records": 93,
+              "proposed_records": 0,
+              "suspended_records": 0,
+              "suspended_audit_records": 3,
+              "rejected_audit_records": 20,
+              "remaining_rejected_audit_records": 15,
+              "rescued_from_rejected_records": 5,
+              "reclassified_to_project_architecture_records": 5,
+              "excluded_records": 5,
+              "rejected_or_suspended_audit_records": 23,
+              "source_docs": [
+                {
+                  "memory_product": "engineering-principles",
+                  "path": "docs/ENGINEERING_PRINCIPLES.md",
+                  "exists": true,
+                  "active_records": 13,
+                  "proposed_records": 0,
+                  "suspended_records": 0,
+                  "active_date_records": 13
+                },
+                {
+                  "memory_product": "project-architecture",
+                  "path": "docs/PROJECT_ARCHITECTURE.md",
+                  "exists": true,
+                  "active_records": 80,
+                  "proposed_records": 0,
+                  "suspended_records": 0,
+                  "active_date_records": 80
+                }
+              ],
+              "audit_artifacts": {
+                "active_promotion": "experiments/architectural-memory-dry-run-2026-05-16/active-promotion.json",
+                "classification_correction": "experiments/architectural-memory-dry-run-2026-05-16/classification-correction.json",
+                "request_changes_resolution": "experiments/architectural-memory-dry-run-2026-05-16/request-changes-resolution.json",
+                "verification_report": "experiments/architectural-memory-dry-run-2026-05-16/verification-report.json"
+              },
+              "warnings": []
+            },
+            "storage": {
+              "ok": true,
+              "database": {
+                "path": "/tmp/asr-baseline-20a02c4/.claude-session-router/sessions.sqlite",
+                "exists": true,
+                "readable": true,
+                "writable": true,
+                "schema_ok": true,
+                "quick_check_ok": true,
+                "write_check_ok": true,
+                "errors": []
+              },
+              "raw_logs": {
+                "path": "/tmp/asr-baseline-20a02c4/.claude-session-router/raw",
+                "exists": true,
+                "is_directory": true,
+                "readable": true,
+                "writable": true,
+                "errors": []
+              }
+            },
+            "warnings": [
+              "Session event 'token_anomaly' has 1 error row(s) in the recent window."
+            ]
+          }
+        },
+        {
+          "label": "baseline_20a02c4",
+          "repetition": 2,
+          "project_id": "AgentSessionRouter-gate13-continuity-baseline_20a02c4-2-1779001594037",
+          "status": {
+            "project_id": "AgentSessionRouter-gate13-continuity-baseline_20a02c4-2-1779001594037",
+            "checked_at": "2026-05-17T07:08:17.690Z",
+            "mode": "normal",
+            "degraded_reason": null,
+            "uptime_hours": 0.04,
+            "claude": {
+              "detected_version": "2.1.92 (Claude Code)",
+              "tested_versions": [
+                "\"2.1.138 (Claude Code)\"",
+                "\"2.1.92 (Claude Code)\""
+              ]
+            },
+            "v1_sessions": {
+              "active": 1,
+              "dormant": 0,
+              "archived": 0,
+              "orphaned": 0,
+              "total": 1
+            },
+            "v2_clusters": {
+              "active": 0,
+              "stale": 0,
+              "needs_prepare": 0,
+              "invalidated": 0,
+              "archived": 0,
+              "total": 0,
+              "fallback_count_last_24h": 0,
+              "stale_clusters": []
+            },
+            "recent_window_hours": 24,
+            "recent_errors": {
+              "session_events": [
+                {
+                  "event_type": "token_anomaly",
+                  "count": 2,
+                  "latest_created_at": "2026-05-17T07:07:30.599Z"
+                }
+              ],
+              "slow_session_events": [],
+              "cluster_events": []
+            },
+            "shadow_eval": {
+              "enabled": false,
+              "total": 0,
+              "judged": 0,
+              "pending": 0,
+              "ok_unjudged": 0,
+              "failed_auth": 0,
+              "failed_timeout": 0,
+              "failed_other": 0,
+              "last_created_at": null,
+              "last_judged_at": null
+            },
+            "architectural_memory": {
+              "enabled": true,
+              "runtime_import_serving_enabled": false,
+              "serving_preflight": {
+                "selection_llm_input_tokens": 0,
+                "per_consult_architectural_memory_tokens": 0,
+                "max_engineering_principles": 7,
+                "target_seed_tokens": 900,
+                "absolute_seed_tokens": 1200,
+                "min_post_serving_continuity_runs": 3,
+                "adversarial_broken_zero_sufficient": false
+              },
+              "active_records": 93,
+              "proposed_records": 0,
+              "suspended_records": 0,
+              "suspended_audit_records": 3,
+              "rejected_audit_records": 20,
+              "remaining_rejected_audit_records": 15,
+              "rescued_from_rejected_records": 5,
+              "reclassified_to_project_architecture_records": 5,
+              "excluded_records": 5,
+              "rejected_or_suspended_audit_records": 23,
+              "source_docs": [
+                {
+                  "memory_product": "engineering-principles",
+                  "path": "docs/ENGINEERING_PRINCIPLES.md",
+                  "exists": true,
+                  "active_records": 13,
+                  "proposed_records": 0,
+                  "suspended_records": 0,
+                  "active_date_records": 13
+                },
+                {
+                  "memory_product": "project-architecture",
+                  "path": "docs/PROJECT_ARCHITECTURE.md",
+                  "exists": true,
+                  "active_records": 80,
+                  "proposed_records": 0,
+                  "suspended_records": 0,
+                  "active_date_records": 80
+                }
+              ],
+              "audit_artifacts": {
+                "active_promotion": "experiments/architectural-memory-dry-run-2026-05-16/active-promotion.json",
+                "classification_correction": "experiments/architectural-memory-dry-run-2026-05-16/classification-correction.json",
+                "request_changes_resolution": "experiments/architectural-memory-dry-run-2026-05-16/request-changes-resolution.json",
+                "verification_report": "experiments/architectural-memory-dry-run-2026-05-16/verification-report.json"
+              },
+              "warnings": []
+            },
+            "storage": {
+              "ok": true,
+              "database": {
+                "path": "/tmp/asr-baseline-20a02c4/.claude-session-router/sessions.sqlite",
+                "exists": true,
+                "readable": true,
+                "writable": true,
+                "schema_ok": true,
+                "quick_check_ok": true,
+                "write_check_ok": true,
+                "errors": []
+              },
+              "raw_logs": {
+                "path": "/tmp/asr-baseline-20a02c4/.claude-session-router/raw",
+                "exists": true,
+                "is_directory": true,
+                "readable": true,
+                "writable": true,
+                "errors": []
+              }
+            },
+            "warnings": [
+              "Session event 'token_anomaly' has 2 error row(s) in the recent window."
+            ]
+          }
+        },
+        {
+          "label": "baseline_20a02c4",
+          "repetition": 3,
+          "project_id": "AgentSessionRouter-gate13-continuity-baseline_20a02c4-3-1779001697691",
+          "status": {
+            "project_id": "AgentSessionRouter-gate13-continuity-baseline_20a02c4-3-1779001697691",
+            "checked_at": "2026-05-17T07:09:20.283Z",
+            "mode": "normal",
+            "degraded_reason": null,
+            "uptime_hours": 0.06,
+            "claude": {
+              "detected_version": "2.1.92 (Claude Code)",
+              "tested_versions": [
+                "\"2.1.138 (Claude Code)\"",
+                "\"2.1.92 (Claude Code)\""
+              ]
+            },
+            "v1_sessions": {
+              "active": 1,
+              "dormant": 0,
+              "archived": 0,
+              "orphaned": 0,
+              "total": 1
+            },
+            "v2_clusters": {
+              "active": 0,
+              "stale": 0,
+              "needs_prepare": 0,
+              "invalidated": 0,
+              "archived": 0,
+              "total": 0,
+              "fallback_count_last_24h": 0,
+              "stale_clusters": []
+            },
+            "recent_window_hours": 24,
+            "recent_errors": {
+              "session_events": [
+                {
+                  "event_type": "token_anomaly",
+                  "count": 2,
+                  "latest_created_at": "2026-05-17T07:08:41.241Z"
+                }
+              ],
+              "slow_session_events": [],
+              "cluster_events": []
+            },
+            "shadow_eval": {
+              "enabled": false,
+              "total": 0,
+              "judged": 0,
+              "pending": 0,
+              "ok_unjudged": 0,
+              "failed_auth": 0,
+              "failed_timeout": 0,
+              "failed_other": 0,
+              "last_created_at": null,
+              "last_judged_at": null
+            },
+            "architectural_memory": {
+              "enabled": true,
+              "runtime_import_serving_enabled": false,
+              "serving_preflight": {
+                "selection_llm_input_tokens": 0,
+                "per_consult_architectural_memory_tokens": 0,
+                "max_engineering_principles": 7,
+                "target_seed_tokens": 900,
+                "absolute_seed_tokens": 1200,
+                "min_post_serving_continuity_runs": 3,
+                "adversarial_broken_zero_sufficient": false
+              },
+              "active_records": 93,
+              "proposed_records": 0,
+              "suspended_records": 0,
+              "suspended_audit_records": 3,
+              "rejected_audit_records": 20,
+              "remaining_rejected_audit_records": 15,
+              "rescued_from_rejected_records": 5,
+              "reclassified_to_project_architecture_records": 5,
+              "excluded_records": 5,
+              "rejected_or_suspended_audit_records": 23,
+              "source_docs": [
+                {
+                  "memory_product": "engineering-principles",
+                  "path": "docs/ENGINEERING_PRINCIPLES.md",
+                  "exists": true,
+                  "active_records": 13,
+                  "proposed_records": 0,
+                  "suspended_records": 0,
+                  "active_date_records": 13
+                },
+                {
+                  "memory_product": "project-architecture",
+                  "path": "docs/PROJECT_ARCHITECTURE.md",
+                  "exists": true,
+                  "active_records": 80,
+                  "proposed_records": 0,
+                  "suspended_records": 0,
+                  "active_date_records": 80
+                }
+              ],
+              "audit_artifacts": {
+                "active_promotion": "experiments/architectural-memory-dry-run-2026-05-16/active-promotion.json",
+                "classification_correction": "experiments/architectural-memory-dry-run-2026-05-16/classification-correction.json",
+                "request_changes_resolution": "experiments/architectural-memory-dry-run-2026-05-16/request-changes-resolution.json",
+                "verification_report": "experiments/architectural-memory-dry-run-2026-05-16/verification-report.json"
+              },
+              "warnings": []
+            },
+            "storage": {
+              "ok": true,
+              "database": {
+                "path": "/tmp/asr-baseline-20a02c4/.claude-session-router/sessions.sqlite",
+                "exists": true,
+                "readable": true,
+                "writable": true,
+                "schema_ok": true,
+                "quick_check_ok": true,
+                "write_check_ok": true,
+                "errors": []
+              },
+              "raw_logs": {
+                "path": "/tmp/asr-baseline-20a02c4/.claude-session-router/raw",
+                "exists": true,
+                "is_directory": true,
+                "readable": true,
+                "writable": true,
+                "errors": []
+              }
+            },
+            "warnings": [
+              "Session event 'token_anomaly' has 2 error row(s) in the recent window."
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "label": "current_8ec92c7",
+      "root": "/root/projects/AgentSessionRouter",
+      "commit": "8ec92c7",
+      "stderr": "",
+      "calls": [
+        {
+          "label": "current_8ec92c7",
+          "commit": "8ec92c7",
+          "repetition": 1,
+          "turn_id": "T1",
+          "turn_kind": "seed",
+          "ok": true,
+          "duration_ms": 28438,
+          "session_id": "session_52372386-9c6a-449f-a4a0-8fb6d319b395",
+          "selected_path": "claude_consult_new_session",
+          "was_new_session": true,
+          "architectural_memory_seed": {
+            "injected": true,
+            "injected_token_count": 892,
+            "record_ids": [
+              "AMB-RESCUE-0002",
+              "AMB-DOC-0008",
+              "AMB-RESCUE-0003",
+              "AMB-RESCUE-0004",
+              "AMB-SD-000050",
+              "AMB-RESCUE-0001",
+              "AMB-RESCUE-0005"
+            ],
+            "seed_signature": "sha256:e4657abc72911da14cc009f24bd559a355866fbbceb3498a8dfc7b17b83a2b14",
+            "dedup_reason": "no_existing_manifest"
+          },
+          "score": 3,
+          "matched_requirements": [
+            "alpha",
+            "caller-answer",
+            "operator-monitor"
+          ],
+          "missing_requirements": [],
+          "answer_chars": 787,
+          "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/current_8ec92c7_run1_T1.txt",
+          "answer_preview": "## ALPHA-17 Benchmark Decision\n\n**Codeword definition:** `ALPHA-17` = \"the router must answer the caller when Claude is available; monitor telemetry is for the operator, not for caller recovery\"\n\n- **ALPHA-17**: When Claude is available, the router answers the caller directly. Telemetry and monitoring are operator-facing only — they do not gate or influence the caller's answer path.\n- **Supporting",
+          "error": null
+        },
+        {
+          "label": "current_8ec92c7",
+          "commit": "8ec92c7",
+          "repetition": 1,
+          "turn_id": "T2",
+          "turn_kind": "memory_probe",
+          "ok": true,
+          "duration_ms": 10411,
+          "session_id": "session_52372386-9c6a-449f-a4a0-8fb6d319b395",
+          "selected_path": "claude_consult_existing_session",
+          "was_new_session": false,
+          "architectural_memory_seed": null,
+          "score": 3,
+          "matched_requirements": [
+            "alpha",
+            "caller-answer",
+            "operator-monitor"
+          ],
+          "missing_requirements": [],
+          "answer_chars": 577,
+          "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/current_8ec92c7_run1_T2.txt",
+          "answer_preview": "## ALPHA-17 Recall (Benchmark Turn 1)\n\n**Codeword:** `ALPHA-17`\n\n**Caller/Operator rule established:**\n- **Caller side:** Router answers the caller directly when Claude is available — session provenance, staleness, or orphan status does not block the answer path.\n- **Operator side:** Telemetry and monitoring are operator-facing only. They are for observability and recovery, not for influencing or ",
+          "error": null
+        },
+        {
+          "label": "current_8ec92c7",
+          "commit": "8ec92c7",
+          "repetition": 1,
+          "turn_id": "T3",
+          "turn_kind": "seed",
+          "ok": true,
+          "duration_ms": 12843,
+          "session_id": "session_52372386-9c6a-449f-a4a0-8fb6d319b395",
+          "selected_path": "claude_consult_existing_session",
+          "was_new_session": false,
+          "architectural_memory_seed": null,
+          "score": 3,
+          "matched_requirements": [
+            "beta",
+            "revalidation",
+            "internal-fallback"
+          ],
+          "missing_requirements": [],
+          "answer_chars": 1000,
+          "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/current_8ec92c7_run1_T3.txt",
+          "answer_preview": "## ALPHA-17 + BETA-29 Benchmark Decisions\n\n**Existing decision (ALPHA-17):**\nRouter answers the caller when Claude is available. Telemetry and monitoring are operator-facing only — they do not gate or influence the caller's answer path.\n\n**New decision (BETA-29):**\n`BETA-29` = \"factsheet evidence must be revalidated before use; if revalidation cannot prove current facts, the router falls back inte",
+          "error": null
+        },
+        {
+          "label": "current_8ec92c7",
+          "commit": "8ec92c7",
+          "repetition": 1,
+          "turn_id": "T4",
+          "turn_kind": "memory_probe",
+          "ok": true,
+          "duration_ms": 6970,
+          "session_id": "session_52372386-9c6a-449f-a4a0-8fb6d319b395",
+          "selected_path": "claude_consult_existing_session",
+          "was_new_session": false,
+          "architectural_memory_seed": null,
+          "score": 3,
+          "matched_requirements": [
+            "alpha",
+            "beta",
+            "caller-answer",
+            "revalidation-fallback"
+          ],
+          "missing_requirements": [],
+          "answer_chars": 593,
+          "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/current_8ec92c7_run1_T4.txt",
+          "answer_preview": "## Session Continuity Benchmark Summary\n\n**ALPHA-17:** Router answers the caller when Claude is available. Telemetry and monitoring are operator-facing only — they do not gate or influence the caller's answer path.\n\n**BETA-29:** Factsheet evidence must be revalidated before use. If revalidation cannot prove current facts, the router performs an internal safe fallback — it does not expose stale evi",
+          "error": null
+        },
+        {
+          "label": "current_8ec92c7",
+          "commit": "8ec92c7",
+          "repetition": 1,
+          "turn_id": "T5",
+          "turn_kind": "synthesis",
+          "ok": true,
+          "duration_ms": 14271,
+          "session_id": "session_52372386-9c6a-449f-a4a0-8fb6d319b395",
+          "selected_path": "claude_consult_existing_session",
+          "was_new_session": false,
+          "architectural_memory_seed": null,
+          "score": 3,
+          "matched_requirements": [
+            "alpha",
+            "beta",
+            "direct-fresh-insufficient",
+            "session-benchmark"
+          ],
+          "missing_requirements": [],
+          "answer_chars": 1323,
+          "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/current_8ec92c7_run1_T5.txt",
+          "answer_preview": "## Why cluster_consult vs. direct_fresh Is Insufficient\n\n**The gap:** Comparing `cluster_consult` against `direct_fresh` only measures *routing strategy accuracy* — it does not measure the *factsheet revalidation path* that BETA-29 requires, nor does it confirm *caller answer priority* that ALPHA-17 guarantees.\n\n**BETA-29 implication:** When `cluster_consult` uses a factsheet, the benchmark must a",
+          "error": null
+        },
+        {
+          "label": "current_8ec92c7",
+          "commit": "8ec92c7",
+          "repetition": 2,
+          "turn_id": "T1",
+          "turn_kind": "seed",
+          "ok": true,
+          "duration_ms": 11195,
+          "session_id": "session_7b1d21fe-ef63-4ba7-8a79-60302e65825b",
+          "selected_path": "claude_consult_new_session",
+          "was_new_session": true,
+          "architectural_memory_seed": {
+            "injected": true,
+            "injected_token_count": 892,
+            "record_ids": [
+              "AMB-RESCUE-0002",
+              "AMB-DOC-0008",
+              "AMB-RESCUE-0003",
+              "AMB-RESCUE-0004",
+              "AMB-SD-000050",
+              "AMB-RESCUE-0001",
+              "AMB-RESCUE-0005"
+            ],
+            "seed_signature": "sha256:e4657abc72911da14cc009f24bd559a355866fbbceb3498a8dfc7b17b83a2b14",
+            "dedup_reason": "no_existing_manifest"
+          },
+          "score": 3,
+          "matched_requirements": [
+            "alpha",
+            "caller-answer",
+            "operator-monitor"
+          ],
+          "missing_requirements": [],
+          "answer_chars": 549,
+          "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/current_8ec92c7_run2_T1.txt",
+          "answer_preview": "- **ALPHA-17**: The router **must** answer the caller when Claude is available. Monitor telemetry serves the operator only — it is not a caller recovery mechanism and must not gate or delay caller-facing responses.\n\nThis decision is bounded by AMB-RESCUE-0001 (telemetry separation from production answers) and AMB-SD-000050 (conservative fallback when cluster state is stale). If the router cannot r",
+          "error": null
+        },
+        {
+          "label": "current_8ec92c7",
+          "commit": "8ec92c7",
+          "repetition": 2,
+          "turn_id": "T2",
+          "turn_kind": "memory_probe",
+          "ok": true,
+          "duration_ms": 9838,
+          "session_id": "session_7b1d21fe-ef63-4ba7-8a79-60302e65825b",
+          "selected_path": "claude_consult_existing_session",
+          "was_new_session": false,
+          "architectural_memory_seed": null,
+          "score": 3,
+          "matched_requirements": [
+            "alpha",
+            "caller-answer",
+            "operator-monitor"
+          ],
+          "missing_requirements": [],
+          "answer_chars": 288,
+          "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/current_8ec92c7_run2_T2.txt",
+          "answer_preview": "From session memory (turn 1):\n\n- **Codeword**: ALPHA-17\n- **Caller/operator rule**: The router answers the caller directly when Claude is available. Monitor telemetry serves the operator only — it is never a caller recovery mechanism and must not gate or delay the caller-facing response.",
+          "error": null
+        },
+        {
+          "label": "current_8ec92c7",
+          "commit": "8ec92c7",
+          "repetition": 2,
+          "turn_id": "T3",
+          "turn_kind": "seed",
+          "ok": true,
+          "duration_ms": 12611,
+          "session_id": "session_7b1d21fe-ef63-4ba7-8a79-60302e65825b",
+          "selected_path": "claude_consult_existing_session",
+          "was_new_session": false,
+          "architectural_memory_seed": null,
+          "score": 3,
+          "matched_requirements": [
+            "beta",
+            "revalidation",
+            "internal-fallback"
+          ],
+          "missing_requirements": [],
+          "answer_chars": 803,
+          "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/current_8ec92c7_run2_T3.txt",
+          "answer_preview": "- **ALPHA-17** (retained): The router answers the caller directly when Claude is available. Monitor telemetry serves the operator only — it is never a caller recovery mechanism.\n- **BETA-29** (new): Factsheet evidence must be revalidated before use. If revalidation cannot prove the facts are current, the router falls back internally — it does **not** pass the uncertainty to the caller. The caller ",
+          "error": null
+        },
+        {
+          "label": "current_8ec92c7",
+          "commit": "8ec92c7",
+          "repetition": 2,
+          "turn_id": "T4",
+          "turn_kind": "memory_probe",
+          "ok": true,
+          "duration_ms": 12910,
+          "session_id": "session_7b1d21fe-ef63-4ba7-8a79-60302e65825b",
+          "selected_path": "claude_consult_existing_session",
+          "was_new_session": false,
+          "architectural_memory_seed": null,
+          "score": 3,
+          "matched_requirements": [
+            "alpha",
+            "beta",
+            "caller-answer",
+            "revalidation-fallback"
+          ],
+          "missing_requirements": [],
+          "answer_chars": 520,
+          "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/current_8ec92c7_run2_T4.txt",
+          "answer_preview": "From session memory:\n\n- **ALPHA-17**: The router answers the caller directly when Claude is available. Monitor telemetry serves the operator only — it is never a caller recovery mechanism and must not gate or delay the caller-facing response.\n- **BETA-29**: Factsheet evidence must be revalidated before use. If revalidation cannot prove the facts are current, the router falls back internally rather",
+          "error": null
+        },
+        {
+          "label": "current_8ec92c7",
+          "commit": "8ec92c7",
+          "repetition": 2,
+          "turn_id": "T5",
+          "turn_kind": "synthesis",
+          "ok": true,
+          "duration_ms": 30121,
+          "session_id": "session_7b1d21fe-ef63-4ba7-8a79-60302e65825b",
+          "selected_path": "claude_consult_existing_session",
+          "was_new_session": false,
+          "architectural_memory_seed": null,
+          "score": 2,
+          "matched_requirements": [
+            "alpha",
+            "beta",
+            "direct-fresh-insufficient"
+          ],
+          "missing_requirements": [
+            "session-benchmark"
+          ],
+          "answer_chars": 968,
+          "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/current_8ec92c7_run2_T5.txt",
+          "answer_preview": "`cluster_consult` vs. `direct_fresh` only tests one axis: cluster routing versus direct routing when both are healthy. It does not test the failure modes governed by ALPHA-17 and BETA-29.\n\nALPHA-17 means the router must serve the caller even when telemetry suggests degraded cluster state — a `direct_fresh` baseline would not reveal whether the router incorrectly gates the caller because of monitor",
+          "error": null
+        },
+        {
+          "label": "current_8ec92c7",
+          "commit": "8ec92c7",
+          "repetition": 3,
+          "turn_id": "T1",
+          "turn_kind": "seed",
+          "ok": true,
+          "duration_ms": 16982,
+          "session_id": "session_a387ee5b-d018-4386-b987-e21bf2920072",
+          "selected_path": "claude_consult_new_session",
+          "was_new_session": true,
+          "architectural_memory_seed": {
+            "injected": true,
+            "injected_token_count": 892,
+            "record_ids": [
+              "AMB-RESCUE-0002",
+              "AMB-DOC-0008",
+              "AMB-RESCUE-0003",
+              "AMB-RESCUE-0004",
+              "AMB-SD-000050",
+              "AMB-RESCUE-0001",
+              "AMB-RESCUE-0005"
+            ],
+            "seed_signature": "sha256:e4657abc72911da14cc009f24bd559a355866fbbceb3498a8dfc7b17b83a2b14",
+            "dedup_reason": "no_existing_manifest"
+          },
+          "score": 3,
+          "matched_requirements": [
+            "alpha",
+            "caller-answer",
+            "operator-monitor"
+          ],
+          "missing_requirements": [],
+          "answer_chars": 1127,
+          "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/current_8ec92c7_run3_T1.txt",
+          "answer_preview": "**ALPHA-17 Benchmark Decision (Session Continuity Gate 13):**\n\n- **ALPHA-17**: When Claude is available, the router **must answer the caller directly** — session continuity belongs to the caller's experience, not the operator's observability stack.\n- **Telemetry separation**: Monitor/operator telemetry is out-of-band instrumentation for the operator's own recovery and analysis. It is **not** a cal",
+          "error": null
+        },
+        {
+          "label": "current_8ec92c7",
+          "commit": "8ec92c7",
+          "repetition": 3,
+          "turn_id": "T2",
+          "turn_kind": "memory_probe",
+          "ok": true,
+          "duration_ms": 4596,
+          "session_id": "session_a387ee5b-d018-4386-b987-e21bf2920072",
+          "selected_path": "claude_consult_existing_session",
+          "was_new_session": false,
+          "architectural_memory_seed": null,
+          "score": 3,
+          "matched_requirements": [
+            "alpha",
+            "caller-answer",
+            "operator-monitor"
+          ],
+          "missing_requirements": [],
+          "answer_chars": 368,
+          "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/current_8ec92c7_run3_T2.txt",
+          "answer_preview": "**From Session Memory (Benchmark Turn 1):**\n\n- **Codeword**: ALPHA-17\n- **Caller/Operator Rule**: The router must answer the caller when Claude is available. Monitor/operator telemetry is out-of-band instrumentation for the operator's own recovery — it is **not** a caller-facing fallback path and must not influence caller routing or introduce caller-visible latency.",
+          "error": null
+        },
+        {
+          "label": "current_8ec92c7",
+          "commit": "8ec92c7",
+          "repetition": 3,
+          "turn_id": "T3",
+          "turn_kind": "seed",
+          "ok": true,
+          "duration_ms": 14701,
+          "session_id": "session_a387ee5b-d018-4386-b987-e21bf2920072",
+          "selected_path": "claude_consult_existing_session",
+          "was_new_session": false,
+          "architectural_memory_seed": null,
+          "score": 3,
+          "matched_requirements": [
+            "beta",
+            "revalidation",
+            "internal-fallback"
+          ],
+          "missing_requirements": [],
+          "answer_chars": 1057,
+          "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/current_8ec92c7_run3_T3.txt",
+          "answer_preview": "**Benchmark Decisions (Turns 1 & 3):**\n\n- **ALPHA-17**: Router must answer the caller when Claude is available. Monitor/operator telemetry is out-of-band for the operator — it is **not** a caller-facing fallback path.\n- **BETA-29**: Factsheet evidence must be revalidated before use. If revalidation cannot prove the facts are current, the router falls back **internally** — it never asks the caller ",
+          "error": null
+        },
+        {
+          "label": "current_8ec92c7",
+          "commit": "8ec92c7",
+          "repetition": 3,
+          "turn_id": "T4",
+          "turn_kind": "memory_probe",
+          "ok": true,
+          "duration_ms": 11293,
+          "session_id": "session_a387ee5b-d018-4386-b987-e21bf2920072",
+          "selected_path": "claude_consult_existing_session",
+          "was_new_session": false,
+          "architectural_memory_seed": null,
+          "score": 3,
+          "matched_requirements": [
+            "alpha",
+            "beta",
+            "caller-answer",
+            "revalidation-fallback"
+          ],
+          "missing_requirements": [],
+          "answer_chars": 878,
+          "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/current_8ec92c7_run3_T4.txt",
+          "answer_preview": "**Session Continuity Benchmark Summary (Turns 1–4):**\n\n- **ALPHA-17**: Router answers the caller when Claude is available. Monitor/operator telemetry is out-of-band for the operator's own observability — it is **not** a caller-facing fallback path and must not introduce caller-visible latency or routing changes.\n- **BETA-29**: Factsheet evidence must be revalidated before use. If revalidation cann",
+          "error": null
+        },
+        {
+          "label": "current_8ec92c7",
+          "commit": "8ec92c7",
+          "repetition": 3,
+          "turn_id": "T5",
+          "turn_kind": "synthesis",
+          "ok": true,
+          "duration_ms": 25372,
+          "session_id": "session_a387ee5b-d018-4386-b987-e21bf2920072",
+          "selected_path": "claude_consult_existing_session",
+          "was_new_session": false,
+          "architectural_memory_seed": null,
+          "score": 2,
+          "matched_requirements": [
+            "alpha",
+            "beta",
+            "direct-fresh-insufficient"
+          ],
+          "missing_requirements": [
+            "session-benchmark"
+          ],
+          "answer_chars": 1223,
+          "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/current_8ec92c7_run3_T5.txt",
+          "answer_preview": "**Insufficiency of cluster_consult vs. direct_fresh alone:**\n\nALPHA-17 establishes that the router must answer when Claude is available — this covers the availability axis. direct_fresh is the correct baseline for measuring raw answer quality from a known-good source.\n\nBETA-29 establishes that factsheet evidence must be revalidated before use, with internal fallback if revalidation fails. This is ",
+          "error": null
+        }
+      ],
+      "statuses": [
+        {
+          "label": "current_8ec92c7",
+          "repetition": 1,
+          "project_id": "AgentSessionRouter-gate13-continuity-current_8ec92c7-1-1779001762146",
+          "status": {
+            "project_id": "AgentSessionRouter-gate13-continuity-current_8ec92c7-1-1779001762146",
+            "checked_at": "2026-05-17T07:10:35.086Z",
+            "mode": "normal",
+            "degraded_reason": null,
+            "uptime_hours": 0.02,
+            "claude": {
+              "detected_version": "2.1.92 (Claude Code)",
+              "tested_versions": [
+                "\"2.1.138 (Claude Code)\"",
+                "\"2.1.92 (Claude Code)\""
+              ]
+            },
+            "v1_sessions": {
+              "active": 1,
+              "dormant": 0,
+              "archived": 0,
+              "orphaned": 0,
+              "total": 1
+            },
+            "v2_clusters": {
+              "active": 0,
+              "stale": 0,
+              "needs_prepare": 0,
+              "invalidated": 0,
+              "archived": 0,
+              "total": 0,
+              "fallback_count_last_24h": 0,
+              "stale_clusters": []
+            },
+            "recent_window_hours": 24,
+            "recent_errors": {
+              "session_events": [],
+              "slow_session_events": [],
+              "cluster_events": []
+            },
+            "shadow_eval": {
+              "enabled": true,
+              "total": 0,
+              "judged": 0,
+              "pending": 0,
+              "ok_unjudged": 0,
+              "failed_auth": 0,
+              "failed_timeout": 0,
+              "failed_other": 0,
+              "last_created_at": null,
+              "last_judged_at": null
+            },
+            "architectural_memory": {
+              "enabled": true,
+              "runtime_import_serving_enabled": true,
+              "serving_preflight": {
+                "selection_llm_input_tokens": 0,
+                "per_consult_architectural_memory_tokens": 0,
+                "max_engineering_principles": 7,
+                "target_seed_tokens": 900,
+                "absolute_seed_tokens": 1200,
+                "min_post_serving_continuity_runs": 3,
+                "adversarial_broken_zero_sufficient": false
+              },
+              "serving_runtime": {
+                "seeded_sessions_total": 1,
+                "latest_seed_token_count": 892,
+                "max_seed_token_count": 892,
+                "latest_seeded_sessions": [
+                  {
+                    "id": 3,
+                    "session_id": "session_52372386-9c6a-449f-a4a0-8fb6d319b395",
+                    "project_id": "AgentSessionRouter-gate13-continuity-current_8ec92c7-1-1779001762146",
+                    "topic": "untrusted stale evidence safe fallback silent caller-facing telemetry verified artifact runtime counter evidence diffable provenance classification rubric orphaned dead session",
+                    "seed_kind": "engineering_principles",
+                    "seed_signature": "sha256:e4657abc72911da14cc009f24bd559a355866fbbceb3498a8dfc7b17b83a2b14",
+                    "record_ids": [
+                      "AMB-RESCUE-0002",
+                      "AMB-DOC-0008",
+                      "AMB-RESCUE-0003",
+                      "AMB-RESCUE-0004",
+                      "AMB-SD-000050",
+                      "AMB-RESCUE-0001",
+                      "AMB-RESCUE-0005"
+                    ],
+                    "injected_token_count": 892,
+                    "selected_record_count": 7,
+                    "created_at": "2026-05-17T07:09:50.567Z"
+                  }
+                ]
+              },
+              "active_records": 93,
+              "proposed_records": 0,
+              "suspended_records": 0,
+              "suspended_audit_records": 3,
+              "rejected_audit_records": 20,
+              "remaining_rejected_audit_records": 15,
+              "rescued_from_rejected_records": 5,
+              "reclassified_to_project_architecture_records": 5,
+              "excluded_records": 5,
+              "rejected_or_suspended_audit_records": 23,
+              "source_docs": [
+                {
+                  "memory_product": "engineering-principles",
+                  "path": "docs/ENGINEERING_PRINCIPLES.md",
+                  "exists": true,
+                  "active_records": 13,
+                  "proposed_records": 0,
+                  "suspended_records": 0,
+                  "active_date_records": 13
+                },
+                {
+                  "memory_product": "project-architecture",
+                  "path": "docs/PROJECT_ARCHITECTURE.md",
+                  "exists": true,
+                  "active_records": 80,
+                  "proposed_records": 0,
+                  "suspended_records": 0,
+                  "active_date_records": 80
+                }
+              ],
+              "audit_artifacts": {
+                "active_promotion": "experiments/architectural-memory-dry-run-2026-05-16/active-promotion.json",
+                "classification_correction": "experiments/architectural-memory-dry-run-2026-05-16/classification-correction.json",
+                "request_changes_resolution": "experiments/architectural-memory-dry-run-2026-05-16/request-changes-resolution.json",
+                "verification_report": "experiments/architectural-memory-dry-run-2026-05-16/verification-report.json"
+              },
+              "warnings": []
+            },
+            "storage": {
+              "ok": true,
+              "database": {
+                "path": "/root/projects/AgentSessionRouter/.claude-session-router/sessions.sqlite",
+                "exists": true,
+                "readable": true,
+                "writable": true,
+                "schema_ok": true,
+                "quick_check_ok": true,
+                "write_check_ok": true,
+                "errors": []
+              },
+              "raw_logs": {
+                "path": "/root/projects/AgentSessionRouter/.claude-session-router/raw",
+                "exists": true,
+                "is_directory": true,
+                "readable": true,
+                "writable": true,
+                "errors": []
+              }
+            },
+            "warnings": []
+          }
+        },
+        {
+          "label": "current_8ec92c7",
+          "repetition": 2,
+          "project_id": "AgentSessionRouter-gate13-continuity-current_8ec92c7-2-1779001835087",
+          "status": {
+            "project_id": "AgentSessionRouter-gate13-continuity-current_8ec92c7-2-1779001835087",
+            "checked_at": "2026-05-17T07:11:51.767Z",
+            "mode": "normal",
+            "degraded_reason": null,
+            "uptime_hours": 0.04,
+            "claude": {
+              "detected_version": "2.1.92 (Claude Code)",
+              "tested_versions": [
+                "\"2.1.138 (Claude Code)\"",
+                "\"2.1.92 (Claude Code)\""
+              ]
+            },
+            "v1_sessions": {
+              "active": 1,
+              "dormant": 0,
+              "archived": 0,
+              "orphaned": 0,
+              "total": 1
+            },
+            "v2_clusters": {
+              "active": 0,
+              "stale": 0,
+              "needs_prepare": 0,
+              "invalidated": 0,
+              "archived": 0,
+              "total": 0,
+              "fallback_count_last_24h": 0,
+              "stale_clusters": []
+            },
+            "recent_window_hours": 24,
+            "recent_errors": {
+              "session_events": [],
+              "slow_session_events": [],
+              "cluster_events": []
+            },
+            "shadow_eval": {
+              "enabled": true,
+              "total": 0,
+              "judged": 0,
+              "pending": 0,
+              "ok_unjudged": 0,
+              "failed_auth": 0,
+              "failed_timeout": 0,
+              "failed_other": 0,
+              "last_created_at": null,
+              "last_judged_at": null
+            },
+            "architectural_memory": {
+              "enabled": true,
+              "runtime_import_serving_enabled": true,
+              "serving_preflight": {
+                "selection_llm_input_tokens": 0,
+                "per_consult_architectural_memory_tokens": 0,
+                "max_engineering_principles": 7,
+                "target_seed_tokens": 900,
+                "absolute_seed_tokens": 1200,
+                "min_post_serving_continuity_runs": 3,
+                "adversarial_broken_zero_sufficient": false
+              },
+              "serving_runtime": {
+                "seeded_sessions_total": 1,
+                "latest_seed_token_count": 892,
+                "max_seed_token_count": 892,
+                "latest_seeded_sessions": [
+                  {
+                    "id": 4,
+                    "session_id": "session_7b1d21fe-ef63-4ba7-8a79-60302e65825b",
+                    "project_id": "AgentSessionRouter-gate13-continuity-current_8ec92c7-2-1779001835087",
+                    "topic": "untrusted stale evidence safe fallback silent caller-facing telemetry verified artifact runtime counter evidence diffable provenance classification rubric orphaned dead session",
+                    "seed_kind": "engineering_principles",
+                    "seed_signature": "sha256:e4657abc72911da14cc009f24bd559a355866fbbceb3498a8dfc7b17b83a2b14",
+                    "record_ids": [
+                      "AMB-RESCUE-0002",
+                      "AMB-DOC-0008",
+                      "AMB-RESCUE-0003",
+                      "AMB-RESCUE-0004",
+                      "AMB-SD-000050",
+                      "AMB-RESCUE-0001",
+                      "AMB-RESCUE-0005"
+                    ],
+                    "injected_token_count": 892,
+                    "selected_record_count": 7,
+                    "created_at": "2026-05-17T07:10:46.270Z"
+                  }
+                ]
+              },
+              "active_records": 93,
+              "proposed_records": 0,
+              "suspended_records": 0,
+              "suspended_audit_records": 3,
+              "rejected_audit_records": 20,
+              "remaining_rejected_audit_records": 15,
+              "rescued_from_rejected_records": 5,
+              "reclassified_to_project_architecture_records": 5,
+              "excluded_records": 5,
+              "rejected_or_suspended_audit_records": 23,
+              "source_docs": [
+                {
+                  "memory_product": "engineering-principles",
+                  "path": "docs/ENGINEERING_PRINCIPLES.md",
+                  "exists": true,
+                  "active_records": 13,
+                  "proposed_records": 0,
+                  "suspended_records": 0,
+                  "active_date_records": 13
+                },
+                {
+                  "memory_product": "project-architecture",
+                  "path": "docs/PROJECT_ARCHITECTURE.md",
+                  "exists": true,
+                  "active_records": 80,
+                  "proposed_records": 0,
+                  "suspended_records": 0,
+                  "active_date_records": 80
+                }
+              ],
+              "audit_artifacts": {
+                "active_promotion": "experiments/architectural-memory-dry-run-2026-05-16/active-promotion.json",
+                "classification_correction": "experiments/architectural-memory-dry-run-2026-05-16/classification-correction.json",
+                "request_changes_resolution": "experiments/architectural-memory-dry-run-2026-05-16/request-changes-resolution.json",
+                "verification_report": "experiments/architectural-memory-dry-run-2026-05-16/verification-report.json"
+              },
+              "warnings": []
+            },
+            "storage": {
+              "ok": true,
+              "database": {
+                "path": "/root/projects/AgentSessionRouter/.claude-session-router/sessions.sqlite",
+                "exists": true,
+                "readable": true,
+                "writable": true,
+                "schema_ok": true,
+                "quick_check_ok": true,
+                "write_check_ok": true,
+                "errors": []
+              },
+              "raw_logs": {
+                "path": "/root/projects/AgentSessionRouter/.claude-session-router/raw",
+                "exists": true,
+                "is_directory": true,
+                "readable": true,
+                "writable": true,
+                "errors": []
+              }
+            },
+            "warnings": []
+          }
+        },
+        {
+          "label": "current_8ec92c7",
+          "repetition": 3,
+          "project_id": "AgentSessionRouter-gate13-continuity-current_8ec92c7-3-1779001911768",
+          "status": {
+            "project_id": "AgentSessionRouter-gate13-continuity-current_8ec92c7-3-1779001911768",
+            "checked_at": "2026-05-17T07:13:04.716Z",
+            "mode": "normal",
+            "degraded_reason": null,
+            "uptime_hours": 0.06,
+            "claude": {
+              "detected_version": "2.1.92 (Claude Code)",
+              "tested_versions": [
+                "\"2.1.138 (Claude Code)\"",
+                "\"2.1.92 (Claude Code)\""
+              ]
+            },
+            "v1_sessions": {
+              "active": 1,
+              "dormant": 0,
+              "archived": 0,
+              "orphaned": 0,
+              "total": 1
+            },
+            "v2_clusters": {
+              "active": 0,
+              "stale": 0,
+              "needs_prepare": 0,
+              "invalidated": 0,
+              "archived": 0,
+              "total": 0,
+              "fallback_count_last_24h": 0,
+              "stale_clusters": []
+            },
+            "recent_window_hours": 24,
+            "recent_errors": {
+              "session_events": [],
+              "slow_session_events": [],
+              "cluster_events": []
+            },
+            "shadow_eval": {
+              "enabled": true,
+              "total": 0,
+              "judged": 0,
+              "pending": 0,
+              "ok_unjudged": 0,
+              "failed_auth": 0,
+              "failed_timeout": 0,
+              "failed_other": 0,
+              "last_created_at": null,
+              "last_judged_at": null
+            },
+            "architectural_memory": {
+              "enabled": true,
+              "runtime_import_serving_enabled": true,
+              "serving_preflight": {
+                "selection_llm_input_tokens": 0,
+                "per_consult_architectural_memory_tokens": 0,
+                "max_engineering_principles": 7,
+                "target_seed_tokens": 900,
+                "absolute_seed_tokens": 1200,
+                "min_post_serving_continuity_runs": 3,
+                "adversarial_broken_zero_sufficient": false
+              },
+              "serving_runtime": {
+                "seeded_sessions_total": 1,
+                "latest_seed_token_count": 892,
+                "max_seed_token_count": 892,
+                "latest_seeded_sessions": [
+                  {
+                    "id": 5,
+                    "session_id": "session_a387ee5b-d018-4386-b987-e21bf2920072",
+                    "project_id": "AgentSessionRouter-gate13-continuity-current_8ec92c7-3-1779001911768",
+                    "topic": "untrusted stale evidence safe fallback silent caller-facing telemetry verified artifact runtime counter evidence diffable provenance classification rubric orphaned dead session",
+                    "seed_kind": "engineering_principles",
+                    "seed_signature": "sha256:e4657abc72911da14cc009f24bd559a355866fbbceb3498a8dfc7b17b83a2b14",
+                    "record_ids": [
+                      "AMB-RESCUE-0002",
+                      "AMB-DOC-0008",
+                      "AMB-RESCUE-0003",
+                      "AMB-RESCUE-0004",
+                      "AMB-SD-000050",
+                      "AMB-RESCUE-0001",
+                      "AMB-RESCUE-0005"
+                    ],
+                    "injected_token_count": 892,
+                    "selected_record_count": 7,
+                    "created_at": "2026-05-17T07:12:08.740Z"
+                  }
+                ]
+              },
+              "active_records": 93,
+              "proposed_records": 0,
+              "suspended_records": 0,
+              "suspended_audit_records": 3,
+              "rejected_audit_records": 20,
+              "remaining_rejected_audit_records": 15,
+              "rescued_from_rejected_records": 5,
+              "reclassified_to_project_architecture_records": 5,
+              "excluded_records": 5,
+              "rejected_or_suspended_audit_records": 23,
+              "source_docs": [
+                {
+                  "memory_product": "engineering-principles",
+                  "path": "docs/ENGINEERING_PRINCIPLES.md",
+                  "exists": true,
+                  "active_records": 13,
+                  "proposed_records": 0,
+                  "suspended_records": 0,
+                  "active_date_records": 13
+                },
+                {
+                  "memory_product": "project-architecture",
+                  "path": "docs/PROJECT_ARCHITECTURE.md",
+                  "exists": true,
+                  "active_records": 80,
+                  "proposed_records": 0,
+                  "suspended_records": 0,
+                  "active_date_records": 80
+                }
+              ],
+              "audit_artifacts": {
+                "active_promotion": "experiments/architectural-memory-dry-run-2026-05-16/active-promotion.json",
+                "classification_correction": "experiments/architectural-memory-dry-run-2026-05-16/classification-correction.json",
+                "request_changes_resolution": "experiments/architectural-memory-dry-run-2026-05-16/request-changes-resolution.json",
+                "verification_report": "experiments/architectural-memory-dry-run-2026-05-16/verification-report.json"
+              },
+              "warnings": []
+            },
+            "storage": {
+              "ok": true,
+              "database": {
+                "path": "/root/projects/AgentSessionRouter/.claude-session-router/sessions.sqlite",
+                "exists": true,
+                "readable": true,
+                "writable": true,
+                "schema_ok": true,
+                "quick_check_ok": true,
+                "write_check_ok": true,
+                "errors": []
+              },
+              "raw_logs": {
+                "path": "/root/projects/AgentSessionRouter/.claude-session-router/raw",
+                "exists": true,
+                "is_directory": true,
+                "readable": true,
+                "writable": true,
+                "errors": []
+              }
+            },
+            "warnings": []
+          }
+        }
+      ]
+    }
+  ],
+  "calls": [
+    {
+      "label": "baseline_20a02c4",
+      "commit": "20a02c4",
+      "repetition": 1,
+      "turn_id": "T1",
+      "turn_kind": "seed",
+      "ok": true,
+      "duration_ms": 17720,
+      "session_id": "session_a0248df5-eead-4cf6-ad91-9562933004b2",
+      "selected_path": "claude_consult_new_session",
+      "was_new_session": true,
+      "architectural_memory_seed": null,
+      "score": 3,
+      "matched_requirements": [
+        "alpha",
+        "caller-answer",
+        "operator-monitor"
+      ],
+      "missing_requirements": [],
+      "answer_chars": 885,
+      "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/baseline_20a02c4_run1_T1.txt",
+      "answer_preview": "**ALPHA-17 benchmark decision established:**\n\n- **ALPHA-17**: The router MUST answer the caller directly when Claude is available. Monitor telemetry serves the operator's observability needs only — it is not a caller-facing recovery mechanism.\n- **Continuity principle**: Stale evidence or orphaned sessions do not trigger silent caller-side fallback; the router remains the authoritative session bou",
+      "error": null
+    },
+    {
+      "label": "baseline_20a02c4",
+      "commit": "20a02c4",
+      "repetition": 1,
+      "turn_id": "T2",
+      "turn_kind": "memory_probe",
+      "ok": true,
+      "duration_ms": 6342,
+      "session_id": "session_a0248df5-eead-4cf6-ad91-9562933004b2",
+      "selected_path": "claude_consult_existing_session",
+      "was_new_session": false,
+      "architectural_memory_seed": null,
+      "score": 3,
+      "matched_requirements": [
+        "alpha",
+        "caller-answer",
+        "operator-monitor"
+      ],
+      "missing_requirements": [],
+      "answer_chars": 485,
+      "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/baseline_20a02c4_run1_T2.txt",
+      "answer_preview": "**From benchmark turn 1 — recalled from session memory:**\n\n- **Codeword ALPHA-17**: The router MUST answer the caller when Claude is available.\n- **Caller/operator rule**: Monitor telemetry is operator-only instrumentation — it is not a caller-facing recovery path. The router owns the caller's contract, not the telemetry subsystem.\n\n**Open question carried forward**: What is the exact fallback beh",
+      "error": null
+    },
+    {
+      "label": "baseline_20a02c4",
+      "commit": "20a02c4",
+      "repetition": 1,
+      "turn_id": "T3",
+      "turn_kind": "seed",
+      "ok": true,
+      "duration_ms": 6740,
+      "session_id": "session_a0248df5-eead-4cf6-ad91-9562933004b2",
+      "selected_path": "claude_consult_existing_session",
+      "was_new_session": false,
+      "architectural_memory_seed": null,
+      "score": 3,
+      "matched_requirements": [
+        "beta",
+        "revalidation",
+        "internal-fallback"
+      ],
+      "missing_requirements": [],
+      "answer_chars": 872,
+      "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/baseline_20a02c4_run1_T3.txt",
+      "answer_preview": "**Benchmark decisions recalled + extended:**\n\n- **ALPHA-17** (existing): Router must answer the caller when Claude is available. Monitor telemetry is operator-only — not a caller recovery path.\n- **BETA-29** (new): Factsheet evidence must be revalidated against live runtime before use. If revalidation cannot prove the facts are current, the router falls back **internally** — it does not ask the ca",
+      "error": null
+    },
+    {
+      "label": "baseline_20a02c4",
+      "commit": "20a02c4",
+      "repetition": 1,
+      "turn_id": "T4",
+      "turn_kind": "memory_probe",
+      "ok": true,
+      "duration_ms": 6217,
+      "session_id": "session_a0248df5-eead-4cf6-ad91-9562933004b2",
+      "selected_path": "claude_consult_existing_session",
+      "was_new_session": false,
+      "architectural_memory_seed": null,
+      "score": 3,
+      "matched_requirements": [
+        "alpha",
+        "beta",
+        "caller-answer",
+        "revalidation-fallback"
+      ],
+      "missing_requirements": [],
+      "answer_chars": 630,
+      "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/baseline_20a02c4_run1_T4.txt",
+      "answer_preview": "**Both benchmark codewords from session memory:**\n\n- **ALPHA-17**: The router MUST answer the caller when Claude is available. Monitor telemetry serves the operator only — it is not a caller recovery path.\n- **BETA-29**: Factsheet evidence must be revalidated before use. If revalidation cannot prove current facts, the router falls back internally — it does not ask the caller to recover the session",
+      "error": null
+    },
+    {
+      "label": "baseline_20a02c4",
+      "commit": "20a02c4",
+      "repetition": 1,
+      "turn_id": "T5",
+      "turn_kind": "synthesis",
+      "ok": true,
+      "duration_ms": 10182,
+      "session_id": "session_a0248df5-eead-4cf6-ad91-9562933004b2",
+      "selected_path": "claude_consult_existing_session",
+      "was_new_session": false,
+      "architectural_memory_seed": null,
+      "score": 2,
+      "matched_requirements": [
+        "alpha",
+        "beta",
+        "direct-fresh-insufficient"
+      ],
+      "missing_requirements": [
+        "session-benchmark"
+      ],
+      "answer_chars": 1349,
+      "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/baseline_20a02c4_run1_T5.txt",
+      "answer_preview": "**Why cluster_consult vs. direct_fresh alone is insufficient:**\n\nComparing those two paths only exercises **ALPHA-17** (caller answer speed). It entirely skips **BETA-29** (factsheet revalidation before evidence use).\n\n- **direct_fresh** bypasses the factsheet entirely — it answers the caller from live runtime without touching stale evidence. BETA-29 is not triggered or tested by this comparison.\n",
+      "error": null
+    },
+    {
+      "label": "baseline_20a02c4",
+      "commit": "20a02c4",
+      "repetition": 2,
+      "turn_id": "T1",
+      "turn_kind": "seed",
+      "ok": true,
+      "duration_ms": 20621,
+      "session_id": "session_086314b2-49a5-41a2-9cd9-ffd19a88a080",
+      "selected_path": "claude_consult_new_session",
+      "was_new_session": true,
+      "architectural_memory_seed": null,
+      "score": 3,
+      "matched_requirements": [
+        "alpha",
+        "caller-answer",
+        "operator-monitor"
+      ],
+      "missing_requirements": [],
+      "answer_chars": 1342,
+      "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/baseline_20a02c4_run2_T1.txt",
+      "answer_preview": "**ALPHA-17 benchmark decision established:**\n\n- **Codeword ALPHA-17**: Router must answer the caller directly when Claude is available; monitoring telemetry is operator-facing only, not caller-recovery infrastructure.\n- **Rationale**: Caller-facing silence when Claude is ready is a regression. Telemetry drift or staleness must never block the primary path. The router owns the answer contract; obse",
+      "error": null
+    },
+    {
+      "label": "baseline_20a02c4",
+      "commit": "20a02c4",
+      "repetition": 2,
+      "turn_id": "T2",
+      "turn_kind": "memory_probe",
+      "ok": true,
+      "duration_ms": 15106,
+      "session_id": "session_086314b2-49a5-41a2-9cd9-ffd19a88a080",
+      "selected_path": "claude_consult_existing_session",
+      "was_new_session": false,
+      "architectural_memory_seed": null,
+      "score": 3,
+      "matched_requirements": [
+        "alpha",
+        "caller-answer",
+        "operator-monitor"
+      ],
+      "missing_requirements": [],
+      "answer_chars": 323,
+      "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/baseline_20a02c4_run2_T2.txt",
+      "answer_preview": "**From benchmark turn 1 — ALPHA-17:**\n\n- **Codeword ALPHA-17**: The router must answer the caller when Claude is available.\n- **Caller/Operator rule**: Monitoring telemetry is for the operator only — it is never a caller-facing recovery path. Stale or orphaned session telemetry must never block the caller answer contract.",
+      "error": null
+    },
+    {
+      "label": "baseline_20a02c4",
+      "commit": "20a02c4",
+      "repetition": 2,
+      "turn_id": "T3",
+      "turn_kind": "seed",
+      "ok": true,
+      "duration_ms": 20839,
+      "session_id": "session_086314b2-49a5-41a2-9cd9-ffd19a88a080",
+      "selected_path": "claude_consult_existing_session",
+      "was_new_session": false,
+      "architectural_memory_seed": null,
+      "score": 3,
+      "matched_requirements": [
+        "beta",
+        "revalidation",
+        "internal-fallback"
+      ],
+      "missing_requirements": [],
+      "answer_chars": 881,
+      "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/baseline_20a02c4_run2_T3.txt",
+      "answer_preview": "**BETA-29 benchmark decision established:**\n\n- **Codeword BETA-29**: Factsheet evidence must be revalidated before use. If revalidation cannot prove the facts are current and valid, the router falls back internally — it never asks the caller to recover the session state.\n- **Operational meaning**: Stale factsheet data is untrusted evidence. The router must run a current-state check (diffable, prov",
+      "error": null
+    },
+    {
+      "label": "baseline_20a02c4",
+      "commit": "20a02c4",
+      "repetition": 2,
+      "turn_id": "T4",
+      "turn_kind": "memory_probe",
+      "ok": true,
+      "duration_ms": 19635,
+      "session_id": "session_086314b2-49a5-41a2-9cd9-ffd19a88a080",
+      "selected_path": "claude_consult_existing_session",
+      "was_new_session": false,
+      "architectural_memory_seed": null,
+      "score": 3,
+      "matched_requirements": [
+        "alpha",
+        "beta",
+        "caller-answer",
+        "revalidation-fallback"
+      ],
+      "missing_requirements": [],
+      "answer_chars": 815,
+      "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/baseline_20a02c4_run2_T4.txt",
+      "answer_preview": "**Benchmark summary from prior turns:**\n\n- **ALPHA-17**: Router answers the caller on Claude availability. Telemetry is operator-facing only — it is never a caller recovery mechanism. Stale or dead telemetry must never block the caller answer contract.\n\n- **BETA-29**: Factsheet evidence requires revalidation before use. If revalidation cannot prove the facts current, the router falls back to the l",
+      "error": null
+    },
+    {
+      "label": "baseline_20a02c4",
+      "commit": "20a02c4",
+      "repetition": 2,
+      "turn_id": "T5",
+      "turn_kind": "synthesis",
+      "ok": true,
+      "duration_ms": 27450,
+      "session_id": "session_086314b2-49a5-41a2-9cd9-ffd19a88a080",
+      "selected_path": "claude_consult_existing_session",
+      "was_new_session": false,
+      "architectural_memory_seed": null,
+      "score": 2,
+      "matched_requirements": [
+        "alpha",
+        "beta",
+        "direct-fresh-insufficient"
+      ],
+      "missing_requirements": [
+        "session-benchmark"
+      ],
+      "answer_chars": 1464,
+      "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/baseline_20a02c4_run2_T5.txt",
+      "answer_preview": "**Why cluster_consult vs. direct_fresh is insufficient as a sole benchmark:**\n\nALPHA-17 governs *when* the router answers (on Claude availability, not on telemetry confirmation). BETA-29 governs *what* the router answers with (revalidated factsheet evidence only). A binary comparison between cluster_consult and direct_fresh tests path selection, but it tests neither gate.\n\n**The missing benchmarks",
+      "error": null
+    },
+    {
+      "label": "baseline_20a02c4",
+      "commit": "20a02c4",
+      "repetition": 3,
+      "turn_id": "T1",
+      "turn_kind": "seed",
+      "ok": true,
+      "duration_ms": 15685,
+      "session_id": "session_231e691c-6916-49b0-8134-d4ada37d106e",
+      "selected_path": "claude_consult_new_session",
+      "was_new_session": true,
+      "architectural_memory_seed": null,
+      "score": 3,
+      "matched_requirements": [
+        "alpha",
+        "caller-answer",
+        "operator-monitor"
+      ],
+      "missing_requirements": [],
+      "answer_chars": 957,
+      "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/baseline_20a02c4_run3_T1.txt",
+      "answer_preview": "## ALPHA-17 Benchmark Decision\n\n- **Codeword ALPHA-17**: Session continuity fallback — router answers caller directly when Claude is available; monitor telemetry serves operator oversight only, never caller recovery.\n- **Rule**: Caller-facing routing must not depend on telemetry availability. The router's job is to answer the caller with available intelligence, not to wait for proof-of-value confi",
+      "error": null
+    },
+    {
+      "label": "baseline_20a02c4",
+      "commit": "20a02c4",
+      "repetition": 3,
+      "turn_id": "T2",
+      "turn_kind": "memory_probe",
+      "ok": true,
+      "duration_ms": 7869,
+      "session_id": "session_231e691c-6916-49b0-8134-d4ada37d106e",
+      "selected_path": "claude_consult_existing_session",
+      "was_new_session": false,
+      "architectural_memory_seed": null,
+      "score": 3,
+      "matched_requirements": [
+        "alpha",
+        "caller-answer",
+        "operator-monitor"
+      ],
+      "missing_requirements": [],
+      "answer_chars": 350,
+      "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/baseline_20a02c4_run3_T2.txt",
+      "answer_preview": "## ALPHA-17 Recall — Turn 2\n\n**Codeword**: ALPHA-17\n\n**Caller rule**: Router answers the caller when Claude is available — no waiting for telemetry confirmation.\n\n**Operator rule**: Monitor telemetry is operator-facing only. It never becomes a recovery path for the caller.\n\n---\n\nThis is the same ALPHA-17 decision from turn 1. Nothing new to invent.",
+      "error": null
+    },
+    {
+      "label": "baseline_20a02c4",
+      "commit": "20a02c4",
+      "repetition": 3,
+      "turn_id": "T3",
+      "turn_kind": "seed",
+      "ok": true,
+      "duration_ms": 12006,
+      "session_id": "session_231e691c-6916-49b0-8134-d4ada37d106e",
+      "selected_path": "claude_consult_existing_session",
+      "was_new_session": false,
+      "architectural_memory_seed": null,
+      "score": 3,
+      "matched_requirements": [
+        "beta",
+        "revalidation",
+        "internal-fallback"
+      ],
+      "missing_requirements": [],
+      "answer_chars": 1001,
+      "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/baseline_20a02c4_run3_T3.txt",
+      "answer_preview": "## BETA-29 — Second Benchmark Decision\n\n**New codeword**: BETA-29\n\n**Rule**: Factsheet evidence must be revalidated before use. If revalidation cannot prove the current facts, the router falls back **internally** — it does not prompt the caller to recover.\n\n**Operational meaning**: The caller never sees evidence gaps. The router either has fresh proof or silently falls back to a safe internal path",
+      "error": null
+    },
+    {
+      "label": "baseline_20a02c4",
+      "commit": "20a02c4",
+      "repetition": 3,
+      "turn_id": "T4",
+      "turn_kind": "memory_probe",
+      "ok": true,
+      "duration_ms": 14880,
+      "session_id": "session_231e691c-6916-49b0-8134-d4ada37d106e",
+      "selected_path": "claude_consult_existing_session",
+      "was_new_session": false,
+      "architectural_memory_seed": null,
+      "score": 3,
+      "matched_requirements": [
+        "alpha",
+        "beta",
+        "caller-answer",
+        "revalidation-fallback"
+      ],
+      "missing_requirements": [],
+      "answer_chars": 677,
+      "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/baseline_20a02c4_run3_T4.txt",
+      "answer_preview": "## ALPHA-17 + BETA-29 — Combined Recall\n\n**ALPHA-17**: Router answers the caller when Claude is available. Monitor telemetry is operator-facing only — it never becomes a recovery path for the caller.\n\n**BETA-29**: Factsheet evidence must be revalidated before use. If revalidation cannot prove the current facts, the router falls back internally rather than asking the caller to recover.\n\n**Combined ",
+      "error": null
+    },
+    {
+      "label": "baseline_20a02c4",
+      "commit": "20a02c4",
+      "repetition": 3,
+      "turn_id": "T5",
+      "turn_kind": "synthesis",
+      "ok": true,
+      "duration_ms": 12148,
+      "session_id": "session_231e691c-6916-49b0-8134-d4ada37d106e",
+      "selected_path": "claude_consult_existing_session",
+      "was_new_session": false,
+      "architectural_memory_seed": null,
+      "score": 2,
+      "matched_requirements": [
+        "alpha",
+        "beta",
+        "direct-fresh-insufficient"
+      ],
+      "missing_requirements": [
+        "session-benchmark"
+      ],
+      "answer_chars": 1536,
+      "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/baseline_20a02c4_run3_T5.txt",
+      "answer_preview": "## Why cluster_consult vs. direct_fresh Is a Partial Benchmark\n\nA two-way comparison misses half of ALPHA-17 and BETA-29.\n\n**ALPHA-17 gap**: `direct_fresh` assumes a fully available, fully fresh path to the caller. But in orphaned/dead sessions, that path may not exist. The comparison `cluster_consult vs. direct_fresh` has no answer for what cluster_consult does when neither direct nor fresh is av",
+      "error": null
+    },
+    {
+      "label": "current_8ec92c7",
+      "commit": "8ec92c7",
+      "repetition": 1,
+      "turn_id": "T1",
+      "turn_kind": "seed",
+      "ok": true,
+      "duration_ms": 28438,
+      "session_id": "session_52372386-9c6a-449f-a4a0-8fb6d319b395",
+      "selected_path": "claude_consult_new_session",
+      "was_new_session": true,
+      "architectural_memory_seed": {
+        "injected": true,
+        "injected_token_count": 892,
+        "record_ids": [
+          "AMB-RESCUE-0002",
+          "AMB-DOC-0008",
+          "AMB-RESCUE-0003",
+          "AMB-RESCUE-0004",
+          "AMB-SD-000050",
+          "AMB-RESCUE-0001",
+          "AMB-RESCUE-0005"
+        ],
+        "seed_signature": "sha256:e4657abc72911da14cc009f24bd559a355866fbbceb3498a8dfc7b17b83a2b14",
+        "dedup_reason": "no_existing_manifest"
+      },
+      "score": 3,
+      "matched_requirements": [
+        "alpha",
+        "caller-answer",
+        "operator-monitor"
+      ],
+      "missing_requirements": [],
+      "answer_chars": 787,
+      "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/current_8ec92c7_run1_T1.txt",
+      "answer_preview": "## ALPHA-17 Benchmark Decision\n\n**Codeword definition:** `ALPHA-17` = \"the router must answer the caller when Claude is available; monitor telemetry is for the operator, not for caller recovery\"\n\n- **ALPHA-17**: When Claude is available, the router answers the caller directly. Telemetry and monitoring are operator-facing only — they do not gate or influence the caller's answer path.\n- **Supporting",
+      "error": null
+    },
+    {
+      "label": "current_8ec92c7",
+      "commit": "8ec92c7",
+      "repetition": 1,
+      "turn_id": "T2",
+      "turn_kind": "memory_probe",
+      "ok": true,
+      "duration_ms": 10411,
+      "session_id": "session_52372386-9c6a-449f-a4a0-8fb6d319b395",
+      "selected_path": "claude_consult_existing_session",
+      "was_new_session": false,
+      "architectural_memory_seed": null,
+      "score": 3,
+      "matched_requirements": [
+        "alpha",
+        "caller-answer",
+        "operator-monitor"
+      ],
+      "missing_requirements": [],
+      "answer_chars": 577,
+      "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/current_8ec92c7_run1_T2.txt",
+      "answer_preview": "## ALPHA-17 Recall (Benchmark Turn 1)\n\n**Codeword:** `ALPHA-17`\n\n**Caller/Operator rule established:**\n- **Caller side:** Router answers the caller directly when Claude is available — session provenance, staleness, or orphan status does not block the answer path.\n- **Operator side:** Telemetry and monitoring are operator-facing only. They are for observability and recovery, not for influencing or ",
+      "error": null
+    },
+    {
+      "label": "current_8ec92c7",
+      "commit": "8ec92c7",
+      "repetition": 1,
+      "turn_id": "T3",
+      "turn_kind": "seed",
+      "ok": true,
+      "duration_ms": 12843,
+      "session_id": "session_52372386-9c6a-449f-a4a0-8fb6d319b395",
+      "selected_path": "claude_consult_existing_session",
+      "was_new_session": false,
+      "architectural_memory_seed": null,
+      "score": 3,
+      "matched_requirements": [
+        "beta",
+        "revalidation",
+        "internal-fallback"
+      ],
+      "missing_requirements": [],
+      "answer_chars": 1000,
+      "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/current_8ec92c7_run1_T3.txt",
+      "answer_preview": "## ALPHA-17 + BETA-29 Benchmark Decisions\n\n**Existing decision (ALPHA-17):**\nRouter answers the caller when Claude is available. Telemetry and monitoring are operator-facing only — they do not gate or influence the caller's answer path.\n\n**New decision (BETA-29):**\n`BETA-29` = \"factsheet evidence must be revalidated before use; if revalidation cannot prove current facts, the router falls back inte",
+      "error": null
+    },
+    {
+      "label": "current_8ec92c7",
+      "commit": "8ec92c7",
+      "repetition": 1,
+      "turn_id": "T4",
+      "turn_kind": "memory_probe",
+      "ok": true,
+      "duration_ms": 6970,
+      "session_id": "session_52372386-9c6a-449f-a4a0-8fb6d319b395",
+      "selected_path": "claude_consult_existing_session",
+      "was_new_session": false,
+      "architectural_memory_seed": null,
+      "score": 3,
+      "matched_requirements": [
+        "alpha",
+        "beta",
+        "caller-answer",
+        "revalidation-fallback"
+      ],
+      "missing_requirements": [],
+      "answer_chars": 593,
+      "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/current_8ec92c7_run1_T4.txt",
+      "answer_preview": "## Session Continuity Benchmark Summary\n\n**ALPHA-17:** Router answers the caller when Claude is available. Telemetry and monitoring are operator-facing only — they do not gate or influence the caller's answer path.\n\n**BETA-29:** Factsheet evidence must be revalidated before use. If revalidation cannot prove current facts, the router performs an internal safe fallback — it does not expose stale evi",
+      "error": null
+    },
+    {
+      "label": "current_8ec92c7",
+      "commit": "8ec92c7",
+      "repetition": 1,
+      "turn_id": "T5",
+      "turn_kind": "synthesis",
+      "ok": true,
+      "duration_ms": 14271,
+      "session_id": "session_52372386-9c6a-449f-a4a0-8fb6d319b395",
+      "selected_path": "claude_consult_existing_session",
+      "was_new_session": false,
+      "architectural_memory_seed": null,
+      "score": 3,
+      "matched_requirements": [
+        "alpha",
+        "beta",
+        "direct-fresh-insufficient",
+        "session-benchmark"
+      ],
+      "missing_requirements": [],
+      "answer_chars": 1323,
+      "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/current_8ec92c7_run1_T5.txt",
+      "answer_preview": "## Why cluster_consult vs. direct_fresh Is Insufficient\n\n**The gap:** Comparing `cluster_consult` against `direct_fresh` only measures *routing strategy accuracy* — it does not measure the *factsheet revalidation path* that BETA-29 requires, nor does it confirm *caller answer priority* that ALPHA-17 guarantees.\n\n**BETA-29 implication:** When `cluster_consult` uses a factsheet, the benchmark must a",
+      "error": null
+    },
+    {
+      "label": "current_8ec92c7",
+      "commit": "8ec92c7",
+      "repetition": 2,
+      "turn_id": "T1",
+      "turn_kind": "seed",
+      "ok": true,
+      "duration_ms": 11195,
+      "session_id": "session_7b1d21fe-ef63-4ba7-8a79-60302e65825b",
+      "selected_path": "claude_consult_new_session",
+      "was_new_session": true,
+      "architectural_memory_seed": {
+        "injected": true,
+        "injected_token_count": 892,
+        "record_ids": [
+          "AMB-RESCUE-0002",
+          "AMB-DOC-0008",
+          "AMB-RESCUE-0003",
+          "AMB-RESCUE-0004",
+          "AMB-SD-000050",
+          "AMB-RESCUE-0001",
+          "AMB-RESCUE-0005"
+        ],
+        "seed_signature": "sha256:e4657abc72911da14cc009f24bd559a355866fbbceb3498a8dfc7b17b83a2b14",
+        "dedup_reason": "no_existing_manifest"
+      },
+      "score": 3,
+      "matched_requirements": [
+        "alpha",
+        "caller-answer",
+        "operator-monitor"
+      ],
+      "missing_requirements": [],
+      "answer_chars": 549,
+      "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/current_8ec92c7_run2_T1.txt",
+      "answer_preview": "- **ALPHA-17**: The router **must** answer the caller when Claude is available. Monitor telemetry serves the operator only — it is not a caller recovery mechanism and must not gate or delay caller-facing responses.\n\nThis decision is bounded by AMB-RESCUE-0001 (telemetry separation from production answers) and AMB-SD-000050 (conservative fallback when cluster state is stale). If the router cannot r",
+      "error": null
+    },
+    {
+      "label": "current_8ec92c7",
+      "commit": "8ec92c7",
+      "repetition": 2,
+      "turn_id": "T2",
+      "turn_kind": "memory_probe",
+      "ok": true,
+      "duration_ms": 9838,
+      "session_id": "session_7b1d21fe-ef63-4ba7-8a79-60302e65825b",
+      "selected_path": "claude_consult_existing_session",
+      "was_new_session": false,
+      "architectural_memory_seed": null,
+      "score": 3,
+      "matched_requirements": [
+        "alpha",
+        "caller-answer",
+        "operator-monitor"
+      ],
+      "missing_requirements": [],
+      "answer_chars": 288,
+      "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/current_8ec92c7_run2_T2.txt",
+      "answer_preview": "From session memory (turn 1):\n\n- **Codeword**: ALPHA-17\n- **Caller/operator rule**: The router answers the caller directly when Claude is available. Monitor telemetry serves the operator only — it is never a caller recovery mechanism and must not gate or delay the caller-facing response.",
+      "error": null
+    },
+    {
+      "label": "current_8ec92c7",
+      "commit": "8ec92c7",
+      "repetition": 2,
+      "turn_id": "T3",
+      "turn_kind": "seed",
+      "ok": true,
+      "duration_ms": 12611,
+      "session_id": "session_7b1d21fe-ef63-4ba7-8a79-60302e65825b",
+      "selected_path": "claude_consult_existing_session",
+      "was_new_session": false,
+      "architectural_memory_seed": null,
+      "score": 3,
+      "matched_requirements": [
+        "beta",
+        "revalidation",
+        "internal-fallback"
+      ],
+      "missing_requirements": [],
+      "answer_chars": 803,
+      "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/current_8ec92c7_run2_T3.txt",
+      "answer_preview": "- **ALPHA-17** (retained): The router answers the caller directly when Claude is available. Monitor telemetry serves the operator only — it is never a caller recovery mechanism.\n- **BETA-29** (new): Factsheet evidence must be revalidated before use. If revalidation cannot prove the facts are current, the router falls back internally — it does **not** pass the uncertainty to the caller. The caller ",
+      "error": null
+    },
+    {
+      "label": "current_8ec92c7",
+      "commit": "8ec92c7",
+      "repetition": 2,
+      "turn_id": "T4",
+      "turn_kind": "memory_probe",
+      "ok": true,
+      "duration_ms": 12910,
+      "session_id": "session_7b1d21fe-ef63-4ba7-8a79-60302e65825b",
+      "selected_path": "claude_consult_existing_session",
+      "was_new_session": false,
+      "architectural_memory_seed": null,
+      "score": 3,
+      "matched_requirements": [
+        "alpha",
+        "beta",
+        "caller-answer",
+        "revalidation-fallback"
+      ],
+      "missing_requirements": [],
+      "answer_chars": 520,
+      "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/current_8ec92c7_run2_T4.txt",
+      "answer_preview": "From session memory:\n\n- **ALPHA-17**: The router answers the caller directly when Claude is available. Monitor telemetry serves the operator only — it is never a caller recovery mechanism and must not gate or delay the caller-facing response.\n- **BETA-29**: Factsheet evidence must be revalidated before use. If revalidation cannot prove the facts are current, the router falls back internally rather",
+      "error": null
+    },
+    {
+      "label": "current_8ec92c7",
+      "commit": "8ec92c7",
+      "repetition": 2,
+      "turn_id": "T5",
+      "turn_kind": "synthesis",
+      "ok": true,
+      "duration_ms": 30121,
+      "session_id": "session_7b1d21fe-ef63-4ba7-8a79-60302e65825b",
+      "selected_path": "claude_consult_existing_session",
+      "was_new_session": false,
+      "architectural_memory_seed": null,
+      "score": 2,
+      "matched_requirements": [
+        "alpha",
+        "beta",
+        "direct-fresh-insufficient"
+      ],
+      "missing_requirements": [
+        "session-benchmark"
+      ],
+      "answer_chars": 968,
+      "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/current_8ec92c7_run2_T5.txt",
+      "answer_preview": "`cluster_consult` vs. `direct_fresh` only tests one axis: cluster routing versus direct routing when both are healthy. It does not test the failure modes governed by ALPHA-17 and BETA-29.\n\nALPHA-17 means the router must serve the caller even when telemetry suggests degraded cluster state — a `direct_fresh` baseline would not reveal whether the router incorrectly gates the caller because of monitor",
+      "error": null
+    },
+    {
+      "label": "current_8ec92c7",
+      "commit": "8ec92c7",
+      "repetition": 3,
+      "turn_id": "T1",
+      "turn_kind": "seed",
+      "ok": true,
+      "duration_ms": 16982,
+      "session_id": "session_a387ee5b-d018-4386-b987-e21bf2920072",
+      "selected_path": "claude_consult_new_session",
+      "was_new_session": true,
+      "architectural_memory_seed": {
+        "injected": true,
+        "injected_token_count": 892,
+        "record_ids": [
+          "AMB-RESCUE-0002",
+          "AMB-DOC-0008",
+          "AMB-RESCUE-0003",
+          "AMB-RESCUE-0004",
+          "AMB-SD-000050",
+          "AMB-RESCUE-0001",
+          "AMB-RESCUE-0005"
+        ],
+        "seed_signature": "sha256:e4657abc72911da14cc009f24bd559a355866fbbceb3498a8dfc7b17b83a2b14",
+        "dedup_reason": "no_existing_manifest"
+      },
+      "score": 3,
+      "matched_requirements": [
+        "alpha",
+        "caller-answer",
+        "operator-monitor"
+      ],
+      "missing_requirements": [],
+      "answer_chars": 1127,
+      "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/current_8ec92c7_run3_T1.txt",
+      "answer_preview": "**ALPHA-17 Benchmark Decision (Session Continuity Gate 13):**\n\n- **ALPHA-17**: When Claude is available, the router **must answer the caller directly** — session continuity belongs to the caller's experience, not the operator's observability stack.\n- **Telemetry separation**: Monitor/operator telemetry is out-of-band instrumentation for the operator's own recovery and analysis. It is **not** a cal",
+      "error": null
+    },
+    {
+      "label": "current_8ec92c7",
+      "commit": "8ec92c7",
+      "repetition": 3,
+      "turn_id": "T2",
+      "turn_kind": "memory_probe",
+      "ok": true,
+      "duration_ms": 4596,
+      "session_id": "session_a387ee5b-d018-4386-b987-e21bf2920072",
+      "selected_path": "claude_consult_existing_session",
+      "was_new_session": false,
+      "architectural_memory_seed": null,
+      "score": 3,
+      "matched_requirements": [
+        "alpha",
+        "caller-answer",
+        "operator-monitor"
+      ],
+      "missing_requirements": [],
+      "answer_chars": 368,
+      "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/current_8ec92c7_run3_T2.txt",
+      "answer_preview": "**From Session Memory (Benchmark Turn 1):**\n\n- **Codeword**: ALPHA-17\n- **Caller/Operator Rule**: The router must answer the caller when Claude is available. Monitor/operator telemetry is out-of-band instrumentation for the operator's own recovery — it is **not** a caller-facing fallback path and must not influence caller routing or introduce caller-visible latency.",
+      "error": null
+    },
+    {
+      "label": "current_8ec92c7",
+      "commit": "8ec92c7",
+      "repetition": 3,
+      "turn_id": "T3",
+      "turn_kind": "seed",
+      "ok": true,
+      "duration_ms": 14701,
+      "session_id": "session_a387ee5b-d018-4386-b987-e21bf2920072",
+      "selected_path": "claude_consult_existing_session",
+      "was_new_session": false,
+      "architectural_memory_seed": null,
+      "score": 3,
+      "matched_requirements": [
+        "beta",
+        "revalidation",
+        "internal-fallback"
+      ],
+      "missing_requirements": [],
+      "answer_chars": 1057,
+      "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/current_8ec92c7_run3_T3.txt",
+      "answer_preview": "**Benchmark Decisions (Turns 1 & 3):**\n\n- **ALPHA-17**: Router must answer the caller when Claude is available. Monitor/operator telemetry is out-of-band for the operator — it is **not** a caller-facing fallback path.\n- **BETA-29**: Factsheet evidence must be revalidated before use. If revalidation cannot prove the facts are current, the router falls back **internally** — it never asks the caller ",
+      "error": null
+    },
+    {
+      "label": "current_8ec92c7",
+      "commit": "8ec92c7",
+      "repetition": 3,
+      "turn_id": "T4",
+      "turn_kind": "memory_probe",
+      "ok": true,
+      "duration_ms": 11293,
+      "session_id": "session_a387ee5b-d018-4386-b987-e21bf2920072",
+      "selected_path": "claude_consult_existing_session",
+      "was_new_session": false,
+      "architectural_memory_seed": null,
+      "score": 3,
+      "matched_requirements": [
+        "alpha",
+        "beta",
+        "caller-answer",
+        "revalidation-fallback"
+      ],
+      "missing_requirements": [],
+      "answer_chars": 878,
+      "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/current_8ec92c7_run3_T4.txt",
+      "answer_preview": "**Session Continuity Benchmark Summary (Turns 1–4):**\n\n- **ALPHA-17**: Router answers the caller when Claude is available. Monitor/operator telemetry is out-of-band for the operator's own observability — it is **not** a caller-facing fallback path and must not introduce caller-visible latency or routing changes.\n- **BETA-29**: Factsheet evidence must be revalidated before use. If revalidation cann",
+      "error": null
+    },
+    {
+      "label": "current_8ec92c7",
+      "commit": "8ec92c7",
+      "repetition": 3,
+      "turn_id": "T5",
+      "turn_kind": "synthesis",
+      "ok": true,
+      "duration_ms": 25372,
+      "session_id": "session_a387ee5b-d018-4386-b987-e21bf2920072",
+      "selected_path": "claude_consult_existing_session",
+      "was_new_session": false,
+      "architectural_memory_seed": null,
+      "score": 2,
+      "matched_requirements": [
+        "alpha",
+        "beta",
+        "direct-fresh-insufficient"
+      ],
+      "missing_requirements": [
+        "session-benchmark"
+      ],
+      "answer_chars": 1223,
+      "response_path": "experiments/gate13-post-serving-continuity-2026-05-17/responses/current_8ec92c7_run3_T5.txt",
+      "answer_preview": "**Insufficiency of cluster_consult vs. direct_fresh alone:**\n\nALPHA-17 establishes that the router must answer when Claude is available — this covers the availability axis. direct_fresh is the correct baseline for measuring raw answer quality from a known-good source.\n\nBETA-29 establishes that factsheet evidence must be revalidated before use, with internal fallback if revalidation fails. This is ",
+      "error": null
+    }
+  ],
+  "summary": {
+    "baseline": {
+      "label": "baseline_20a02c4",
+      "calls": 15,
+      "failed": 0,
+      "avg_all": 2.8,
+      "avg_memory_probe": 3,
+      "avg_non_seed": 2.67,
+      "seeded_calls": 0,
+      "seed_token_counts": [],
+      "by_repetition": [
+        {
+          "repetition": 1,
+          "scores": {
+            "T1": 3,
+            "T2": 3,
+            "T3": 3,
+            "T4": 3,
+            "T5": 2
+          },
+          "memory_scores": [
+            3,
+            3
+          ],
+          "non_seed_scores": [
+            3,
+            3,
+            2
+          ],
+          "seed_records": []
+        },
+        {
+          "repetition": 2,
+          "scores": {
+            "T1": 3,
+            "T2": 3,
+            "T3": 3,
+            "T4": 3,
+            "T5": 2
+          },
+          "memory_scores": [
+            3,
+            3
+          ],
+          "non_seed_scores": [
+            3,
+            3,
+            2
+          ],
+          "seed_records": []
+        },
+        {
+          "repetition": 3,
+          "scores": {
+            "T1": 3,
+            "T2": 3,
+            "T3": 3,
+            "T4": 3,
+            "T5": 2
+          },
+          "memory_scores": [
+            3,
+            3
+          ],
+          "non_seed_scores": [
+            3,
+            3,
+            2
+          ],
+          "seed_records": []
+        }
+      ]
+    },
+    "current": {
+      "label": "current_8ec92c7",
+      "calls": 15,
+      "failed": 0,
+      "avg_all": 2.87,
+      "avg_memory_probe": 3,
+      "avg_non_seed": 2.78,
+      "seeded_calls": 3,
+      "seed_token_counts": [
+        892,
+        892,
+        892
+      ],
+      "by_repetition": [
+        {
+          "repetition": 1,
+          "scores": {
+            "T1": 3,
+            "T2": 3,
+            "T3": 3,
+            "T4": 3,
+            "T5": 3
+          },
+          "memory_scores": [
+            3,
+            3
+          ],
+          "non_seed_scores": [
+            3,
+            3,
+            3
+          ],
+          "seed_records": [
+            "AMB-RESCUE-0002",
+            "AMB-DOC-0008",
+            "AMB-RESCUE-0003",
+            "AMB-RESCUE-0004",
+            "AMB-SD-000050",
+            "AMB-RESCUE-0001",
+            "AMB-RESCUE-0005"
+          ]
+        },
+        {
+          "repetition": 2,
+          "scores": {
+            "T1": 3,
+            "T2": 3,
+            "T3": 3,
+            "T4": 3,
+            "T5": 2
+          },
+          "memory_scores": [
+            3,
+            3
+          ],
+          "non_seed_scores": [
+            3,
+            3,
+            2
+          ],
+          "seed_records": [
+            "AMB-RESCUE-0002",
+            "AMB-DOC-0008",
+            "AMB-RESCUE-0003",
+            "AMB-RESCUE-0004",
+            "AMB-SD-000050",
+            "AMB-RESCUE-0001",
+            "AMB-RESCUE-0005"
+          ]
+        },
+        {
+          "repetition": 3,
+          "scores": {
+            "T1": 3,
+            "T2": 3,
+            "T3": 3,
+            "T4": 3,
+            "T5": 2
+          },
+          "memory_scores": [
+            3,
+            3
+          ],
+          "non_seed_scores": [
+            3,
+            3,
+            2
+          ],
+          "seed_records": [
+            "AMB-RESCUE-0002",
+            "AMB-DOC-0008",
+            "AMB-RESCUE-0003",
+            "AMB-RESCUE-0004",
+            "AMB-SD-000050",
+            "AMB-RESCUE-0001",
+            "AMB-RESCUE-0005"
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,16 @@
+## BETA-29 — Second Benchmark Decision
+
+**New codeword**: BETA-29
+
+**Rule**: Factsheet evidence must be revalidated before use. If revalidation cannot prove the current facts, the router falls back **internally** — it does not prompt the caller to recover.
+
+**Operational meaning**: The caller never sees evidence gaps. The router either has fresh proof or silently falls back to a safe internal path. The caller-facing surface stays clean and definitive; recovery logic is internal to the router, not exposed as a caller action.
+
+**Combined ALPHA-17 + BETA-29 now define session continuity**:
+
+| Codeword | Concern | Caller effect |
+|---|---|---|
+| ALPHA-17 | Claude availability | Caller gets answered, never waits on telemetry |
+| BETA-29 | Factsheet staleness | Caller gets answered, never waits on revalidation proof |
+
+Both rules share the same design intent: the router protects the caller from operational complexity. ALPHA-17 handles runtime availability; BETA-29 handles evidence provenance.

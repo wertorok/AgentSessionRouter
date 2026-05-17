@@ -1,0 +1,11 @@
+## ALPHA-17 Recall (Benchmark Turn 1)
+
+**Codeword:** `ALPHA-17`
+
+**Caller/Operator rule established:**
+- **Caller side:** Router answers the caller directly when Claude is available — session provenance, staleness, or orphan status does not block the answer path.
+- **Operator side:** Telemetry and monitoring are operator-facing only. They are for observability and recovery, not for influencing or gating the caller's answer.
+
+The previous turn's open question remains: should orphaned session telemetry be surfaced to the caller as metadata without blocking the answer?
+
+---

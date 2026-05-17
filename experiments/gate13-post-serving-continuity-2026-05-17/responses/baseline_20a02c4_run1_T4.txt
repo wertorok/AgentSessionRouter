@@ -1,0 +1,8 @@
+**Both benchmark codewords from session memory:**
+
+- **ALPHA-17**: The router MUST answer the caller when Claude is available. Monitor telemetry serves the operator only — it is not a caller recovery path.
+- **BETA-29**: Factsheet evidence must be revalidated before use. If revalidation cannot prove current facts, the router falls back internally — it does not ask the caller to recover the session.
+
+**Combined operational meaning**: The router is the caller's single authority. It answers from live runtime state, self-corrects on stale/untrusted evidence internally, and never palms off session recovery onto the caller.
+
+---

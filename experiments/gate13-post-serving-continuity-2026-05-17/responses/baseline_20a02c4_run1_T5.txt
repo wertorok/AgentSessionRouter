@@ -1,0 +1,13 @@
+**Why cluster_consult vs. direct_fresh alone is insufficient:**
+
+Comparing those two paths only exercises **ALPHA-17** (caller answer speed). It entirely skips **BETA-29** (factsheet revalidation before evidence use).
+
+- **direct_fresh** bypasses the factsheet entirely — it answers the caller from live runtime without touching stale evidence. BETA-29 is not triggered or tested by this comparison.
+- **cluster_consult** uses factsheet-adjacent evidence but without a named revalidation benchmark, there is no formal obligation to prove facts are current before routing.
+- **Result**: A router that passes cluster_consult vs. direct_fresh can still silently serve stale factsheet artifacts to the caller — because the comparison never checked whether evidence was revalidated.
+
+**What is missing**: A third benchmark that explicitly validates the BETA-29 revalidation path. We need a codeword that confirms: *"evidence must be revalidated and the router must self-correct internally before producing a caller-facing answer"*. The direct_fresh path hides this requirement; cluster_consult alone does not exercise it unless revalidation is structurally enforced.
+
+**Practical gap**: Without the BETA-29 validation benchmark in the comparison, the "safe fallback" and "verified artifact" properties from our caller tags have no measurable rubric.
+
+---

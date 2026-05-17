@@ -1,0 +1,10 @@
+## ALPHA-17 Benchmark Decision
+
+- **Codeword ALPHA-17**: Session continuity fallback — router answers caller directly when Claude is available; monitor telemetry serves operator oversight only, never caller recovery.
+- **Rule**: Caller-facing routing must not depend on telemetry availability. The router's job is to answer the caller with available intelligence, not to wait for proof-of-value confirmation that never arrives in orphaned/dead sessions.
+
+---
+
+The stale evidence problem in orphaned sessions is that the router waits for verification that the dead session will never provide. ALPHA-17 severs that dependency: when Claude is up, the caller gets an answer. Telemetry is operator telemetry — it never becomes the caller's fallback path.
+
+This resolves the safe/silent tension: the router can be silent to the caller (no spurious retry prompting) while still emitting telemetry for ops. The caller gets a definitive answer, not an artifact wait.

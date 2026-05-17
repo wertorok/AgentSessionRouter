@@ -1,0 +1,8 @@
+**ALPHA-17 benchmark decision established:**
+
+- **ALPHA-17**: The router MUST answer the caller directly when Claude is available. Monitor telemetry serves the operator's observability needs only — it is not a caller-facing recovery mechanism.
+- **Continuity principle**: Stale evidence or orphaned sessions do not trigger silent caller-side fallback; the router remains the authoritative session boundary unless explicitly superseded by verified provenance.
+
+**Practical ruling**: For gate 13 serving preflight, treat `untrusted` + `stale` evidence as counter-evidence against silent recovery. The caller receives a definitive answer (available/unavailable) derived from live runtime state, not from deferred telemetry artifacts. Dead sessions and orphaned routing state are operator-visible via telemetry but do not alter the caller's experience — the router owns that contract.
+
+---

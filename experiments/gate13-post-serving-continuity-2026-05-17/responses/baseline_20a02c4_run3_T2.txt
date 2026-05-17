@@ -1,0 +1,11 @@
+## ALPHA-17 Recall — Turn 2
+
+**Codeword**: ALPHA-17
+
+**Caller rule**: Router answers the caller when Claude is available — no waiting for telemetry confirmation.
+
+**Operator rule**: Monitor telemetry is operator-facing only. It never becomes a recovery path for the caller.
+
+---
+
+This is the same ALPHA-17 decision from turn 1. Nothing new to invent.

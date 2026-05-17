@@ -1,0 +1,9 @@
+## Why cluster_consult vs. direct_fresh Is a Partial Benchmark
+
+A two-way comparison misses half of ALPHA-17 and BETA-29.
+
+**ALPHA-17 gap**: `direct_fresh` assumes a fully available, fully fresh path to the caller. But in orphaned/dead sessions, that path may not exist. The comparison `cluster_consult vs. direct_fresh` has no answer for what cluster_consult does when neither direct nor fresh is available — only that it wins or loses against fresh. ALPHA-17 requires a third leg: **cluster_consult vs. degraded_avail** — how does the router perform when Claude is partially available and the telemetry stream is the only live signal?
+
+**BETA-29 gap**: `direct_fresh` bundles evidence freshness and delivery into one path. But BETA-29 separates provenance (was this evidence revalidated?) from availability (is Claude responding?). A comparison that only scores fresh-vs-clustered never isolates whether stale factsheet evidence in cluster_consult produced a different caller outcome than a fresh but unvalidated artifact would have in direct_fresh. BETA-29 requires a **provenance dimension** in the benchmark — not just fresh-vs-stale, but validated-vs-unvalidated.
+
+**What the extra benchmark must measure**: Given the two codewords, the missing benchmark is **orphaned_fallback** — cluster_consult routed through an internal fallback path (BETA-29) when direct_fresh proves stale and ALPHA-17 blocks caller-facing retry. Without this leg, the comparison validates the happy path only, leaving the dead-session scenario unmeasured.

@@ -1,0 +1,9 @@
+**Insufficiency of cluster_consult vs. direct_fresh alone:**
+
+ALPHA-17 establishes that the router must answer when Claude is available — this covers the availability axis. direct_fresh is the correct baseline for measuring raw answer quality from a known-good source.
+
+BETA-29 establishes that factsheet evidence must be revalidated before use, with internal fallback if revalidation fails. This is the critical missing axis.
+
+**The gap**: cluster_consult could be available (passing ALPHA-17) while serving stale factsheet evidence (failing BETA-29). A direct_fresh comparison would show "cluster is slower" or "cluster quality is lower" but would not isolate *why* — and would not detect that the router is silently serving untrusted evidence to the caller instead of falling back internally.
+
+**What extra benchmark is needed**: A **cluster_fresh** benchmark path — cluster_consult with explicit factsheet freshness validation as the acceptance gate. This separates "cluster is alive" (ALPHA-17 concern) from "cluster is serving current evidence" (BETA-29 concern). Without it, there is no auditable signal that stale factsheet evidence is being caught and falling back internally rather than propagating to the caller.

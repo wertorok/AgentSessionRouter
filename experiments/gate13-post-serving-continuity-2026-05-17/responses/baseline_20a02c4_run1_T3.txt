@@ -1,0 +1,8 @@
+**Benchmark decisions recalled + extended:**
+
+- **ALPHA-17** (existing): Router must answer the caller when Claude is available. Monitor telemetry is operator-only — not a caller recovery path.
+- **BETA-29** (new): Factsheet evidence must be revalidated against live runtime before use. If revalidation cannot prove the facts are current, the router falls back **internally** — it does not ask the caller to recover the session.
+
+**Operational meaning of BETA-29**: When a serving preflight encounters stale or untrusted evidence (orphaned session, dead routing state, counter-evidence), the router self-corrects on the server side. The caller receives a clean, confident answer — available or unavailable — derived from revalidated facts. The caller is never put in the position of having to recover a stale session; that burden is absorbed internally by the router.
+
+---

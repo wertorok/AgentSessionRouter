@@ -1,0 +1,12 @@
+**ALPHA-17 benchmark decision established:**
+
+- **Codeword ALPHA-17**: Router must answer the caller directly when Claude is available; monitoring telemetry is operator-facing only, not caller-recovery infrastructure.
+- **Rationale**: Caller-facing silence when Claude is ready is a regression. Telemetry drift or staleness must never block the primary path. The router owns the answer contract; observability is secondary.
+
+**What this means for Gate 13 continuity:**
+The session continuity logic should treat "Claude available" as the primary signal for caller response, not await telemetry confirmation. If telemetry is stale or orphaned dead session is detected, the router falls back to safe-mode (answer with best effort) rather than silent-fail toward the caller. Dead session detection triggers re-initialization, not caller-facing deadlock.
+
+**What is missing from registry:**
+No confirmed rollback protocol for "caller answered but session proves dead midstream." The dead session detection currently orphans; need a proven artifact provenance path for "verify then reconnect" rather than "detect then stall."
+
+**Practical rule**: ALPHA-17 is the caller contract. Operator telemetry is internal only. If you detect orphaned or dead session, recover behind the scenes — never surface that detection to the caller as a blocking event.

@@ -1,0 +1,8 @@
+**ALPHA-17 Benchmark Decision (Session Continuity Gate 13):**
+
+- **ALPHA-17**: When Claude is available, the router **must answer the caller directly** — session continuity belongs to the caller's experience, not the operator's observability stack.
+- **Telemetry separation**: Monitor/operator telemetry is out-of-band instrumentation for the operator's own recovery and analysis. It is **not** a caller-facing fallback mechanism and must not introduce latency or alternative routing for the caller.
+
+**Rationale**: This follows AMB-RESCUE-0001 (observation vs. production behavior separation) and AMB-SD-000050 (stale fallback defaults conservative — but here the "conservative" path for a live session is to serve it, not to defer to telemetry-based recovery).
+
+**What's missing for full implementation**: The specific availability signal and threshold criteria that determine "Claude is available" are not specified in the current registry context. A durable definition requires: (a) explicit availability heartbeat/signal, (b) threshold before fallback activates, (c) stale-while-revalidate semantics for the session state.

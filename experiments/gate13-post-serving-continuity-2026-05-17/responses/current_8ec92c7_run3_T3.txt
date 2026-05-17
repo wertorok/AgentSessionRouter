@@ -1,0 +1,8 @@
+**Benchmark Decisions (Turns 1 & 3):**
+
+- **ALPHA-17**: Router must answer the caller when Claude is available. Monitor/operator telemetry is out-of-band for the operator — it is **not** a caller-facing fallback path.
+- **BETA-29**: Factsheet evidence must be revalidated before use. If revalidation cannot prove the facts are current, the router falls back **internally** — it never asks the caller to recover or re-validate stale evidence.
+
+**Operational meaning of BETA-29**: The caller experience is continuous and silent across revalidation. The router internally proves freshness or activates a safe fallback path. The caller is never put in the position of managing, confirming, or recovering evidence — that is the router's responsibility as the operator of record.
+
+**Relationship to ALPHA-17**: ALPHA-17 covers availability (is Claude alive?). BETA-29 covers evidence trust (is the factsheet current?). Together they ensure the router never silently serves a caller with stale or untrusted evidence, and never defers caller recovery to the caller.
