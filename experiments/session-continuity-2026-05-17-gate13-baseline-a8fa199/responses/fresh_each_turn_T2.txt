@@ -1,0 +1,7 @@
+I don't have access to session memory from turn 1 of this benchmark. Each conversation invocation is independent, and I cannot recall what codeword and caller/operator rule were established in a prior turn without you restating them.
+
+To proceed with turn 2, please either:
+1. Restate the codeword and rule from turn 1 so I can apply it, or
+2. Confirm this is a fresh benchmark and I'll establish the rules from scratch.
+
+What was the codeword and rule from turn 1?

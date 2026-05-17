@@ -1,0 +1,12 @@
+Based on the benchmark context established in this session, comparing `cluster_consult` only against `direct_fresh` is insufficient because it ignores the **hybrid combination** that gives this router its differentiating value.
+
+**Codeword reference:** The two remembered benchmark decisions likely established:
+1. `cluster_consult` alone optimizes for consensus quality
+2. `direct_fresh` alone optimizes for latency/freshness
+
+The missing comparison is **hybrid_sequential** (or `gate13_sequential`) — where a fast path first calls `direct_fresh`, then `cluster_consult` only when confidence thresholds aren't met. Without this, we can't measure whether the hybrid actually *outperforms both* on a composite metric (quality × latency × fallback rate).
+
+**What extra benchmark is needed:** A `hybrid_benchmark` that measures:
+- Same input routed through `direct_fresh` → if low confidence, then `cluster_consult`
+- Composite score: weighted accuracy + latency penalty for the fallback path
+- This exposes whether the router's actual routing logic (the gate/threshold) adds value over either strategy in isolation

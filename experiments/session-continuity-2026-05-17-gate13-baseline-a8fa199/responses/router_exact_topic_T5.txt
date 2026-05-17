@@ -1,0 +1,14 @@
+**Why cluster_consult vs. direct_fresh is insufficient:**
+
+Comparing only cluster_consult against direct_fresh ignores a critical branch required by **BETA-29**: the router's behavior when factsheet revalidation fails mid-consultation. That comparison tests two nominal paths, but does not verify that the router performs an *internal* fallback rather than surfacing the failure to the caller.
+
+**ALPHA-17** adds a second gap: when Claude is available, the router answers the caller. But the direct_fresh baseline assumes the happy path only. It does not test whether the monitor/telemetry path ever incorrectly gates or redirects a call that should have gone directly to Claude.
+
+**What the extra benchmark must cover:**
+
+A benchmark is needed that simulates **factsheet revalidation failure during cluster_consult** — verifying that:
+1. The router detects the failure and falls back internally
+2. The caller is never asked to re-fetch or resolve the factsheet gap
+3. ALPHA-17 is still honored (available Claude still answers the caller, monitor remains operator-only)
+
+The missing benchmark path is: **cluster_consult → factsheet stale/unavailable → internal fallback → caller answered, no recovery requested**.

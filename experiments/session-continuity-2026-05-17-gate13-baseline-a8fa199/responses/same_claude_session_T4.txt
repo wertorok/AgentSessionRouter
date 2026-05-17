@@ -1,0 +1,7 @@
+**Benchmark Summary — Turns 1–3:**
+
+- **ALPHA-17**: Router answers the caller when Claude is available. Monitor telemetry belongs to the operator; it is not surfaced to or usable by the caller for recovery.
+
+- **BETA-29**: Factsheet evidence must be revalidated before use. If revalidation cannot prove facts are current, the router falls back internally — it does not ask the caller to recover.
+
+---

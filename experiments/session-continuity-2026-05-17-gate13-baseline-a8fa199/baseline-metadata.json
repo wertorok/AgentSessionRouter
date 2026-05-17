@@ -1,0 +1,20 @@
+{
+  "kind": "gate13_pre_serving_session_continuity_baseline",
+  "date": "2026-05-17",
+  "commit": {
+    "short": "a8fa199",
+    "full": "a8fa199662da27070d5c44ead6e36a8e661e76f0",
+    "subject": "feat(memory): add gate 13 serving preflight scaffold"
+  },
+  "runtime_import_serving_enabled": false,
+  "serving_wiring_enabled": false,
+  "command": "npm run session:continuity -- --date 2026-05-17-gate13-baseline-a8fa199 --out experiments/session-continuity-2026-05-17-gate13-baseline-a8fa199",
+  "calls": 20,
+  "failed": 0,
+  "known_scorer_artifact": {
+    "method": "router_exact_topic",
+    "turns": ["T2", "T4", "T5"],
+    "scores": [3, 3, 2],
+    "note": "T5 missed the narrow session-benchmark wording requirement while retaining ALPHA-17/BETA-29 substance. Treat [3,3,2] as the pre-serving baseline, not as a regression."
+  }
+}

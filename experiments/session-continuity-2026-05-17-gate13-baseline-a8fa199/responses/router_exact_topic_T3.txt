@@ -1,0 +1,6 @@
+**Benchmark decisions established:**
+
+- **Codeword ALPHA-17**: Router answers the caller when Claude is available; monitor telemetry is operator-only, not caller recovery
+- **Codeword BETA-29**: Factsheet evidence must be revalidated before use; if revalidation cannot prove current facts, the router falls back internally instead of asking the caller to recover
+
+**Operational meaning of BETA-29:** Before the router uses any factsheet-derived data in routing or response, it must confirm that evidence is current. When revalidation fails (stale, unavailable, or unprovable), the router performs an internal fallback — it does not present the uncertain data to the caller nor require the caller to re-fetch or resolve it. Caller recovery via revalidation is not on the menu; the router handles the gap internally.

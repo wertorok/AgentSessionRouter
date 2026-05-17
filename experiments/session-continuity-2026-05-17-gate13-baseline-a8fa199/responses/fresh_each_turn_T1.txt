@@ -1,0 +1,7 @@
+**Benchmark Decision Established:**
+
+- **ALPHA-17**: The router must answer the caller when Claude is available; monitor telemetry is for the operator, not for caller recovery.
+
+This decision anchors the gate-13 baseline: the router serves as the authoritative frontstop to callers, independent of any telemetry the operator uses for observability. Caller experience is governed by router availability logic, not by monitoring infrastructure.
+
+---

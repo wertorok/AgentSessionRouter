@@ -1,0 +1,10 @@
+I don't have access to prior benchmark turn data in this conversation context — no session memory was loaded for this session continuity benchmark sequence. Without the earlier turns' content, I cannot summarize the specific codewords from turns 1-3.
+
+What I can confirm from the project context:
+
+- **Project**: AgentSessionRouter (continuity benchmark, gate13 baseline, commit a8fa199)
+- **Fresh_each_turn**: Indicates per-turn session initialization mode
+- **T4**: This is the fourth turn in the benchmark sequence
+- **b2q2vr**: Likely a run/instance identifier
+
+**What's missing**: The actual codeword definitions and meanings from benchmark turns 1, 2, and 3. If you have a memory file or notepad with earlier turn summaries, please provide it and I can synthesize the full codeword legend. Alternatively, if earlier turns were saved to `.omc/state/sessions/{sessionId}/` or `.omc/notepad.md`, that content would fill this gap.

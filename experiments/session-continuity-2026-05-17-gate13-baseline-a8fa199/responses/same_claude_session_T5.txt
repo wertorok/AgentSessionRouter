@@ -1,0 +1,13 @@
+**Why cluster_consult vs. direct_fresh alone is insufficient:**
+
+Comparing cluster_consult only against direct_fresh tests two success paths. It tells us that cluster routing works when everything is operational — but it does not test the router's behavior under the conditions ALPHA-17 and BETA-29 govern.
+
+**The gaps:**
+
+- **ALPHA-17**: The router answers the caller on Claude availability, but monitor telemetry is operator-only. A direct comparison says nothing about how the router behaves when its internal monitor flags issues that the caller should never see. We need a benchmark that exercises the router's response to degraded telemetry without exposing that telemetry to the caller.
+
+- **BETA-29**: Factsheet evidence must be revalidated. If revalidation fails, the router falls back internally rather than asking the caller to recover. Comparing cluster_consult against direct_fresh only validates the forward path. It does not test what happens when a factsheet cannot be proven current — whether the router correctly falls back and whether that fallback is invisible to the caller.
+
+**Extra benchmark needed:** A `factsheet_stale_fallback` benchmark that verifies the router handles unprovable factsheet state internally, produces a correct caller response, and does not surface operator telemetry. This is distinct from both the cluster and direct fresh paths because it tests the router's correctness under revalidation failure — the scenario BETA-29 specifically requires.
+
+---

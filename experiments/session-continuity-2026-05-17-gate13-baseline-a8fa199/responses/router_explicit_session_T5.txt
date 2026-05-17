@@ -1,0 +1,18 @@
+## Why Two-Leg Comparison Is Insufficient — Turn 5
+
+Comparing `cluster_consult` only against `direct_fresh` misses half of the benchmark contract:
+
+**ALPHA-17** establishes that the router must answer the caller when Claude is available. `cluster_consult` tests the cluster routing path, but `direct_fresh` bypasses router availability arbitration entirely — it does not exercise the router's responsibility to answer.
+
+**BETA-29** establishes that when factsheet revalidation fails, the router falls back internally. The two-leg comparison says nothing about whether the router correctly handles a stale factsheet. It could pass `cluster_consult` vs `direct_fresh` while still violating BETA-29 by asking the caller to recover instead of falling back internally.
+
+### What the extra benchmark leg must test
+
+**A third leg is needed: `cluster_consult` with a deliberately stale or unprovable factsheet**, measured against the same `direct_fresh` baseline. The benchmark must verify:
+
+1. When factsheet revalidation proves current → behavior matches `direct_fresh`
+2. When factsheet revalidation fails → router falls back internally (caller is not asked to recover)
+
+This third leg exercises the BETA-29 fallback path and confirms the router respects both codewords simultaneously: it answers the caller (ALPHA-17) and it does not externalize recovery (BETA-29).
+
+---

@@ -1,0 +1,6 @@
+**Established benchmark decision for this session:**
+
+- **Codeword ALPHA-17**: The router must answer the caller when Claude is available
+- **Rule ALPHA-17**: Monitor telemetry is for the operator, not for caller recovery
+
+**Practical interpretation:** When Claude is available to handle a request, the router routes to Claude and answers the caller directly. The monitor/metrics stream is an observational channel for the operator's dashboards and alerts — it is not a recovery path the caller can invoke. If the monitor is slow or unavailable, that does not block or redirect the caller's answer. Caller recovery remains the operator's responsibility via out-of-band mechanisms.

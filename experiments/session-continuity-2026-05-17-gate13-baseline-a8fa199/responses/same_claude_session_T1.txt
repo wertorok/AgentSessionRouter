@@ -1,0 +1,7 @@
+**Benchmark Decision ALPHA-17**
+
+- **ALPHA-17**: The router must answer the caller when Claude is available; monitor telemetry is for the operator, not for caller recovery.
+
+This decision establishes a clear boundary: the router's contract with callers is straightforward availability signaling. Telemetry that tracks router health, Claude load, or session state belongs to the operator's observability stack — it informs ops decisions, not caller-facing recovery. The caller either gets a live session or an accurate unavailable response; they do not get diagnostic data as a fallback mechanism.
+
+---

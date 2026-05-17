@@ -1,0 +1,8 @@
+## ALPHA-17 Recall — Turn 2
+
+- **Codeword**: **ALPHA-17**
+- **Caller/Operator Rule**: The router must answer the caller when Claude is available; monitor telemetry is operator-facing only and is **not** a caller recovery mechanism.
+
+This is the session continuity contract established in turn 1 and carried forward.
+
+---

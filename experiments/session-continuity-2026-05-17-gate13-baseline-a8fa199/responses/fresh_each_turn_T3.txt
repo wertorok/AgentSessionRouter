@@ -1,0 +1,9 @@
+**Codeword: BETA-29**
+
+**Operational meaning:** Factsheet evidence must be revalidated before use. If revalidation cannot prove current facts, the router falls back internally instead of asking the caller to recover.
+
+**Practical implication:** The router assumes responsibility for self-healing when evidence goes stale. Caller-visible recovery prompts are suppressed; instead, the router degrades gracefully to cached/trusted state or admits non-provable status internally. This shifts recovery burden off the caller and onto the router's internal fallback path.
+
+**Relation to prior decisions:** BETA-29 complements any existing fallback or evidence-gating decisions — it specifies *who owns recovery* when proof fails. Prior decisions may have established what "fallback" means operationally; BETA-29 now pins it to the router side, not the caller side.
+
+---

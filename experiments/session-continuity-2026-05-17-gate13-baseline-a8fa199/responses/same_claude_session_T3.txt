@@ -1,0 +1,7 @@
+**Benchmark Decision BETA-29**
+
+- **BETA-29**: Factsheet evidence must be revalidated before use; if revalidation cannot prove current facts, the router falls back internally instead of asking the caller to recover.
+
+**Operational meaning**: The router trusts but verifies — session facts are not assumed current just because they were true once. When evidence cannot be revalidated to a current state, the router self-corrects via an internal fallback path. The caller is never put in the position of having to recover or re-prove session state. The fallback is an internal router decision, invisible to the caller.
+
+---
