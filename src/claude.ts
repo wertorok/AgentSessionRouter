@@ -228,7 +228,7 @@ export function buildCommandSpawnOptions(platform: NodeJS.Platform): {
 
 function runCommand(command: string, args: string[], timeoutMs: number): Promise<string> {
   return new Promise((resolve, reject) => {
-    const child = spawn(command, args, buildCommandSpawnOptions(process.platform));
+    const child = spawn(command, normalizeArgsForSpawn(args, process.platform), buildCommandSpawnOptions(process.platform));
 
     let stdout = "";
     let stderr = "";
@@ -288,6 +288,23 @@ function runCommand(command: string, args: string[], timeoutMs: number): Promise
     });
     child.stdin.end();
   });
+}
+
+function normalizeArgsForSpawn(args: string[], platform: NodeJS.Platform): string[] {
+  if (platform !== "win32") {
+    return args;
+  }
+  return args.map(quoteWindowsShellArg);
+}
+
+function quoteWindowsShellArg(arg: string): string {
+  if (arg === "") {
+    return '""';
+  }
+  if (!/[\s"&|<>^()%!{}]/.test(arg)) {
+    return arg;
+  }
+  return `"${arg.replaceAll('"', '\\"')}"`;
 }
 
 function formatArgsForError(args: string[]): string {

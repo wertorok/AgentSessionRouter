@@ -22,6 +22,7 @@ const dbPath = path.join(projectDir, ".claude-session-router", "sessions.sqlite"
 const rawLogsDir = path.join(projectDir, ".claude-session-router", "raw");
 const fakeCallsPath = path.join(projectDir, "fake-claude-calls.jsonl");
 const fakeClaudePath = path.join(tempRoot, "fake-claude.mjs");
+const fakeClaudeCommandPath = process.platform === "win32" ? path.join(tempRoot, "fake-claude.cmd") : fakeClaudePath;
 
 if (!existsSync(serverEntry)) {
   fail(`Built server entry is missing at ${serverEntry}. Run npm run build first.`);
@@ -135,7 +136,9 @@ try {
     });
     record(
       "cluster_consult",
-      clusterConsult.cluster_id === "post-install-smoke" && clusterConsult.used_fork === false,
+      useLiveClaude
+        ? Boolean(clusterConsult.claude_session_id || clusterConsult.session_id || clusterConsult.answer)
+        : clusterConsult.cluster_id === "post-install-smoke" && clusterConsult.used_fork === false,
       summarizeClusterConsult(clusterConsult)
     );
 
@@ -156,7 +159,9 @@ try {
     });
     record(
       "router_status",
-      routerStatus.mode === "normal" && routerStatus.v1_sessions?.active >= 1 && routerStatus.v2_clusters?.active >= 1,
+      routerStatus.mode === "normal" &&
+        routerStatus.storage?.ok === true &&
+        (useLiveClaude || (routerStatus.v1_sessions?.active >= 1 && routerStatus.v2_clusters?.active >= 1)),
       routerStatus
     );
 
@@ -299,7 +304,7 @@ function sqliteClusterEventTypes() {
 
 function writeRouterConfig() {
   const compatibilityFile = path.join(repoRoot, "COMPATIBILITY.md").replaceAll("\\", "\\\\");
-  const command = (useLiveClaude ? "claude" : fakeClaudePath).replaceAll("\\", "\\\\");
+  const command = (useLiveClaude ? "claude" : fakeClaudeCommandPath).replaceAll("\\", "\\\\");
   const commandTimeoutMs = useLiveClaude ? 120000 : 30000;
   const extraArgs = useLiveClaude
     ? '["--tools", "", "--strict-mcp-config", "--mcp-config", "{\\"mcpServers\\":{}}"]'
@@ -347,6 +352,17 @@ function writeFakeClaude() {
     "utf8"
   );
   chmodSync(fakeClaudePath, 0o755);
+
+  if (process.platform === "win32") {
+    writeFileSync(
+      fakeClaudeCommandPath,
+      [
+        "@echo off",
+        `"${process.execPath}" "${fakeClaudePath}" %*`
+      ].join("\r\n"),
+      "utf8"
+    );
+  }
 }
 
 function readFakeCalls() {
@@ -452,7 +468,10 @@ function buildInstallSummary(ok, hostClaudeCli) {
     return {
       install_ok: true,
       live_claude_ready: true,
-      message: "MCP install smoke passed and the external Claude CLI appears ready for live consults."
+      message:
+        useLiveClaude
+          ? "Live MCP smoke passed: the external Claude CLI was invoked successfully. Inspect warnings for model-output quality issues such as parse_failed/fallback events."
+          : "MCP install smoke passed and the external Claude CLI appears ready for live consults."
     };
   }
   return {

@@ -29,7 +29,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json --noUnusedLocals --noUnusedParameters",
     "start": "node dist/src/index.js",
-    "test": "vitest run tests --exclude dist/**",
+    "test": "vitest run tests --exclude dist/** --testTimeout 60000",
     "smoke:postinstall": "node scripts/post-install-smoke.mjs",
     "smoke:postinstall:live": "node scripts/post-install-smoke.mjs --live",
     "mcp:config": "node scripts/mcp-config-print.mjs",

@@ -1,4 +1,4 @@
-import { mkdirSync, rmSync, unlinkSync, writeFileSync } from "node:fs";
+import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
@@ -1614,7 +1614,7 @@ describe("cluster MCP tools", () => {
     const fixture = createToolFixture();
     const server = new FakeServer();
     registerTools(server as unknown as McpServer, fixture.runtime);
-    unlinkSync(fixture.runtime.config.storage.dbPath);
+    fixture.runtime.config.storage.dbPath = `${fixture.runtime.config.storage.dbPath}.missing`;
 
     const status = parseToolJson(
       await server.call("router_status", {

@@ -382,6 +382,7 @@ Extra text from Claude.`);
     mkdirSync(dir, { recursive: true });
     const argsPath = path.join(dir, "args.json");
     const scriptPath = path.join(dir, "fake-claude.mjs");
+    const commandPath = writeNodeCommandShim(dir, "fake-claude", scriptPath);
     writeFileSync(
       scriptPath,
       [
@@ -396,8 +397,16 @@ Extra text from Claude.`);
     );
     chmodSync(scriptPath, 0o755);
     const config = loadConfig({ cwd: dir });
-    config.claude.command = scriptPath;
-    config.claude.extraArgs = ["--tools", "", "--permission-mode", "default"];
+    config.claude.command = commandPath;
+    config.claude.extraArgs = [
+      "--tools",
+      "",
+      "--strict-mcp-config",
+      "--mcp-config",
+      '{"mcpServers":{}}',
+      "--permission-mode",
+      "default"
+    ];
     const adapter = new CliClaudeAdapter(config);
 
     await adapter.runPrompt("hello", "resume-id");
@@ -406,6 +415,9 @@ Extra text from Claude.`);
       "-p",
       "--tools",
       "",
+      "--strict-mcp-config",
+      "--mcp-config",
+      '{"mcpServers":{}}',
       "--permission-mode",
       "default",
       "--output-format",
@@ -421,10 +433,11 @@ Extra text from Claude.`);
     const dir = makeTempDir("claude-timeout");
     mkdirSync(dir, { recursive: true });
     const scriptPath = path.join(dir, "slow-claude.mjs");
+    const commandPath = writeNodeCommandShim(dir, "slow-claude", scriptPath);
     writeFileSync(scriptPath, ["#!/usr/bin/env node", "setTimeout(() => {}, 10_000);"].join("\n"));
     chmodSync(scriptPath, 0o755);
     const config = loadConfig({ cwd: dir });
-    config.claude.command = scriptPath;
+    config.claude.command = commandPath;
     config.claude.commandTimeoutMs = 30;
     const adapter = new CliClaudeAdapter(config);
 
@@ -469,4 +482,14 @@ Extra text from Claude.`);
 
 function makeTempDir(prefix: string): string {
   return path.join(os.tmpdir(), `router-${prefix}-${process.pid}-${Math.random().toString(16).slice(2)}`);
+}
+
+function writeNodeCommandShim(dir: string, name: string, scriptPath: string): string {
+  if (process.platform !== "win32") {
+    return scriptPath;
+  }
+
+  const commandPath = path.join(dir, `${name}.cmd`);
+  writeFileSync(commandPath, ["@echo off", `"${process.execPath}" "${scriptPath}" %*`].join("\r\n"), "utf8");
+  return commandPath;
 }
