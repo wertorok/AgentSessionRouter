@@ -45,3 +45,34 @@ After promoting `AMB-RESCUE-0006` and `AMB-RESCUE-0007`, the biggest remaining t
 5. phase-end evidence bundle.
 
 Do not batch-promote these without the same staged candidate + lead review path. The classifier is still known-weak, and many MAINTENANCE.md items are local operating model or project-architecture records rather than transferable engineering principles.
+
+## Prioritized Backlog
+
+Do not promote the remaining gaps as a batch. The architecture is already closed;
+these are corpus-quality additions for future lead sessions.
+
+Next candidates, when work resumes:
+
+1. `continuity-vs-shadow`: use session-continuity style tests for durable
+   multi-turn memory; use shadow/fan-out A/B only for independent answer
+   comparisons. This was a recurring measurement lesson in Gate 13 and applies
+   to any project that evaluates persistent agent memory.
+2. `not-in-context-not-coverage-failure`: `NOT IN CONTEXT` with a high-quality
+   answer is an honest caveat/audit signal, not automatically a coverage
+   failure. This was a recurring scorer/monitor interpretation lesson across
+   cluster benchmarks.
+
+Both must follow the full path before active promotion:
+
+1. formulate transferable candidate with concrete `applies_when`,
+   `revisit_when`, `provenance`, and non-empty `counter_evidence`
+2. lead review through `router_consult`
+3. expect and accept rejection if the wording is project-specific
+4. rewrite if needed, as with `AMB-RESCUE-0007`
+5. targeted seed-selection verification on a relevant lead-session topic
+
+Deferred until a new project makes them concretely relevant:
+
+- `route-calibration-order`
+- `SESSION_UPDATE_JSON` / metadata side-effect tests separate from answer quality
+- `phase-end-bundle`
