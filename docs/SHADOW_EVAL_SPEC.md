@@ -56,7 +56,9 @@ The parent agent does not wait for the shadow baseline or judge. Shadow failure 
 - Shadow eval is disabled by default.
 - Shadow baseline uses a fresh Claude prompt, not a production router session.
 - Shadow calls do not append session summaries, decisions, files, tags, or aliases to the v1 session registry.
-- Judge calls run with `--tools ""` and do not inherit configured Claude extra args.
+- Judge calls run with the strict focused profile
+  (`--tools "" --strict-mcp-config --mcp-config '{"mcpServers":{}}'`) and do
+  not inherit configured Claude extra args.
 - Comparison rows can be deleted or ignored without changing router behavior.
 
 Shadow eval is not a durable-session continuity benchmark. It answers whether a

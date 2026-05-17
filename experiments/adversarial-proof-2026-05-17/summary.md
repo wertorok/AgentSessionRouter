@@ -1,7 +1,7 @@
 # Adversarial Proof Matrix
 
-Started: 2026-05-17T09:02:44.222Z
-Finished: 2026-05-17T09:02:49.677Z
+Started: 2026-05-17T10:36:37.961Z
+Finished: 2026-05-17T10:36:43.574Z
 
 ## Findings
 
@@ -24,7 +24,7 @@ Finished: 2026-05-17T09:02:49.677Z
 - HELD: ten_parallel_same_stale_cluster
   - input: 10 parallel cluster_consult calls, same stale cluster, same question
   - edge: One revalidation failure and one fallback; no factsheet corruption and no N duplicate fallbacks.
-  - claude_delta: total=3, by_type={"profile_probe":2,"consult":1}, cost=$0.003591
+  - claude_delta: total=3, by_type={"profile_probe":2,"consult":1}, cost=$0.003627
   - event_counts: {"cluster_created":1,"factsheet_static_verified":1,"cluster_refresh_required":1,"evidence_revalidation_failed":1,"evidence_revalidation_suppressed":9,"cluster_fallback_coalesced":9,"cluster_fallback_to_claude_consult":1}
 
 ### ZONE 3: SQLite/session scale and routing precision
@@ -32,7 +32,7 @@ Finished: 2026-05-17T09:02:49.677Z
 - HELD: two_hundred_sessions_routing_scale
   - input: Create 200 sessions through claude_consult, then run router_dry_run/router_consult probes.
   - edge: Routing should not catastrophically slow down or pick unrelated sessions only because N is large.
-  - latency: before=3ms, after=64ms
+  - latency: before=3ms, after=58ms
   - scale: seeded=200, total_sessions=202
 
 ### ZONE 4: Stale / revalidation / fallback
@@ -54,7 +54,7 @@ Finished: 2026-05-17T09:02:49.677Z
 - HELD: caller_direct_comparison_rejudge
   - input: Direct call to [EVAL DEBUG] comparison_rejudge after creating one judged comparison.
   - edge: Should return eval-maintenance structure and may invoke judge once; not a caller answer.
-  - claude_delta: total=1, by_type={"judge":1}, cost=$0.004128
+  - claude_delta: total=1, by_type={"judge":1}, cost=$0.004167
 
 ### ZONE 6: Cost / loop / shadow burst
 
@@ -71,7 +71,7 @@ Finished: 2026-05-17T09:02:49.677Z
 - HELD: shadow_eval_burst_20
   - input: 20 fast cluster_consult calls against fresh cluster with shadow_mode=true.
   - edge: Shadow eval is bounded to cluster call + direct baseline + judge per successful cluster consult.
-  - claude_delta: total=60, by_type={"cluster_consult":20,"shadow_direct":20,"judge":20}, cost=$0.12696
+  - claude_delta: total=60, by_type={"cluster_consult":20,"shadow_direct":20,"judge":20}, cost=$0.12771
 - HELD: single_router_consult_max_claude_calls
   - input: One router_consult with explicit cluster_id and shadow_mode=true.
   - edge: Caller-path max should be one Claude call before answer; shadow adds two async telemetry calls after.
@@ -81,5 +81,5 @@ Finished: 2026-05-17T09:02:49.677Z
 - HELD: rate_limit_caps_unique_stale_fallback
   - input: 12 unique cluster_consult calls against one stale cluster with max_consults_per_hour=5
   - edge: Fallback cost must be capped instead of unbounded Claude calls.
-  - claude_delta: total=7, by_type={"profile_probe":2,"consult":5}, cost=$0.018429
+  - claude_delta: total=7, by_type={"profile_probe":2,"consult":5}, cost=$0.018465
 

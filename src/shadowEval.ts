@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import type { ClaudeJsonResponse } from "./claude.js";
 import type { ClusterConsultSuccess } from "./clusterConsult.js";
 import type { ComparisonPreference, ConsultComparisonRecord, RouterDatabase, ShadowStatus } from "./db.js";
+import { profileArgs } from "./profiles.js";
 import type { RouterRuntime } from "./runtime.js";
 
 export interface ShadowComparisonInput {
@@ -141,7 +142,7 @@ async function runJudgeWithRetry(runtime: RouterRuntime, comparisonId: string, j
   for (let attempt = 1; attempt <= 3; attempt += 1) {
     const judgeResponse = runtime.claude.runPromptWithOptions
       ? await runtime.claude.runPromptWithOptions(judgePrompt, {
-          extraArgs: ["--tools", ""],
+          extraArgs: profileArgs("focused"),
           includeConfiguredExtraArgs: false
         })
       : await runtime.claude.runPrompt(judgePrompt);

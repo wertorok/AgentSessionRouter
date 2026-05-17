@@ -25,6 +25,13 @@ const tracePath = path.join(outDir, "trace-report.md");
 const serverEntry = path.join(repoRoot, "dist", "src", "index.js");
 const dbPath = path.join(repoRoot, ".claude-session-router", "sessions.sqlite");
 let repoTextCache;
+// `--allowedTools` is not a reliable isolation boundary in Claude Code 2.1.92:
+// live probes showed Bash can still be attempted/executed. Use `--tools`
+// plus an empty strict MCP config for direct read-only benchmark baselines.
+// This is a benchmark isolation profile, not an OS sandbox: hooks/skills may
+// still load, but Bash/MCP tools are unavailable in the audited tool registry.
+const STRICT_EMPTY_MCP_ARGS = ["--strict-mcp-config", "--mcp-config", '{"mcpServers":{}}'];
+const DIRECT_READONLY_ARGS = ["--tools", "Read,Glob,Grep", ...STRICT_EMPTY_MCP_ARGS];
 
 const PRICING = {
   label: "Anthropic Claude Sonnet 4.6 standard token pricing",
@@ -708,7 +715,7 @@ async function runDirectFreshBlock() {
     for (const question of activeQuestions) {
       const prompt = buildDirectQuestionPrompt(question.text);
       const result = await runClaudeStream(
-        ["-p", "--output-format", "stream-json", "--verbose", "--allowedTools", "Read,Glob,Grep,LS", "--max-budget-usd", "1.00", prompt],
+        ["-p", ...DIRECT_READONLY_ARGS, "--output-format", "stream-json", "--verbose", "--max-budget-usd", "1.00", prompt],
         `direct_fresh_${question.id}_run${run}`
       );
       appendMatrixRow(rowFromDirect(question, "direct_fresh", run, result, true));
@@ -725,7 +732,7 @@ async function createDirectResumeSession() {
     "Return a concise project map and note that you are ready for follow-up questions."
   ].join("\n");
   const result = await runClaudeStream(
-    ["-p", "--output-format", "stream-json", "--verbose", "--allowedTools", "Read,Glob,Grep,LS", "--max-budget-usd", "1.50", prompt],
+    ["-p", ...DIRECT_READONLY_ARGS, "--output-format", "stream-json", "--verbose", "--max-budget-usd", "1.50", prompt],
     "direct_resume_setup"
   );
   return {
@@ -747,7 +754,7 @@ async function runDirectResumeBlock(sessionId) {
     for (const question of activeQuestions) {
       const prompt = buildDirectQuestionPrompt(question.text);
       const result = await runClaudeStream(
-        ["-p", "--output-format", "stream-json", "--verbose", "--allowedTools", "Read,Glob,Grep,LS", "--max-budget-usd", "0.75", "--resume", sessionId, prompt],
+        ["-p", ...DIRECT_READONLY_ARGS, "--output-format", "stream-json", "--verbose", "--max-budget-usd", "0.75", "--resume", sessionId, prompt],
         `direct_resume_${question.id}_run${run}`
       );
       appendMatrixRow(rowFromDirect(question, "direct_resume", run, result, false));

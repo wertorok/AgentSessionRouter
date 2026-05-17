@@ -277,7 +277,7 @@ describe("cluster MCP tools", () => {
       downgraded: false
     });
     expect(payload.factsheet.facts[0].confidence).toBe("llm_verified");
-    expect(claude.lastOptions?.extraArgs).toEqual(["--tools", ""]);
+    expect(claude.lastOptions?.extraArgs).toEqual(["--tools", "", "--strict-mcp-config", "--mcp-config", '{"mcpServers":{}}']);
     fixture.cleanup();
   });
 
@@ -799,7 +799,7 @@ describe("cluster MCP tools", () => {
       downgraded: true
     });
     expect(payload.verifier_metrics.tool_profile).toBe("focused");
-    expect(claude.lastOptions?.extraArgs).toEqual(["--tools", ""]);
+    expect(claude.lastOptions?.extraArgs).toEqual(["--tools", "", "--strict-mcp-config", "--mcp-config", '{"mcpServers":{}}']);
     expect(events.map((event) => event.event_type)).toContain("tool_profile_downgraded");
     fixture.cleanup();
   });

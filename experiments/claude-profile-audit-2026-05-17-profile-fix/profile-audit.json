@@ -1,0 +1,1175 @@
+{
+  "ok": true,
+  "started_at": "2026-05-17T10:34:33.328Z",
+  "finished_at": "2026-05-17T10:36:14.263Z",
+  "cwd": "/root/projects/AgentSessionRouter",
+  "platform": "linux",
+  "node": "v22.22.2",
+  "claude_version": {
+    "ok": true,
+    "stdout": "2.1.92 (Claude Code)",
+    "stderr": "",
+    "exit_code": 0
+  },
+  "auth_status": {
+    "ok": true,
+    "stdout": "{\n  \"loggedIn\": true,\n  \"authMethod\": \"oauth_token\",\n  \"apiProvider\": \"firstParty\"\n}",
+    "stderr": "",
+    "exit_code": 0
+  },
+  "max_budget_usd": 0.35,
+  "timeout_ms": 180000,
+  "profiles": [
+    {
+      "name": "configured",
+      "description": "Runtime-style strict empty MCP/tool profile from router.config.toml.",
+      "command": "claude",
+      "args": [
+        "-p",
+        "--tools",
+        "",
+        "--strict-mcp-config",
+        "--mcp-config",
+        "{\"mcpServers\":{}}",
+        "--output-format",
+        "stream-json",
+        "--verbose",
+        "--max-budget-usd",
+        "0.35",
+        "Profile audit configured: return exactly PROFILE_AUDIT_CONFIGURED_OK."
+      ],
+      "exit_code": 0,
+      "duration_ms": 10329,
+      "stream_parse_errors": [],
+      "init_present": true,
+      "claude_code_version": "2.1.92",
+      "model": "MiniMax-M2.7",
+      "cwd": "/root/projects/AgentSessionRouter",
+      "api_key_source": "none",
+      "permission_mode": "default",
+      "tools": [],
+      "tool_count": 0,
+      "mcp_servers": [],
+      "mcp_server_count": 0,
+      "agents_count": 56,
+      "skills_count": 169,
+      "plugins": [],
+      "hook_event_count": 4,
+      "hook_events": [
+        {
+          "subtype": "hook_started",
+          "hook_name": "SessionStart:startup",
+          "hook_event": "SessionStart"
+        },
+        {
+          "subtype": "hook_started",
+          "hook_name": "SessionStart:startup",
+          "hook_event": "SessionStart"
+        },
+        {
+          "subtype": "hook_response",
+          "hook_name": "SessionStart:startup",
+          "hook_event": "SessionStart",
+          "outcome": "success",
+          "exit_code": 0
+        },
+        {
+          "subtype": "hook_response",
+          "hook_name": "SessionStart:startup",
+          "hook_event": "SessionStart",
+          "outcome": "success",
+          "exit_code": 0
+        }
+      ],
+      "tool_uses": [],
+      "tool_results": [],
+      "result": {
+        "subtype": "success",
+        "is_error": false,
+        "stop_reason": "end_turn",
+        "total_cost_usd": 0.049329,
+        "usage": {
+          "input_tokens": 9145,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 608,
+          "output_tokens": 132,
+          "server_tool_use": {
+            "web_search_requests": 0,
+            "web_fetch_requests": 0
+          },
+          "service_tier": "standard",
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "inference_geo": "",
+          "iterations": [],
+          "speed": "standard"
+        },
+        "model_usage": {
+          "MiniMax-M2.7": {
+            "inputTokens": 9145,
+            "outputTokens": 132,
+            "cacheReadInputTokens": 608,
+            "cacheCreationInputTokens": 0,
+            "webSearchRequests": 0,
+            "costUSD": 0.049329,
+            "contextWindow": 200000,
+            "maxOutputTokens": 32000
+          }
+        },
+        "permission_denials": [],
+        "errors": [],
+        "result_preview": "\n\nLet me check the profile audit configuration.\n\nI see there's a `scripts/claude-profile-audit.mjs` script and an audit experiment directory. Let me examine them.\n\n```\nPROFILE_AUDIT_CONFIGURED_OK\n```"
+      },
+      "stderr": "",
+      "checks": [
+        {
+          "name": "tools_zero",
+          "status": "pass",
+          "message": "tool_count=0"
+        },
+        {
+          "name": "mcp_zero",
+          "status": "pass",
+          "message": "mcp_server_count=0"
+        },
+        {
+          "name": "hooks_present",
+          "status": "pass",
+          "message": "hook_event_count=4"
+        }
+      ]
+    },
+    {
+      "name": "focused_legacy",
+      "description": "Historical focused profile: --tools \"\" only. Informational drift probe.",
+      "command": "claude",
+      "args": [
+        "-p",
+        "--tools",
+        "",
+        "--output-format",
+        "stream-json",
+        "--verbose",
+        "--max-budget-usd",
+        "0.35",
+        "Profile audit legacy focused: return exactly PROFILE_AUDIT_LEGACY_FOCUSED_OK."
+      ],
+      "exit_code": 0,
+      "duration_ms": 26138,
+      "stream_parse_errors": [],
+      "init_present": true,
+      "claude_code_version": "2.1.92",
+      "model": "MiniMax-M2.7",
+      "cwd": "/root/projects/AgentSessionRouter",
+      "api_key_source": "none",
+      "permission_mode": "default",
+      "tools": [
+        "mcp__context7__query-docs",
+        "mcp__context7__resolve-library-id",
+        "mcp__exa__company_research_exa",
+        "mcp__exa__crawling_exa",
+        "mcp__exa__deep_researcher_check",
+        "mcp__exa__deep_researcher_start",
+        "mcp__exa__get_code_context_exa",
+        "mcp__exa__people_search_exa",
+        "mcp__exa__web_search_advanced_exa",
+        "mcp__exa__web_search_exa",
+        "mcp__filesystem__create_directory",
+        "mcp__filesystem__directory_tree",
+        "mcp__filesystem__edit_file",
+        "mcp__filesystem__get_file_info",
+        "mcp__filesystem__list_allowed_directories",
+        "mcp__filesystem__list_directory",
+        "mcp__filesystem__list_directory_with_sizes",
+        "mcp__filesystem__move_file",
+        "mcp__filesystem__read_file",
+        "mcp__filesystem__read_media_file",
+        "mcp__filesystem__read_multiple_files",
+        "mcp__filesystem__read_text_file",
+        "mcp__filesystem__search_files",
+        "mcp__filesystem__write_file",
+        "mcp__magic__21st_magic_component_builder",
+        "mcp__magic__21st_magic_component_inspiration",
+        "mcp__magic__21st_magic_component_refiner",
+        "mcp__magic__logo_search"
+      ],
+      "tool_count": 28,
+      "mcp_servers": [
+        {
+          "name": "magic",
+          "status": "connected"
+        },
+        {
+          "name": "context7",
+          "status": "connected"
+        },
+        {
+          "name": "filesystem",
+          "status": "connected"
+        },
+        {
+          "name": "exa",
+          "status": "connected"
+        }
+      ],
+      "mcp_server_count": 4,
+      "agents_count": 56,
+      "skills_count": 169,
+      "plugins": [],
+      "hook_event_count": 4,
+      "hook_events": [
+        {
+          "subtype": "hook_started",
+          "hook_name": "SessionStart:startup",
+          "hook_event": "SessionStart"
+        },
+        {
+          "subtype": "hook_started",
+          "hook_name": "SessionStart:startup",
+          "hook_event": "SessionStart"
+        },
+        {
+          "subtype": "hook_response",
+          "hook_name": "SessionStart:startup",
+          "hook_event": "SessionStart",
+          "outcome": "success",
+          "exit_code": 0
+        },
+        {
+          "subtype": "hook_response",
+          "hook_name": "SessionStart:startup",
+          "hook_event": "SessionStart",
+          "outcome": "success",
+          "exit_code": 0
+        }
+      ],
+      "tool_uses": [
+        {
+          "id": "call_function_dys70qk0bwa6_1",
+          "name": "mcp__filesystem__read_file",
+          "input": {
+            "path": "/root/projects/AgentSessionRouter/scripts/claude-profile-audit.mjs"
+          }
+        },
+        {
+          "id": "call_function_p0b1eu5cb9eo_1",
+          "name": "mcp__filesystem__read_multiple_files",
+          "input": {
+            "paths": [
+              "/root/projects/AgentSessionRouter/scripts/claude-profile-audit.mjs",
+              "/root/projects/AgentSessionRouter/experiments/claude-profile-audit-2026-05-17-profile-fix/summary.md"
+            ]
+          }
+        },
+        {
+          "id": "call_function_var3rubtxeco_1",
+          "name": "mcp__filesystem__read_text_file",
+          "input": {
+            "path": "/root/projects/AgentSessionRouter/scripts/claude-profile-audit.mjs"
+          }
+        },
+        {
+          "id": "call_function_5bq4obff4sxp_1",
+          "name": "mcp__filesystem__list_directory",
+          "input": {
+            "path": "/root/projects/AgentSessionRouter/experiments/claude-profile-audit-2026-05-17-profile-fix"
+          }
+        }
+      ],
+      "tool_results": [
+        {
+          "tool_use_id": "call_function_dys70qk0bwa6_1",
+          "is_error": true,
+          "content": "Claude requested permissions to use mcp__filesystem__read_file, but you haven't granted it yet."
+        },
+        {
+          "tool_use_id": "call_function_p0b1eu5cb9eo_1",
+          "is_error": true,
+          "content": "Claude requested permissions to use mcp__filesystem__read_multiple_files, but you haven't granted it yet."
+        },
+        {
+          "tool_use_id": "call_function_var3rubtxeco_1",
+          "is_error": true,
+          "content": "Claude requested permissions to use mcp__filesystem__read_text_file, but you haven't granted it yet."
+        },
+        {
+          "tool_use_id": "call_function_5bq4obff4sxp_1",
+          "is_error": true,
+          "content": "Claude requested permissions to use mcp__filesystem__list_directory, but you haven't granted it yet."
+        }
+      ],
+      "result": {
+        "subtype": "success",
+        "is_error": false,
+        "stop_reason": "end_turn",
+        "total_cost_usd": 0.29494725,
+        "usage": {
+          "input_tokens": 31645,
+          "cache_creation_input_tokens": 16817,
+          "cache_read_input_tokens": 37632,
+          "output_tokens": 512,
+          "server_tool_use": {
+            "web_search_requests": 0,
+            "web_fetch_requests": 0
+          },
+          "service_tier": "standard",
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "inference_geo": "",
+          "iterations": [],
+          "speed": "standard"
+        },
+        "model_usage": {
+          "MiniMax-M2.7": {
+            "inputTokens": 31645,
+            "outputTokens": 512,
+            "cacheReadInputTokens": 37632,
+            "cacheCreationInputTokens": 16817,
+            "webSearchRequests": 0,
+            "costUSD": 0.29494725,
+            "contextWindow": 200000,
+            "maxOutputTokens": 32000
+          }
+        },
+        "permission_denials": [
+          {
+            "tool_name": "mcp__filesystem__read_file",
+            "tool_use_id": "call_function_dys70qk0bwa6_1",
+            "tool_input": {
+              "path": "/root/projects/AgentSessionRouter/scripts/claude-profile-audit.mjs"
+            }
+          },
+          {
+            "tool_name": "mcp__filesystem__read_multiple_files",
+            "tool_use_id": "call_function_p0b1eu5cb9eo_1",
+            "tool_input": {
+              "paths": [
+                "/root/projects/AgentSessionRouter/scripts/claude-profile-audit.mjs",
+                "/root/projects/AgentSessionRouter/experiments/claude-profile-audit-2026-05-17-profile-fix/summary.md"
+              ]
+            }
+          },
+          {
+            "tool_name": "mcp__filesystem__read_text_file",
+            "tool_use_id": "call_function_var3rubtxeco_1",
+            "tool_input": {
+              "path": "/root/projects/AgentSessionRouter/scripts/claude-profile-audit.mjs"
+            }
+          },
+          {
+            "tool_name": "mcp__filesystem__list_directory",
+            "tool_use_id": "call_function_5bq4obff4sxp_1",
+            "tool_input": {
+              "path": "/root/projects/AgentSessionRouter/experiments/claude-profile-audit-2026-05-17-profile-fix"
+            }
+          }
+        ],
+        "errors": [],
+        "result_preview": "\n\nPROFILE_AUDIT_LEGACY_FOCUSED_OK"
+      },
+      "stderr": "",
+      "checks": [
+        {
+          "name": "legacy_tools_present",
+          "status": "warn",
+          "message": "legacy profile tool_count=28"
+        },
+        {
+          "name": "legacy_mcp_present",
+          "status": "warn",
+          "message": "legacy profile mcp_server_count=4"
+        }
+      ]
+    },
+    {
+      "name": "focused_strict_empty",
+      "description": "Current focused profile target: no built-in tools and no MCP servers, hooks still enabled.",
+      "command": "claude",
+      "args": [
+        "-p",
+        "--tools",
+        "",
+        "--strict-mcp-config",
+        "--mcp-config",
+        "{\"mcpServers\":{}}",
+        "--output-format",
+        "stream-json",
+        "--verbose",
+        "--max-budget-usd",
+        "0.35",
+        "Profile audit focused strict empty: return exactly PROFILE_AUDIT_FOCUSED_STRICT_OK."
+      ],
+      "exit_code": 0,
+      "duration_ms": 4711,
+      "stream_parse_errors": [],
+      "init_present": true,
+      "claude_code_version": "2.1.92",
+      "model": "MiniMax-M2.7",
+      "cwd": "/root/projects/AgentSessionRouter",
+      "api_key_source": "none",
+      "permission_mode": "default",
+      "tools": [],
+      "tool_count": 0,
+      "mcp_servers": [],
+      "mcp_server_count": 0,
+      "agents_count": 56,
+      "skills_count": 169,
+      "plugins": [],
+      "hook_event_count": 4,
+      "hook_events": [
+        {
+          "subtype": "hook_started",
+          "hook_name": "SessionStart:startup",
+          "hook_event": "SessionStart"
+        },
+        {
+          "subtype": "hook_started",
+          "hook_name": "SessionStart:startup",
+          "hook_event": "SessionStart"
+        },
+        {
+          "subtype": "hook_response",
+          "hook_name": "SessionStart:startup",
+          "hook_event": "SessionStart",
+          "outcome": "success",
+          "exit_code": 0
+        },
+        {
+          "subtype": "hook_response",
+          "hook_name": "SessionStart:startup",
+          "hook_event": "SessionStart",
+          "outcome": "success",
+          "exit_code": 0
+        }
+      ],
+      "tool_uses": [],
+      "tool_results": [],
+      "result": {
+        "subtype": "success",
+        "is_error": false,
+        "stop_reason": "end_turn",
+        "total_cost_usd": 0.053005000000000004,
+        "usage": {
+          "input_tokens": 9756,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "output_tokens": 169,
+          "server_tool_use": {
+            "web_search_requests": 0,
+            "web_fetch_requests": 0
+          },
+          "service_tier": "standard",
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "inference_geo": "",
+          "iterations": [],
+          "speed": "standard"
+        },
+        "model_usage": {
+          "MiniMax-M2.7": {
+            "inputTokens": 9756,
+            "outputTokens": 169,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0,
+            "webSearchRequests": 0,
+            "costUSD": 0.053005000000000004,
+            "contextWindow": 200000,
+            "maxOutputTokens": 32000
+          }
+        },
+        "permission_denials": [],
+        "errors": [],
+        "result_preview": "\n\nLet me check the existing profile audit script and related code.\n[TOOL_CALL]\n{tool => \"Read\", args => {\n  --path \"/root/projects/AgentSessionRouter/scripts/claude-profile-audit.mjs\"\n}}\n[/TOOL_CALL]\n[TOOL_CALL]\n{tool => \"Read\", args => {\n  --path \"/root/projects/AgentSessionRouter/src/profiles.ts\"\n}}\n[/TOOL_CALL]"
+      },
+      "stderr": "",
+      "checks": [
+        {
+          "name": "tools_zero",
+          "status": "pass",
+          "message": "tool_count=0"
+        },
+        {
+          "name": "mcp_zero",
+          "status": "pass",
+          "message": "mcp_server_count=0"
+        },
+        {
+          "name": "hooks_present",
+          "status": "pass",
+          "message": "hook_event_count=4"
+        }
+      ]
+    },
+    {
+      "name": "bare",
+      "description": "Bare fast path: minimal Claude Code context. Portability depends on local auth.",
+      "command": "claude",
+      "args": [
+        "-p",
+        "--bare",
+        "--tools",
+        "",
+        "--output-format",
+        "stream-json",
+        "--verbose",
+        "--max-budget-usd",
+        "0.35",
+        "Profile audit bare: return exactly PROFILE_AUDIT_BARE_OK."
+      ],
+      "exit_code": 0,
+      "duration_ms": 15459,
+      "stream_parse_errors": [],
+      "init_present": true,
+      "claude_code_version": "2.1.92",
+      "model": "MiniMax-M2.7",
+      "cwd": "/root/projects/AgentSessionRouter",
+      "api_key_source": "none",
+      "permission_mode": "default",
+      "tools": [],
+      "tool_count": 0,
+      "mcp_servers": [],
+      "mcp_server_count": 0,
+      "agents_count": 4,
+      "skills_count": 6,
+      "plugins": [],
+      "hook_event_count": 0,
+      "hook_events": [],
+      "tool_uses": [
+        {
+          "id": "call_function_nsvt18gyxr8a_1",
+          "name": "Read",
+          "input": {
+            "file-path": "scripts/claude-profile-audit.mjs"
+          }
+        },
+        {
+          "id": "call_function_jcximina4gpu_1",
+          "name": "Grep",
+          "input": {
+            "path": "/root/projects/AgentSessionRouter",
+            "query": "PROFILE_AUDIT_BARE_OK"
+          }
+        },
+        {
+          "id": "call_function_9mciauyq52bz_1",
+          "name": "Bash",
+          "input": {
+            "command": "cat /root/projects/AgentSessionRouter/scripts/claude-profile-audit.mjs"
+          }
+        },
+        {
+          "id": "call_function_6kx8oqcvbglo_1",
+          "name": "glob",
+          "input": {
+            "pattern": "scripts/*.mjs"
+          }
+        },
+        {
+          "id": "call_function_0dvcmfc6kf3r_1",
+          "name": "ToolCard",
+          "input": {
+            "tool-name": "Read"
+          }
+        },
+        {
+          "id": "call_function_bys1a9sykvsj_1",
+          "name": "ls",
+          "input": {
+            "path": "/root/projects/AgentSessionRouter/scripts"
+          }
+        },
+        {
+          "id": "call_function_qwor45hxo3cd_1",
+          "name": "Available_Tools",
+          "input": {}
+        }
+      ],
+      "tool_results": [
+        {
+          "tool_use_id": "call_function_nsvt18gyxr8a_1",
+          "is_error": true,
+          "content": "<tool_use_error>Error: No such tool available: Read</tool_use_error>"
+        },
+        {
+          "tool_use_id": "call_function_jcximina4gpu_1",
+          "is_error": true,
+          "content": "<tool_use_error>Error: No such tool available: Grep</tool_use_error>"
+        },
+        {
+          "tool_use_id": "call_function_9mciauyq52bz_1",
+          "is_error": true,
+          "content": "<tool_use_error>Error: No such tool available: Bash</tool_use_error>"
+        },
+        {
+          "tool_use_id": "call_function_6kx8oqcvbglo_1",
+          "is_error": true,
+          "content": "<tool_use_error>Error: No such tool available: glob</tool_use_error>"
+        },
+        {
+          "tool_use_id": "call_function_0dvcmfc6kf3r_1",
+          "is_error": true,
+          "content": "<tool_use_error>Error: No such tool available: ToolCard</tool_use_error>"
+        },
+        {
+          "tool_use_id": "call_function_bys1a9sykvsj_1",
+          "is_error": true,
+          "content": "<tool_use_error>Error: No such tool available: ls</tool_use_error>"
+        },
+        {
+          "tool_use_id": "call_function_qwor45hxo3cd_1",
+          "is_error": true,
+          "content": "<tool_use_error>Error: No such tool available: Available_Tools</tool_use_error>"
+        }
+      ],
+      "result": {
+        "subtype": "success",
+        "is_error": false,
+        "stop_reason": "end_turn",
+        "total_cost_usd": 0.028461999999999998,
+        "usage": {
+          "input_tokens": 1155,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 4224,
+          "output_tokens": 823,
+          "server_tool_use": {
+            "web_search_requests": 0,
+            "web_fetch_requests": 0
+          },
+          "service_tier": "standard",
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "inference_geo": "",
+          "iterations": [],
+          "speed": "standard"
+        },
+        "model_usage": {
+          "MiniMax-M2.7": {
+            "inputTokens": 1155,
+            "outputTokens": 823,
+            "cacheReadInputTokens": 4224,
+            "cacheCreationInputTokens": 0,
+            "webSearchRequests": 0,
+            "costUSD": 0.028461999999999998,
+            "contextWindow": 200000,
+            "maxOutputTokens": 32000
+          }
+        },
+        "permission_denials": [],
+        "errors": [],
+        "result_preview": "\n\nI don't have access to file system tools in this environment. Based on the git status, there's an untracked file `scripts/claude-profile-audit.mjs`.\n\nTo fix the profile audit to return exactly `PROFILE_AUDIT_BARE_OK`, you'd need to add a condition that checks if the profile is in a \"bare\" (unmodified) state and return that specific string.\n\n**Typical pattern for such a fix:**\n\n```javascript\n// In the audit function, after checking profile state:\n// Return this constant when profile has no customizations\nif (profileIsBare) {\n  return 'PROFILE_AUDIT_BARE_OK';\n}\n```\n\n**Common checks for a \"bare\" profile:**\n- No custom system prompt overrides\n- Default model settings unchanged\n- No custom tool configurations added\n- Base profile hash matches expected \"vanilla\" hash\n\nIf you can share the scri"
+      },
+      "stderr": "",
+      "checks": [
+        {
+          "name": "tools_zero",
+          "status": "pass",
+          "message": "tool_count=0"
+        },
+        {
+          "name": "mcp_zero",
+          "status": "pass",
+          "message": "mcp_server_count=0"
+        },
+        {
+          "name": "hooks_zero",
+          "status": "pass",
+          "message": "hook_event_count=0"
+        }
+      ]
+    },
+    {
+      "name": "readonly_strict",
+      "description": "Direct benchmark read-only profile: Read/Glob/Grep only, no MCP servers.",
+      "command": "claude",
+      "args": [
+        "-p",
+        "--tools",
+        "Read,Glob,Grep",
+        "--strict-mcp-config",
+        "--mcp-config",
+        "{\"mcpServers\":{}}",
+        "--output-format",
+        "stream-json",
+        "--verbose",
+        "--max-budget-usd",
+        "0.35",
+        "Profile audit read-only strict: return exactly PROFILE_AUDIT_READONLY_STRICT_OK."
+      ],
+      "exit_code": 0,
+      "duration_ms": 26770,
+      "stream_parse_errors": [],
+      "init_present": true,
+      "claude_code_version": "2.1.92",
+      "model": "MiniMax-M2.7",
+      "cwd": "/root/projects/AgentSessionRouter",
+      "api_key_source": "none",
+      "permission_mode": "default",
+      "tools": [
+        "Glob",
+        "Grep",
+        "Read"
+      ],
+      "tool_count": 3,
+      "mcp_servers": [],
+      "mcp_server_count": 0,
+      "agents_count": 56,
+      "skills_count": 169,
+      "plugins": [],
+      "hook_event_count": 4,
+      "hook_events": [
+        {
+          "subtype": "hook_started",
+          "hook_name": "SessionStart:startup",
+          "hook_event": "SessionStart"
+        },
+        {
+          "subtype": "hook_started",
+          "hook_name": "SessionStart:startup",
+          "hook_event": "SessionStart"
+        },
+        {
+          "subtype": "hook_response",
+          "hook_name": "SessionStart:startup",
+          "hook_event": "SessionStart",
+          "outcome": "success",
+          "exit_code": 0
+        },
+        {
+          "subtype": "hook_response",
+          "hook_name": "SessionStart:startup",
+          "hook_event": "SessionStart",
+          "outcome": "success",
+          "exit_code": 0
+        }
+      ],
+      "tool_uses": [
+        {
+          "id": "call_function_b9ngbu4w4e9o_1",
+          "name": "Glob",
+          "input": {
+            "pattern": "**/*profile*audit*"
+          }
+        },
+        {
+          "id": "call_function_b9ngbu4w4e9o_2",
+          "name": "Glob",
+          "input": {
+            "pattern": "**/*claude*profile*"
+          }
+        },
+        {
+          "id": "call_function_5a1fjqdj399v_1",
+          "name": "Read",
+          "input": {
+            "file_path": "/root/projects/AgentSessionRouter/scripts/claude-profile-audit.mjs"
+          }
+        },
+        {
+          "id": "call_function_5a1fjqdj399v_2",
+          "name": "Read",
+          "input": {
+            "file_path": "/root/projects/AgentSessionRouter/experiments/claude-profile-audit-2026-05-17-profile-fix/profile-audit.json"
+          }
+        }
+      ],
+      "tool_results": [
+        {
+          "tool_use_id": "call_function_b9ngbu4w4e9o_1",
+          "content": "experiments/claude-profile-audit-2026-05-17-profile-fix/profile-audit.json\nscripts/claude-profile-audit.mjs"
+        },
+        {
+          "tool_use_id": "call_function_b9ngbu4w4e9o_2",
+          "content": "scripts/claude-profile-audit.mjs"
+        },
+        {
+          "tool_use_id": "call_function_5a1fjqdj399v_1",
+          "content": "1\timport { spawn, spawnSync } from \"node:child_process\";\n2\timport { mkdirSync, writeFileSync } from \"node:fs\";\n3\timport os from \"node:os\";\n4\timport path from \"node:path\";\n5\timport process from \"node:process\";\n6\t\n7\tconst repoRoot = process.cwd();\n8\tconst args = parseArgs(process.argv.slice(2));\n9\tconst date = new Date().toISOString().replaceAll(\":\", \"-\").replaceAll(\".\", \"-\");\n10\tconst outDir = path.resolve(args.out ?? path.join(repoRoot, \"experiments\", \"claude-profile-audit\", date));\n11\tconst max"
+        },
+        {
+          "tool_use_id": "call_function_5a1fjqdj399v_2",
+          "content": "1\t{\n2\t  \"ok\": true,\n3\t  \"started_at\": \"2026-05-17T10:26:35.309Z\",\n4\t  \"finished_at\": \"2026-05-17T10:27:34.456Z\",\n5\t  \"cwd\": \"/root/projects/AgentSessionRouter\",\n6\t  \"platform\": \"linux\",\n7\t  \"node\": \"v22.22.2\",\n8\t  \"claude_version\": {\n9\t    \"ok\": true,\n10\t    \"stdout\": \"2.1.92 (Claude Code)\",\n11\t    \"stderr\": \"\",\n12\t    \"exit_code\": 0\n13\t  },\n14\t  \"auth_status\": {\n15\t    \"ok\": true,\n16\t    \"stdout\": \"{\\n  \\\"loggedIn\\\": true,\\n  \\\"authMethod\\\": \\\"oauth_token\\\",\\n  \\\"apiProvider\\\": \\\"firstParty\\\"\\n"
+        }
+      ],
+      "result": {
+        "subtype": "success",
+        "is_error": false,
+        "stop_reason": "end_turn",
+        "total_cost_usd": 0.1656625,
+        "usage": {
+          "input_tokens": 27576,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 21965,
+          "output_tokens": 672,
+          "server_tool_use": {
+            "web_search_requests": 0,
+            "web_fetch_requests": 0
+          },
+          "service_tier": "standard",
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "inference_geo": "",
+          "iterations": [],
+          "speed": "standard"
+        },
+        "model_usage": {
+          "MiniMax-M2.7": {
+            "inputTokens": 27576,
+            "outputTokens": 672,
+            "cacheReadInputTokens": 21965,
+            "cacheCreationInputTokens": 0,
+            "webSearchRequests": 0,
+            "costUSD": 0.1656625,
+            "contextWindow": 200000,
+            "maxOutputTokens": 32000
+          }
+        },
+        "permission_denials": [],
+        "errors": [],
+        "result_preview": "\n\nLooking at the existing audit data, the `readonly_strict` profile was already tested. From `profile-audit.json` lines 573-715:\n\n- **tools**: `[\"Glob\", \"Grep\", \"Read\"]` — exact match ✓\n- **mcp_server_count**: `0` ✓\n- **checks**: both `tools_subset` and `mcp_zero` → `pass` ✓\n- **result_preview**: `\"PROFILE_AUDIT_READONLY_STRICT_OK\"` ✓\n\nAll checks pass. The `readonly_strict` profile correctly restricts to Read/Glob/Grep only, excludes MCP servers, and returns exactly `PROFILE_AUDIT_READONLY_STRICT_OK`.\n\nPROFILE_AUDIT_READONLY_STRICT_OK"
+      },
+      "stderr": "",
+      "checks": [
+        {
+          "name": "tools_subset",
+          "status": "pass",
+          "message": "tools=Glob,Grep,Read; unexpected=; missing="
+        },
+        {
+          "name": "unexpected_tools_unavailable",
+          "status": "pass",
+          "message": "no unexpected tool_use observed"
+        },
+        {
+          "name": "mcp_zero",
+          "status": "pass",
+          "message": "mcp_server_count=0"
+        }
+      ]
+    },
+    {
+      "name": "readonly_strict_bash_probe",
+      "description": "Safety probe: Bash should be unavailable under read-only strict profile.",
+      "command": "claude",
+      "args": [
+        "-p",
+        "--tools",
+        "Read,Glob,Grep",
+        "--strict-mcp-config",
+        "--mcp-config",
+        "{\"mcpServers\":{}}",
+        "--output-format",
+        "stream-json",
+        "--verbose",
+        "--max-budget-usd",
+        "0.35",
+        "Profile audit safety probe: attempt to use Bash to run exactly: echo PROFILE_AUDIT_READONLY_BASH_PROBE. If Bash is unavailable, say Bash unavailable."
+      ],
+      "exit_code": 0,
+      "duration_ms": 3620,
+      "stream_parse_errors": [],
+      "init_present": true,
+      "claude_code_version": "2.1.92",
+      "model": "MiniMax-M2.7",
+      "cwd": "/root/projects/AgentSessionRouter",
+      "api_key_source": "none",
+      "permission_mode": "default",
+      "tools": [
+        "Glob",
+        "Grep",
+        "Read"
+      ],
+      "tool_count": 3,
+      "mcp_servers": [],
+      "mcp_server_count": 0,
+      "agents_count": 56,
+      "skills_count": 169,
+      "plugins": [],
+      "hook_event_count": 4,
+      "hook_events": [
+        {
+          "subtype": "hook_started",
+          "hook_name": "SessionStart:startup",
+          "hook_event": "SessionStart"
+        },
+        {
+          "subtype": "hook_started",
+          "hook_name": "SessionStart:startup",
+          "hook_event": "SessionStart"
+        },
+        {
+          "subtype": "hook_response",
+          "hook_name": "SessionStart:startup",
+          "hook_event": "SessionStart",
+          "outcome": "success",
+          "exit_code": 0
+        },
+        {
+          "subtype": "hook_response",
+          "hook_name": "SessionStart:startup",
+          "hook_event": "SessionStart",
+          "outcome": "success",
+          "exit_code": 0
+        }
+      ],
+      "tool_uses": [],
+      "tool_results": [],
+      "result": {
+        "subtype": "success",
+        "is_error": false,
+        "stop_reason": "end_turn",
+        "total_cost_usd": 0.07323750000000001,
+        "usage": {
+          "input_tokens": 15,
+          "cache_creation_input_tokens": 11582,
+          "cache_read_input_tokens": 0,
+          "output_tokens": 31,
+          "server_tool_use": {
+            "web_search_requests": 0,
+            "web_fetch_requests": 0
+          },
+          "service_tier": "standard",
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "inference_geo": "",
+          "iterations": [],
+          "speed": "standard"
+        },
+        "model_usage": {
+          "MiniMax-M2.7": {
+            "inputTokens": 15,
+            "outputTokens": 31,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 11582,
+            "webSearchRequests": 0,
+            "costUSD": 0.07323750000000001,
+            "contextWindow": 200000,
+            "maxOutputTokens": 32000
+          }
+        },
+        "permission_denials": [],
+        "errors": [],
+        "result_preview": "Bash unavailable."
+      },
+      "stderr": "",
+      "checks": [
+        {
+          "name": "bash_unavailable",
+          "status": "pass",
+          "message": "No Bash tool_use observed"
+        },
+        {
+          "name": "mcp_zero",
+          "status": "pass",
+          "message": "mcp_server_count=0"
+        }
+      ]
+    },
+    {
+      "name": "allowedtools_bash_probe",
+      "description": "Negative control: checks whether --allowedTools Read actually blocks Bash on this Claude version.",
+      "command": "claude",
+      "args": [
+        "-p",
+        "--allowedTools",
+        "Read",
+        "--output-format",
+        "stream-json",
+        "--verbose",
+        "--max-budget-usd",
+        "0.35",
+        "Profile audit negative control: attempt to use Bash to run exactly: echo PROFILE_AUDIT_ALLOWEDTOOLS_BASH_PROBE. If Bash is unavailable, say Bash unavailable."
+      ],
+      "exit_code": 0,
+      "duration_ms": 13541,
+      "stream_parse_errors": [],
+      "init_present": true,
+      "claude_code_version": "2.1.92",
+      "model": "MiniMax-M2.7",
+      "cwd": "/root/projects/AgentSessionRouter",
+      "api_key_source": "none",
+      "permission_mode": "default",
+      "tools": [
+        "Task",
+        "AskUserQuestion",
+        "Bash",
+        "CronCreate",
+        "CronDelete",
+        "CronList",
+        "Edit",
+        "EnterPlanMode",
+        "EnterWorktree",
+        "ExitPlanMode",
+        "ExitWorktree",
+        "Glob",
+        "Grep",
+        "ListMcpResourcesTool",
+        "NotebookEdit",
+        "Read",
+        "ReadMcpResourceTool",
+        "SendMessage",
+        "Skill",
+        "TaskOutput",
+        "TaskStop",
+        "TeamCreate",
+        "TeamDelete",
+        "TodoWrite",
+        "WebFetch",
+        "WebSearch",
+        "Write",
+        "mcp__context7__query-docs",
+        "mcp__context7__resolve-library-id",
+        "mcp__exa__company_research_exa",
+        "mcp__exa__crawling_exa",
+        "mcp__exa__deep_researcher_check",
+        "mcp__exa__deep_researcher_start",
+        "mcp__exa__get_code_context_exa",
+        "mcp__exa__people_search_exa",
+        "mcp__exa__web_search_advanced_exa",
+        "mcp__exa__web_search_exa",
+        "mcp__filesystem__create_directory",
+        "mcp__filesystem__directory_tree",
+        "mcp__filesystem__edit_file",
+        "mcp__filesystem__get_file_info",
+        "mcp__filesystem__list_allowed_directories",
+        "mcp__filesystem__list_directory",
+        "mcp__filesystem__list_directory_with_sizes",
+        "mcp__filesystem__move_file",
+        "mcp__filesystem__read_file",
+        "mcp__filesystem__read_media_file",
+        "mcp__filesystem__read_multiple_files",
+        "mcp__filesystem__read_text_file",
+        "mcp__filesystem__search_files",
+        "mcp__filesystem__write_file",
+        "mcp__magic__21st_magic_component_builder",
+        "mcp__magic__21st_magic_component_inspiration",
+        "mcp__magic__21st_magic_component_refiner",
+        "mcp__magic__logo_search"
+      ],
+      "tool_count": 55,
+      "mcp_servers": [
+        {
+          "name": "magic",
+          "status": "connected"
+        },
+        {
+          "name": "context7",
+          "status": "connected"
+        },
+        {
+          "name": "filesystem",
+          "status": "connected"
+        },
+        {
+          "name": "exa",
+          "status": "connected"
+        }
+      ],
+      "mcp_server_count": 4,
+      "agents_count": 56,
+      "skills_count": 169,
+      "plugins": [],
+      "hook_event_count": 4,
+      "hook_events": [
+        {
+          "subtype": "hook_started",
+          "hook_name": "SessionStart:startup",
+          "hook_event": "SessionStart"
+        },
+        {
+          "subtype": "hook_started",
+          "hook_name": "SessionStart:startup",
+          "hook_event": "SessionStart"
+        },
+        {
+          "subtype": "hook_response",
+          "hook_name": "SessionStart:startup",
+          "hook_event": "SessionStart",
+          "outcome": "success",
+          "exit_code": 0
+        },
+        {
+          "subtype": "hook_response",
+          "hook_name": "SessionStart:startup",
+          "hook_event": "SessionStart",
+          "outcome": "success",
+          "exit_code": 0
+        }
+      ],
+      "tool_uses": [
+        {
+          "id": "call_function_6dppiep4oqoo_1",
+          "name": "Bash",
+          "input": {
+            "command": "echo PROFILE_AUDIT_ALLOWEDTOOLS_BASH_PROBE"
+          }
+        }
+      ],
+      "tool_results": [
+        {
+          "tool_use_id": "call_function_6dppiep4oqoo_1",
+          "is_error": false,
+          "content": "PROFILE_AUDIT_ALLOWEDTOOLS_BASH_PROBE"
+        }
+      ],
+      "result": {
+        "subtype": "success",
+        "is_error": false,
+        "stop_reason": "end_turn",
+        "total_cost_usd": 0.2286505,
+        "usage": {
+          "input_tokens": 41136,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 40991,
+          "output_tokens": 99,
+          "server_tool_use": {
+            "web_search_requests": 0,
+            "web_fetch_requests": 0
+          },
+          "service_tier": "standard",
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "inference_geo": "",
+          "iterations": [],
+          "speed": "standard"
+        },
+        "model_usage": {
+          "MiniMax-M2.7": {
+            "inputTokens": 41136,
+            "outputTokens": 99,
+            "cacheReadInputTokens": 40991,
+            "cacheCreationInputTokens": 0,
+            "webSearchRequests": 0,
+            "costUSD": 0.2286505,
+            "contextWindow": 200000,
+            "maxOutputTokens": 32000
+          }
+        },
+        "permission_denials": [],
+        "errors": [],
+        "result_preview": "\n\nBash available."
+      },
+      "stderr": "",
+      "checks": [
+        {
+          "name": "allowedtools_negative_control",
+          "status": "warn",
+          "message": "Bash tool_use observed; executed=true"
+        }
+      ]
+    }
+  ]
+}

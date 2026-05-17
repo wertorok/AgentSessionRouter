@@ -33,7 +33,7 @@ describe("shadow comparison eval", () => {
     expect(comparison.direct_score).toBeGreaterThanOrEqual(2);
     expect(["cluster", "direct", "tie"]).toContain(comparison.preferred);
     expect(comparison.judged_at).toBe("2026-05-13T00:00:00.000Z");
-    expect(claude.judgeOptions?.extraArgs).toEqual(["--tools", ""]);
+    expect(claude.judgeOptions?.extraArgs).toEqual(["--tools", "", "--strict-mcp-config", "--mcp-config", '{"mcpServers":{}}']);
     expect(claude.judgeOptions?.includeConfiguredExtraArgs).toBe(false);
     expect(claude.judgePrompt).toContain("Verified cluster factsheet ground truth");
     expect(claude.judgePrompt).toContain("The bare profile uses --bare --tools");

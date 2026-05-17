@@ -415,8 +415,10 @@ To share one registry across multiple launched server cwd values, set absolute `
 
 ```toml
 [claude]
-extra_args = ["--tools", ""]
+extra_args = ["--tools", "", "--strict-mcp-config", "--mcp-config", "{\"mcpServers\":{}}"]
 ```
+
+Use `npm run claude:profile-audit` after Claude Code upgrades or installation changes. It reads Claude's `system/init` stream and verifies the active profile really has the expected tool/MCP surface. In Claude Code 2.1.92, `--tools ""` alone was not enough to remove MCP tools; the strict empty MCP config is required for a zero-tool startup. The direct read-only benchmark profile uses `--tools Read,Glob,Grep` plus the same strict empty MCP config; it is not a full sandbox because hooks and skills still load.
 
 `claude.command_timeout_ms` bounds each Claude CLI command, including startup health probes and consult calls. Set the MCP client's startup timeout above this value plus process startup overhead.
 
@@ -899,7 +901,7 @@ Output:
 
 If some facts fail static verification but at least one fact is valid, the factsheet is stored with only the statically verified facts and cluster `trust_state` is `partial_static`. If no facts verify, the tool returns `CLUSTER_FACTSHEET_INVALID`.
 
-LLM verification uses `llm_verifier_profile: "focused"` as the portable default, which invokes Claude with `--tools ""`. `llm_verifier_profile: "bare"` invokes Claude with `--bare --tools ""` when the local Claude auth supports it.
+LLM verification uses `llm_verifier_profile: "focused"` as the portable default, which invokes Claude with `--tools "" --strict-mcp-config --mcp-config '{"mcpServers":{}}'`. `llm_verifier_profile: "bare"` invokes Claude with `--bare --tools ""` when the local Claude auth supports it.
 
 ### `cluster_reprepare`
 

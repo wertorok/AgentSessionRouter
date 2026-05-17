@@ -3,9 +3,11 @@ import type { ClaudeAdapter, ClaudeJsonResponse, ClaudePromptOptions, HealthProb
 import { detectAvailableProfiles, pickProfile, profileArgs, profilePromptOptions } from "../src/profiles.js";
 
 describe("Claude tool profiles", () => {
+  const focusedArgs = ["--tools", "", "--strict-mcp-config", "--mcp-config", '{"mcpServers":{}}'];
+
   it("builds profile-specific Claude args", () => {
     expect(profileArgs("bare")).toEqual(["--bare", "--tools", ""]);
-    expect(profileArgs("focused")).toEqual(["--tools", ""]);
+    expect(profileArgs("focused")).toEqual(focusedArgs);
     expect(profileArgs("agent")).toEqual([]);
     expect(profilePromptOptions("bare")).toEqual({
       extraArgs: ["--bare", "--tools", ""],
@@ -21,7 +23,7 @@ describe("Claude tool profiles", () => {
     expect(availability.focused.available).toBe(true);
     expect(availability.bare.available).toBe(true);
     expect(claude.calls.map((call) => call.options.extraArgs)).toEqual([
-      ["--tools", ""],
+      focusedArgs,
       ["--bare", "--tools", ""]
     ]);
   });

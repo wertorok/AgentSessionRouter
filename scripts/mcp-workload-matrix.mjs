@@ -595,7 +595,7 @@ function consultInput(topic, sessionId, overrides = {}) {
 
 function writeRouterConfig() {
   const command = mode === "live" ? "claude" : fakeClaudePath;
-  const noRecursiveMcp = mode === "live" ? ', "--strict-mcp-config", "--mcp-config", \'{"mcpServers":{}\}\'' : "";
+  const noRecursiveMcp = mode === "live" ? ', "--strict-mcp-config", "--mcp-config", "{\\"mcpServers\\":{}}"' : "";
   writeFileSync(
     path.join(projectDir, "router.config.toml"),
     `[storage]

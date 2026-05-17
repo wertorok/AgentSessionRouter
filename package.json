@@ -35,6 +35,7 @@
     "mcp:config": "node scripts/mcp-config-print.mjs",
     "print-codex-config": "node scripts/mcp-config-print.mjs --format toml",
     "env:diagnose": "node scripts/env-diagnose.mjs",
+    "claude:profile-audit": "node scripts/claude-profile-audit.mjs",
     "router:sanity": "node scripts/router-consult-sanity.mjs",
     "router:sample": "node scripts/router-route-sample.mjs",
     "route:calibration": "node scripts/route-calibration-report.mjs",

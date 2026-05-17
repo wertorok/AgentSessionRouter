@@ -26,13 +26,14 @@ export interface ProfileSelection {
 }
 
 const PROFILE_PROBE_PROMPT = "Return exactly: PROFILE_OK";
+const STRICT_EMPTY_MCP_ARGS = ["--tools", "", "--strict-mcp-config", "--mcp-config", '{"mcpServers":{}}'];
 
 export function profileArgs(profile: ClaudeToolProfile): string[] {
   switch (profile) {
     case "bare":
       return ["--bare", "--tools", ""];
     case "focused":
-      return ["--tools", ""];
+      return [...STRICT_EMPTY_MCP_ARGS];
     case "agent":
       return [];
   }

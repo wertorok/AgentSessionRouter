@@ -78,7 +78,7 @@ Baseline sessions are acceleration state, not authority. They are opaque and can
 The invocation policy used for a cluster consult:
 
 - `bare`: `claude -p --bare --tools ""`
-- `focused`: `claude -p --tools ""` or explicit allow/deny args when `--bare` is unavailable
+- `focused`: `claude -p --tools "" --strict-mcp-config --mcp-config '{"mcpServers":{}}'` when `--bare` is unavailable
 - `agent`: normal Claude Code tool access for fresh discovery
 
 ## 4. Non-Goals
@@ -285,25 +285,29 @@ Properties:
 
 ### `focused`
 
-Used when `bare` probe fails or the task requires bounded file access.
+Used when `bare` probe fails and the task can be answered from supplied prompt context without tools.
 
 CLI shape examples:
 
 ```bash
-claude -p --tools "" --output-format json "<prompt>"
+claude -p --tools "" --strict-mcp-config --mcp-config '{"mcpServers":{}}' --output-format json "<prompt>"
 ```
 
-or:
+For direct read-only benchmark baselines that need file access, use explicit built-in tools plus an empty MCP config:
 
 ```bash
-claude -p --disallowedTools "Agent,Glob,Bash" --output-format json "<prompt>"
+claude -p --tools Read,Glob,Grep --strict-mcp-config --mcp-config '{"mcpServers":{}}' --output-format stream-json "<prompt>"
 ```
 
 Properties:
 
-- Still avoids broad agent exploration.
+- Avoids broad agent exploration and ambient MCP tools.
+- The direct read-only variant permits only `Read`, `Glob`, and `Grep` as
+  built-in tools and no MCP servers. It is a benchmark isolation profile, not a
+  full sandbox: hooks and skills can still load.
 - More portable than `bare`.
 - More expensive than `bare` in measured runs.
+- `--allowedTools` is not treated as an isolation boundary; live audit on Claude Code 2.1.92 showed it did not prevent Bash execution.
 
 ### `agent`
 
@@ -333,7 +337,7 @@ On first profile-gated cluster use:
 
 2. If it succeeds, mark `bare_available = true`.
 3. If it fails, record `bare_probe_failed` and use `focused` where a cluster default says `bare`.
-4. Probe `focused` with `--tools ""`; if focused is also unavailable, fail closed.
+4. Probe `focused` with `--tools "" --strict-mcp-config --mcp-config '{"mcpServers":{}}'`; if focused is also unavailable, fail closed.
 
 The downgrade is deterministic:
 
@@ -433,7 +437,7 @@ Behavior:
 3. If source is missing, run explicit exploration with `agent` profile only if requested.
 4. Distill draft factsheet.
 5. Run static verifier.
-6. If `verification_mode` is `llm`, run LLM verifier with `--tools ""` or `--bare --tools ""`.
+6. If `verification_mode` is `llm`, run LLM verifier with strict focused no-tools/no-MCP mode or `--bare --tools ""`.
 7. Store `static_verified` or `llm_verified` factsheet.
 8. Hash evidence files.
 9. Optionally create a baseline Claude session using the verified factsheet.

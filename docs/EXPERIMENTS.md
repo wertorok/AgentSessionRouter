@@ -1,5 +1,41 @@
 # AgentSessionRouter Experiments
 
+## 2026-05-17: Claude Profile Audit From `system/init`
+
+Artifact:
+
+- `experiments/claude-profile-audit-2026-05-17-profile-fix/`
+
+Live audit on Claude Code `2.1.92 (Claude Code)` checked actual `system/init`
+metadata instead of trusting CLI flag names:
+
+| Profile | Tools | MCP | Skills | Hooks | Result |
+| --- | ---: | ---: | ---: | ---: | --- |
+| configured strict empty | 0 | 0 | 169 | 4 | pass |
+| legacy `--tools ""` | 28 | 4 | 169 | 4 | warning |
+| strict focused empty | 0 | 0 | 169 | 4 | pass |
+| bare | 0 | 0 | 6 | 0 | pass |
+| read-only strict | 3 | 0 | 169 | 4 | pass |
+| `--allowedTools Read` Bash probe | 55 | 4 | 169 | 4 | warning; Bash executed |
+
+Findings:
+
+- `--tools ""` alone is not a reliable no-tool/no-MCP profile on this machine.
+  It removed some built-in tools but still loaded MCP tools and skills.
+- Strict empty MCP config is required for a zero-tool focused profile:
+  `--tools "" --strict-mcp-config --mcp-config '{"mcpServers":{}}'`.
+- Direct read-only benchmarks should use explicit built-in tools plus strict
+  empty MCP config: `--tools Read,Glob,Grep --strict-mcp-config --mcp-config
+  '{"mcpServers":{}}'`. The live audit checks that any unexpected tool attempt
+  remains unavailable and that Bash does not execute.
+- This read-only profile is not a full sandbox: hooks and skills remain loaded.
+  It is a benchmark isolation profile for built-in file-reading tools, not an
+  OS-level security boundary.
+- `--allowedTools` is not a safety boundary for benchmarks. A live negative
+  control with `--allowedTools Read` still executed Bash.
+- `bare` remains the cheapest profile locally, but its auth portability remains
+  machine-dependent.
+
 ## 2026-05-12: Cluster Skeleton, Tool Profiles, and Fork Reuse
 
 ### Baseline Failure
@@ -669,7 +705,8 @@ Ambiguous candidates for future lead review: 36
 - Treat fork as an acceleration layer over a verified factsheet baseline, not as the durable knowledge store.
 - Preferred profiles:
   - `bare`: `--bare --tools ""` for complete verified factsheets and low-risk planning.
-  - `focused`: `--tools ""` or explicit allowed/denied tool args when `--bare` is unavailable.
+  - `focused`: `--tools "" --strict-mcp-config --mcp-config '{"mcpServers":{}}'` when `--bare` is unavailable.
+  - `direct-readonly`: `--tools Read,Glob,Grep --strict-mcp-config --mcp-config '{"mcpServers":{}}'` for direct benchmark baselines that need file reads. This permits only those built-in tools and no MCP servers, but still loads hooks/skills; it is not a full sandbox.
   - `agent`: full Claude Code exploration only when factsheet is missing or invalid.
 - Replace human review with automated verification: explore -> distill -> verify -> cache; on failure, run focused refresh or mark cluster untrusted.
 
