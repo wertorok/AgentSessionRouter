@@ -36,6 +36,29 @@ Findings:
 - `bare` remains the cheapest profile locally, but its auth portability remains
   machine-dependent.
 
+## 2026-05-17: OAuth-Only Headless Profile Diagnosis
+
+Artifact:
+
+- `CLAUDE_LIVE_DIAGNOSIS.md`
+
+On Linux with Claude Code `2.1.92 (Claude Code)`, no `ANTHROPIC_*` or
+`CLAUDE_*` API-key environment variables were present, and `claude auth status`
+reported `oauth_token` / `firstParty`.
+
+Live probes:
+
+| Profile | Command shape | Result |
+| --- | --- | --- |
+| default headless | `claude -p --output-format json` | success |
+| strict focused | `claude -p --tools "" --strict-mcp-config --mcp-config '{"mcpServers":{}}' --output-format json` | success |
+| router-order bare | `claude -p --bare --tools "" --output-format json` | success |
+
+Finding: on this host, router-order `bare` works with OAuth-only auth. This is
+version- and machine-scoped, not a universal claim. The runtime must continue to
+use profile probing and deterministic `bare -> focused` downgrade, and operators
+should re-run `npm run claude:profile-audit` after Claude Code or auth changes.
+
 ## 2026-05-12: Cluster Skeleton, Tool Profiles, and Fork Reuse
 
 ### Baseline Failure
@@ -712,7 +735,8 @@ Ambiguous candidates for future lead review: 36
 
 ## Open Risks
 
-- `--bare` auth compatibility may vary by machine because it bypasses OAuth/keychain reads.
+- `--bare` auth compatibility may vary by machine/version; profile probing and
+  `bare -> focused` downgrade remain mandatory.
 - Factsheet incompleteness leads either to `NOT IN CONTEXT` or hallucination, depending on prompt strictness.
 - Forked sessions can carry opaque state and must stay cluster-scoped.
 - Cache invalidation must be scoped to files that support the factsheet, not the whole repository.

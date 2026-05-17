@@ -281,7 +281,10 @@ Properties:
 - Lowest measured cost.
 - No tools.
 - No Claude Code project auto-discovery.
-- May fail on machines where `--bare` cannot authenticate.
+- Auth compatibility is machine/version scoped. On Linux with Claude Code
+  `2.1.92`, OAuth-only auth worked for router-order
+  `claude -p --bare --tools ""`, but older/other environments can differ.
+  Profile probing must be the source of truth.
 
 ### `focused`
 
@@ -679,6 +682,9 @@ Behavior:
 - Log `bare_probe_failed`.
 - Downgrade `bare` cluster calls to `focused`.
 - Do not downgrade to `agent`.
+- Operators should run `npm run claude:profile-audit` or
+  `node scripts/diagnose-claude-live.mjs` after Claude Code/auth changes to
+  verify the local default, focused, and bare profile behavior.
 
 ### Factsheet Stale
 

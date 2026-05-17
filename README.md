@@ -434,8 +434,8 @@ Currently verified:
 
 ```txt
 claude-code:
-  tested: ["2.1.138 (Claude Code)"]
-  last_verified: 2026-05-11
+  tested: ["2.1.138 (Claude Code)", "2.1.92 (Claude Code)"]
+  last_verified: 2026-05-17
 ```
 
 On startup the server:
@@ -901,7 +901,7 @@ Output:
 
 If some facts fail static verification but at least one fact is valid, the factsheet is stored with only the statically verified facts and cluster `trust_state` is `partial_static`. If no facts verify, the tool returns `CLUSTER_FACTSHEET_INVALID`.
 
-LLM verification uses `llm_verifier_profile: "focused"` as the portable default, which invokes Claude with `--tools "" --strict-mcp-config --mcp-config '{"mcpServers":{}}'`. `llm_verifier_profile: "bare"` invokes Claude with `--bare --tools ""` when the local Claude auth supports it.
+LLM verification uses `llm_verifier_profile: "focused"` as the portable default, which invokes Claude with `--tools "" --strict-mcp-config --mcp-config '{"mcpServers":{}}'`. `llm_verifier_profile: "bare"` invokes Claude with `--bare --tools ""` when the local Claude auth supports it; profile probing downgrades `bare` to strict `focused` when `bare` is unavailable. On Linux with Claude Code `2.1.92`, OAuth-only auth worked for default headless, strict focused, and router-order bare profiles, but this is version- and machine-scoped. Re-run `npm run claude:profile-audit` after Claude upgrades or auth changes.
 
 ### `cluster_reprepare`
 

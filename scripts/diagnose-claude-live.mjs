@@ -10,10 +10,15 @@ const outputPath = path.join(repoRoot, "CLAUDE_LIVE_DIAGNOSIS.md");
 const cases = [
   { name: "version", command: "claude", args: ["--version"], input: "" },
   { name: "auth_status", command: "claude", args: ["auth", "status"], input: "" },
-  { name: "adapter_ping", command: "claude", args: ["-p", "--output-format", "json", "ping"], input: "" },
-  { name: "bare_ping_arg", command: "claude", args: ["--bare", "-p", "--output-format", "json", "ping"], input: "" },
-  { name: "bare_ping_stdin", command: "claude", args: ["--bare", "-p", "--output-format", "json"], input: "ping" },
-  { name: "text_ping_arg", command: "claude", args: ["-p", "ping"], input: "" }
+  { name: "adapter_ping", command: "claude", args: ["-p", "--output-format", "json", "Return exactly DIAG_ADAPTER_OK"], input: "" },
+  {
+    name: "focused_strict_ping",
+    command: "claude",
+    args: ["-p", "--tools", "", "--strict-mcp-config", "--mcp-config", '{"mcpServers":{}}', "--output-format", "json", "Return exactly DIAG_FOCUSED_OK"],
+    input: ""
+  },
+  { name: "bare_ping_router_order", command: "claude", args: ["-p", "--bare", "--tools", "", "--output-format", "json", "Return exactly DIAG_BARE_OK"], input: "" },
+  { name: "text_ping_arg", command: "claude", args: ["-p", "Return exactly DIAG_TEXT_OK"], input: "" }
 ];
 
 const results = [];
@@ -23,7 +28,7 @@ for (const testCase of cases) {
 }
 
 const rootCause = decideRootCause(results);
-const report = renderReport(results, rootCause);
+const report = renderReport(results, rootCause, envStatus());
 writeFileSync(outputPath, report, "utf8");
 console.log(report);
 
@@ -52,7 +57,7 @@ function runCase(testCase) {
         exitCode: null,
         durationMs: Math.round(performance.now() - startedAt),
         spawnError: error.message,
-        stdout,
+        stdout: sanitizeStdout(testCase.name, stdout),
         stderr,
         json: analyzeJson(stdout)
       });
@@ -63,7 +68,7 @@ function runCase(testCase) {
         exitCode,
         durationMs: Math.round(performance.now() - startedAt),
         spawnError: null,
-        stdout,
+        stdout: sanitizeStdout(testCase.name, stdout),
         stderr,
         json: analyzeJson(stdout)
       });
@@ -101,6 +106,8 @@ function analyzeJson(stdout) {
 
 function decideRootCause(runResults) {
   const adapterResult = runResults.find((result) => result.name === "adapter_ping");
+  const focusedResult = runResults.find((result) => result.name === "focused_strict_ping");
+  const bareResult = runResults.find((result) => result.name === "bare_ping_router_order");
   if (
     adapterResult?.exitCode === 0 &&
     adapterResult.json.valid &&
@@ -108,11 +115,23 @@ function decideRootCause(runResults) {
     adapterResult.json.session_id &&
     adapterResult.json.result
   ) {
+    if (bareResult?.json.valid && bareResult.json.is_error === true) {
+      return {
+        verdict: "CLAUDE_ADAPTER_PASS_BARE_UNAVAILABLE",
+        category: "claude_cli_ready_with_bare_downgrade",
+        summary:
+          "Default headless Claude invocation succeeds, but the router-order bare profile failed. Runtime profile probing should downgrade bare requests to focused if focused is available.",
+        operatorAction:
+          focusedResult?.exitCode === 0 && focusedResult.json.is_error === false
+            ? "No install action is required; verify profile probing records bare unavailable and focused available."
+            : "Fix Claude focused/headless auth before using cluster verification or cluster consults."
+      };
+    }
     return {
       verdict: "CLAUDE_PROBE_PASS",
       category: "claude_cli_ready",
       summary:
-        "Claude CLI adapter invocation succeeds with valid JSON, `session_id`, and `result`; bare-mode failures are not relevant because the MCP adapter does not use `--bare`.",
+        "Claude CLI adapter invocation succeeds with valid JSON, `session_id`, and `result`; focused and bare profile checks should be read separately because cluster paths use profile probing and may downgrade `bare` to `focused`.",
       operatorAction: "No Claude environment action is required for the MCP adapter path."
     };
   }
@@ -172,8 +191,15 @@ function decideRootCause(runResults) {
   };
 }
 
-function renderReport(runResults, rootCause) {
-  const adapterReady = rootCause.verdict === "CLAUDE_PROBE_PASS";
+function envStatus() {
+  const names = ["ANTHROPIC_API_KEY", "ANTHROPIC_AUTH_TOKEN", "CLAUDE_API_KEY", "CLAUDE_CODE_USE_BEDROCK", "CLAUDE_CODE_USE_VERTEX"];
+  return Object.fromEntries(names.map((name) => [name, Boolean(process.env[name])]));
+}
+
+function renderReport(runResults, rootCause, env) {
+  const adapterReady = rootCause.verdict === "CLAUDE_PROBE_PASS" || rootCause.verdict === "CLAUDE_ADAPTER_PASS_BARE_UNAVAILABLE";
+  const focusedResult = runResults.find((result) => result.name === "focused_strict_ping");
+  const bareResult = runResults.find((result) => result.name === "bare_ping_router_order");
   return `# Claude Live Diagnosis
 
 ## Environment
@@ -183,6 +209,10 @@ function renderReport(runResults, rootCause) {
 | OS | ${os.type()} ${os.release()} ${os.arch()} |
 | Node | ${process.version} |
 | cwd | ${repoRoot} |
+| Claude env vars present | ${Object.entries(env)
+    .filter(([, present]) => present)
+    .map(([name]) => name)
+    .join(", ") || "none"} |
 
 ## Root Cause
 
@@ -192,6 +222,10 @@ function renderReport(runResults, rootCause) {
 | Category | ${rootCause.category} |
 | Summary | ${rootCause.summary} |
 | Exact operator action | ${rootCause.operatorAction} |
+
+Version-scoped note: this result applies to the local Claude CLI version and
+auth state shown below. Re-run this diagnosis and \`npm run claude:profile-audit\`
+after Claude Code upgrades, auth changes, or OS changes.
 
 ## Manual Claude CLI Command Results
 
@@ -217,7 +251,10 @@ ${markdownTable(
 - src/claude.ts expects Claude JSON to include a session id and answer text (session_id plus result, text, or answer).
 - The installed Claude CLI ${adapterReady ? "returns valid adapter-path JSON with session_id and result, so the output shape is compatible." : "did not complete a clean adapter-path JSON response; see root cause above."}
 - ${adapterReady ? "The real adapter invocation returns is_error: false, so live MCP consults can proceed." : "The real adapter invocation is blocked before a successful consult can be created."}
-- Bare-mode results are diagnostic only; src/claude.ts does not use --bare.
+- Cluster and LLM-verifier paths may request \`bare\`, but profile probing is expected to downgrade \`bare\` to strict \`focused\` when bare is unavailable.
+- Current strict focused profile: ${profileStatus(focusedResult)}.
+- Current router-order bare profile: ${profileStatus(bareResult)}.
+- This diagnosis covers headless \`claude -p\` mode. It is not a proof of interactive Claude Code TUI parity.
 - Local Claude SessionEnd hook stderr is recorded as environment noise; it does not block the adapter path when the command exits 0 with valid JSON.
 
 ## Raw JSON Evidence
@@ -226,6 +263,36 @@ ${markdownTable(
 ${JSON.stringify(runResults, null, 2)}
 \`\`\`
 `;
+}
+
+function sanitizeStdout(name, stdout) {
+  if (name !== "auth_status") {
+    return stdout;
+  }
+  try {
+    const parsed = JSON.parse(stdout);
+    for (const key of ["email", "orgId", "orgName"]) {
+      if (parsed[key]) {
+        parsed[key] = "<redacted>";
+      }
+    }
+    return `${JSON.stringify(parsed, null, 2)}\n`;
+  } catch {
+    return stdout;
+  }
+}
+
+function profileStatus(result) {
+  if (!result) {
+    return "not checked";
+  }
+  if (result.exitCode === 0 && result.json.valid && result.json.is_error === false) {
+    return `available (session_id=${result.json.session_id ?? "unknown"})`;
+  }
+  if (result.json.valid && result.json.is_error === true) {
+    return `unavailable (${result.json.result ?? "Claude returned is_error=true"})`;
+  }
+  return `probe failed (exit=${result.exitCode}, spawnError=${result.spawnError ?? "none"})`;
 }
 
 function markdownTable(rows, columns) {
