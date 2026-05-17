@@ -2,7 +2,7 @@ import { chmodSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { CliClaudeAdapter, parseClaudeJson } from "../src/claude.js";
+import { buildCommandSpawnOptions, CliClaudeAdapter, parseClaudeJson } from "../src/claude.js";
 import { loadConfig } from "../src/config.js";
 import { MemoryLockProvider } from "../src/locks.js";
 import { findBestSessionMatch, normalizeTokens } from "../src/matching.js";
@@ -430,6 +430,22 @@ Extra text from Claude.`);
 
     await expect(adapter.runPrompt("ping")).rejects.toThrow("Command timed out after 30ms");
     rmSync(dir, { recursive: true, force: true });
+  });
+
+  it("uses a Windows shell only for Windows Claude command shims", () => {
+    expect(buildCommandSpawnOptions("linux")).toEqual({
+      stdio: ["pipe", "pipe", "pipe"],
+      windowsHide: true
+    });
+    expect(buildCommandSpawnOptions("darwin")).toEqual({
+      stdio: ["pipe", "pipe", "pipe"],
+      windowsHide: true
+    });
+    expect(buildCommandSpawnOptions("win32")).toEqual({
+      stdio: ["pipe", "pipe", "pipe"],
+      windowsHide: true,
+      shell: true
+    });
   });
 
   it("serializes memory locks per key", async () => {

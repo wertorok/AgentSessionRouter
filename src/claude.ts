@@ -214,12 +214,21 @@ function objectField(source: Record<string, unknown>, key: string): Record<strin
   return isObject(value) ? value : {};
 }
 
+export function buildCommandSpawnOptions(platform: NodeJS.Platform): {
+  stdio: ["pipe", "pipe", "pipe"];
+  windowsHide: boolean;
+  shell?: boolean;
+} {
+  return {
+    stdio: ["pipe", "pipe", "pipe"],
+    windowsHide: true,
+    ...(platform === "win32" ? { shell: true } : {})
+  };
+}
+
 function runCommand(command: string, args: string[], timeoutMs: number): Promise<string> {
   return new Promise((resolve, reject) => {
-    const child = spawn(command, args, {
-      stdio: ["pipe", "pipe", "pipe"],
-      windowsHide: true
-    });
+    const child = spawn(command, args, buildCommandSpawnOptions(process.platform));
 
     let stdout = "";
     let stderr = "";
