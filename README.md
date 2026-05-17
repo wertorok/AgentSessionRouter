@@ -109,19 +109,29 @@ Claude usage-limit responses are classified as `claude_usage_limit` and include 
 
 The cluster-cache implementation can store `static_verified` factsheets, optionally run an LLM verifier to promote them to `llm_verified`, consult Claude through a verified factsheet without fork, and revalidate changed evidence with selector/snippet checks. It probes `bare`/`focused` tool profiles and deterministically downgrades `bare` to `focused` when needed. If the cache path cannot prove its evidence, caller-facing `cluster_consult` falls back internally to normal `claude_consult` and still returns an answer when Claude is available. Optional shadow eval records real-world quality/cost telemetry without changing the answer returned to the parent agent. `router_consult` records top-level route decisions and avoids accidental broad cold discovery when the caller provides an explicit cluster/session or a reusable session can be matched. Fork baselines, distillation from existing v1 sessions, and automatic cluster selection are post-MVP enhancements rather than release blockers.
 
-## Requirements
+## Prerequisites
 
-- Node.js `>=20`
-- npm
-- Claude Code CLI installed as `claude`
-- A working Claude login or API credential
-- SQLite support through `better-sqlite3`
+Install these before cloning/running the MCP server:
+
+- `git` and CA certificates. Minimal server images such as `node:20-slim` do not include `git`.
+- Node.js `>=20` and npm.
+- Claude Code CLI installed as `claude`.
+  - Tested versions are listed in `COMPATIBILITY.md`; currently `2.1.138 (Claude Code)` and `2.1.92 (Claude Code)`.
+- A working Claude login or API credential.
+- SQLite support through `better-sqlite3`.
+
+On a minimal Debian/Ubuntu server, install the clone prerequisites first:
+
+```bash
+apt-get update && apt-get install -y git ca-certificates
+```
 
 Check locally:
 
-```powershell
+```bash
 node -v
 npm -v
+git --version
 claude --version
 claude auth status
 claude -p --output-format json "ping"
@@ -129,9 +139,14 @@ claude -p --output-format json "ping"
 
 ## Install
 
-From the repo root:
+Clone the repository, then run the build from the repo root:
 
-```powershell
+```bash
+git clone https://github.com/wertorok/AgentSessionRouter.git
+cd AgentSessionRouter
+```
+
+```bash
 npm install
 npm run build
 npm test
@@ -139,7 +154,7 @@ npm test
 
 Run the server directly:
 
-```powershell
+```bash
 node dist/src/index.js
 ```
 
@@ -147,11 +162,11 @@ The process uses stdio for MCP transport. Do not expect normal logs on stdout; s
 
 Run the post-install isolation smoke test after building:
 
-```powershell
+```bash
 npm run smoke:postinstall
 ```
 
-The default smoke test uses a stub Claude CLI, starts the real MCP server in a temporary project cwd, verifies a consult round trip, and confirms registry/raw logs stay under that project. Use `npm run smoke:postinstall:live` only when you intentionally want it to call the real Claude CLI.
+The default smoke test uses a stub Claude CLI, starts the real MCP server in a temporary project cwd, verifies a consult round trip, and confirms registry/raw logs stay under that project. It also reports whether the external host `claude` CLI is missing or unauthenticated. A passing stub smoke means the MCP install is healthy; live consults will still run in degraded mode until the external Claude CLI is installed and authenticated. Use `npm run smoke:postinstall:live` only when you intentionally want it to call the real Claude CLI.
 
 ## Quick Cluster Cache Example
 
@@ -289,6 +304,18 @@ Use the built server entry point:
 node <repo-root>\dist\src\index.js
 ```
 
+After `npm run build`, generate a client config snippet with the current absolute server path instead of hand-editing it:
+
+```bash
+npm run mcp:config -- --project-cwd /path/to/your-project --format toml
+```
+
+For JSON-style MCP clients:
+
+```bash
+npm run mcp:config -- --project-cwd /path/to/your-project --format json
+```
+
 Generic MCP server config shape:
 
 ```json
@@ -316,6 +343,8 @@ args = ["/root/projects/AgentSessionRouter/dist/src/index.js"]
 cwd = "/root/projects/your-project"
 startup_timeout_sec = 180
 ```
+
+Prefer the generated snippet above; the hardcoded path here is only an example.
 
 If you need the router available in several projects, run one MCP server entry per project with a distinct `cwd`. A shared SQLite registry is supported by using absolute `storage.db_path` and `storage.raw_logs_dir`, but routing remains project-scoped by `project_id`.
 

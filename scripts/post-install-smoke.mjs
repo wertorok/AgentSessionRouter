@@ -6,6 +6,7 @@ import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, wr
 import os from "node:os";
 import path from "node:path";
 import process from "node:process";
+import { spawnSync } from "node:child_process";
 
 const repoRoot = process.cwd();
 const serverEntry = path.join(repoRoot, "dist", "src", "index.js");
@@ -36,6 +37,7 @@ const report = {
   mode: useLiveClaude ? "live" : "stub",
   project_dir: projectDir,
   server_entry: serverEntry,
+  host_claude_cli: inspectHostClaudeCli(),
   checks: [],
   codex_config: inspectCodexConfig(codexConfigPath)
 };
@@ -200,7 +202,7 @@ try {
 }
 
 const ok = report.checks.every((check) => check.pass) && report.codex_config.pass !== false;
-console.log(JSON.stringify({ ok, ...report }, null, 2));
+console.log(JSON.stringify({ ok, install_summary: buildInstallSummary(ok, report.host_claude_cli), ...report }, null, 2));
 process.exitCode = ok ? 0 : 1;
 
 async function withClient(fn) {
@@ -379,6 +381,89 @@ function inspectCodexConfig(configPath) {
   } catch (error) {
     return { path: configPath, status: "parse_failed", pass: false, error: error instanceof Error ? error.message : String(error) };
   }
+}
+
+function inspectHostClaudeCli() {
+  const version = spawnSync("claude", ["--version"], {
+    encoding: "utf8",
+    timeout: 5000
+  });
+  if (version.error) {
+    const code = version.error.code === "ENOENT" ? "missing" : "probe_failed";
+    return {
+      status: code,
+      live_ready: false,
+      message:
+        code === "missing"
+          ? "Post-install smoke passed with a stub Claude CLI, but live consults need the external `claude` executable in PATH."
+          : "Post-install smoke passed with a stub Claude CLI, but probing the external `claude` executable failed.",
+      operator_action:
+        "Install Claude Code CLI, authenticate it, then verify with `claude --version` and `claude auth status`.",
+      error: version.error.message
+    };
+  }
+  if (version.status !== 0) {
+    return {
+      status: "version_failed",
+      live_ready: false,
+      message:
+        "Post-install smoke passed with a stub Claude CLI, but the external `claude --version` command failed.",
+      operator_action: "Fix the Claude Code CLI installation, then rerun `claude --version`.",
+      exit_code: version.status,
+      stdout: version.stdout.trim(),
+      stderr: version.stderr.trim()
+    };
+  }
+
+  const auth = spawnSync("claude", ["auth", "status"], {
+    encoding: "utf8",
+    timeout: 5000
+  });
+  const authTimedOut = auth.error?.code === "ETIMEDOUT";
+  const authOk = !auth.error && auth.status === 0;
+  return {
+    status: authOk ? "ready" : authTimedOut ? "auth_timeout" : "auth_not_ready",
+    live_ready: authOk,
+    version: version.stdout.trim(),
+    message: authOk
+      ? "External Claude CLI is installed and auth status passed."
+      : "Post-install smoke passed with a stub Claude CLI, but live consults may remain degraded until Claude auth is fixed.",
+    operator_action: authOk
+      ? null
+      : "Run `claude auth status` and complete Claude Code authentication before live consults.",
+    auth_exit_code: auth.status,
+    auth_stdout: auth.stdout.trim(),
+    auth_stderr: auth.stderr.trim(),
+    auth_error: auth.error ? auth.error.message : null
+  };
+}
+
+function buildInstallSummary(ok, hostClaudeCli) {
+  if (!ok) {
+    return {
+      install_ok: false,
+      live_claude_ready: hostClaudeCli.live_ready,
+      message: "Post-install smoke failed. Inspect the failed check above before configuring MCP clients."
+    };
+  }
+  if (hostClaudeCli.live_ready) {
+    return {
+      install_ok: true,
+      live_claude_ready: true,
+      message: "MCP install smoke passed and the external Claude CLI appears ready for live consults."
+    };
+  }
+  return {
+    install_ok: true,
+    live_claude_ready: false,
+    message:
+      "MCP install smoke passed in stub mode. The router is installed, but live consults will run degraded until the external Claude Code CLI is installed and authenticated.",
+    next_steps: [
+      "Install Claude Code CLI so `claude` is in PATH.",
+      "Run `claude --version` and `claude auth status`.",
+      "Optionally rerun `npm run smoke:postinstall:live` after authentication."
+    ]
+  };
 }
 
 function valueAfter(flag) {

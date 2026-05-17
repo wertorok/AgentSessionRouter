@@ -32,6 +32,7 @@
     "test": "vitest run tests --exclude dist/**",
     "smoke:postinstall": "node scripts/post-install-smoke.mjs",
     "smoke:postinstall:live": "node scripts/post-install-smoke.mjs --live",
+    "mcp:config": "node scripts/mcp-config-print.mjs",
     "router:sanity": "node scripts/router-consult-sanity.mjs",
     "router:sample": "node scripts/router-route-sample.mjs",
     "route:calibration": "node scripts/route-calibration-report.mjs",
