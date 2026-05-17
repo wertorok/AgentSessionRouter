@@ -1,12 +1,13 @@
 import { existsSync } from "node:fs";
 import path from "node:path";
 import process from "node:process";
+import { fileURLToPath } from "node:url";
 
-const repoRoot = process.cwd();
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const serverName = valueAfter("--server-name") ?? "claude-session-router";
 const format = valueAfter("--format") ?? "toml";
 const projectCwd = path.resolve(valueAfter("--project-cwd") ?? process.cwd());
-const startupTimeoutSec = Number(valueAfter("--startup-timeout-sec") ?? "180");
+const startupTimeoutSec = Number(valueAfter("--startup-timeout-sec") ?? "300");
 const serverEntry = path.resolve(valueAfter("--server-entry") ?? path.join(repoRoot, "dist", "src", "index.js"));
 const comments = !process.argv.includes("--no-comments");
 
@@ -46,7 +47,7 @@ if (format === "json") {
       ].join("\n")
     : "";
   console.log(`${prefix}[mcp_servers.${tomlKey(serverName)}]
-command = "node"
+command = "${escapeToml(process.execPath)}"
 args = ["${escapeToml(serverEntry)}"]
 cwd = "${escapeToml(projectCwd)}"
 startup_timeout_sec = ${startupTimeoutSec}`);

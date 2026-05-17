@@ -8,11 +8,12 @@ import { fileURLToPath } from "node:url";
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const serverName = valueAfter("--server-name") ?? "claude-session-router";
 const projectCwd = path.resolve(valueAfter("--project-cwd") ?? repoRoot);
-const startupTimeoutSec = Number(valueAfter("--startup-timeout-sec") ?? "180");
+const startupTimeoutSec = Number(valueAfter("--startup-timeout-sec") ?? "300");
 const serverEntry = path.resolve(valueAfter("--server-entry") ?? path.join(repoRoot, "dist", "src", "index.js"));
 const configPath = path.resolve(valueAfter("--config") ?? codexConfigPath());
 const writeConfig = process.argv.includes("--write");
 const force = process.argv.includes("--force");
+const allowSelfCwd = process.argv.includes("--allow-self-cwd");
 const skipInstall = process.argv.includes("--skip-install");
 const skipBuild = process.argv.includes("--skip-build");
 const skipSmoke = process.argv.includes("--skip-smoke");
@@ -20,6 +21,9 @@ const liveSmoke = process.argv.includes("--live-smoke");
 
 if (!Number.isFinite(startupTimeoutSec) || startupTimeoutSec <= 0) {
   fail("--startup-timeout-sec must be a positive number.");
+}
+if (writeConfig && !valueAfter("--project-cwd") && !allowSelfCwd) {
+  fail("--project-cwd is required when writing Codex config. Pass --allow-self-cwd only for AgentSessionRouter self-tests.");
 }
 
 const warnings = [];
@@ -100,7 +104,7 @@ console.log("\nSetup summary:");
 console.log(JSON.stringify(result, null, 2));
 if (!writeConfig) {
   console.log("\nNext step:");
-  console.log(`npm run setup:codex -- --project-cwd "${projectCwd}" --write`);
+  console.log(`npm run install:codex -- --project-cwd "${projectCwd}"`);
 }
 
 function runStep(label, command, args) {
@@ -156,7 +160,7 @@ function planConfigWrite(existing, block, name) {
 
 function renderTomlBlock(name, entry, cwd, timeout) {
   return `[mcp_servers.${tomlKey(name)}]
-command = "node"
+command = "${escapeToml(process.execPath)}"
 args = ["${escapeToml(entry)}"]
 cwd = "${escapeToml(cwd)}"
 startup_timeout_sec = ${timeout}

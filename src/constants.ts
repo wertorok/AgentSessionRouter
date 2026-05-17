@@ -75,7 +75,7 @@ export const DEFAULT_CONFIG = {
     command: "claude",
     outputFormat: "json",
     extraArgs: [],
-    commandTimeoutMs: 90_000,
+    commandTimeoutMs: 180_000,
     resumeFailureWindowMinutes: 60,
     resumeFailureThreshold: 5,
     compatibilityFile: "COMPATIBILITY.md"

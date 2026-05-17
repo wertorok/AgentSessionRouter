@@ -146,24 +146,24 @@ git clone https://github.com/wertorok/AgentSessionRouter.git
 cd AgentSessionRouter
 ```
 
-Recommended Codex CLI setup is one command from the repo root. It installs npm dependencies, builds the server, prepares the Codex MCP TOML block with the correct absolute server path and target project `cwd`, then runs the post-install smoke test.
-
-Dry-run first:
-
-```bash
-npm run setup:codex -- --project-cwd /path/to/your-project
-```
-
-Write/update the Codex CLI config:
-
-```bash
-npm run setup:codex -- --project-cwd /path/to/your-project --write
-```
+Recommended Codex CLI setup is one command from the repo root. It installs npm dependencies, builds the server, writes a managed Codex MCP block with the correct absolute server path and target project `cwd`, then runs the post-install smoke test.
 
 On Windows PowerShell:
 
 ```powershell
-npm run setup:codex -- --project-cwd "C:\path\to\your-project" --write
+npm run install:codex -- --project-cwd "C:\path\to\your-project"
+```
+
+On Linux/macOS:
+
+```bash
+npm run install:codex -- --project-cwd /path/to/your-project
+```
+
+For a dry run that prints the exact TOML block without changing Codex config:
+
+```bash
+npm run setup:codex -- --project-cwd /path/to/your-project
 ```
 
 This writes only the Codex CLI config:
@@ -171,9 +171,38 @@ This writes only the Codex CLI config:
 - Linux/macOS: `~/.codex/config.toml`
 - Windows: `C:\Users\<User>\.codex\config.toml`
 
+The managed install uses `startup_timeout_sec = 300` so a cold Claude health probe has room to complete. The router's default Claude command timeout is 180 seconds.
+
+Verify the registration:
+
+```powershell
+codex mcp list
+npm run smoke:postinstall
+```
+
+If you intentionally want the smoke test to call the real Claude CLI:
+
+```powershell
+npm run smoke:postinstall:live
+```
+
+After installing or removing the MCP entry, restart Codex so it reloads `C:\Users\<User>\.codex\config.toml`.
+
 Do not put this router config in Claude Code `.claude.json` or Claude Desktop `claude_desktop_config.json`; Codex CLI will not read those files.
 
 If the setup finds an existing unmarked `claude-session-router` entry, it refuses to append a duplicate TOML table. Inspect the file, then either edit it manually or rerun with `--force` to replace that existing table with the managed block.
+
+Remove the Codex MCP registration at any time:
+
+```powershell
+npm run remove:codex
+```
+
+Removal is idempotent. It removes the managed block from Codex config and leaves SQLite registry files plus Claude session files intact. If the entry was not created by the managed installer, the remover refuses to delete it unless you pass `--force`:
+
+```powershell
+npm run remove:codex -- --force
+```
 
 Manual install/build path:
 
@@ -190,12 +219,6 @@ node dist/src/index.js
 ```
 
 The process uses stdio for MCP transport. Do not expect normal logs on stdout; stdout is reserved for MCP protocol messages. Operational logs go to stderr.
-
-Run the post-install isolation smoke test after building:
-
-```bash
-npm run smoke:postinstall
-```
 
 The default smoke test uses a stub Claude CLI, starts the real MCP server in a temporary project cwd, verifies a consult round trip, and confirms registry/raw logs stay under that project. It also reports whether the external host `claude` CLI is missing or unauthenticated. A passing stub smoke means the MCP install is healthy; live consults will still run in degraded mode until the external Claude CLI is installed and authenticated. Use `npm run smoke:postinstall:live` only when you intentionally want it to call the real Claude CLI.
 
@@ -350,10 +373,10 @@ Those files are for different products. If you put the router there, Codex CLI w
 
 ### Generate The Codex Config Block
 
-Prefer the managed setup command from the install section:
+Prefer the managed install command from the install section:
 
 ```bash
-npm run setup:codex -- --project-cwd /path/to/your-project --write
+npm run install:codex -- --project-cwd /path/to/your-project
 ```
 
 If you only want to print a ready-to-paste Codex TOML block after `npm run build`, use:
@@ -372,13 +395,13 @@ Example shape:
 
 ```toml
 [mcp_servers.claude-session-router]
-command = "node"
+command = "/usr/bin/node"
 args = ["/root/projects/AgentSessionRouter/dist/src/index.js"]
 cwd = "/root/projects/your-project"
-startup_timeout_sec = 180
+startup_timeout_sec = 300
 ```
 
-The hardcoded paths above are examples. Prefer the generated snippet so Windows backslashes, spaces, and absolute paths are escaped correctly.
+The hardcoded paths above are examples. The generated snippet uses the absolute Node executable that ran the installer, so Windows does not depend on Codex inheriting the same `PATH`. Prefer the generated snippet so Windows backslashes, spaces, and absolute paths are escaped correctly.
 
 To diagnose a local machine before registration:
 
@@ -423,7 +446,7 @@ threshold_low_confidence = 0.55
 [claude]
 command = "claude"
 output_format = "json"
-command_timeout_ms = 90000
+command_timeout_ms = 180000
 extra_args = []
 resume_failure_window_minutes = 60
 resume_failure_threshold = 5

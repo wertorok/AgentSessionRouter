@@ -305,7 +305,7 @@ function sqliteClusterEventTypes() {
 function writeRouterConfig() {
   const compatibilityFile = path.join(repoRoot, "COMPATIBILITY.md").replaceAll("\\", "\\\\");
   const command = (useLiveClaude ? "claude" : fakeClaudeCommandPath).replaceAll("\\", "\\\\");
-  const commandTimeoutMs = useLiveClaude ? 120000 : 30000;
+  const commandTimeoutMs = useLiveClaude ? 180000 : 30000;
   const extraArgs = useLiveClaude
     ? '["--tools", "", "--strict-mcp-config", "--mcp-config", "{\\"mcpServers\\":{}}"]'
     : '["--tools", "", "--permission-mode", "default"]';
